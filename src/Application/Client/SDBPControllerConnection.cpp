@@ -17,8 +17,6 @@ using namespace SDBPClient;
 //
 // Private & ControllerPool interface
 //
-// Per connection mutex should NOT be locked here, and pool provides locking
-//    
 // =============================================================================================
 
 ControllerConnection::ControllerConnection(Controller* controller_, uint64_t nodeID_, Endpoint& endpoint_)
@@ -50,6 +48,7 @@ void ControllerConnection::ClearRequests(Client* client)
     Request*    request;
     Request*    next;
 
+    // clear requests belonging to the given client
     for (request = requests.First(); request; request = next)
     {
         if (request->client == client)
@@ -78,7 +77,7 @@ uint64_t ControllerConnection::GetNodeID() const
 
 // =============================================================================================
 //
-// Callback interface -- mutex should be locked
+// Callback interface
 //    
 // =============================================================================================
 
@@ -113,19 +112,31 @@ bool ControllerConnection::OnMessage(ReadBuffer& rbuf)
     
     resp = new ClientResponse;
     msg.response = resp;
+    
+    // parse response
     sw.Start();
-    if (msg.Read(rbuf))
+    if (!msg.Read(rbuf))
     {
-        sw.Stop();
-        if (sw.Elapsed() > 500)
-            Log_Debug("ControllerConnection::OnMessage took %U msecs", sw.Elapsed());
-        if (resp->type == CLIENTRESPONSE_HELLO)
-            delete resp;
-        else if (!ProcessResponse(resp))
-            delete resp;
-    }
-    else
         delete resp;
+        return false;
+    }
+    sw.Stop();
+    if (sw.Elapsed() > 500)
+        Log_Debug("ControllerConnection::OnMessage took %U msecs", sw.Elapsed());
+        
+    // we don't care about Hello messages
+    if (resp->type == CLIENTRESPONSE_HELLO)
+    {
+        delete resp;
+        return false;
+    }
+    
+    // pair the request and response if found, delete the response otherwise
+    if (!ProcessResponse(resp))
+    {
+        delete resp;
+        return false;
+    }
 
     return false;
 }
@@ -170,7 +181,7 @@ void ControllerConnection::OnClose()
 
 // =============================================================================================
 //
-// Private implementation, no mutex should be locked
+// Private implementation
 //    
 // =============================================================================================
 
@@ -185,6 +196,7 @@ bool ControllerConnection::ProcessResponse(ClientResponse* resp)
 bool ControllerConnection::ProcessGetConfigState(ClientResponse* resp)
 {
     ASSERT(resp->configState.Get()->masterID == nodeID);
+
     EventLoop::Remove(&getConfigStateTimeout);
     
     // copy the config state created on stack in OnMessage
@@ -200,11 +212,10 @@ bool ControllerConnection::ProcessCommandResponse(ClientResponse* resp)
     Request*    req;
 
     req = RemoveRequest(resp->commandID);
-
+    
+    // this happens when the controller loses the mastership
     if (resp->type == CLIENTRESPONSE_NOSERVICE)
     {
-        Log_Debug("NOSERVICE");
-
         controller->OnNoService(this);
         return false;
     }
@@ -235,9 +246,6 @@ Request* ControllerConnection::RemoveRequest(uint64_t commandID)
 
 void ControllerConnection::Connect()
 {
-    // TODO: MessageConnection::Connect does not support timeout parameter
-    //MessageConnection::Connect(endpoint, RECONNECT_TIMEOUT);
-    
     MessageConnection::Connect(endpoint);
 }
 
@@ -245,24 +253,18 @@ void ControllerConnection::SendGetConfigState()
 {
     Request*            request;
     SDBPRequestMessage  msg;
-    
-    //ClearRequests();
 
-    if (state == CONNECTED)
-    {
-        request = new Request;
-        request->GetConfigState(controller->NextCommandID());
+    ASSERT(state == CONNECTED);
+
+    request = new Request;
+    request->GetConfigState(controller->NextCommandID());
         
-        // send request but don't append to the request queue
-        msg.request = request;
-        
-        Write(msg);
+    // send request but don't append to the request queue
+    msg.request = request;        
+    Write(msg);
 
-        delete request;
+    delete request;
 
-        EventLoop::Reset(&getConfigStateTimeout);
-    }
-    else
-        ASSERT_FAIL();
+    EventLoop::Reset(&getConfigStateTimeout);
 }
 
