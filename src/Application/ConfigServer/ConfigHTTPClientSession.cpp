@@ -121,6 +121,10 @@ void ConfigHTTPClientSession::PrintStatus()
     buf.Writef("%d", (int) configServer->GetQuorumProcessor()->GetPaxosID());
     buf.NullTerminate();
     session.PrintPair("Round", buf.GetBuffer());
+
+    buf.Writef("%u", configServer->GetNumSDBPClients());
+    buf.NullTerminate();
+    session.PrintPair("Number of clients", buf.GetBuffer());  
     
     session.Print("\nControllers:\n");
     num = configFile.GetListNum("controllers");

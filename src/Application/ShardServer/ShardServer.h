@@ -59,6 +59,7 @@ public:
     unsigned                GetHTTPPort();
     unsigned                GetSDBPPort();
     void                    GetMemoryUsageBuffer(Buffer& buffer);
+    unsigned                GetNumSDBPClients();
 
 private:
     void                    OnSetConfigState(ClusterMessage& message);
