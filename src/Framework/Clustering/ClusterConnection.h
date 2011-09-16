@@ -28,8 +28,6 @@ public:
         READY               // connection established, other side's nodeID known
     };
 
-    ClusterConnection();
-
     void                InitConnected(bool startRead = true);
     void                SetTransport(ClusterTransport* transport);
 

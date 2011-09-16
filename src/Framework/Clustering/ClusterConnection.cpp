@@ -2,11 +2,6 @@
 #include "ClusterTransport.h"
 #include "Version.h"
 
-ClusterConnection::ClusterConnection()
-{
-    SetPriority(true);
-}
-
 void ClusterConnection::InitConnected(bool startRead)
 {
 //    Buffer      buffer;
@@ -39,6 +34,11 @@ void ClusterConnection::SetTransport(ClusterTransport* transport_)
 void ClusterConnection::SetNodeID(uint64_t nodeID_)
 {
     nodeID = nodeID_;
+
+    if (nodeID < 100)
+        SetPriority(true);
+    else
+        SetPriority(false);
 }
 
 void ClusterConnection::SetEndpoint(Endpoint& endpoint_)
@@ -242,7 +242,7 @@ bool ClusterConnection::OnMessage(ReadBuffer& msg)
             }
         }
         progress = ClusterConnection::READY;
-        nodeID = otherNodeID;
+        SetNodeID(otherNodeID);
         if (!endpoint.Set(buffer, true))
         {
             Log_Message("[%R] Cluster invalid network address", &buffer);
