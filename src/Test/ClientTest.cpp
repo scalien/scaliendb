@@ -52,7 +52,8 @@ static int SetupDefaultClient(Client& client)
 {
     // XXX: Warning! Don't use localhost on Windows, because if IPv6 is installed
     // resolution of localhost is at least 1 second. Instead use 127.0.0.1
-    const char*     nodes[] = {"192.168.137.50:7080"};
+//    const char*     nodes[] = {"192.168.137.50:7080"};
+    const char*     nodes[] = {"127.0.0.1:7080"};
 //    const char*     nodes[] = {"192.168.137.52:7080"};
 //    const char*     nodes[] = {"192.168.1.5:7080"};
     std::string     databaseName = "test";
@@ -165,10 +166,12 @@ TEST_DEFINE(TestClientSet)
     ReadBuffer      value;
     char            keybuf[32];
     int             ret;
-    unsigned        num = 3;
+    unsigned        num = 1000;
     static unsigned counter;
     unsigned        counterValue;
-        
+
+    IOProcessor::BlockSignals(IOPROCESSOR_BLOCK_ALL);
+
     ret = SetupDefaultClient(client);
     if (ret != SDBP_SUCCESS)
         TEST_CLIENT_FAIL();
@@ -1083,16 +1086,26 @@ TEST_DEFINE(TestClientTruncateTable)
     return TEST_SUCCESS;
 }
 
+TEST_DEFINE(TestClientInfiniteLoop)
+{
+    while (true)
+    {
+        TEST_ASSERT(TestClientSet() == TEST_SUCCESS);
+    }
+    
+    // this test always fails or gets cancelled
+    return TEST_SUCCESS;
+}
 
 TEST_DEFINE(TestClientMultiThread)
 {
     ThreadPool*     threadPool;
-    unsigned        numThread = 1000;
+    unsigned        numThread = 1;
     uint32_t        runCount;
     Stopwatch       sw;
 
     // parallel tests may fail, but that should not affect the main program
-    stopOnTestFailure = false;
+    stopOnTestFailure = true;
 	
     runCount = 0;
 

@@ -39,6 +39,7 @@ public:
     int64_t                 GetMaster();
     uint64_t                NextCommandID();
     const Buffer&           GetName() const;
+    bool                    IsShuttingDown();
 
     // connection interface
     void                    OnConnected(ControllerConnection* conn);

@@ -55,7 +55,8 @@ void Signal::Unlock()
 
 void Signal::UnprotectedWake()
 {
-    signaled = true;
+    if (waiting && !signaled)
+        signaled = true;
     pthread_cond_signal(&impl.cond);
 }
 

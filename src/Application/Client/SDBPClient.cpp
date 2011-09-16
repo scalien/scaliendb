@@ -290,6 +290,7 @@ void Client::Shutdown()
         EventLoop::Add(&onClientShutdown);
         isShutdown.Wait();
     }
+    EventLoop::Remove(&onClientShutdown);
 
     GLOBAL_MUTEX_GUARD_DECLARE();
     ASSERT(numClients != 0);
@@ -311,10 +312,9 @@ void Client::Shutdown()
     delete result;
 }
 
+// this is always called from the IO thread with the client lock locked
 void Client::OnClientShutdown()
 {
-    RequestListMap::Node*   requestNode;
-    RequestList*            requestList;
     ShardConnection*        shardConnection;
 
     FOREACH (shardConnection, shardConnections)
@@ -323,17 +323,14 @@ void Client::OnClientShutdown()
     EventLoop::Remove(&masterTimeout);
     EventLoop::Remove(&globalTimeout);
 
-    Controller::CloseController(this, controller);
+    if (!controller->IsShuttingDown())
+        Controller::CloseController(this, controller);
     controller = NULL;
     
     shardConnections.DeleteTree();
 
     ClearQuorumRequests();
-    FOREACH (requestNode, quorumRequests)
-    {
-        requestList = requestNode->Value();
-        delete requestList;
-    }
+    quorumRequests.Clear();
 
     isShutdown.Wake();
 }

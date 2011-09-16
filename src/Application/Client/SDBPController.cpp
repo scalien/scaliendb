@@ -43,6 +43,8 @@ Controller* Controller::GetController(Client* client, int nodec, const char* nod
     controller = controllers.Get(controllerName);
     if (controller)
     {
+        // TODO:
+        UNUSED(client);
         //controller->AddClient(client);
         return controller;
     }
@@ -64,10 +66,6 @@ void Controller::CloseController(Client* client, Controller* controller)
 {
     MutexGuard      guard(globalMutex);
 
-    // TerminateClients will take care of destroying the controller
-    if (controller->isShuttingDown)
-        return;
-
     controller->RemoveClient(client);
     if (controller->GetNumClients() == 0)
     {
@@ -86,10 +84,12 @@ void Controller::TerminateClients()
 
     FOREACH_FIRST (controller, controllers)
     {
+        guard.Unlock();
         controller->isShuttingDown = true;
         controller->OnConfigStateChanged();
         controllers.Remove(controller);
         delete controller;
+        guard.Lock();
     }
 }
 
@@ -153,6 +153,11 @@ uint64_t Controller::NextCommandID()
 const Buffer& Controller::GetName() const
 {
     return name;
+}
+
+bool Controller::IsShuttingDown()
+{
+    return isShuttingDown;
 }
 
 void Controller::OnConnected(ControllerConnection* conn)
