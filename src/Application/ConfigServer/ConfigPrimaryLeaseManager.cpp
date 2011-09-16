@@ -89,17 +89,17 @@ void ConfigPrimaryLeaseManager::OnRequestPrimaryLease(ClusterMessage& message)
         return;
     }
     
-    if (quorum->hasPrimary)
-    {
-        if (quorum->primaryID == message.nodeID)
-            ExtendPrimaryLease(*quorum, message);
-        return;
-    }
-    
     if (!quorum->IsActiveMember(message.nodeID))
     {
         Log_Trace("nodeID %U requesting lease but not active member or quorum %U",
          message.nodeID, message.quorumID);
+        return;
+    }
+
+    if (quorum->hasPrimary)
+    {
+        if (quorum->primaryID == message.nodeID)
+            ExtendPrimaryLease(*quorum, message);
         return;
     }
     
