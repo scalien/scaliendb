@@ -175,6 +175,15 @@
 		9AABB05D123E55DE003626AC /* FileSystem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9ACF203E122E942900247703 /* FileSystem.cpp */; };
 		9ACBF1BD141A4C9E00297EE1 /* SDBPController.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9ACBF1BB141A4C9E00297EE1 /* SDBPController.cpp */; };
 		9ACBF22B141E60EB00297EE1 /* MemoryTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9ACBF22A141E60EB00297EE1 /* MemoryTest.cpp */; };
+		9ACBF27314228DAE00297EE1 /* ConfigServerApp.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 543DE65812BFBB420069786A /* ConfigServerApp.cpp */; };
+		9ACBF27614228DC400297EE1 /* ConfigHTTPHandler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 543DE64C12BFBB420069786A /* ConfigHTTPHandler.cpp */; };
+		9ACBF27914228DCF00297EE1 /* ConfigHTTPClientSession.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 543DE64A12BFBB420069786A /* ConfigHTTPClientSession.cpp */; };
+		9ACBF27C14228DEB00297EE1 /* HTTPSession.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 543DE67412BFBB420069786A /* HTTPSession.cpp */; };
+		9ACBF27F14228DF600297EE1 /* UrlParam.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 543DE67C12BFBB420069786A /* UrlParam.cpp */; };
+		9ACBF28214228E0500297EE1 /* SDBPServer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 543DE68612BFBB420069786A /* SDBPServer.cpp */; };
+		9ACBF28514228E2400297EE1 /* HTTPFileHandler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 543DE66D12BFBB420069786A /* HTTPFileHandler.cpp */; };
+		9ACBF28814228E3200297EE1 /* Mime.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 543DE67A12BFBB420069786A /* Mime.cpp */; };
+		9ACBF28B14228E4700297EE1 /* SDBPConnection.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 543DE67F12BFBB420069786A /* SDBPConnection.cpp */; };
 		9ACF203F122E942900247703 /* FileSystem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9ACF203E122E942900247703 /* FileSystem.cpp */; };
 		9AD104D51309970D00AB777B /* StorageAsyncList.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9AD104D41309970D00AB777B /* StorageAsyncList.cpp */; };
 		9AD10590130D725A00AB777B /* StorageAsyncList.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9AD104D41309970D00AB777B /* StorageAsyncList.cpp */; };
@@ -1762,6 +1771,15 @@
 				54D53AD813F323E000311381 /* Signal_Posix.cpp in Sources */,
 				9ACBF1BD141A4C9E00297EE1 /* SDBPController.cpp in Sources */,
 				9ACBF22B141E60EB00297EE1 /* MemoryTest.cpp in Sources */,
+				9ACBF27314228DAE00297EE1 /* ConfigServerApp.cpp in Sources */,
+				9ACBF27614228DC400297EE1 /* ConfigHTTPHandler.cpp in Sources */,
+				9ACBF27914228DCF00297EE1 /* ConfigHTTPClientSession.cpp in Sources */,
+				9ACBF27C14228DEB00297EE1 /* HTTPSession.cpp in Sources */,
+				9ACBF27F14228DF600297EE1 /* UrlParam.cpp in Sources */,
+				9ACBF28214228E0500297EE1 /* SDBPServer.cpp in Sources */,
+				9ACBF28514228E2400297EE1 /* HTTPFileHandler.cpp in Sources */,
+				9ACBF28814228E3200297EE1 /* Mime.cpp in Sources */,
+				9ACBF28B14228E4700297EE1 /* SDBPConnection.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

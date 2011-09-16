@@ -21,6 +21,7 @@ TEST_ADD(TestClientAddFailover);
 TEST_ADD(TestClientMaro);
 TEST_ADD(TestClientGetLatency);
 TEST_ADD(TestClientGetSetGetSetSubmit);
+TEST_ADD(TestClientInfiniteLoop);
 TEST_ADD(TestClientListKeys);
 TEST_ADD(TestClientListKeysWithPrefix);
 TEST_ADD(TestClientMixedReadWriteBatched);
