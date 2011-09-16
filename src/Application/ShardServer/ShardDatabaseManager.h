@@ -1,5 +1,5 @@
-#ifndef SHARDDATABASEADAPTER_H
-#define SHARDDATABASEADAPTER_H
+#ifndef SHARDDATABASEMANAGER_H
+#define SHARDDATABASEMANAGER_H
 
 #include "System/Containers/HashMap.h"
 #include "System/Containers/InSortedList.h"

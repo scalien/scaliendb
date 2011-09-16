@@ -1,5 +1,5 @@
-#ifndef REPLICATIONTRANSPORT_H
-#define REPLICATIONTRANSPORT_H
+#ifndef CONTEXTTRANSPORT_H
+#define CONTEXTTRANSPORT_H
 
 #include "System/Containers/HashMap.h"
 #include "System/IO/Endpoint.h"

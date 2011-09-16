@@ -1,8 +1,8 @@
+#ifndef TEST_H
+#define TEST_H
 /*
  * Test.h -- basic test framework
  */
-#ifndef TEST_H
-#define TEST_H
 
 #include <stdio.h>
 #include <string.h>

@@ -1,5 +1,5 @@
-#ifndef SHARDDATABASEEXTENSION_H
-#define SHARDDATABASEEXTENSION_H
+#ifndef SHARDEXTENSION_H
+#define SHARDEXTENSION_H
 
 /*
 ===============================================================================================

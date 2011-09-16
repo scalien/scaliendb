@@ -1,5 +1,5 @@
-#ifndef HTTP_FILE_HANDLER_H
-#define HTTP_FILE_HANDLER_H
+#ifndef HTTPFILEHANDLER_H
+#define HTTPFILEHANDLER_H
 
 #include "System/Buffers/ReadBuffer.h"
 #include "HTTPServer.h"

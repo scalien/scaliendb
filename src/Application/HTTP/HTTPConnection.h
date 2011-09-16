@@ -1,5 +1,5 @@
-#ifndef HTTP_CONN_H
-#define HTTP_CONN_H
+#ifndef HTTPCONNECTION_H
+#define HTTPCONNECTION_H
 
 #include "Framework/TCP/TCPConnection.h"
 #include "HTTPRequest.h"

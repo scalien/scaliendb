@@ -1,5 +1,5 @@
-#ifndef URL_PARAM_H
-#define URL_PARAM_H
+#ifndef URLPARAM_H
+#define URLPARAM_H
 
 #include "System/Buffers/Buffer.h"
 #include "System/Buffers/ReadBuffer.h"

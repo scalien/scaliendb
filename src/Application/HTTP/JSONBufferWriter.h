@@ -1,5 +1,5 @@
-#ifndef JSON_BUFFERWRITER_H
-#define JSON_BUFFERWRITER_H
+#ifndef JSONBUFFERWRITER_H
+#define JSONBUFFERWRITER_H
 
 #include "System/Buffers/ReadBuffer.h"
 #include "System/Buffers/Buffer.h"

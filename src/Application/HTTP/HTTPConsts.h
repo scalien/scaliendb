@@ -1,5 +1,5 @@
-#ifndef HTTP_CONSTS_H
-#define HTTP_CONSTS_H
+#ifndef HTTPCONSTS_H
+#define HTTPCONSTS_H
 
 /*
 ===============================================================================================

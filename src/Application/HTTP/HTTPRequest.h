@@ -1,5 +1,5 @@
-#ifndef HTTP_REQUEST_H
-#define HTTP_REQUEST_H
+#ifndef HTTPREQUEST_H
+#define HTTPREQUEST_H
 
 #include "IMF.h"
 

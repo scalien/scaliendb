@@ -1,5 +1,5 @@
-#ifndef SDBPCLIENTSHARDCONNECTION_H
-#define SDBPCLIENTSHARDCONNECTION_H
+#ifndef SDBPSHARDCONNECTION_H
+#define SDBPSHARDCONNECTION_H
 
 #include "System/Containers/InTreeMap.h"
 #include "System/Containers/SortedList.h"

@@ -1,5 +1,5 @@
-#ifndef JSON_SESSION_H
-#define JSON_SESSION_H
+#ifndef JSONSESSION_H
+#define JSONSESSION_H
 
 #include "System/Buffers/ReadBuffer.h"
 #include "JSONBufferWriter.h"
