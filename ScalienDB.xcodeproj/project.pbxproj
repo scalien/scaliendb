@@ -593,7 +593,6 @@
 		78CD47B4130C26D30022BC9F /* StorageChunkLister.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StorageChunkLister.h; sourceTree = "<group>"; };
 		78CD55101360CE9A0022BC9F /* scaliendb.php */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.php; name = scaliendb.php; path = Client/PHP/scaliendb.php; sourceTree = "<group>"; };
 		78CD55111360D0370022BC9F /* php_scaliendb_client.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = php_scaliendb_client.h; path = Client/PHP/php_scaliendb_client.h; sourceTree = "<group>"; };
-		78CD55121360D0370022BC9F /* scaliendb_client_php.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = scaliendb_client_php.cpp; path = Client/PHP/scaliendb_client_php.cpp; sourceTree = "<group>"; };
 		78CD55131360D0370022BC9F /* scaliendb_client.php */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.php; name = scaliendb_client.php; path = Client/PHP/scaliendb_client.php; sourceTree = "<group>"; };
 		78CD5868136A268D0022BC9F /* scaliendb_mapreduce.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; name = scaliendb_mapreduce.py; path = Client/Python/scaliendb_mapreduce.py; sourceTree = "<group>"; };
 		9A07FAA8138E848A00AED738 /* Client.cs */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = Client.cs; path = Client/CSharp/ScalienClient/Client.cs; sourceTree = "<group>"; };
@@ -1297,7 +1296,6 @@
 			isa = PBXGroup;
 			children = (
 				78CD55111360D0370022BC9F /* php_scaliendb_client.h */,
-				78CD55121360D0370022BC9F /* scaliendb_client_php.cpp */,
 				78CD55131360D0370022BC9F /* scaliendb_client.php */,
 				78CD55101360CE9A0022BC9F /* scaliendb.php */,
 				9A466F431361906800108B07 /* test.php */,
