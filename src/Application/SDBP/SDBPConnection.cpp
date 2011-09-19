@@ -20,7 +20,8 @@ SDBPConnection::SDBPConnection()
 
 SDBPConnection::~SDBPConnection()
 {
-    EventLoop::Remove(&onKeepAlive);
+    if (onKeepAlive.GetDelay() > 0)
+        EventLoop::Remove(&onKeepAlive);
 }
 
 void SDBPConnection::Init(SDBPServer* server_)
@@ -43,7 +44,7 @@ void SDBPConnection::Init(SDBPServer* server_)
     Flush();
 
     if (onKeepAlive.GetDelay() > 0)
-        EventLoop::Add(&onKeepAlive);
+        EventLoop::Reset(&onKeepAlive);
 }
 
 void SDBPConnection::SetContext(SDBPContext* context_)
@@ -88,7 +89,9 @@ void SDBPConnection::OnClose()
 {
     uint64_t    elapsed;
     
-    EventLoop::Remove(&onKeepAlive);
+    if (onKeepAlive.GetDelay() > 0)
+        EventLoop::Remove(&onKeepAlive);
+    
     elapsed = NowClock() - connectTimestamp;
 
     Log_Message("[%s] Client disconnected (active: %u seconds, served: %u requests)", 
@@ -107,9 +110,6 @@ void SDBPConnection::OnClose()
 void SDBPConnection::OnComplete(ClientRequest* request, bool last)
 {
     SDBPResponseMessage sdbpResponse;
-
-    if (onKeepAlive.GetDelay() > 0)
-        EventLoop::Reset(&onKeepAlive);
 
     if (last)
         numPending--;
@@ -151,9 +151,18 @@ bool SDBPConnection::IsActive()
     return true;
 }
 
-void SDBPConnection::UseKeepAlive(bool useKeepAlive_)
+void SDBPConnection::UseKeepAlive(bool useKeepAlive)
 {
-    onKeepAlive.SetDelay(configFile.GetIntValue("sdbp.keepAliveTimeout", keepAliveTimeout));
+    if (useKeepAlive)
+    {
+        onKeepAlive.SetDelay(configFile.GetIntValue("sdbp.keepAliveTimeout", keepAliveTimeout));
+        EventLoop::Reset(&onKeepAlive);
+    }
+    else
+    {
+        EventLoop::Remove(&onKeepAlive);
+        onKeepAlive.SetDelay(0);
+    }
 }
 
 void SDBPConnection::OnKeepAlive()
