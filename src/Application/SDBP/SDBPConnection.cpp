@@ -18,6 +18,11 @@ SDBPConnection::SDBPConnection()
     onKeepAlive.SetDelay(0);
 }
 
+SDBPConnection::~SDBPConnection()
+{
+    EventLoop::Remove(&onKeepAlive);
+}
+
 void SDBPConnection::Init(SDBPServer* server_)
 {
     ClientResponse      resp;
@@ -83,6 +88,7 @@ void SDBPConnection::OnClose()
 {
     uint64_t    elapsed;
     
+    EventLoop::Remove(&onKeepAlive);
     elapsed = NowClock() - connectTimestamp;
 
     Log_Message("[%s] Client disconnected (active: %u seconds, served: %u requests)", 

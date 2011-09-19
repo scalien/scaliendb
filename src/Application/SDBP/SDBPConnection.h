@@ -23,6 +23,7 @@ class SDBPConnection : public MessageConnection, public ClientSession
 {
 public:
     SDBPConnection();
+    ~SDBPConnection();
     
     void                Init(SDBPServer* server);
     void                SetContext(SDBPContext* context);
