@@ -87,10 +87,9 @@ void ControllerConnection::OnGetConfigStateTimeout()
         
     if (EventLoop::Now() - getConfigStateTime > PAXOSLEASE_MAX_LEASE_TIME * 3)
     {
-        Log_Debug("ConfigStateTimeout");
-        
         if (!controller->HasMaster())
         {
+            Log_Debug("ConfigStateTimeout");
             OnClose();
             // We need to remove connectTimeout, because Connect() will add it back later
             EventLoop::Remove(&connectTimeout);

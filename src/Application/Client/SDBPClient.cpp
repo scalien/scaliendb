@@ -1145,7 +1145,7 @@ void Client::UpdateConnectivityStatus()
 
 void Client::OnGlobalTimeout()
 {
-    Log_Trace();
+    Log_Debug("Global timeout");
 
     CLIENT_MUTEX_GUARD_DECLARE();
 
@@ -1156,7 +1156,7 @@ void Client::OnGlobalTimeout()
 
 void Client::OnMasterTimeout()
 {
-    Log_Trace();
+    Log_Debug("Master timeout");
 
     CLIENT_MUTEX_GUARD_DECLARE();
     

@@ -115,7 +115,7 @@ void ShardHeartbeatManager::OnHeartbeatTimeout()
      quorumInfoList, quorumShardInfos, httpPort, sdbpPort);
     shardServer->BroadcastToControllers(msg);
 
-    Log_Debug("Broadcasting heartbeat to controllers");
+    Log_Trace("Broadcasting heartbeat to controllers");
 }
 
 void ShardHeartbeatManager::OnActivation()

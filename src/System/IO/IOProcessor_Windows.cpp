@@ -673,7 +673,7 @@ bool IOProcessor::Poll(int msec)
 							    Log_Debug("Async accept failed");
 						    }
 
-                            Log_Debug("last error = %d", error);
+                            Log_Debug("Read last error = %d", error);
                             ioop->active = false;
                             //UNLOCKED_CALL(ioop->onClose);
                             pendingOnClose.Append(ioop);
@@ -699,7 +699,7 @@ bool IOProcessor::Poll(int msec)
                         error = GetLastError();
                         if (error != WSA_IO_INCOMPLETE)
                         {
-                            Log_Debug("last error = %d", error);
+                            Log_Debug("Write last error = %d", error);
                             ioop->active = false;
                             //UNLOCKED_CALL(ioop->onClose);
                             pendingOnClose.Append(ioop);
