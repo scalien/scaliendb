@@ -133,6 +133,7 @@ void ShardHTTPClientSession::PrintStatus()
     uint64_t                    totalSpace, freeSpace;
     ShardQuorumProcessor*       it;
     char                        hexbuf[64 + 1];
+    int                         i;
 
     session.PrintPair("ScalienDB", "ShardServer");
     session.PrintPair("Version", VERSION_STRING);
@@ -144,7 +145,15 @@ void ShardHTTPClientSession::PrintStatus()
     valbuf.NullTerminate();
     session.PrintPair("NodeID", valbuf.GetBuffer());   
 
-    session.PrintPair("Controllers", configFile.GetValue("controllers", ""));
+    valbuf.Clear();
+    for (i = 0; i < configFile.GetListNum("controllers"); i++)
+    {
+        if (i != 0)
+            valbuf.Append(",");
+        valbuf.Append(configFile.GetListValue("controllers", i, ""));
+    }
+    valbuf.NullTerminate();
+    session.PrintPair("Controllers", valbuf.GetBuffer());
 
     totalSpace = FS_DiskSpace(configFile.GetValue("database.dir", "db"));
     freeSpace = FS_FreeDiskSpace(configFile.GetValue("database.dir", "db"));
