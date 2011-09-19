@@ -117,8 +117,7 @@ bool ShardConnection::OnMessage(ReadBuffer& rbuf)
 {
     SDBPResponseMessage msg;
     Request*            request;
-
-    CLIENT_MUTEX_GUARD_DECLARE();
+    bool                clientLocked;
 
     //Log_Debug("Shard conn: %s, message: %R", endpoint.ToString(), &rbuf);
     
@@ -156,8 +155,10 @@ bool ShardConnection::OnMessage(ReadBuffer& rbuf)
             if (response.type == CLIENTRESPONSE_NOSERVICE)
             {
                 //client->AddRequestToQuorum(request, true);
+                client->Lock();
                 client->ReassignRequest(request);
                 client->SendQuorumRequests();
+                client->Unlock();
                 return false;
             }
             
@@ -166,19 +167,35 @@ bool ShardConnection::OnMessage(ReadBuffer& rbuf)
                 client->NextRequest(
                  request, response.value, response.endKey, response.prefix,
                  response.number);
+                client->Lock();
                 client->ReassignRequest(request);
                 client->SendQuorumRequests();
+                client->Unlock();
                 return false;
             }
             
             break;
         }
     }
-        
+    
+    clientLocked = false;
+    if (!client->isDone.IsWaiting())
+    {
+        client->Lock();
+        clientLocked = true;
+    }
+    
     client->result->AppendRequestResponse(&response);
     response.Init();
 
-    client->TryWake();
+    if (client->result->GetTransportStatus() == SDBP_SUCCESS)
+    {
+        //Log_Debug("Transport status == SDBP_SUCCESS");
+        client->TryWake();
+    }
+
+    if (clientLocked)
+        client->Unlock();
 
     return false;
 }
@@ -244,7 +261,7 @@ void ShardConnection::InvalidateQuorum(uint64_t quorumID)
     Request*    it;
     Request*    prev;
 
-    // remove all sent requests and queue it back in quorum
+    // remove all sent requests and enqueue them back to quorum queue
     for (it = sentRequests.Last(); it != NULL; it = prev)
     {
         prev = sentRequests.Prev(it);
