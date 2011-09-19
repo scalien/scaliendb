@@ -16,6 +16,7 @@ void StorageSerializeChunkJob::Execute()
 
     Log_Debug("Serializing chunk %U in memory...", memoChunk->GetChunkID());
     sw.Start();
+#pragma message(__FILE__ "(" STRINGIFY(__LINE__) "): warning: ASSERT with side effects")
     ASSERT(serializer.Serialize(env, memoChunk));
     sw.Stop();
     Log_Debug("Done serializing, elapsed: %U", (uint64_t) sw.Elapsed());

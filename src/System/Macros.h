@@ -137,6 +137,9 @@ do {                                                                            
 #define CONCAT2(a, b)               CONCAT2_(a, b)
 #define STATIC_ASSERT(expr, msg)    typedef char CONCAT2(STATIC_ASSERT_,__LINE__) [(expr)?1:-1]
 
+#define STRINGIFY2(x)               #x
+#define STRINGIFY(x)                STRINGIFY2(x)
+
 #define TRY_YIELD_RETURN(yieldTimer, start)                                     \
     if (NowClock() - start >= YIELD_TIME)                                       \
     {                                                                           \

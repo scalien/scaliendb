@@ -16,6 +16,7 @@ void StorageWriteChunkJob::Execute()
 
     Log_Debug("Writing chunk %U to file...", writeChunk->GetChunkID());
     sw.Start();
+#pragma message(__FILE__ "(" STRINGIFY(__LINE__) "): warning: ASSERT with side effects") 
     if (!env->shuttingDown)
         ASSERT(writer.Write(env, writeChunk));
     sw.Stop();

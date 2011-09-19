@@ -607,18 +607,21 @@ void ShardQuorumProcessor::OnShardMigrationClusterMessage(uint64_t nodeID, Clust
              clusterMessage.srcShardID, GetQuorumID(), clusterMessage.dstShardID);
             break;
         case CLUSTERMESSAGE_SHARDMIGRATION_SET:
+#pragma message(__FILE__ "(" STRINGIFY(__LINE__) "): warning: ASSERT with side effects")
             ASSERT(migrateShardID = clusterMessage.shardID);
             shardMessage->ShardMigrationSet(clusterMessage.shardID, clusterMessage.key, clusterMessage.value);
             migrateCache += clusterMessage.key.GetLength() + clusterMessage.value.GetLength();
             Log_Debug("migrateCache = %s", HUMAN_BYTES(migrateCache));
             break;
         case CLUSTERMESSAGE_SHARDMIGRATION_DELETE:
+#pragma message(__FILE__ "(" STRINGIFY(__LINE__) "): warning: ASSERT with side effects")
             ASSERT(migrateShardID = clusterMessage.shardID);
             shardMessage->ShardMigrationDelete(clusterMessage.shardID, clusterMessage.key);
             migrateCache += clusterMessage.key.GetLength();
             Log_Debug("ShardMigration DELETE");
             break;
         case CLUSTERMESSAGE_SHARDMIGRATION_COMMIT:
+#pragma message(__FILE__ "(" STRINGIFY(__LINE__) "): warning: ASSERT with side effects")
             ASSERT(migrateShardID = clusterMessage.shardID);
             Log_Debug("Received shard migration COMMIT");
             shardMessage->ShardMigrationComplete(clusterMessage.shardID);
