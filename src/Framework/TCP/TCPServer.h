@@ -99,6 +99,7 @@ bool TCPServer<T, Conn>::Init(int port_, bool listen, int backlog_)
 
     tcpread.Listen(listener.fd, MFUNC(TCPServer, OnConnect));
 	tcpread.onClose = MFUNC(TCPServer, OnClose);
+    tcpread.priority = true;
 
     if (listen)
         return IOProcessor::Add(&tcpread);
