@@ -15,6 +15,7 @@ void SDBPServer::Shutdown()
 
 void SDBPServer::InitConn(SDBPConnection* conn)
 {
+    conn->UseKeepAlive(true);
     conn->Init(this);
     conn->SetContext(context);
 }

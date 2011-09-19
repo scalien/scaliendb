@@ -45,10 +45,14 @@ public:
     virtual void        OnComplete(ClientRequest* request, bool last);
     virtual bool        IsActive();
     // ========================================================================================
-    
+
+    void                UseKeepAlive(bool useKeepAlive);
+    void                OnKeepAlive();
+
 private:
     SDBPServer*         server;
     SDBPContext*        context;
+    Countdown           onKeepAlive;
     Endpoint            remoteEndpoint;
     unsigned            numPending;
     unsigned            numCompleted;
