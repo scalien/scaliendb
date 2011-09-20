@@ -85,7 +85,6 @@ StorageKeyValue* StorageBulkCursor::Next(StorageKeyValue* it)
             break;
         if (((*itChunk)->GetMaxLogSegmentID() == logSegmentID && (*itChunk)->GetMaxLogCommandID() > logCommandID) || (*itChunk)->GetMaxLogSegmentID() > logSegmentID)
         {
-            // chunk has been deleted, clear nextKey to read the merged chunk from the beginning
             Log_Debug("chunk has been deleted, clear nextKey to read the merged chunk from the beginning");
             nextKey.Clear();
             break;
@@ -97,8 +96,8 @@ StorageKeyValue* StorageBulkCursor::Next(StorageKeyValue* it)
         if (shard->GetMemoChunk()->GetSize() > 0)
         {
             Log_Debug("Pushing memo chunk1");
-#pragma message(__FILE__ "(" STRINGIFY(__LINE__) "): warning: ASSERT with side effects") 
-            ASSERT(env->PushMemoChunk(contextID, shardID));
+            if (!env->PushMemoChunk(contextID, shardID))
+                ASSERT_FAIL();
             chunk = *(shard->chunks.Last()); // this is the memo chunk we just pushed
             if (chunk->GetSize() < STORAGE_MEMO_BUNCH_GRAN)
                 Call(onBlockShard);
@@ -162,31 +161,37 @@ StorageKeyValue* StorageBulkCursor::FromNextBunch(StorageChunk* chunk)
         {
             dataPage.Reset();
             chunk->NextBunch(*this, shard);
+            Log_Debug("NextBunch chunkID = %U", chunkID);
             if (dataPage.First())
                 return dataPage.First();
             else    
                 continue;
         }
         
-        // go to next chunk
-        FOREACH (itChunk, shard->chunks)
+        if (chunkID != shard->GetMemoChunk()->GetChunkID())
         {
-            if ((*itChunk)->GetChunkID() == chunkID)
+            // go to next chunk
+            FOREACH (itChunk, shard->chunks)
             {
-//                Log_Debug("Cursor next chunk");
-                itChunk = shard->chunks.Next(itChunk);
-                isLast = false;
-                nextKey.Clear();
-                break;
-            }
-            if (((*itChunk)->GetMaxLogSegmentID() == logSegmentID && (*itChunk)->GetMaxLogCommandID() > logCommandID) || (*itChunk)->GetMaxLogSegmentID() > logSegmentID)
-            {
-                Log_Debug("chunk has been deleted, clear nextKey to read the merged chunk from the beginning");
-                isLast = false;
-                nextKey.Clear();
-                break;
+                if ((*itChunk)->GetChunkID() == chunkID)
+                {
+                    Log_Debug("Cursor next chunk current chunkID = %U", chunkID);
+                    itChunk = shard->chunks.Next(itChunk);
+                    isLast = false;
+                    nextKey.Clear();
+                    break;
+                }
+                if (((*itChunk)->GetMaxLogSegmentID() == logSegmentID && (*itChunk)->GetMaxLogCommandID() > logCommandID) || (*itChunk)->GetMaxLogSegmentID() > logSegmentID)
+                {
+                    Log_Debug("chunk has been deleted, clear nextKey to read the merged chunk from the beginning");
+                    isLast = false;
+                    nextKey.Clear();
+                    break;
+                }
             }
         }
+        else
+            itChunk = NULL;
         
         if (itChunk)
             chunk = *itChunk;
@@ -196,6 +201,7 @@ StorageKeyValue* StorageBulkCursor::FromNextBunch(StorageChunk* chunk)
             {
                 if (blockShard)
                     Call(onBlockShard);
+                Log_Debug("End of iteration");
                 return NULL; // end of iteration
             }
 
@@ -204,8 +210,8 @@ StorageKeyValue* StorageBulkCursor::FromNextBunch(StorageChunk* chunk)
                 if (shard->GetMemoChunk()->GetSize() > 0)
                 {
                     Log_Debug("Pushing memo chunk2");
-#pragma message(__FILE__ "(" STRINGIFY(__LINE__) "): warning: ASSERT with side effects")
-                    ASSERT(env->PushMemoChunk(contextID, shardID));
+                    if (!env->PushMemoChunk(contextID, shardID))
+                        ASSERT_FAIL();
                     chunk = *(shard->chunks.Last()); // this is the memo chunk we just pushed
                     if (chunk->GetSize() < STORAGE_MEMO_BUNCH_GRAN)
                         Call(onBlockShard);
@@ -222,7 +228,7 @@ StorageKeyValue* StorageBulkCursor::FromNextBunch(StorageChunk* chunk)
         chunkID = chunk->GetChunkID();
         logSegmentID = chunk->GetMaxLogSegmentID();
         logCommandID = chunk->GetMaxLogCommandID();
-        
+        Log_Debug("Next chunk chunkID = %U", chunkID);
         dataPage.Reset();
     }
 }
