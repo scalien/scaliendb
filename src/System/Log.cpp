@@ -181,9 +181,15 @@ void Log(const char* file, int line, const char* func, int type, const char* fmt
     const char  *sep;
     int         ret;
     va_list     ap;
-    
+
+    // In debug mode enable ERRNO type messages
+#ifdef DEBUG
+    if (type == LOG_TYPE_TRACE && !trace)
+        return;
+#else
     if ((type == LOG_TYPE_TRACE || type == LOG_TYPE_ERRNO) && !trace)
         return;
+#endif
 
     buf[maxLine - 1] = 0;
     p = buf;
@@ -244,16 +250,26 @@ void Log(const char* file, int line, const char* func, int type, const char* fmt
                 ret = -1;
 #elif _WIN32
         DWORD lastError = GetLastError();
-        ret = FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM |
-            FORMAT_MESSAGE_IGNORE_INSERTS |
-            (FORMAT_MESSAGE_MAX_WIDTH_MASK & remaining - 2),
-            NULL,
-            lastError,
-            MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-            (LPTSTR) p,
-            remaining - 2,
-            NULL);
+        ret = snprintf(p, remaining, "%u: ", lastError);
+        if (ret < 0 || ret >= remaining)
+            ret = remaining - 1;
 
+        p += ret;
+        remaining -= ret;
+        if (remaining > 2)
+        {
+            ret = FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM |
+                FORMAT_MESSAGE_IGNORE_INSERTS |
+                (FORMAT_MESSAGE_MAX_WIDTH_MASK & remaining - 2),
+                NULL,
+                lastError,
+                MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+                (LPTSTR) p,
+                remaining - 2,
+                NULL);
+        }
+        else
+            ret = 0;
 #else
         ret = strerror_r(errno, p, remaining - 1);
         if (ret >= 0)
