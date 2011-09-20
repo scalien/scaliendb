@@ -61,7 +61,7 @@ void ConfigHeartbeatManager::OnHeartbeatMessage(ClusterMessage& message)
     
     configServer->GetActivationManager()->TryActivateShardServer(message.nodeID, false);
 
-    Log_Debug("Received heartbeat from node %U", message.nodeID);
+    Log_Trace("Received heartbeat from node %U", message.nodeID);
 }
 
 void ConfigHeartbeatManager::OnHeartbeatTimeout()
