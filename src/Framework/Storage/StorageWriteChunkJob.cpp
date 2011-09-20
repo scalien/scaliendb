@@ -13,12 +13,15 @@ void StorageWriteChunkJob::Execute()
 {
     StorageChunkWriter  writer;
     Stopwatch           sw;
+    bool                ret;
 
     Log_Debug("Writing chunk %U to file...", writeChunk->GetChunkID());
     sw.Start();
-#pragma message(__FILE__ "(" STRINGIFY(__LINE__) "): warning: ASSERT with side effects") 
     if (!env->shuttingDown)
-        ASSERT(writer.Write(env, writeChunk));
+    {
+        ret = writer.Write(env, writeChunk);
+        ASSERT(ret);
+    }
     sw.Stop();
     Log_Debug("Chunk %U written, elapsed: %U, size: %s, bps: %sB/s",
      writeChunk->GetChunkID(),
