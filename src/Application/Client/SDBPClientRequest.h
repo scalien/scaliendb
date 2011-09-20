@@ -45,7 +45,6 @@ public:
     unsigned        numShardServers;
     ResponseList    responses;
     ShardConnList   shardConns;
-    Request*        parent;
     uint64_t        userCount;
     bool            skip;
     Client*         client;

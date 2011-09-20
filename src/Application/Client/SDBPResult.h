@@ -58,7 +58,6 @@ public:
     Request*        GetRequestCursor();
 
     void            HandleRequestResponse(Request* req, ClientResponse* resp);
-    void            HandleMultiRequestResponse(Request* req);
 
     typedef InTreeMap<Request> RequestMap;
     

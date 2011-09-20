@@ -7,8 +7,10 @@ Request::Request()
     numTry = 0;
     numShardServers = 0;
     skip = false;
-    parent = NULL;
     client = NULL;
+    requestTime = 0;
+    responseTime = 0;
+    userCount = 0;
 }
 
 Request::~Request()
