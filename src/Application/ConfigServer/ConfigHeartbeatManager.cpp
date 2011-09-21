@@ -69,6 +69,7 @@ void ConfigHeartbeatManager::OnHeartbeatTimeout()
     uint64_t            now, num;
     Heartbeat*          itHeartbeat;
     ConfigShardServer*  itShardServer;
+    ConfigQuorum*       configQuorum;
     
     // OnHeartbeatTimeout() arrives every 1000 msec
     
@@ -88,6 +89,18 @@ void ConfigHeartbeatManager::OnHeartbeatTimeout()
             if (itShardServer != NULL)
                 itShardServer->hasHeartbeat = false;
             itHeartbeat = heartbeats.Delete(itHeartbeat);
+
+
+            // remove this node's primary lease
+            // this code should really be in ConfigPrimaryLeaseManager
+            FOREACH(configQuorum, CONFIG_STATE->quorums)
+            {
+                if (configQuorum->hasPrimary && configQuorum->primaryID == itHeartbeat->nodeID)
+                {
+                    configQuorum->hasPrimary = false;
+                    configQuorum->primaryID = 0;
+                }
+            }
         }
         else
             break;
