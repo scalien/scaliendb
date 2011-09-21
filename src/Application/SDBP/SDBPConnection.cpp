@@ -153,7 +153,7 @@ bool SDBPConnection::IsActive()
 
 void SDBPConnection::UseKeepAlive(bool useKeepAlive)
 {
-    if (useKeepAlive)
+    if (useKeepAlive && configFile.GetIntValue("sdbp.keepAliveTimeout", keepAliveTimeout) > 0)
     {
         onKeepAlive.SetDelay(configFile.GetIntValue("sdbp.keepAliveTimeout", keepAliveTimeout));
         EventLoop::Reset(&onKeepAlive);
