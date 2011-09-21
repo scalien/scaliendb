@@ -74,14 +74,15 @@ void ShardCatchupReader::OnBeginShard(CatchupMessage& msg)
 
 void ShardCatchupReader::OnSet(CatchupMessage& msg)
 {
-    environment->Set(QUORUM_DATABASE_DATA_CONTEXT, shardID, msg.key, msg.value);
+//    Log_Debug("SET %U %B", msg.shardID, &msg.key);
+    environment->Set(QUORUM_DATABASE_DATA_CONTEXT, msg.shardID, msg.key, msg.value);
     bytesReceived += msg.key.GetLength() + msg.value.GetLength();
     TryCommit();
 }
 
 void ShardCatchupReader::OnDelete(CatchupMessage& msg)
 {
-    environment->Delete(QUORUM_DATABASE_DATA_CONTEXT, shardID, msg.key);
+    environment->Delete(QUORUM_DATABASE_DATA_CONTEXT, msg.shardID, msg.key);
     bytesReceived += msg.key.GetLength();
     TryCommit();
 }

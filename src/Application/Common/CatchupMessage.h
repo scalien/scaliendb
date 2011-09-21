@@ -32,8 +32,8 @@ public:
     
     bool            CatchupRequest(uint64_t nodeID, uint64_t quorumID);
     bool            BeginShard(uint64_t shardID);
-    bool            Set(ReadBuffer key, ReadBuffer value);
-    bool            Delete(ReadBuffer key);
+    bool            Set(uint64_t shardID, ReadBuffer key, ReadBuffer value);
+    bool            Delete(uint64_t shardID, ReadBuffer key);
     bool            Commit(uint64_t paxosID);
     bool            Abort();
 
