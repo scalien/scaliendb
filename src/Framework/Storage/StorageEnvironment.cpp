@@ -139,6 +139,9 @@ bool StorageEnvironment::Open(Buffer& envPath_)
     
     StoragePageCache::Init(config);
     
+    maxUnbackedLogSegments = configFile.GetIntValue("database.maxUnbackedLogSegments",
+     STORAGE_DEFAULT_MAX_UNBACKED_LOG_SEGMENT);
+
     if (!recovery.TryRecovery(this))
     {
         Log_Message("New environment opened.");
@@ -152,9 +155,6 @@ bool StorageEnvironment::Open(Buffer& envPath_)
      STORAGE_DEFAULT_BACKGROUND_TIMER_DELAY));
 
     EventLoop::Add(&backgroundTimer);
-
-    maxUnbackedLogSegments = configFile.GetIntValue("database.maxUnbackedLogSegments",
-     STORAGE_DEFAULT_MAX_UNBACKED_LOG_SEGMENT);
 
     return true;
 }

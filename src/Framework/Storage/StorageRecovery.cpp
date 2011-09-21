@@ -1,8 +1,11 @@
 #include "StorageRecovery.h"
+#include "System/Stopwatch.h"
 #include "System/FileSystem.h"
 #include "StorageEnvironment.h"
 #include "FDGuard.h"
 #include "System/PointerGuard.h"
+#include "StorageChunkSerializer.h"
+#include "StorageChunkWriter.h"
 
 static bool LessThan(const Buffer* a, const Buffer* b)
 {
@@ -74,6 +77,7 @@ bool StorageRecovery::TryRecovery(StorageEnvironment* env_)
         if (!replayedTrackIDs.Contains(trackID))
         {
             ReplayLogSegments(trackID);
+            TryWriteChunks();
             replayedTrackIDs.Add(trackID);
         }
     }
@@ -812,7 +816,73 @@ void StorageRecovery::ExecuteDelete(
     memoChunk->RegisterLogCommand(logSegmentID, logCommandID);
 }
 
+void StorageRecovery::TryWriteChunks()
+{
+    StorageShard*           shard;
+    StorageMemoChunk*       memoChunk;
+    StorageFileChunk*       fileChunk;
+    StorageChunkSerializer  serializer;
+    StorageChunkWriter      writer;
+    Stopwatch               sw;
+    bool                    ret;    
+
+    // mtrencseni:
+    // this is terrible code, but we're on a schedule
+
+    FOREACH (shard, env->shards)
+    {
+
+        if (shard->IsLogStorage())
+            continue; // never serialize log storage shards
+        
+        memoChunk = shard->GetMemoChunk();
+        
+        if (memoChunk->GetSize() > (env->config.chunkSize / 2))
+        {
+            Log_Debug("Serializing chunk %U, size: %s", memoChunk->GetChunkID(),
+                HUMAN_BYTES(memoChunk->GetSize()));
+
+            shard->PushMemoChunk(new StorageMemoChunk(env->nextChunkID++, shard->UseBloomFilter()));
+
+            // from StorageSerializeChunkJob::Execute()
+            Log_Debug("Serializing chunk %U in memory...", memoChunk->GetChunkID());
+            sw.Start();
+            ret = serializer.Serialize(env, memoChunk);
+            ASSERT(ret);
+            sw.Stop();
+            Log_Debug("Done serializing, elapsed: %U", (uint64_t) sw.Elapsed());
+
+            // from StorageEnvironment::OnChunkSerialize()
+            fileChunk = memoChunk->RemoveFileChunk();
+            ASSERT(fileChunk);
+            env->OnChunkSerialized(memoChunk, fileChunk);
+            env->fileChunks.Append(fileChunk);
+
+            delete memoChunk;
+            memoChunk = NULL;
+
+            // from StorageWriteChunkJob::Execute()
+            Log_Debug("Writing chunk %U to file...", fileChunk->GetChunkID());
+            sw.Start();
+            ret = writer.Write(env, fileChunk);
+            ASSERT(ret);
+            sw.Stop();
+            Log_Debug("Chunk %U written, elapsed: %U, size: %s, bps: %sB/s",
+             fileChunk->GetChunkID(),
+             (uint64_t) sw.Elapsed(), HUMAN_BYTES(fileChunk->GetSize()), 
+             HUMAN_BYTES((uint64_t)(fileChunk->GetSize() / (sw.Elapsed() / 1000.0))));
+
+            // from StorageEnvironment::OnChunkWrite()
+            fileChunk->written = true;    
+            fileChunk->AddPagesToCache();
+            env->WriteTOC();
+        }
+    }
+}
+
 static size_t Hash(uint64_t h)
 {
     return h;
 }
+
+
