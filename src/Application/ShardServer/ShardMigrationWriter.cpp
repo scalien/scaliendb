@@ -27,7 +27,6 @@ void ShardMigrationWriter::Init(ShardServer* shardServer_)
 void ShardMigrationWriter::Reset()
 {
     cursor = NULL;
-//    asyncCursor = NULL;
     isActive = false;
     sendFirst = false;
     quorumProcessor = NULL;

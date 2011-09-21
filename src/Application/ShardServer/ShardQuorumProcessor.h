@@ -131,6 +131,8 @@ public:
     void                    OnRequestLeaseTimeout();
     void                    OnLeaseTimeout();
 
+    bool                    IsResumeAppendActive();
+
     ShardQuorumProcessor*   prev;
     ShardQuorumProcessor*   next;
 

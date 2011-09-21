@@ -94,7 +94,7 @@ public:
     
     void                    OnClientReadRequest(ClientRequest* request);
     void                    OnClientListRequest(ClientRequest* request);
-    void                    ExecuteMessage(uint64_t quorumID, uint64_t paxosID, uint64_t commandID, ShardMessage& message);
+    uint64_t                ExecuteMessage(uint64_t quorumID, uint64_t paxosID, uint64_t commandID, ShardMessage& message);
         
 private:
     void                    OnYieldStorageThreadsTimer();
