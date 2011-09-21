@@ -69,11 +69,11 @@ bool StorageChunkWriter::WriteDataPages()
         if (env->shuttingDown)
             return false;
         
-        while (env->yieldThreads)
-        {
-            Log_Trace("Yielding...");
-            MSleep(YIELD_TIME);
-        }
+        // rate control while reading or listing
+        //while (env->yieldThreads)
+        //{
+        //    MSleep(1);
+        //}
         
         dataPage = file->dataPages[i];
         writeBuffer.Clear();
