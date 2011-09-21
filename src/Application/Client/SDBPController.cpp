@@ -211,8 +211,11 @@ void Controller::SetConfigState(ControllerConnection* conn, ConfigState* configS
         if (!configState.hasMaster || configState.masterID != nodeID)
             Log_Debug("Node %U became the master", nodeID);
 
-        if (configState_->paxosID > configState.paxosID)
-            updateClients = true;
+        // TODO: optimization: update clients only when configState.paxosID is changed
+        // or quorum primary changed
+        //if (configState_->paxosID > configState.paxosID)
+        //    updateClients = true;
+        updateClients = true;
 
         mutex.Lock();
         configState_->Transfer(configState);

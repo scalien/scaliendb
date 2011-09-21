@@ -1172,6 +1172,7 @@ void Client::SetConfigState(ConfigState& configState_)
         configStateVersion = configState_.paxosID;
         configState = configState_;
 
+        Log_Debug("configState.paxosID = %U", configState.paxosID);
         // we know the state of the system, so we can start sending requests
         if (configState.paxosID != 0)
         {
@@ -1450,6 +1451,8 @@ void Client::InvalidateQuorum(uint64_t quorumID, uint64_t nodeID)
         quorum->hasPrimary = false;
         quorum->primaryID = 0;
     
+        Log_Debug("Invalidating quorum %U, nodeID %U", quorumID, nodeID);
+
         // invalidate shard connections
         FOREACH (nit, quorum->activeNodes)
         {
@@ -1458,9 +1461,9 @@ void Client::InvalidateQuorum(uint64_t quorumID, uint64_t nodeID)
             if (nodeID == shardConn->GetNodeID())
                 shardConn->ClearQuorumMembership(quorumID);
         }
-    }
     
-    InvalidateQuorumRequests(quorumID);
+        InvalidateQuorumRequests(quorumID);
+    }
 }
 
 void Client::InvalidateQuorumRequests(uint64_t quorumID)
@@ -1586,6 +1589,13 @@ void Client::OnControllerDisconnected(ControllerConnection* conn)
     
     //if (master == (int64_t) conn->GetNodeID())
     //    SetMaster(-1, conn->GetNodeID());
+}
+
+void Client::OnShardConnected(ShardConnection* conn)
+{
+    //ConfigureShardServers();
+    //AssignRequestsToQuorums();
+    //SendQuorumRequests();
 }
 
 unsigned Client::GetMaxQuorumRequests(
