@@ -29,7 +29,7 @@ void JobProcessor::Enqueue(Job* job)
 
 void JobProcessor::Execute()
 {
-    if (!activeJob)
+    if (!activeJob && jobs.GetLength() > 0)
     {
         activeJob = jobs.First();
         threadPool->Execute(threadFunc);
@@ -43,11 +43,7 @@ void JobProcessor::Execute(Job* job)
     // the job will execute ThreadFunc() in this class
 
     jobs.Enqueue(job);
-    if (!activeJob)
-    {
-        activeJob = jobs.First();
-        threadPool->Execute(threadFunc);
-    }
+    Execute();
 }
 
 bool JobProcessor::IsActive()
@@ -96,12 +92,8 @@ void JobProcessor::OnComplete()
     ASSERT(jobs.GetLength() > 0);
     job = jobs.Dequeue();
     ASSERT(job == activeJob);
-    job->OnComplete();
-    
     activeJob = NULL;
-    if (jobs.GetLength() > 0)
-    {
-        activeJob = jobs.First();        
-        threadPool->Execute(threadFunc);
-    }
+    job->OnComplete();
+
+    Execute();
 }
