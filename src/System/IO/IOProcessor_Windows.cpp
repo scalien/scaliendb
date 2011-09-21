@@ -147,7 +147,10 @@ bool IOProcessorConnect(FD& fd, Endpoint& endpoint)
     {
         // WSAEINVAL means it is already bound
         if (WSAGetLastError() != WSAEINVAL)
+        {
+            Log_Debug("Bind failed");
             return false;
+        }
     }
 
     iod = GetIODesc(fd);
@@ -155,7 +158,10 @@ bool IOProcessorConnect(FD& fd, Endpoint& endpoint)
     if (!ConnectEx(fd.handle, (sockaddr*) endpoint.GetSockAddr(), ENDPOINT_SOCKADDR_SIZE, NULL, 0, NULL, &iod->ovlWrite))
     {
         if (WSAGetLastError() != WSA_IO_PENDING)
+        {
+            Log_Debug("ConnectEx failed");
             return false;
+        }
     }
 
     //Log_Debug("IOProcessorConnect: fd = %d, endpoint = %s finished", fd.index, endpoint.ToString());
@@ -210,8 +216,7 @@ bool IOProcessorUnregisterSocket(FD& fd)
     ret = CancelIo((HANDLE)fd.handle);
     if (ret == 0)
     {
-        ret = WSAGetLastError();
-        Log_Trace("CancelIo error %d", ret);
+        Log_Errno("IOProcessorUnregisterSocket: CancelIo");
         return false;
     }
 
