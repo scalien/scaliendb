@@ -80,6 +80,9 @@ void ShardCatchupWriter::Begin(CatchupMessage& request)
     ASSERT(quorumProcessor != NULL);
     ASSERT(cursor == NULL);
 
+    Log_Debug("Disabling database merge for the duration of catchup (sending)");
+    environment->SetMergeEnabled(false);
+
     isActive = true;
     nodeID = request.nodeID;
     quorumID = request.quorumID;
@@ -102,6 +105,8 @@ void ShardCatchupWriter::Abort()
     CatchupMessage msg;
     
     Log_Message("Catchup aborted");
+    Log_Debug("Enabling database merge");
+    environment->SetMergeEnabled(true);
     
     msg.Abort();
     CONTEXT_TRANSPORT->SendQuorumMessage(nodeID, quorumID, msg);
@@ -170,6 +175,8 @@ void ShardCatchupWriter::SendCommit()
 
     CONTEXT_TRANSPORT->UnregisterWriteReadyness(nodeID, MFUNC(ShardCatchupWriter, OnWriteReadyness));
 
+    Log_Debug("Enabling database merge");
+    environment->SetMergeEnabled(true);
     Reset();
 }
 
