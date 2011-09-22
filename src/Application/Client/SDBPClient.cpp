@@ -1591,13 +1591,6 @@ void Client::OnControllerDisconnected(ControllerConnection* conn)
     //    SetMaster(-1, conn->GetNodeID());
 }
 
-void Client::OnShardConnected(ShardConnection* conn)
-{
-    //ConfigureShardServers();
-    //AssignRequestsToQuorums();
-    //SendQuorumRequests();
-}
-
 unsigned Client::GetMaxQuorumRequests(
  RequestList* qrequests, ShardConnection* conn, ConfigQuorum* quorum)
 {
