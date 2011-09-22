@@ -885,6 +885,26 @@ void SDBP_SetTrace(bool trace)
 	}
 }
 
+void SDBP_SetLogFile(const std::string& filename)
+{
+    int     target;
+
+    if (filename.length() > 0)
+    {
+        target = Log_GetTarget();
+        target |= LOG_TARGET_FILE;
+        Log_SetOutputFile(filename.c_str(), false);
+        Log_SetTarget(target);
+    }
+    else
+    {
+        target = Log_GetTarget();
+        target &= ~LOG_TARGET_FILE;
+        Log_SetOutputFile("", false);
+        Log_SetTarget(target);
+    }
+}
+
 std::string SDBP_GetVersion()
 {
     return "ScalienDB Client v" VERSION_STRING " " PLATFORM_STRING;

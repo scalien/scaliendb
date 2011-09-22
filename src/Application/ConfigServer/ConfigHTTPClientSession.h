@@ -42,6 +42,8 @@ private:
     void                PrintDatabases(ConfigState* configState);
     void                PrintShardMatrix(ConfigState* configState);
     void                PrintConfigState();
+    void                PrintConfigFile();
+
     void                ProcessActivateShardServer();
     void                ProcessSettings();
     bool                ProcessCommand(ReadBuffer& cmd);

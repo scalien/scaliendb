@@ -7,7 +7,8 @@
 #include "Application/ConfigServer/ConfigServerApp.h"
 #include "Application/ShardServer/ShardServerApp.h"
 
-#define PRODUCT_STRING      "ScalienDB v" VERSION_STRING " " PLATFORM_STRING
+const char PRODUCT_STRING[] = "ScalienDB v" VERSION_STRING " " PLATFORM_STRING;
+const char BUILD_DATE[]     = "Build date: " __DATE__ " " __TIME__;
 
 void InitLog();
 void ParseArgs(int argc, char** argv);
@@ -182,10 +183,9 @@ void InitContextTransport()
 void LogPrintVersion(bool isController)
 {
     const char*     debugInfo = "";
-    const char*     productString = PRODUCT_STRING;
+    const char*     buildDate = BUILD_DATE;
 
 #ifdef DEBUG
-    const char*     buildDate = "Build date: " __DATE__ " " __TIME__;
     Buffer          debugBuffer;
     
     debugBuffer.Appendf(" -- DEBUG %s, Pid: %U", buildDate, GetProcessID());
@@ -193,6 +193,6 @@ void LogPrintVersion(bool isController)
     debugInfo = debugBuffer.GetBuffer();
 #endif
     
-    Log_Message("%s started as %s%s", productString,
+    Log_Message("%s started as %s%s", PRODUCT_STRING,
      isController ? "CONTROLLER" : "SHARD SERVER", debugInfo);
 }

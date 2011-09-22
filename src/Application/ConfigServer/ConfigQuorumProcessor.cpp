@@ -681,7 +681,7 @@ void ConfigQuorumProcessor::OnCatchupMessage(CatchupMessage& imsg)
             key.Wrap("state");
             CONFIG_STATE->Write(buffer);
             value.Wrap(buffer);
-            omsg.Set(key, value);
+            omsg.Set(0, key, value); // shardID is unused here
             CONTEXT_TRANSPORT->SendQuorumMessage(imsg.nodeID, quorumContext.GetQuorumID(), omsg);
             omsg.Commit(quorumContext.GetPaxosID() - 1);
             // send the paxosID whose value is in the db

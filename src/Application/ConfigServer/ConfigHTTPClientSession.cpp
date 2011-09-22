@@ -493,6 +493,28 @@ void ConfigHTTPClientSession::ProcessSettings()
     session.Flush();
 }
 
+void ConfigHTTPClientSession::PrintConfigFile()
+{
+    ConfigVar*  configVar;
+    Buffer      value;
+
+    FOREACH (configVar, configFile)
+    {
+        // fix terminating zeroes
+        value.Write(configVar->value);
+        value.Shorten(1);
+        // replace zeroes back to commas
+        for (unsigned i = 0; i < value.GetLength(); i++)
+        {
+            if (value.GetCharAt(i) == '\0')
+                value.SetCharAt(i, ',');
+        }
+        session.PrintPair(configVar->name, value);
+    }
+
+    session.Flush();
+}
+
 bool ConfigHTTPClientSession::ProcessCommand(ReadBuffer& cmd)
 {
     ClientRequest*  request;
@@ -515,6 +537,11 @@ bool ConfigHTTPClientSession::ProcessCommand(ReadBuffer& cmd)
     if (HTTP_MATCH_COMMAND(cmd, "settings"))
     {
         ProcessSettings();
+        return true;
+    }
+    if (HTTP_MATCH_COMMAND(cmd, "config"))
+    {
+        PrintConfigFile();
         return true;
     }
 

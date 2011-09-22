@@ -73,6 +73,7 @@ void ConfigPrimaryLeaseManager::OnPrimaryLeaseTimeout()
 void ConfigPrimaryLeaseManager::OnRequestPrimaryLease(ClusterMessage& message)
 {
     ConfigQuorum*   quorum;
+    PrimaryLease*   primaryLease;
 
     Log_Trace("nodeID %U requesting lease %U for quorum %U",
         message.nodeID, message.proposalID, message.quorumID);
@@ -96,13 +97,24 @@ void ConfigPrimaryLeaseManager::OnRequestPrimaryLease(ClusterMessage& message)
         return;
     }
 
+    FOREACH(primaryLease, primaryLeases)
+    {
+        if (primaryLease->quorumID == message.quorumID && primaryLease->nodeID != message.nodeID)
+        {
+            Log_Trace("nodeID %U requesting lease for quorum %U, \
+             but found non-expired lease for that quorum for node %U",
+             message.nodeID, message.quorumID, primaryLease->nodeID);
+            return;
+        }
+    }
+
     if (quorum->hasPrimary)
     {
         if (quorum->primaryID == message.nodeID)
             ExtendPrimaryLease(*quorum, message);
         return;
     }
-    
+
     AssignPrimaryLease(*quorum, message);
 }
 

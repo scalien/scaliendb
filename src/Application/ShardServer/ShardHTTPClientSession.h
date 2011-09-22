@@ -36,6 +36,8 @@ private:
     void                PrintStorage();
     void                PrintStatistics();
     void                PrintMemoryState();
+    void                PrintConfigFile();
+
     bool                ProcessCommand(ReadBuffer& cmd);
     bool                ProcessSettings();
     void                ProcessClearCache();

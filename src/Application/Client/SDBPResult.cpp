@@ -33,9 +33,13 @@ void Result::Close()
 {
     Log_Trace();
     transportStatus = SDBP_FAILURE;
+    timeoutStatus = SDBP_SUCCESS;
+    connectivityStatus = SDBP_SUCCESS;
     requests.DeleteTree();
     numCompleted = 0;
     requestCursor = NULL;
+    responseCursor = NULL;
+    responsePos = 0;
     proxied = false;
 }
 
@@ -377,27 +381,5 @@ void Result::HandleRequestResponse(Request* req, ClientResponse* resp)
         
             resp->Transfer(req->response);
         }
-    }
-
-    // 'resp' here is already transferred to 'req->response'
-    if (req->parent)
-        HandleMultiRequestResponse(req);
-}
-
-void Result::HandleMultiRequestResponse(Request* req)
-{
-    if (req->IsList() && req->type != CLIENTREQUEST_COUNT)
-    {
-        // TODO: sort & merge results
-    }
-    else
-    {
-        // type is CLIENTREQUEST_COUNT
-        
-        // update the aggregate value or set the response status
-        if (req->response.type == CLIENTRESPONSE_NUMBER)
-            req->parent->response.number += req->response.number;
-        else
-            req->parent->response.type = req->response.type;
     }
 }

@@ -160,7 +160,7 @@ private:
 
     void                    OnControllerConnected(ControllerConnection* conn);
     void                    OnControllerDisconnected(ControllerConnection* conn);
-    
+
     unsigned                GetMaxQuorumRequests(RequestList* qrequests, ShardConnection* conn, 
                              ConfigQuorum* quorum);
     uint64_t                GetRequestPaxosID();

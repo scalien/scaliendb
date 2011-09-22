@@ -89,7 +89,7 @@ namespace Scalien
         {
             string res = "";
             char ch;
-            
+
             for (int i = 0; i < size; i++)
             {
                 ch = Convert.ToChar(RandomNumber.Next(64, 125));
@@ -146,7 +146,7 @@ namespace Scalien
             Utils.deleteDBs(clients[client_index]);
 
             get_dbs();
-            
+
             _stream = new MemoryStream();
 
             RandomNumber = new System.Random();
@@ -197,7 +197,7 @@ namespace Scalien
 
             // set user row
             table.Set(System.Text.Encoding.UTF8.GetBytes(user.info.id), JsonSerialize(user.info));
-            
+
             if (update)
             {
                 // set nick index
@@ -261,7 +261,7 @@ namespace Scalien
 
         public long countUsers()
         {
-            return (long) table.Count(new StringRangeParams());
+            return (long)table.Count(new StringRangeParams());
         }
 
         public void printbyNick(string prefix)
@@ -291,14 +291,14 @@ namespace Scalien
                 System.Console.WriteLine("Key for test:");
                 System.Console.WriteLine(key);
 
-                switch(RandomNumber.Next(5))
+                switch (RandomNumber.Next(5))
                 {
                     case 1:
                         // Get user
                         user = getUser(key);
                         System.Console.WriteLine("GetAction:");
                         user.Print();
-                    break;
+                        break;
                     case 2:
                         // set user
                         user = getUser(key);
@@ -306,14 +306,14 @@ namespace Scalien
                         user.info.Nick = user.info.Nick + "-SetAt" + System.DateTime.Now.ToString("s");
                         setUser(user);
                         user.Print();
-                    break;
+                        break;
                     case 3:
                         user = getUser(key);
                         System.Console.WriteLine("DeleteAction:");
                         user.Print();
                         deleteUser(user);
                         // 
-                    break;
+                        break;
                     case 4:
                         user = getUser(key);
                         string prefix = user.info.Nick.Substring(0, 3);
@@ -332,6 +332,7 @@ namespace Scalien
 
         public bool testGetSetSubmit()
         {
+            // this reset tables causes a test fail
             resetTables();
 
             table.Get("0000000000001");
@@ -346,13 +347,13 @@ namespace Scalien
         }
 
         // test entry point
-        public static void Main(string[] args)
+        /*public static void Main(string[] args)
         {
-            string[] controllers_conf = { "192.168.137.50:37080", "192.168.137.51:37080", "192.168.137.52:37080" };
+            string[] controllers_conf = { "192.168.137.103:37080", "192.168.137.51:37080", "192.168.137.52:37080" };
             Users uTest = new Users(controllers_conf);
 
             uTest.init();
-            
+
             uTest.resetTables();
 
             uTest.insertUsers(1000);
@@ -360,6 +361,6 @@ namespace Scalien
             uTest.testCycle(10);
 
             System.Console.ReadLine();
-        }
+        }*/
     }
 }

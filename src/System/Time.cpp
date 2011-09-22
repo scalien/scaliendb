@@ -189,8 +189,6 @@ void StopClock()
     clockThread->Stop();
     delete clockThread;
     clockThread = NULL;
-
-
 }
 
 #ifndef _WIN32

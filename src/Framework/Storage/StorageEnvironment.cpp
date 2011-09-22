@@ -36,6 +36,34 @@ static inline bool LessThan(const Buffer* a, const Buffer* b)
     return Buffer::Cmp(*a, *b) < 0;
 }
 
+/*
+===============================================================================================
+
+ ShardSize
+
+ Used as a template parameter in a InSortedList in TryMergeChunks().
+ Used to sort shards by size, so they can be iterated by decreasing size,
+ so the largest shard is merged first. This results in better balanced
+ shard sizes.
+
+===============================================================================================
+*/
+
+struct ShardSize
+{
+    uint64_t    contextID;
+    uint64_t    shardID;
+    uint64_t    size;
+    ShardSize*  prev;
+    ShardSize*  next;
+};
+
+inline bool LessThan(ShardSize& a, ShardSize& b)
+{
+    return (a.size <= b.size);
+}
+
+
 StorageEnvironment::StorageEnvironment()
 {
     asyncThread = NULL;
@@ -139,6 +167,9 @@ bool StorageEnvironment::Open(Buffer& envPath_)
     
     StoragePageCache::Init(config);
     
+    maxUnbackedLogSegments = configFile.GetIntValue("database.maxUnbackedLogSegments",
+     STORAGE_DEFAULT_MAX_UNBACKED_LOG_SEGMENT);
+
     if (!recovery.TryRecovery(this))
     {
         Log_Message("New environment opened.");
@@ -152,9 +183,6 @@ bool StorageEnvironment::Open(Buffer& envPath_)
      STORAGE_DEFAULT_BACKGROUND_TIMER_DELAY));
 
     EventLoop::Add(&backgroundTimer);
-
-    maxUnbackedLogSegments = configFile.GetIntValue("database.maxUnbackedLogSegments",
-     STORAGE_DEFAULT_MAX_UNBACKED_LOG_SEGMENT);
 
     return true;
 }
@@ -1194,16 +1222,30 @@ void StorageEnvironment::TryWriteChunks()
 
 void StorageEnvironment::TryMergeChunks()
 {
+    ShardSize*              shardSize;
     StorageMergeChunkJob*   job;
     StorageShard*           itShard;
     StorageFileChunk*       mergeChunk;
     List<StorageFileChunk*> inputChunks;
+    InSortedList<ShardSize> shardSizes;
 
     if (!mergeEnabled || mergeChunkJobs.IsActive() || numCursors > 0)
         return;
 
-    FOREACH (itShard, shards)
+    FOREACH(itShard, shards)
     {
+        shardSize = new ShardSize;
+        shardSize->contextID = itShard->GetContextID();
+        shardSize->shardID = itShard->GetShardID();
+        shardSize->size = GetSize(shardSize->contextID, shardSize->shardID);
+        shardSize->prev = shardSize->next = shardSize;
+        shardSizes.Add(shardSize);
+    }
+
+    FOREACH_BACK (shardSize, shardSizes)
+    {
+        // iterate with decreasing shard size
+        itShard = GetShard(shardSize->contextID, shardSize->shardID);
         inputChunks.Clear();
         itShard->GetMergeInputChunks(inputChunks);
         if (inputChunks.GetLength() < 2)
@@ -1219,8 +1261,10 @@ void StorageEnvironment::TryMergeChunks()
          inputChunks, mergeChunk,
          itShard->GetFirstKey(), itShard->GetLastKey());
         mergeChunkJobs.Execute(job);
-        return;
+        break;
     }
+
+    shardSizes.DeleteList();
 }
 
 void StorageEnvironment::TryArchiveLogSegments()

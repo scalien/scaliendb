@@ -41,6 +41,8 @@ bool ShardConnection::SendRequest(Request* request)
 {
     SDBPRequestMessage  msg;
 
+    ASSERT(state == CONNECTED);
+
     sentRequests.Append(request);
     request->numTry++;
     request->requestTime = EventLoop::Now();

@@ -41,6 +41,8 @@ private:
                              uint64_t logSegmentID, uint32_t logCommandID,
                              uint16_t contextID, uint64_t shardID,
                              ReadBuffer& key);
+    
+    void                    TryWriteChunks();
 
     StorageEnvironment*     env;
     Buffer                  fileBuffer;

@@ -40,7 +40,7 @@ namespace Scalien
             res = new byte[size];
 
             for (int i = 0; i < size; i++)
-                res[i] = (byte) RandomNumber.Next(0, 127);
+                res[i] = (byte)RandomNumber.Next(0, 127);
 
             return res;
         }

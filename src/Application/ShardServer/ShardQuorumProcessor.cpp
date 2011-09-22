@@ -362,6 +362,11 @@ void ShardQuorumProcessor::OnLeaseTimeout()
         catchupWriter.Abort();
 }
 
+bool ShardQuorumProcessor::IsResumeAppendActive()
+{
+    return resumeAppend.IsActive();
+}
+
 void ShardQuorumProcessor::OnClientRequest(ClientRequest* request)
 {
     ShardMessage*   message;
@@ -751,7 +756,8 @@ void ShardQuorumProcessor::TransformRequest(ClientRequest* request, ShardMessage
 void ShardQuorumProcessor::ExecuteMessage(uint64_t paxosID, uint64_t commandID,
  ShardMessage* shardMessage, bool ownCommand)
 {
-    ClusterMessage clusterMessage;
+    uint64_t        shardID;
+    ClusterMessage  clusterMessage;
     
     if (shardMessage->type == SHARDMESSAGE_MIGRATION_BEGIN)
     {
@@ -781,8 +787,11 @@ void ShardQuorumProcessor::ExecuteMessage(uint64_t paxosID, uint64_t commandID,
             shardServer->BroadcastToControllers(clusterMessage);
     }
     else
-        shardServer->GetDatabaseManager()->ExecuteMessage(GetQuorumID(), paxosID, commandID, *shardMessage);
-    
+    {
+        shardID = shardServer->GetDatabaseManager()->ExecuteMessage(GetQuorumID(), paxosID, commandID, *shardMessage);
+        catchupWriter.OnShardMessage(paxosID, commandID, shardID, *shardMessage);
+    }
+
     if (!ownCommand)
         return;
         
