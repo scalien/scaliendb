@@ -172,7 +172,10 @@ void HTTPSession::PrintPair(const ReadBuffer& key, const ReadBuffer& value)
         conn->Write(key.GetBuffer(), key.GetLength());
         conn->Print(": ");
         conn->Write(value.GetBuffer(), value.GetLength());
-        conn->Print("\n");
+        if (type == HTML)
+            conn->Print("<br/>");
+        else
+            conn->Print("\n");
     }
 }
 

@@ -252,6 +252,18 @@ void ShardHTTPClientSession::PrintMemoryState()
     session.Flush();
 }
 
+void ShardHTTPClientSession::PrintConfigFile()
+{
+    ConfigVar*  configVar;
+
+    FOREACH (configVar, configFile)
+    {
+        session.PrintPair(configVar->name, configVar->value);
+    }
+
+    session.Flush();
+}
+
 bool ShardHTTPClientSession::ProcessCommand(ReadBuffer& cmd)
 {
     ClientRequest*  request;
@@ -286,6 +298,11 @@ bool ShardHTTPClientSession::ProcessCommand(ReadBuffer& cmd)
     else if (HTTP_MATCH_COMMAND(cmd, "memory"))
     {
         PrintMemoryState();
+        return true;
+    }
+    else if (HTTP_MATCH_COMMAND(cmd, "config"))
+    {
+        PrintConfigFile();
         return true;
     }
 
