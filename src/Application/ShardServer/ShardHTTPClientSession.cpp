@@ -255,10 +255,14 @@ void ShardHTTPClientSession::PrintMemoryState()
 void ShardHTTPClientSession::PrintConfigFile()
 {
     ConfigVar*  configVar;
+    Buffer      value;
 
     FOREACH (configVar, configFile)
     {
-        session.PrintPair(configVar->name, configVar->value);
+        // fix terminating zeroes
+        value.Write(configVar->value);
+        value.Shorten(1);
+        session.PrintPair(configVar->name, value);
     }
 
     session.Flush();
