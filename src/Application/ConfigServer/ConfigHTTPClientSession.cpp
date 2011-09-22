@@ -503,6 +503,12 @@ void ConfigHTTPClientSession::PrintConfigFile()
         // fix terminating zeroes
         value.Write(configVar->value);
         value.Shorten(1);
+        // replace zeroes back to commas
+        for (unsigned i = 0; i < value.GetLength(); i++)
+        {
+            if (value.GetCharAt(i) == '\0')
+                value.SetCharAt(i, ',');
+        }
         session.PrintPair(configVar->name, value);
     }
 
