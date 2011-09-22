@@ -900,6 +900,7 @@ void SDBP_SetLogFile(const std::string& filename)
     {
         target = Log_GetTarget();
         target &= ~LOG_TARGET_FILE;
+        Log_SetOutputFile("", false);
         Log_SetTarget(target);
     }
 }
