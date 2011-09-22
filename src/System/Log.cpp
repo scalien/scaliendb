@@ -102,6 +102,9 @@ bool Log_SetOutputFile(const char* filename, bool truncate)
         logfilename = NULL;
     }
 
+    if (!filename)
+        return false;
+
     if (truncate)
         logfile = fopen(filename, "w");
     else
