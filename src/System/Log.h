@@ -68,6 +68,7 @@ bool Log_SetTrace(bool trace);
 void Log_SetTimestamping(bool ts);
 void Log_SetMaxLine(int maxLine);
 void Log_SetTarget(int target);
+int  Log_GetTarget();
 bool Log_SetOutputFile(const char* file, bool truncate);
 void Log_Shutdown();
 

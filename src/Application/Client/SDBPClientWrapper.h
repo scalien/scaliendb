@@ -196,6 +196,7 @@ int             SDBP_Cancel(ClientObj client);
 */
 
 void            SDBP_SetTrace(bool trace);
+void            SDBP_SetLogFile(const std::string& filename);
 std::string     SDBP_GetVersion();
 std::string     SDBP_GetDebugString();
 
