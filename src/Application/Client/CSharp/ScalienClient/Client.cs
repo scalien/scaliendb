@@ -289,6 +289,15 @@ namespace Scalien
         }
 
         /// <summary>
+        /// Sets the name of the trace log output file in the underlying C++ client library.
+        /// </summary>
+        /// <param name="filename">The name of the logfile.</param>
+        public static void SetLogFile(string filename)
+        {
+            scaliendb_client.SDBP_SetLogFile(filename);
+        }
+
+        /// <summary>
         /// The maximum time the client library will wait to complete operations, in miliseconds. Default 120 seconds.
         /// </summary>
         /// <param name="timeout">The global timeout in miliseconds.</param>

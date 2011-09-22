@@ -93,6 +93,11 @@ void Log_SetTarget(int target_)
     target = target_;
 }
 
+int Log_GetTarget()
+{
+    return target;
+}
+
 bool Log_SetOutputFile(const char* filename, bool truncate)
 {
     if (logfile)
