@@ -411,3 +411,12 @@ void Config::AppendListValue(const char* name, const char* value)
     var->Append(value);
 }
 
+ConfigVar* Config::First()
+{
+    return vars.First();
+}
+
+ConfigVar* Config::Next(ConfigVar* var)
+{
+    return vars.Next(var);
+}

@@ -63,6 +63,9 @@ public:
     void                SetBoolValue(const char* name, bool value);
     void                AppendListValue(const char* name, const char* value);
 
+    ConfigVar*          First();
+    ConfigVar*          Next(ConfigVar* var);
+
 private:
     ConfigVar*          GetVar(const char* name);
 
