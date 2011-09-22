@@ -198,6 +198,24 @@ void Controller::OnNoService(ControllerConnection* conn)
     OnDisconnected(conn);
 }
 
+bool IsConfigQuorumPrimaryChanged(ConfigState* configState, ConfigState* oldConfigState)
+{
+    ConfigQuorum*   quorum;
+    ConfigQuorum*   oldQuorum;
+
+    for (quorum = configState->quorums.First(), oldQuorum = oldConfigState->quorums.First();
+      quorum && oldQuorum;
+      quorum = configState->quorums.Next(quorum), oldQuorum = oldConfigState->quorums.Next(oldQuorum))
+    {
+        // we assume that only the primary changed not the quorum configuration
+        ASSERT(quorum->quorumID == oldQuorum->quorumID);
+        if (quorum->primaryID != oldQuorum->primaryID)
+            return true;
+    }
+
+    return false;
+}
+
 void Controller::SetConfigState(ControllerConnection* conn, ConfigState* configState_)
 {
     uint64_t    nodeID;
@@ -211,11 +229,12 @@ void Controller::SetConfigState(ControllerConnection* conn, ConfigState* configS
         if (!configState.hasMaster || configState.masterID != nodeID)
             Log_Debug("Node %U became the master", nodeID);
 
-        // TODO: optimization: update clients only when configState.paxosID is changed
+        // optimization: update clients only when configState.paxosID is changed
         // or quorum primary changed
-        //if (configState_->paxosID > configState.paxosID)
-        //    updateClients = true;
-        updateClients = true;
+        if (configState_->paxosID > configState.paxosID)
+            updateClients = true;
+        if (!updateClients && IsConfigQuorumPrimaryChanged(configState_, &configState))
+            updateClients = true;
 
         mutex.Lock();
         configState_->Transfer(configState);
