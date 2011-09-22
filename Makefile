@@ -119,6 +119,9 @@ SWIG_WRAPPER_OBJECT = \
 CLIENT_DIR = \
 	Application/Client
 
+TEST_DIR = \
+	test
+
 CLIENT_WRAPPER_FILES = \
 	$(SRC_DIR)/$(CLIENT_DIR)/scaliendb_client.i \
 	$(SRC_DIR)/$(CLIENT_DIR)/SDBPClientWrapper.h \
@@ -387,10 +390,13 @@ pythonlib: $(BUILD_DIR) clientlib
 	$(MAKE) clientlib-target CLIENTLIB_TARGET="$(PYTHONLIB)"
 
 pythonlib-testdeploy: pythonlib
-	cp bin/python/* test/python
+	cp $(BIN_DIR)/$(PYTHON_DIR)/* $(TEST_DIR)/$(PYTHON_DIR)
 
 javalib: $(BUILD_DIR) clientlib
 	$(MAKE) clientlib-target CLIENTLIB_TARGET="$(JAVALIB)"
+
+javalib-testdeploy: javalib
+	cp $(BIN_DIR)/$(JAVA_DIR)/* $(TEST_DIR)/$(JAVA_DIR)
 
 csharplib: $(BUILD_DIR) $(CSHARPLIB)
 

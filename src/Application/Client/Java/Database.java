@@ -3,6 +3,7 @@ package com.scalien.scaliendb;
 import java.math.BigInteger;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  * Database is a convenience class for encapsulating database related operations.
@@ -25,6 +26,7 @@ public class Database
     private Client client;
     private long databaseID;
     private String name;
+    private static HashMap<String, Sequence> sequences = new HashMap<String, Sequence>();
     
     Database(Client client, long databaseID, String name) {
         this.client = client;
@@ -130,5 +132,74 @@ public class Database
         BigInteger biDatabaseID = BigInteger.valueOf(databaseID);
         int status = scaliendb_client.SDBP_DeleteDatabase(client.cptr, biDatabaseID);
         client.checkResultStatus(status);
+    }
+    
+    /**
+     * Returns the next sequence number for a given name
+     * @param tableName The name of the sequence table
+     * @param sequenceName The name of the sequence
+     * @exception SDBPException
+     */
+    public long getSequenceNumber(String tableName, String sequenceName) throws SDBPException {
+        String separator = "/";
+        String sequenceID = databaseID + separator + tableName + separator + sequenceName;
+
+        Sequence sequence;
+        synchronized (sequences) {
+            sequence = sequences.get(sequenceID);
+            if (sequence == null)
+            {
+                Table sequenceTable = getTable(tableName);
+                sequence = new Sequence(sequenceTable.getTableID(), sequenceName);
+                sequences.put(sequenceID, sequence);
+            }
+        }
+        return sequence.get(client);        
+    }
+
+    /**
+     * Resets the sequence number to 1.
+     * @param tableName The name of the sequence table
+     * @param sequenceName The name of the sequence
+     * @exception SDBPException
+     */
+    public void resetSequenceNumber(String tableName, String sequenceName) throws SDBPException {
+        String separator = "/";
+        String sequenceID = databaseID + separator + tableName + separator + sequenceName;
+
+        Sequence sequence;
+        synchronized (sequences) {
+            sequence = sequences.get(sequenceID);
+            if (sequence == null)
+            {
+                Table sequenceTable = getTable(tableName);
+                sequence = new Sequence(sequenceTable.getTableID(), sequenceName);
+                sequences.put(sequenceID, sequence);
+            }
+        }
+        sequence.reset(client);
+    }
+
+    /**
+     * Sets the sequence granularity.
+     * @param tableName The name of the sequence table
+     * @param sequenceName The name of the sequence
+     * @exception SDBPException
+     */
+    public void setSequenceGranularity(String tableName, String sequenceName, long granularity) throws SDBPException {
+        String separator = "/";
+        String sequenceID = databaseID + separator + tableName + separator + sequenceName;
+
+        Sequence sequence;
+        synchronized (sequences) {
+            sequence = sequences.get(sequenceID);
+            if (sequence == null)
+            {
+                Table sequenceTable = getTable(tableName);
+                sequence = new Sequence(sequenceTable.getTableID(), sequenceName);
+                sequences.put(sequenceID, sequence);
+            }
+        }
+        sequence.setGranularity(granularity);
     }
 }
