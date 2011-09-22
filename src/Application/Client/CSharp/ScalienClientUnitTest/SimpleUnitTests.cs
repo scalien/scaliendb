@@ -96,6 +96,7 @@ namespace ScalienClientUnitTesting
         {
             string dbName = "get_set_db";
             string tableName = "get_set_db_table";
+            Client.SetLogFile("f:\\log.txt");
             Client.SetTrace(true);
             Client client = new Client(Config.controllers);
             Utils.deleteDBs(client);

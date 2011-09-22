@@ -63,8 +63,7 @@
   </Target>
   -->
   <ItemGroup>
-    <Compile Include="Utils.cs" />
-    <Compile Include="Users.cs" />
+    <Compile Include="Test.cs" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
