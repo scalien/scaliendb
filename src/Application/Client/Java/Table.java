@@ -51,30 +51,33 @@ import java.util.Map;
         this.name = name;
     }
     
-    Client getClient()
-    {
+    Client getClient() {
         return client;
     }
     
-    long getTableID()
-    {
+    long getTableID() {
         return tableID;
     }
     
     /** 
      * The database this table is in.
      */
-    public Database getDatabase()
-    {
+    public Database getDatabase() {
         return database;
     }
     
     /**
      * The name of the table.
      */
-    public String getName()
-    {
+    public String getName() {
         return name;
+    }
+
+    /**
+     * Create a new instance of a query.
+     */
+    public Query createQuery() {
+        return new Query(this);
     }
 
     /**

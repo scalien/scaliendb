@@ -215,7 +215,8 @@ JAVA_SOURCE_FILES = \
 	$(SRC_DIR)/$(JAVA_CLIENT_DIR)/ByteKeyValueIterator.java \
 	$(SRC_DIR)/$(JAVA_CLIENT_DIR)/ByteRangeParams.java \
 	$(SRC_DIR)/$(JAVA_CLIENT_DIR)/ByteArrayComparator.java \
-	$(SRC_DIR)/$(JAVA_CLIENT_DIR)/KeyValue.java
+	$(SRC_DIR)/$(JAVA_CLIENT_DIR)/KeyValue.java \
+	$(SRC_DIR)/$(JAVA_CLIENT_DIR)/Query.java \
 
 JAVA_CLIENT_DIR = \
 	$(CLIENT_DIR)/Java

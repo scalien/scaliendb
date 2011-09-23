@@ -5,7 +5,7 @@ public class SequenceTest {
 	public static void getNextSequenceNumber(Client client) throws SDBPException {
 		Database database = client.getDatabase("test");
 
-		database.setSequenceGranularity("test", "test", 100);
+		database.setSequenceGranularity("test", "test", 1000);
 		database.resetSequenceNumber("test", "test");
 
 		for (int i = 0; i < 1000000; i++) {
