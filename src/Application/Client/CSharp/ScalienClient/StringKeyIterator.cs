@@ -35,7 +35,6 @@ namespace Scalien
                 num = (uint)count; 
             
             keys = table.Client.ListKeys(table.TableID, startKey, endKey, prefix, num, skip);
-            keys.Sort();
             pos = 0;
         }
 
