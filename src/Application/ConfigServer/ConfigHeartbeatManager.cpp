@@ -88,8 +88,6 @@ void ConfigHeartbeatManager::OnHeartbeatTimeout()
             // if the shard server was unregistered, itShardServer is NULL here
             if (itShardServer != NULL)
                 itShardServer->hasHeartbeat = false;
-            itHeartbeat = heartbeats.Delete(itHeartbeat);
-
 
             // remove this node's primary lease
             // this code should really be in ConfigPrimaryLeaseManager
@@ -101,6 +99,8 @@ void ConfigHeartbeatManager::OnHeartbeatTimeout()
                     configQuorum->primaryID = 0;
                 }
             }
+
+            itHeartbeat = heartbeats.Delete(itHeartbeat);
         }
         else
             break;

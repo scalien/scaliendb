@@ -253,6 +253,7 @@
 		9ADD108013433E5C002C5C66 /* ClientRequestCache.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 543DE63812BFBB420069786A /* ClientRequestCache.cpp */; };
 		9ADD18DE1353568A002C5C66 /* StorageAsyncBulkCursor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9ADD18DD1353568A002C5C66 /* StorageAsyncBulkCursor.cpp */; };
 		9ADD18DF1353568A002C5C66 /* StorageAsyncBulkCursor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9ADD18DD1353568A002C5C66 /* StorageAsyncBulkCursor.cpp */; };
+		9AE54328142CB1D80002D500 /* Query.java in Sources */ = {isa = PBXBuildFile; fileRef = 9AE54327142CB1D80002D500 /* Query.java */; };
 		9AE8197512D4BFE80038BDB1 /* ArrayListTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9AE8196612D4BFE80038BDB1 /* ArrayListTest.cpp */; };
 		9AE8197612D4BFE80038BDB1 /* ClientTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9AE8196712D4BFE80038BDB1 /* ClientTest.cpp */; };
 		9AE8197712D4BFE80038BDB1 /* CommonTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9AE8196812D4BFE80038BDB1 /* CommonTest.cpp */; };
@@ -636,6 +637,7 @@
 		9ADD104113433898002C5C66 /* ConfigStateTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ConfigStateTest.cpp; path = Test/ConfigStateTest.cpp; sourceTree = "<group>"; };
 		9ADD18DC1353568A002C5C66 /* StorageAsyncBulkCursor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StorageAsyncBulkCursor.h; sourceTree = "<group>"; };
 		9ADD18DD1353568A002C5C66 /* StorageAsyncBulkCursor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = StorageAsyncBulkCursor.cpp; sourceTree = "<group>"; };
+		9AE54327142CB1D80002D500 /* Query.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; name = Query.java; path = Client/Java/Query.java; sourceTree = "<group>"; };
 		9AE8176812CE1E550038BDB1 /* scaliendb_client.i */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c.preprocessed; name = scaliendb_client.i; path = Client/scaliendb_client.i; sourceTree = "<group>"; };
 		9AE8176912CE1E550038BDB1 /* SDBPClient.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SDBPClient.cpp; path = Client/SDBPClient.cpp; sourceTree = "<group>"; };
 		9AE8176A12CE1E550038BDB1 /* SDBPClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SDBPClient.h; path = Client/SDBPClient.h; sourceTree = "<group>"; };
@@ -1382,6 +1384,7 @@
 				9AE8178E12CE1E9B0038BDB1 /* SWIGTYPE_p_p_char.java */,
 				9AE8178F12CE1E9B0038BDB1 /* SWIGTYPE_p_void.java */,
 				9AE8178412CE1E9B0038BDB1 /* imaxdiv_t.java */,
+				9AE54327142CB1D80002D500 /* Query.java */,
 			);
 			name = Java;
 			sourceTree = "<group>";
@@ -1778,6 +1781,7 @@
 				9ACBF28514228E2400297EE1 /* HTTPFileHandler.cpp in Sources */,
 				9ACBF28814228E3200297EE1 /* Mime.cpp in Sources */,
 				9ACBF28B14228E4700297EE1 /* SDBPConnection.cpp in Sources */,
+				9AE54328142CB1D80002D500 /* Query.java in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

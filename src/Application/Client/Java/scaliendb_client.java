@@ -291,6 +291,10 @@ public class scaliendb_client {
     scaliendb_clientJNI.SDBP_SetTrace(trace);
   }
 
+  public static void SDBP_SetLogFile(String filename) {
+    scaliendb_clientJNI.SDBP_SetLogFile(filename);
+  }
+
   public static String SDBP_GetVersion() {
     return scaliendb_clientJNI.SDBP_GetVersion();
   }

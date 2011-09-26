@@ -51,30 +51,33 @@ import java.util.Map;
         this.name = name;
     }
     
-    Client getClient()
-    {
+    Client getClient() {
         return client;
     }
     
-    long getTableID()
-    {
+    long getTableID() {
         return tableID;
     }
     
     /** 
      * The database this table is in.
      */
-    public Database getDatabase()
-    {
+    public Database getDatabase() {
         return database;
     }
     
     /**
      * The name of the table.
      */
-    public String getName()
-    {
+    public String getName() {
         return name;
+    }
+
+    /**
+     * Create a new instance of a query.
+     */
+    public Query createQuery() {
+        return new Query(this);
     }
 
     /**
@@ -294,27 +297,5 @@ import java.util.Map;
      */
     public ByteKeyValueIterator getKeyValueIterator(ByteRangeParams ps) throws SDBPException {
         return new ByteKeyValueIterator(this, ps);
-    }
-
-    /**
-     * Retrieve a <a href="Sequence.html">Sequence</a> backed by a key-value in this table.
-     * @param key The key backing the sequence.
-     * @return The corresponding <a href="Sequence.html">Sequence</a> object.
-     * @see Sequence 
-     * @see #getSequence(byte[])
-     */
-    public Sequence getSequence(String key) throws SDBPException {
-        return new Sequence(this.client, tableID, key);
-    }
-
-    /**
-     * Retrieve a <a href="Sequence.html">Sequence</a> backed by a key-value in this table.
-     * @param key The key backing the sequence.
-     * @return The corresponding <a href="Sequence.html">Sequence</a> object.
-     * @see Sequence 
-     * @see #getSequence(String)
-     */
-    public Sequence getSequence(byte[] key) throws SDBPException {
-        return new Sequence(this.client, tableID, key);
     }
 }

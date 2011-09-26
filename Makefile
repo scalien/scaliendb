@@ -119,6 +119,9 @@ SWIG_WRAPPER_OBJECT = \
 CLIENT_DIR = \
 	Application/Client
 
+TEST_DIR = \
+	test
+
 CLIENT_WRAPPER_FILES = \
 	$(SRC_DIR)/$(CLIENT_DIR)/scaliendb_client.i \
 	$(SRC_DIR)/$(CLIENT_DIR)/SDBPClientWrapper.h \
@@ -212,7 +215,8 @@ JAVA_SOURCE_FILES = \
 	$(SRC_DIR)/$(JAVA_CLIENT_DIR)/ByteKeyValueIterator.java \
 	$(SRC_DIR)/$(JAVA_CLIENT_DIR)/ByteRangeParams.java \
 	$(SRC_DIR)/$(JAVA_CLIENT_DIR)/ByteArrayComparator.java \
-	$(SRC_DIR)/$(JAVA_CLIENT_DIR)/KeyValue.java
+	$(SRC_DIR)/$(JAVA_CLIENT_DIR)/KeyValue.java \
+	$(SRC_DIR)/$(JAVA_CLIENT_DIR)/Query.java \
 
 JAVA_CLIENT_DIR = \
 	$(CLIENT_DIR)/Java
@@ -387,10 +391,13 @@ pythonlib: $(BUILD_DIR) clientlib
 	$(MAKE) clientlib-target CLIENTLIB_TARGET="$(PYTHONLIB)"
 
 pythonlib-testdeploy: pythonlib
-	cp bin/python/* test/python
+	cp $(BIN_DIR)/$(PYTHON_DIR)/* $(TEST_DIR)/$(PYTHON_DIR)
 
 javalib: $(BUILD_DIR) clientlib
 	$(MAKE) clientlib-target CLIENTLIB_TARGET="$(JAVALIB)"
+
+javalib-testdeploy: javalib
+	cp $(BIN_DIR)/$(JAVA_DIR)/* $(TEST_DIR)/$(JAVA_DIR)
 
 csharplib: $(BUILD_DIR) $(CSHARPLIB)
 
@@ -411,7 +418,7 @@ executables: $(BUILD_DIR) $(EXECUTABLES)
 cli: $(BUILD_DIR) $(BIN_DIR)/cli
 
 javadoc: $(JAVA_SOURCE_FILES) 
-	-SRCDIR=`pwd`; cd $(SRC_DIR)/$(JAVA_CLIENT_DIR) && javadoc -d $$SRCDIR/javadoc -public Client.java Database.java Quorum.java SDBPException.java Status.java Table.java Sequence.java StringRangeParams.java ByteRangeParams.java
+	-javadoc -d javadoc -public $(JAVA_SOURCE_FILES)
 
 install: release clientlib
 	-cp -fr $(BIN_DIR)/$(ALIB) $(INSTALL_LIB_DIR)

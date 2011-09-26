@@ -43,33 +43,28 @@ package com.scalien.scaliendb;
  */
 public class Sequence
 {
-    private Client client;
+    private byte[] name;
     private long tableID;
-    private String stringKey;
-    private byte[] byteKey;
 
     private long gran = 1000;
     private long seq = 0;
     private long num = 0;
 
-    Sequence(Client client, long tableID, String key) {
-        this.client = client;
+    Sequence(long tableID, String name) {
         this.tableID = tableID;
-        this.stringKey = key;
+        this.name = name.getBytes();
     }
 
-    Sequence(Client client, long tableID, byte[] key) {
-        this.client = client;
+    Sequence(long tableID, byte[] name) {
         this.tableID = tableID;
-        this.byteKey = key;
+        this.name = name;
     }
     
     /**
      * Set the gran of the seqeunce increments (default 1000).
      * @param gran The gran of the sequence.
      */
-    public void setGranularity(long gran)
-    {
+    public synchronized void setGranularity(long gran) {
         this.gran = gran;
     }
 
@@ -82,30 +77,24 @@ public class Sequence
      * key => 0
      * </pre>
      */
-     public void reset()  throws SDBPException {
-            if (stringKey != null)
-                client.delete(tableID, stringKey);
-            else
-                client.delete(tableID, byteKey);
-            num = 0;
+    public synchronized void reset(Client client) throws SDBPException {
+        client.delete(tableID, name);
+        num = 0;
     }
 
     /**
      * Get the next sequence value.
      */
-    public long get()  throws SDBPException {
+    public synchronized long get(Client client) throws SDBPException {
         if (num == 0)
-            AllocateRange();
+            allocateRange(client);
         
         num--;
         return seq++;
     }
 
-    private void AllocateRange() throws SDBPException {
-        if (stringKey != null)
-            seq = client.add(tableID, stringKey, gran) - gran;
-        else
-            seq = client.add(tableID, byteKey, gran) - gran;
+    private void allocateRange(Client client) throws SDBPException {
+        seq = client.add(tableID, name, gran) - gran;
         num = gran;
     }
 }

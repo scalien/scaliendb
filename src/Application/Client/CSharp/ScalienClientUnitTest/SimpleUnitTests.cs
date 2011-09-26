@@ -7,7 +7,7 @@ using Scalien;
 
 namespace ScalienClientUnitTesting
 {
-    [TestClass]
+    //[TestClass]
     class SimpleUnitTests
     {
         //[TestMethod]
@@ -62,7 +62,7 @@ namespace ScalienClientUnitTesting
             Assert.IsTrue(i == 2);
         }
 
-        //[TestMethod]
+        [TestMethod]
         public void CreateAndCloseClients()
         {
             string dbName = "create_and_close_clients_db";
@@ -73,25 +73,40 @@ namespace ScalienClientUnitTesting
 
             Utils.deleteDBs(client1);
 
-            Database db = client1.CreateDatabase(dbName);
-            Table tbl = db.CreateTable(tableName);
+            Database db1 = client1.CreateDatabase(dbName);
+            Table tbl1 = db1.CreateTable(tableName);
 
-            tbl.TruncateTable();
+            Database db2 = client1.CreateDatabase(dbName + "_2");
+            Table tbl2 = db2.CreateTable(tableName);
+
+            tbl1.TruncateTable();
 
             //client.Submit();
 
-            tbl.Get("0000000000001");
-            tbl.Set("0000000000001", "test");
-            tbl.Get("0000000000002");
-            tbl.Set("0000000000002", "test");
+            tbl1.Get("0000000000001");
+            tbl1.Set("0000000000001", "test");
+            tbl1.Get("0000000000002");
+            tbl1.Set("0000000000002", "test");
 
             client1.Submit();
+
+            tbl1.Get("0000000000001");
+            tbl1.Set("0000000000001", "test");
+            tbl1.Get("0000000000002");
+            tbl1.Set("0000000000002", "test");
+
+            client1.Submit();
+
+            tbl2.Get("0000000000001");
+            tbl2.Set("0000000000001", "test");
+            tbl2.Get("0000000000002");
+            tbl2.Set("0000000000002", "test");
 
             //client1.Close();
             //client2.Close();
         }
 
-        [TestMethod]
+        //[TestMethod]
         public void TruncateAfterSet()
         {
             string dbName = "get_set_db";
@@ -154,7 +169,7 @@ namespace ScalienClientUnitTesting
             {
             }
 
-            client.Close();
+            //client.Close();
         }
 
     }
