@@ -1167,21 +1167,18 @@ void Client::OnMasterTimeout()
 
 void Client::SetConfigState(ConfigState& configState_)
 {
-    if (configStateVersion != configState_.paxosID)
-    {
-        configStateVersion = configState_.paxosID;
-        configState = configState_;
+    configStateVersion = configState_.paxosID;
+    configState = configState_;
 
-        Log_Debug("configState.paxosID = %U", configState.paxosID);
-        // we know the state of the system, so we can start sending requests
-        if (configState.paxosID != 0)
-        {
-            if (configState.hasMaster)
-                SetMaster(configState.masterID);
-            ConfigureShardServers();
-            AssignRequestsToQuorums();
-            SendQuorumRequests();
-        }
+    Log_Debug("configState.paxosID = %U", configState.paxosID);
+    // we know the state of the system, so we can start sending requests
+    if (configState.paxosID != 0)
+    {
+        if (configState.hasMaster)
+            SetMaster(configState.masterID);
+        ConfigureShardServers();
+        AssignRequestsToQuorums();
+        SendQuorumRequests();
     }
 }
 
