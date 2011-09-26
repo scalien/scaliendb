@@ -16,6 +16,7 @@
 #define STORAGE_DEFAULT_FILECHUNK_CACHESIZE     256*MiB
 #define STORAGE_DEFAULT_MERGEBUFFER_SIZE        10*MiB
 #define STORAGE_DEFAULT_SYNC_GRANULARITY        16*MiB
+#define STORAGE_DEFAULT_REPLICATEDLOG_SIZE      10*GiB
 
 class StorageConfig
 {
@@ -27,6 +28,7 @@ public:
     uint64_t        fileChunkCacheSize;
     uint64_t        mergeBufferSize;
     uint64_t        syncGranularity;
+    uint64_t        numLogSegmentFileChunks;
 };
 
 #endif

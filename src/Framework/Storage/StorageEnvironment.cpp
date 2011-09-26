@@ -463,6 +463,7 @@ void StorageEnvironment::AsyncList(uint16_t contextID, uint64_t shardID, Storage
 bool StorageEnvironment::Set(uint16_t contextID, uint64_t shardID, ReadBuffer key, ReadBuffer value)
 {
     int32_t             logCommandID;
+    uint64_t            keyValueSize;
     Job*                job;
     StorageShard*       shard;
     StorageMemoChunk*   memoChunk;
@@ -490,11 +491,9 @@ bool StorageEnvironment::Set(uint16_t contextID, uint64_t shardID, ReadBuffer ke
     
     if (shard->IsLogStorage())
     {
-        uint64_t    keyValueSize;
-
         // approximate size
         keyValueSize = key.GetLength() + value.GetLength();
-        while (memoChunk->GetSize() + keyValueSize > config.chunkSize)
+        while (memoChunk->GetSize() + keyValueSize > config.chunkSize && config.numLogSegmentFileChunks == 0)
             memoChunk->RemoveFirst();
     }
     
@@ -752,8 +751,8 @@ bool StorageEnvironment::PushMemoChunk(uint16_t contextID, uint64_t shardID)
     if (shard == NULL)
         return false;
 
-    if (shard->IsLogStorage())
-        return false; // never serialize log storage shards
+    if (shard->IsLogStorage() && config.numLogSegmentFileChunks == 0)
+        return false; // never serialize log storage shards if we don't want file chunks
     
     memoChunk = shard->GetMemoChunk();            
     shard->PushMemoChunk(new StorageMemoChunk(nextChunkID++, shard->UseBloomFilter()));
@@ -1166,8 +1165,8 @@ void StorageEnvironment::TrySerializeChunks()
 
     FOREACH (itShard, shards)
     {
-        if (itShard->IsLogStorage())
-            continue; // never serialize log storage shards
+        if (itShard->IsLogStorage() && config.numLogSegmentFileChunks == 0)
+            continue; // never serialize log storage shards if we don't want filechunks
         
         memoChunk = itShard->GetMemoChunk();
                 
@@ -1317,17 +1316,49 @@ void StorageEnvironment::TryArchiveLogSegments()
     }
 }
 
+void StorageEnvironment::TryDeleteLogSegmentFileChunks()
+{
+    StorageFileChunk*   fileChunk;
+    StorageShard*       shard;
+    StorageChunk*       chunk;
+    
+    if (deleteChunkJobs.IsActive())
+        return;
+
+    FOREACH (fileChunk, fileChunks)
+    {
+        shard = GetFirstShard(fileChunk);
+        if (shard->IsLogStorage() && shard->GetChunks().GetLength() > config.numLogSegmentFileChunks)
+        {
+            fileChunk->RemovePagesFromCache();
+            fileChunks.Remove(fileChunk);
+            chunk = (StorageChunk*)fileChunk;
+            shard->GetChunks().Remove(chunk);
+            deleteChunkJobs.Enqueue(new StorageDeleteFileChunkJob(fileChunk));
+            return;
+        }
+    }
+}
+
 void StorageEnvironment::OnChunkSerialize(StorageSerializeChunkJob* job)
 {
     Buffer              tmp;
     StorageFileChunk*   fileChunk;
+    StorageShard*       shard;
 
     if (!job->memoChunk->deleted)
     {
         fileChunk = job->memoChunk->RemoveFileChunk();
         ASSERT(fileChunk);
         OnChunkSerialized(job->memoChunk, fileChunk);
-        fileChunks.Append(fileChunk);        
+        fileChunks.Append(fileChunk);
+
+        shard = GetFirstShard(fileChunk);
+        if (shard)
+        {
+            if (shard->IsLogStorage())
+                fileChunk->useCache = false; // don't cache log storage filechunks
+        }
     }
 
     deleteChunkJobs.Execute(new StorageDeleteMemoChunkJob(job->memoChunk));
@@ -1420,6 +1451,7 @@ void StorageEnvironment::OnBackgroundTimer()
     TryWriteChunks();
     TryMergeChunks();
     TryArchiveLogSegments();
+    TryDeleteLogSegmentFileChunks();
     
     EventLoop::Add(&backgroundTimer);
 }

@@ -215,7 +215,9 @@ bool StorageRecovery::ReadShardVersion1(ReadBuffer& parse)
         if (fileChunk == NULL)
         {
             fileChunk = new StorageFileChunk;
-            
+            if (shard->IsLogStorage())
+                fileChunk->useCache = false; // don't cache log storage filechunks
+
             fileChunk->SetFilename(env->chunkPath, chunkID);
             fileChunk->written = true;
             
@@ -751,8 +753,8 @@ void StorageRecovery::ExecuteSet(
     if (shard == NULL)
         return; // shard was deleted
     
-    if (shard->IsLogStorage())
-        goto Execute;
+    //if (shard->IsLogStorage())
+    //    goto Execute;
     
     if (shard->logSegmentID > logSegmentID)
         return; // shard was deleted and re-created
@@ -766,17 +768,16 @@ void StorageRecovery::ExecuteSet(
     if (shard->recoveryLogSegmentID == logSegmentID && shard->recoveryLogCommandID >= logCommandID)
         return; // this command is already present in a file chunk
 
-
-Execute:
+//Execute:
     memoChunk = shard->GetMemoChunk();
     ASSERT(memoChunk != NULL);
     if (!memoChunk->Set(key, value))
         ASSERT_FAIL();
 
-    // remove old entries from the head of the log if its size exceeds chunkSize
     if (shard->IsLogStorage())
     {
-        while (memoChunk->GetSize() > env->GetConfig().chunkSize)
+        // remove old entries from the head of the log if its size exceeds chunkSize and we don't want filechunks
+        while (memoChunk->GetSize() > env->GetConfig().chunkSize && env->config.numLogSegmentFileChunks == 0)
             memoChunk->RemoveFirst();
     }
 
@@ -833,8 +834,7 @@ void StorageRecovery::TryWriteChunks()
 
     FOREACH (shard, env->shards)
     {
-
-        if (shard->IsLogStorage())
+        if (shard->IsLogStorage() && env->config.numLogSegmentFileChunks == 0)
             continue; // never serialize log storage shards
         
         memoChunk = shard->GetMemoChunk();

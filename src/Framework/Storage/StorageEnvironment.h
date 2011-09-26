@@ -115,6 +115,7 @@ public:
     void                    TryWriteChunks();
     void                    TryMergeChunks();
     void                    TryArchiveLogSegments();
+    void                    TryDeleteLogSegmentFileChunks();
     void                    OnChunkSerialize(StorageSerializeChunkJob* job);
     void                    OnChunkWrite(StorageWriteChunkJob* job);
     void                    OnChunkMerge(StorageMergeChunkJob* job);
