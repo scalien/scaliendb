@@ -3,7 +3,7 @@ package com.scalien.scaliendb;
 import java.math.BigInteger;
 
 /**
- * Quorum is a convenience class for working wit quorums.
+ * Quorum is a convenience class for working with quorums.
  * <p>
  * Example:
  * <pre>

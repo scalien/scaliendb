@@ -87,9 +87,9 @@ public class Query
     /**
      * Return an iterator that will return only keys.
      * @return The iterator.
-     * @see #getKeyIterator() 
-     * @see #getKeyValueIterator() 
-     * @see #getKeyValueIterator() 
+     * @see #getStringKeyIterator() 
+     * @see #getByteKeyValueIterator() 
+     * @see #getStringKeyValueIterator() 
      */
     public ByteKeyIterator getByteKeyIterator() throws SDBPException {
         ByteRangeParams params = new ByteRangeParams();
@@ -105,9 +105,9 @@ public class Query
     /**
      * Return an iterator that will return keys and values as a <code>KeyValue&lt;byte[], byte[]&gt;</code>.
      * @return The iterator.
-     * @see #getKeyValueIterator() 
-     * @see #getKeyIterator() 
-     * @see #getKeyIterator() 
+     * @see #getByteKeyIterator() 
+     * @see #getStringKeyIterator() 
+     * @see #getStringKeyValueIterator() 
      */
     public ByteKeyValueIterator getByteKeyValueIterator() throws SDBPException {
         ByteRangeParams params = new ByteRangeParams();
@@ -133,9 +133,9 @@ public class Query
      *     System.out.println(s);
      * </pre>
      * @return The iterator.
-     * @see #getKeyIterator() 
-     * @see #getKeyValueIterator() 
-     * @see #getKeyValueIterator() 
+     * @see #getByteKeyIterator() 
+     * @see #getByteKeyValueIterator() 
+     * @see #getStringKeyValueIterator() 
      */
     public StringKeyIterator getStringKeyIterator() throws SDBPException {
         StringRangeParams params = new StringRangeParams();
@@ -161,9 +161,9 @@ public class Query
      *     System.out.println(kv.getKey() + " => " + kv.getValue());
      * </pre>
      * @return The iterator.
-     * @see #getKeyValueIterator() 
-     * @see #getKeyIterator() 
-     * @see #getKeyIterator() 
+     * @see #getByteKeyIterator() 
+     * @see #getStringKeyIterator() 
+     * @see #getByteKeyValueIterator() 
      */
     public StringKeyValueIterator getStringKeyValueIterator() throws SDBPException {
         StringRangeParams params = new StringRangeParams();
