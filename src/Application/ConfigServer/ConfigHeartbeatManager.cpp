@@ -97,7 +97,6 @@ void ConfigHeartbeatManager::OnHeartbeatTimeout()
                 {
                     configQuorum->hasPrimary = false;
                     configQuorum->primaryID = 0;
-                    break;
                 }
             }
 
