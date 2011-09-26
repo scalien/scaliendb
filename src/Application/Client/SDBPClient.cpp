@@ -1665,9 +1665,6 @@ void Client::ComputeListResponse()
  
     if (result->GetRequestCount() == 0)
         return;
-
-    if (proxiedRequests.GetCount() == 0)
-        return;
     
     request = result->GetRequestCursor();
 
