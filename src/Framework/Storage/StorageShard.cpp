@@ -203,7 +203,7 @@ void StorageShard::GetMergeInputChunks(List<StorageFileChunk*>& inputChunks)
     if (IsLogStorage())
         return;
 
-    if (IsSplitable())
+    if (IsSplitable() && tableID > 0)
         return;
     
     FOREACH (itChunk, chunks)
