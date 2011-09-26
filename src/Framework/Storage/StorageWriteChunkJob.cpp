@@ -20,7 +20,8 @@ void StorageWriteChunkJob::Execute()
     if (!env->shuttingDown)
     {
         ret = writer.Write(env, writeChunk);
-        ASSERT(ret);
+        if (!env->shuttingDown)
+            ASSERT(ret);
     }
     sw.Stop();
     Log_Debug("Chunk %U written, elapsed: %U, size: %s, bps: %sB/s",
