@@ -244,6 +244,8 @@ void StorageRecovery::ReadFileChunks()
 {
     StorageFileChunk* it;
     
+    Log_Message("Opening chunk files...");
+    
     FOREACH (it, env->fileChunks)
         it->ReadHeaderPage();
 }
