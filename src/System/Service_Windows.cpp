@@ -106,13 +106,13 @@ static void SetupNamesAndDescriptions()
     {
         serviceName.Write("ScalienController");
         displayName.Write("Scalien Database Controller");
-        serviceDescription.Write("Scalien Database Controller");
+        serviceDescription.Write("Provides and stores metadata for Scalien Database cluster");
     }
     else
     {
         serviceName.Write("ScalienShardServer");
         displayName.Write("Scalien Database Shard Server");
-        serviceDescription.Write("Scalien Database Shard Server");
+        serviceDescription.Write("Provides reliable and replicated data storage for Scalien Database cluster");
     }
     serviceName.NullTerminate();
     displayName.NullTerminate();
