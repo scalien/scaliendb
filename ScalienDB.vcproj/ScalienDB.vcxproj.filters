@@ -478,6 +478,12 @@
     <ClCompile Include="..\src\System\Threading\Signal_Windows.cpp">
       <Filter>System\Threading</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\System\Service_Windows.cpp">
+      <Filter>System</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\System\Service_Posix.cpp">
+      <Filter>System</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\System\Common.h">
@@ -975,6 +981,9 @@
     <ClInclude Include="..\src\Version.h" />
     <ClInclude Include="..\src\System\Threading\Signal.h">
       <Filter>System\Threading</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\System\Service.h">
+      <Filter>System</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

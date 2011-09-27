@@ -183,6 +183,8 @@
     <ClCompile Include="..\src\System\FileSystem.cpp" />
     <ClCompile Include="..\src\System\Formatting.cpp" />
     <ClCompile Include="..\src\System\Log.cpp" />
+    <ClCompile Include="..\src\System\Service_Posix.cpp" />
+    <ClCompile Include="..\src\System\Service_Windows.cpp" />
     <ClCompile Include="..\src\System\Stopwatch.cpp" />
     <ClCompile Include="..\src\System\Threading\Signal_Posix.cpp" />
     <ClCompile Include="..\src\System\Threading\Signal_Windows.cpp" />
@@ -321,6 +323,7 @@
     <ClInclude Include="..\src\System\Log.h" />
     <ClInclude Include="..\src\System\Macros.h" />
     <ClInclude Include="..\src\System\Platform.h" />
+    <ClInclude Include="..\src\System\Service.h" />
     <ClInclude Include="..\src\System\Stopwatch.h" />
     <ClInclude Include="..\src\System\Threading\Signal.h" />
     <ClInclude Include="..\src\System\Time.h" />
