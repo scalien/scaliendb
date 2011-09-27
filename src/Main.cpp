@@ -2,7 +2,7 @@
 #include "System/Config.h"
 #include "System/Events/EventLoop.h"
 #include "System/IO/IOProcessor.h"
-#include "System/Service_Windows.h"
+#include "System/Service.h"
 #include "System/FileSystem.h"
 #include "Framework/Storage/BloomFilter.h"
 #include "Application/Common/ContextTransport.h"

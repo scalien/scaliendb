@@ -1,5 +1,6 @@
 #ifndef PLATFORM_WINDOWS
 #include "Service.h"
+#include "Macros.h"
 
 bool Service::Main(int argc, char **argv, void (*serviceFunc)())
 {

@@ -200,7 +200,7 @@ bool IOProcessor::Init(int maxfd_)
     rl.rlim_max = maxfd_;
     if (setrlimit(RLIMIT_NOFILE, &rl) < 0)
     {
-        Log_Errno();
+        Log_Errno("setrlimit");
     }
         
     // setup async pipe

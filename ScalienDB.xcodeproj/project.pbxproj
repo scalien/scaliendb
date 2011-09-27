@@ -254,6 +254,8 @@
 		9ADD18DE1353568A002C5C66 /* StorageAsyncBulkCursor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9ADD18DD1353568A002C5C66 /* StorageAsyncBulkCursor.cpp */; };
 		9ADD18DF1353568A002C5C66 /* StorageAsyncBulkCursor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9ADD18DD1353568A002C5C66 /* StorageAsyncBulkCursor.cpp */; };
 		9AE54328142CB1D80002D500 /* Query.java in Sources */ = {isa = PBXBuildFile; fileRef = 9AE54327142CB1D80002D500 /* Query.java */; };
+		9AE5437F1431CF260002D500 /* Service_Posix.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9AE5437C1431CF260002D500 /* Service_Posix.cpp */; };
+		9AE543801431CF260002D500 /* Service_Windows.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9AE5437D1431CF260002D500 /* Service_Windows.cpp */; };
 		9AE8197512D4BFE80038BDB1 /* ArrayListTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9AE8196612D4BFE80038BDB1 /* ArrayListTest.cpp */; };
 		9AE8197612D4BFE80038BDB1 /* ClientTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9AE8196712D4BFE80038BDB1 /* ClientTest.cpp */; };
 		9AE8197712D4BFE80038BDB1 /* CommonTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9AE8196812D4BFE80038BDB1 /* CommonTest.cpp */; };
@@ -638,6 +640,9 @@
 		9ADD18DC1353568A002C5C66 /* StorageAsyncBulkCursor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StorageAsyncBulkCursor.h; sourceTree = "<group>"; };
 		9ADD18DD1353568A002C5C66 /* StorageAsyncBulkCursor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = StorageAsyncBulkCursor.cpp; sourceTree = "<group>"; };
 		9AE54327142CB1D80002D500 /* Query.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; name = Query.java; path = Client/Java/Query.java; sourceTree = "<group>"; };
+		9AE5437C1431CF260002D500 /* Service_Posix.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Service_Posix.cpp; sourceTree = "<group>"; };
+		9AE5437D1431CF260002D500 /* Service_Windows.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Service_Windows.cpp; sourceTree = "<group>"; };
+		9AE5437E1431CF260002D500 /* Service.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Service.h; sourceTree = "<group>"; };
 		9AE8176812CE1E550038BDB1 /* scaliendb_client.i */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c.preprocessed; name = scaliendb_client.i; path = Client/scaliendb_client.i; sourceTree = "<group>"; };
 		9AE8176912CE1E550038BDB1 /* SDBPClient.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SDBPClient.cpp; path = Client/SDBPClient.cpp; sourceTree = "<group>"; };
 		9AE8176A12CE1E550038BDB1 /* SDBPClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SDBPClient.h; path = Client/SDBPClient.h; sourceTree = "<group>"; };
@@ -1202,6 +1207,9 @@
 				54A0F96E13C98F9000975263 /* PointerGuard.h */,
 				9A467A231373436D00108B07 /* DLL.cpp */,
 				9A467A241373436D00108B07 /* DLL.h */,
+				9AE5437C1431CF260002D500 /* Service_Posix.cpp */,
+				9AE5437D1431CF260002D500 /* Service_Windows.cpp */,
+				9AE5437E1431CF260002D500 /* Service.h */,
 			);
 			path = System;
 			sourceTree = "<group>";
@@ -1632,6 +1640,8 @@
 				9A467A261373436D00108B07 /* DLL.cpp in Sources */,
 				9A467AD2137350ED00108B07 /* ShardExtension.cpp in Sources */,
 				54A6AB4913B5D76F00DDB15B /* ConfigController.cpp in Sources */,
+				9AE5437F1431CF260002D500 /* Service_Posix.cpp in Sources */,
+				9AE543801431CF260002D500 /* Service_Windows.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
