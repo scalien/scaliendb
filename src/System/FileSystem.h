@@ -42,6 +42,7 @@ ssize_t     FS_FileReadOffs(FD fd, void* buf, size_t count, uint64_t offset);
 
 bool        FS_Delete(const char* filename);
 
+bool        FS_ChangeDir(const char* filename);
 FS_Dir      FS_OpenDir(const char* filename);
 FS_DirEntry FS_ReadDir(FS_Dir dir);
 void        FS_CloseDir(FS_Dir dir);

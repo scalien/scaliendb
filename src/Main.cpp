@@ -2,6 +2,8 @@
 #include "System/Config.h"
 #include "System/Events/EventLoop.h"
 #include "System/IO/IOProcessor.h"
+#include "System/Service_Windows.h"
+#include "System/FileSystem.h"
 #include "Framework/Storage/BloomFilter.h"
 #include "Application/Common/ContextTransport.h"
 #include "Application/ConfigServer/ConfigServerApp.h"
@@ -12,7 +14,8 @@ const char BUILD_DATE[]     = "Build date: " __DATE__ " " __TIME__;
 
 void InitLog();
 void ParseArgs(int argc, char** argv);
-void RunServer(int argc, char** argv);
+void RunMain(int argc, char** argv);
+void RunApplication();
 void ConfigureSystemSettings();
 bool IsController();
 void InitContextTransport();
@@ -22,7 +25,7 @@ int main(int argc, char** argv)
 {
     try
     {
-        RunServer(argc, argv);
+        RunMain(argc, argv);
     }
     catch (std::bad_alloc&)
     {
@@ -40,11 +43,8 @@ int main(int argc, char** argv)
     return 0;
 }
 
-void RunServer(int argc, char** argv)
+void RunMain(int argc, char** argv)
 {
-    Application* app;
-    bool isController;
-
     if (argc < 2)
         STOP_FAIL(1, "Config file argument not given");
         
@@ -53,6 +53,14 @@ void RunServer(int argc, char** argv)
 
     InitLog();
     ParseArgs(argc, argv);
+    Service::Main(argc, argv, RunApplication);
+}
+
+void RunApplication()
+{
+    Application* app;
+    bool isController;
+
     StartClock();
     ConfigureSystemSettings();
     
@@ -71,8 +79,11 @@ void RunServer(int argc, char** argv)
     
     IOProcessor::BlockSignals(IOPROCESSOR_BLOCK_ALL);
     EventLoop::Init();
+    
+    Service::SetStatus(SERVICE_STATUS_RUNNING);
     EventLoop::Run();
     
+    Service::SetStatus(SERVICE_STATUS_STOP_PENDING);
     Log_Message("Shutting down...");
     
     EventLoop::Shutdown();
@@ -135,6 +146,7 @@ void ConfigureSystemSettings()
 {
     int         memLimitPerc;
     uint64_t    memLimit;
+    const char* dir;
 
     // percentage of physical memory can be used by the program
     memLimitPerc = configFile.GetIntValue("system.memoryLimitPercentage", 90);
@@ -148,6 +160,17 @@ void ConfigureSystemSettings()
 
     if (memLimit != 0)
         SetMemoryLimit(memLimit);
+
+    // set the base directory
+    dir = configFile.GetValue("dir", NULL);
+    if (dir)
+    {
+        if (!FS_ChangeDir(dir))
+            STOP_FAIL(1, "Cannot change to dir: %s", dir);
+        
+        // setting the base dir may affect the location of the log file
+        InitLog();
+    }
 }
 
 bool IsController()

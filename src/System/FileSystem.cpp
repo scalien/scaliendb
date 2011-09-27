@@ -302,6 +302,20 @@ bool FS_Delete(const char* filename)
     return true;
 }
 
+bool FS_ChangeDir(const char* filename)
+{
+    int     ret;
+
+    ret = chdir(filename);
+    if (ret < 0)
+    {
+        Log_Errno("%s", filename);
+        return false;
+    }
+
+    return true;
+}
+
 FS_Dir FS_OpenDir(const char* filename)
 {
     DIR*    dir;
@@ -708,6 +722,11 @@ bool FS_Delete(const char* filename)
     }
     
     return true;
+}
+
+bool FS_ChangeDir(const char* filename)
+{
+    return SetCurrentDirectory(filename) != 0;
 }
 
 FS_Dir FS_OpenDir(const char* filename)
