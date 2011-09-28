@@ -11,8 +11,15 @@ void StorageConfig::Init()
     logSegmentSize = (uint64_t) configFile.GetInt64Value("database.logSegmentSize", 
      STORAGE_DEFAULT_LOGSEGMENTSIZE);
 
-    fileChunkCacheSize = (uint64_t) configFile.GetInt64Value("database.cacheSize", 
+    fileChunkCacheSize = (uint64_t) configFile.GetInt64Value("database.fileChunkCacheSize", 
      STORAGE_DEFAULT_FILECHUNK_CACHESIZE);
+
+    memoChunkCacheSize = (uint64_t) configFile.GetInt64Value("database.memoChunkCacheSize", 
+     STORAGE_DEFAULT_MEMOCHUNK_CACHESIZE);
+
+    size = (uint64_t) configFile.GetInt64Value("database.logSize", 
+     STORAGE_DEFAULT_LOG_SIZE);
+    numUnbackedLogSegments = size / logSegmentSize;
 
     mergeBufferSize = (uint64_t) configFile.GetInt64Value("database.mergeBufferSize", 
      STORAGE_DEFAULT_MERGEBUFFER_SIZE);

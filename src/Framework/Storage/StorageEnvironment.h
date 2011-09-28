@@ -26,7 +26,6 @@ class StorageWriteChunkJob;
 class StorageMergeChunkJob;
 class StorageArchiveLogSegmentJob;
 
-#define STORAGE_DEFAULT_MAX_UNBACKED_LOG_SEGMENT    10
 #define STORAGE_DEFAULT_BACKGROUND_TIMER_DELAY      1  // sec
 
 /*
@@ -161,8 +160,6 @@ public:
     bool                    shuttingDown;
     bool                    writingTOC;
     bool                    mergeEnabled;
-    
-    unsigned                maxUnbackedLogSegments;
 };
 
 #endif

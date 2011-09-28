@@ -167,9 +167,6 @@ bool StorageEnvironment::Open(Buffer& envPath_)
     
     StoragePageCache::Init(config);
     
-    maxUnbackedLogSegments = configFile.GetIntValue("database.maxUnbackedLogSegments",
-     STORAGE_DEFAULT_MAX_UNBACKED_LOG_SEGMENT);
-
     if (!recovery.TryRecovery(this))
     {
         Log_Message("New environment opened.");
@@ -1156,44 +1153,49 @@ void StorageEnvironment::TryFinalizeLogSegments()
 
 void StorageEnvironment::TrySerializeChunks()
 {
-    StorageShard*       itShard;
+    StorageShard*       shard;
     StorageMemoChunk*   memoChunk;
     StorageLogSegment*  logSegment;
+    uint64_t            memoChunksSumSize;
 
     Log_Trace();
 
     if (serializeChunkJobs.IsActive())
         return;
 
-    FOREACH (itShard, shards)
+    memoChunksSumSize = 0;
+    FOREACH (shard, shards)
+        memoChunksSumSize += shard->GetMemoChunk()->GetSize();
+
+    FOREACH (shard, shards)
     {
-        if (itShard->IsLogStorage() && config.numLogSegmentFileChunks == 0)
+        if (shard->IsLogStorage() && config.numLogSegmentFileChunks == 0)
             continue; // never serialize log storage shards if we don't want filechunks
         
-        memoChunk = itShard->GetMemoChunk();
+        memoChunk = shard->GetMemoChunk();
+        if (memoChunk->GetSize() == 0)
+            continue;
                 
-        logSegment = GetLogSegment(itShard->GetTrackID());
+        logSegment = GetLogSegment(shard->GetTrackID());
         if (!logSegment)
             continue;
 
-        if (
-         memoChunk->GetSize() > config.chunkSize ||
-         (
-         logSegment->GetLogSegmentID() > maxUnbackedLogSegments &&
-         memoChunk->GetMinLogSegmentID() > 0 &&
-         memoChunk->GetMinLogSegmentID() < (logSegment->GetLogSegmentID() - maxUnbackedLogSegments)
-         ))
-        {
-            if (memoChunk->GetSize() == 0)
-                continue;
-
-            Log_Debug("Serializing chunk %U, size: %s", memoChunk->GetChunkID(),
-             HUMAN_BYTES(memoChunk->GetSize()));
-
-            itShard->PushMemoChunk(new StorageMemoChunk(nextChunkID++, itShard->UseBloomFilter()));
-            serializeChunkJobs.Execute(new StorageSerializeChunkJob(this, memoChunk));
-            return;
-        }
+        if (memoChunk->GetSize() > config.chunkSize)
+            goto Serialize;
+        if (memoChunksSumSize > config.memoChunkCacheSize)
+            goto Serialize;
+        if (logSegment->GetLogSegmentID() <= config.numUnbackedLogSegments)
+            continue;
+        if (memoChunk->GetMinLogSegmentID() == 0)
+            continue;
+        if (memoChunk->GetMinLogSegmentID() >= (logSegment->GetLogSegmentID() - config.numUnbackedLogSegments))
+            continue;
+Serialize:
+        Log_Debug("Serializing chunk %U, size: %s", memoChunk->GetChunkID(),
+            HUMAN_BYTES(memoChunk->GetSize()));
+        shard->PushMemoChunk(new StorageMemoChunk(nextChunkID++, shard->UseBloomFilter()));
+        serializeChunkJobs.Execute(new StorageSerializeChunkJob(this, memoChunk));
+        return;
     }
 }
 
