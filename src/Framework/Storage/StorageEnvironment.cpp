@@ -1204,7 +1204,7 @@ Candidate:
     memoChunk = candidateShard->GetMemoChunk();
     Log_Debug("Serializing chunk %U, size: %s", memoChunk->GetChunkID(),
         HUMAN_BYTES(memoChunk->GetSize()));
-    shard->PushMemoChunk(new StorageMemoChunk(nextChunkID++, candidateShard->UseBloomFilter()));
+    candidateShard->PushMemoChunk(new StorageMemoChunk(nextChunkID++, candidateShard->UseBloomFilter()));
     serializeChunkJobs.Execute(new StorageSerializeChunkJob(this, memoChunk));
 }
 
