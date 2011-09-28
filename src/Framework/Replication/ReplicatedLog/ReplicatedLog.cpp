@@ -61,7 +61,8 @@ void ReplicatedLog::Stop()
 
 void ReplicatedLog::Continue()
 {
-    RequestChosen(paxosID);
+    if (context->IsLeaseKnown() && context->GetHighestPaxosID() > GetPaxosID())
+        RequestChosen(context->GetLeaseOwner());
 }
 
 bool ReplicatedLog::IsMultiPaxosEnabled()
