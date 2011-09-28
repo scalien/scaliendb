@@ -1153,10 +1153,11 @@ void StorageEnvironment::TryFinalizeLogSegments()
 
 void StorageEnvironment::TrySerializeChunks()
 {
-    StorageShard*       shard;
-    StorageMemoChunk*   memoChunk;
-    StorageLogSegment*  logSegment;
-    uint64_t            memoChunksSumSize;
+    uint64_t                memoChunksSumSize;
+    StorageShard*           shard;
+    StorageShard*           candidateShard;
+    StorageMemoChunk*       memoChunk;
+    StorageLogSegment*      logSegment;
 
     Log_Trace();
 
@@ -1167,36 +1168,44 @@ void StorageEnvironment::TrySerializeChunks()
     FOREACH (shard, shards)
         memoChunksSumSize += shard->GetMemoChunk()->GetSize();
 
+    candidateShard = NULL;
     FOREACH (shard, shards)
     {
-        if (shard->IsLogStorage() && config.numLogSegmentFileChunks == 0)
-            continue; // never serialize log storage shards if we don't want filechunks
-        
         memoChunk = shard->GetMemoChunk();
         if (memoChunk->GetSize() == 0)
             continue;
-                
+
+        if (shard->IsLogStorage() && config.numLogSegmentFileChunks == 0)
+            continue; // never serialize log storage shards if we don't want filechunks
+        
         logSegment = GetLogSegment(shard->GetTrackID());
         if (!logSegment)
             continue;
 
         if (memoChunk->GetSize() > config.chunkSize)
-            goto Serialize;
+            goto Candidate;
         if (memoChunksSumSize > config.memoChunkCacheSize)
-            goto Serialize;
+            goto Candidate;
         if (logSegment->GetLogSegmentID() <= config.numUnbackedLogSegments)
             continue;
         if (memoChunk->GetMinLogSegmentID() == 0)
             continue;
         if (memoChunk->GetMinLogSegmentID() >= (logSegment->GetLogSegmentID() - config.numUnbackedLogSegments))
             continue;
-Serialize:
-        Log_Debug("Serializing chunk %U, size: %s", memoChunk->GetChunkID(),
-            HUMAN_BYTES(memoChunk->GetSize()));
-        shard->PushMemoChunk(new StorageMemoChunk(nextChunkID++, shard->UseBloomFilter()));
-        serializeChunkJobs.Execute(new StorageSerializeChunkJob(this, memoChunk));
-        return;
+
+Candidate:
+        if (!candidateShard || memoChunk->GetSize() > candidateShard->GetMemoChunk()->GetSize())
+            candidateShard = shard;
     }
+
+    if (!candidateShard)
+        return;
+
+    memoChunk = candidateShard->GetMemoChunk();
+    Log_Debug("Serializing chunk %U, size: %s", memoChunk->GetChunkID(),
+        HUMAN_BYTES(memoChunk->GetSize()));
+    shard->PushMemoChunk(new StorageMemoChunk(nextChunkID++, candidateShard->UseBloomFilter()));
+    serializeChunkJobs.Execute(new StorageSerializeChunkJob(this, memoChunk));
 }
 
 void StorageEnvironment::TryWriteChunks()
