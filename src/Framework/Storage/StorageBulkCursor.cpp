@@ -45,6 +45,7 @@ StorageKeyValue* StorageBulkCursor::First()
     StorageChunk*       chunk;
     StorageChunk**      itChunk;
 
+    nextKey.Write(shard->GetFirstKey());
     itChunk = shard->chunks.First();
     
     if (itChunk == NULL)

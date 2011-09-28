@@ -154,8 +154,13 @@ void StorageFileChunk::NextBunch(StorageBulkCursor& cursor, StorageShard* shard)
     for (unsigned i = 0; i < dataPages[index]->GetNumKeys(); i++)
     {
         it = dataPages[index]->GetIndexedKeyValue(i);
-        if (!shard->RangeContains(it->GetKey()))
-            continue;
+        
+        if (STORAGE_KEY_LESS_THAN(shard->GetLastKey(), it->GetKey()))
+        {
+            cursor.FinalizeKeyValues();
+            cursor.SetLast(true);
+            return;
+        }
 
         cursor.AppendKeyValue(it);
     }
