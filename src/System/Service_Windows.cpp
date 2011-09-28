@@ -11,6 +11,41 @@ static Buffer                   displayName;
 
 extern bool IsController();
 
+static BOOL IsAdministrator(VOID)
+/*++ 
+Routine Description: This routine returns TRUE if the caller's
+process is a member of the Administrators local group. Caller is NOT
+expected to be impersonating anyone and is expected to be able to
+open its own process and process token. 
+Arguments: None. 
+Return Value: 
+   TRUE - Caller has Administrators local group. 
+   FALSE - Caller does not have Administrators local group. --
+*/ 
+{
+    BOOL ret;
+    SID_IDENTIFIER_AUTHORITY ntAuthority = SECURITY_NT_AUTHORITY;
+    PSID administratorsGroup;
+    ret = AllocateAndInitializeSid(
+     &ntAuthority,
+     2,
+     SECURITY_BUILTIN_DOMAIN_RID,
+     DOMAIN_ALIAS_RID_ADMINS,
+     0, 0, 0, 0, 0, 0,
+     &administratorsGroup); 
+
+    if (ret) 
+    {
+        if (!CheckTokenMembership(NULL, administratorsGroup, &ret)) 
+            ret = FALSE;
+
+        FreeSid(administratorsGroup);
+    }
+
+    return ret;
+}
+
+
 static void ReportServiceStatus(DWORD state)
 {
     SERVICE_STATUS  serviceStatus;
@@ -121,6 +156,13 @@ static void SetupNamesAndDescriptions()
 
 static bool UninstallService()
 {
+    if (!IsAdministrator())
+    {
+        // message is an altered version of the one at http://msdn.microsoft.com/en-us/library/bb756922.aspx
+        Log_Message("Access Denied. Administrator permissions are needed to uninstall ScalienDB. Use an administrator command prompt to complete these tasks.");
+        return false;
+    }
+
     // set up names and descriptions
     SetupNamesAndDescriptions();
 
@@ -172,6 +214,12 @@ static bool InstallService(int argc, char* argv[])
     Buffer  arg;
     Buffer  fullPath;
     bool    reinstall;
+
+    if (!IsAdministrator())
+    {
+        Log_Message("Access Denied. Administrator permissions are needed to install ScalienDB. Use an administrator command prompt to complete these tasks.");
+        return false;
+    }
 
     reinstall = false;
 
