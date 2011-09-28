@@ -387,7 +387,7 @@ void ShardDatabaseManager::SetShards(SortedList<uint64_t>& shards)
         
         if (shard->state == CONFIG_SHARD_STATE_NORMAL)
         {
-            Log_Trace("Calling CreateShard() for shardID = %U", *sit);
+            //Log_Trace("Calling CreateShard() for shardID = %U", *sit);
             environment.CreateShard(shard->quorumID, QUORUM_DATABASE_DATA_CONTEXT, *sit, shard->tableID,
              shard->firstKey, shard->lastKey, true, false);
         }
