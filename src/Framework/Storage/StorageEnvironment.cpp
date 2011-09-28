@@ -1160,6 +1160,8 @@ void StorageEnvironment::TrySerializeChunks()
     StorageMemoChunk*   memoChunk;
     StorageLogSegment*  logSegment;
 
+    Log_Trace();
+
     if (serializeChunkJobs.IsActive())
         return;
 
@@ -1200,11 +1202,15 @@ void StorageEnvironment::TryWriteChunks()
     StorageFileChunk*   itFileChunk;
     StorageLogSegment*  logSegment;
     
+    Log_Trace();
+
     if (writeChunkJobs.IsActive())
         return;
 
     FOREACH (itFileChunk, fileChunks)
     {
+        if (itFileChunk->GetChunkState() == StorageChunk::Written)
+            continue;
         logSegment = GetLogSegment(GetFirstShard(itFileChunk)->GetTrackID());
         if (!logSegment)
             continue;
@@ -1227,6 +1233,8 @@ void StorageEnvironment::TryMergeChunks()
     StorageFileChunk*       mergeChunk;
     List<StorageFileChunk*> inputChunks;
     InSortedList<ShardSize> shardSizes;
+
+    Log_Trace();
 
     if (!mergeEnabled || mergeChunkJobs.IsActive() || numCursors > 0)
         return;
@@ -1275,6 +1283,8 @@ void StorageEnvironment::TryArchiveLogSegments()
     StorageMemoChunk*   memoChunk;
     StorageChunk**      itChunk;
     
+    Log_Trace();
+
     if (archiveLogJobs.IsActive() || logSegments.GetLength() == 0)
         return;
 
@@ -1322,17 +1332,23 @@ void StorageEnvironment::TryDeleteLogSegmentFileChunks()
     StorageShard*       shard;
     StorageChunk*       chunk;
     
+    Log_Trace();
+
     if (deleteChunkJobs.IsActive())
         return;
 
-    FOREACH (fileChunk, fileChunks)
+    FOREACH (shard, shards)
     {
-        shard = GetFirstShard(fileChunk);
-        if (shard->IsLogStorage() && shard->GetChunks().GetLength() > config.numLogSegmentFileChunks)
+        if (!shard->IsLogStorage())
+            continue;
+        if (shard->GetChunks().GetLength() > config.numLogSegmentFileChunks)
         {
+            chunk = *(shard->GetChunks().First());
+            if (chunk->GetChunkState() != StorageChunk::Written)
+                continue;
+            fileChunk = (StorageFileChunk*) chunk;
             fileChunk->RemovePagesFromCache();
             fileChunks.Remove(fileChunk);
-            chunk = (StorageChunk*)fileChunk;
             shard->GetChunks().Remove(chunk);
             deleteChunkJobs.Enqueue(new StorageDeleteFileChunkJob(fileChunk));
             return;
@@ -1447,6 +1463,7 @@ void StorageEnvironment::OnLogArchive(StorageArchiveLogSegmentJob* job)
 
 void StorageEnvironment::OnBackgroundTimer()
 {
+    Log_Trace("Begin");
     TrySerializeChunks();
     TryWriteChunks();
     TryMergeChunks();
@@ -1454,6 +1471,7 @@ void StorageEnvironment::OnBackgroundTimer()
     TryDeleteLogSegmentFileChunks();
     
     EventLoop::Add(&backgroundTimer);
+    Log_Trace("End");
 }
 
 void StorageEnvironment::WriteTOC()
