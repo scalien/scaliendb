@@ -416,6 +416,11 @@ void ShardServer::OnSetConfigState(ClusterMessage& message)
         }
         
 DeleteQuorum:
+        // if the PaxosAcceptor inside the QuorumProcessor is doing an async commit,
+        // then we can't delete the quorumProcessor, because the OnComplete() would crash
+        if (databaseManager.GetEnvironment()->IsCommiting(quorumProcessor->GetQuorumID()))
+            continue;
+
         databaseManager.DeleteQuorumPaxosShard(quorumProcessor->GetQuorumID());
         databaseManager.DeleteQuorumLogShard(quorumProcessor->GetQuorumID());
         databaseManager.DeleteDataShards(quorumProcessor->GetQuorumID());
