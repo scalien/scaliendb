@@ -866,8 +866,8 @@ function onConfigState(configState)
 	
 	// clearTimeout(timer);
 	// timer = setTimeout("onTimeout()", 1000);
-	var timeout = 60 * 1000;
-	scaliendb.pollConfigState(onConfigState, configState["paxosID"], timeout);
+	scaliendb.timeout = 60 * 1000;
+	scaliendb.pollConfigState(onConfigState, configState["paxosID"]);
 }
 
 function onTimeout()

@@ -72,6 +72,7 @@ private:
     void                    ConstructMessage(ClientRequest* request, ConfigMessage* message);
     void                    ConstructResponse(ConfigMessage* message, ClientResponse* response);
     void                    SendClientResponse(ConfigMessage& message);
+    void                    OnListenRequestTimeout();
 
     bool                    isCatchingUp;
 
@@ -83,6 +84,7 @@ private:
     RequestList             listenRequests;
     uint32_t                configStateChecksum;
     uint64_t                lastConfigChangeTime;
+    Countdown               onListenRequestTimeout;
 };
 
 #endif

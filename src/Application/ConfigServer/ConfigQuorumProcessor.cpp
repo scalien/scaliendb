@@ -17,10 +17,13 @@ void ConfigQuorumProcessor::Init(ConfigServer* configServer_, unsigned numConfig
 
     quorumContext.Init(this, numConfigServers, quorumPaxosShard, quorumLogShard);    
     CONTEXT_TRANSPORT->AddQuorumContext(&quorumContext);
+
+    onListenRequestTimeout.SetCallable(MFUNC(ConfigQuorumProcessor, OnListenRequestTimeout));
 }
 
 void ConfigQuorumProcessor::Shutdown()
 {
+    EventLoop::Remove(&onListenRequestTimeout);
     configMessages.DeleteList();
     requests.DeleteList();
     listenRequests.DeleteList();
@@ -143,6 +146,24 @@ void ConfigQuorumProcessor::OnClientRequest(ClientRequest* request)
                 // this is an immediate config state request
                 request->response.ConfigStateResponse(*CONFIG_STATE);
                 request->OnComplete(false);
+            }
+            
+            // handle HTTP pollConfigState requests
+            if (request->changeTimeout > 0)
+            {
+                if (!onListenRequestTimeout.IsActive())
+                {
+                    //Log_Debug("Adding OnListenRequestTimeout, delay %U", request->changeTimeout);
+                    onListenRequestTimeout.SetDelay(request->changeTimeout);
+                    EventLoop::Add(&onListenRequestTimeout);
+                }
+                else if (onListenRequestTimeout.GetExpireTime() > EventLoop::Now() + request->changeTimeout)
+                {
+                    //Log_Debug("Resetting OnListenRequestTimeout, delay %U", request->changeTimeout);
+                    EventLoop::Remove(&onListenRequestTimeout);
+                    onListenRequestTimeout.SetDelay(request->changeTimeout);
+                    EventLoop::Add(&onListenRequestTimeout);
+                }
             }
         }
         return;
@@ -927,4 +948,39 @@ void ConfigQuorumProcessor::SendClientResponse(ConfigMessage& message)
     
     ConstructResponse(&message, &request->response);
     request->OnComplete();
+}
+
+// Here we handle HTTP pollConfigState requests with timeout
+// To disable this logic, comment the SetCallable line in constructor
+void ConfigQuorumProcessor::OnListenRequestTimeout()
+{
+    ClientRequest*      request;
+    uint64_t            now;
+    uint64_t            nextTimeout;
+
+    //Log_Debug("OnListenRequestTimeout, numListenRequests: %d", listenRequests.GetLength());
+
+    now = EventLoop::Now();
+    nextTimeout = 0;
+
+    FOREACH (request, listenRequests)
+    {
+        if (request->changeTimeout + request->lastChangeTime <= now)
+        {
+            request->response.ConfigStateResponse(*CONFIG_STATE);
+            request->OnComplete(false);
+            request->lastChangeTime = now;
+            request->paxosID = CONFIG_STATE->paxosID;
+        }
+        else if (nextTimeout == 0 || nextTimeout > request->lastChangeTime + request->changeTimeout)
+        {
+            nextTimeout = request->lastChangeTime + request->changeTimeout;
+        }
+    }
+
+    if (nextTimeout != 0)
+    {
+        onListenRequestTimeout.SetDelay(nextTimeout - now);
+        EventLoop::Add(&onListenRequestTimeout);
+    }
 }
