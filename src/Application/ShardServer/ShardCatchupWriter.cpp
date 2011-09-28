@@ -242,7 +242,6 @@ void ShardCatchupWriter::SendNext()
 
     shardID = *itShardID;
 
-    delete cursor;
     cursor = quorumProcessor->GetShardServer()->GetDatabaseManager()->GetEnvironment()->GetBulkCursor(
      QUORUM_DATABASE_DATA_CONTEXT, shardID);
     cursor->SetOnBlockShard(MFUNC(ShardCatchupWriter, OnBlockShard));
