@@ -7,10 +7,12 @@ static bool                     started;
 
 long EventLoop::RunTimers()
 {
-    Timer*  timer;
-    long    wait;
+    Timer*      timer;
+    long        wait;
+    uint64_t    prev;
     
     wait = -1;
+    prev = 0;
 
 #ifdef EVENTLOOP_MULTITHREADED
     MutexGuard guard(mutex);
@@ -22,6 +24,10 @@ long EventLoop::RunTimers()
     for (timer = timers.First(); timer != NULL; )
     {
         UpdateTime();
+        if (prev != 0 && now - prev > 100)
+            Log_Debug("EventLoop callback elapsed time: %U", now - prev);
+        prev = now;
+
         if (timer->GetExpireTime() <= now)
         {
             if (timer->ran)

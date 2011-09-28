@@ -39,7 +39,7 @@ do                                  \
 #else // IOPROCESSOR_MULTITHREADED
 
 #define UNLOCKED_CALL(callable)     \
-    Call(callable)
+    CallWarnTimeout(callable)
 
 #define UNLOCKED_ADD(ioop)          \
     IOProcessor::Add(ioop)
@@ -105,6 +105,17 @@ bool ProcessTCPRead(TCPRead* tcpread);
 bool ProcessTCPWrite(TCPWrite* tcpwrite);
 void ProcessCompletionCallbacks();
 
+static void CallWarnTimeout(Callable& callable)
+{
+    uint64_t    start;
+    uint64_t    elapsed;
+
+    start = NowClock();
+    Call(callable);
+    elapsed = NowClock() - start;
+    if (elapsed > 100)
+        Log_Debug("IOProcessor callback elapsed time: %U", elapsed);
+}
 
 // helper function for FD -> IODesc mapping
 static IODesc* GetIODesc(const FD& fd)
@@ -797,7 +808,7 @@ void ProcessCompletionCallbacks()
 
     while (item)
     {
-        Call(item->callable);
+        CallWarnTimeout(item->callable);
         next = item->next;
         delete item;
         item = next;
