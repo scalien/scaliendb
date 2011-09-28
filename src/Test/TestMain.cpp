@@ -32,7 +32,8 @@ TEST_ADD(TestClientSet);
 TEST_ADD(TestClientSetFailover);
 TEST_ADD(TestClientTruncateTable);
 TEST_ADD(TestCommonHumanBytes);
-TEST_ADD(TestCommonRandomDistribution)
+TEST_ADD(TestCommonRandomDistribution);
+TEST_ADD(TestCommonUInt64ToBufferWithBase);
 TEST_ADD(TestConfigStateJSON);
 TEST_ADD(TestEndpointValidity);
 TEST_ADD(TestFileSystemDiskSpace);

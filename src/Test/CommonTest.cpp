@@ -100,3 +100,19 @@ TEST_DEFINE(TestCommonRandomDistribution)
     
     return TEST_SUCCESS;
 }
+
+TEST_DEFINE(TestCommonUInt64ToBufferWithBase)
+{
+    char        valueBuffer[] = "1Hh3t53O16";
+    char        buffer[100];
+    uint64_t    value = 23274728509509702ULL;
+    int         ret;
+
+    ret = UInt64ToBufferWithBase(buffer, sizeof(buffer), value, 64);
+    TEST_ASSERT(ret == 10);
+
+    ret = strcmp(valueBuffer, buffer);
+    TEST_ASSERT(ret == 0);
+
+    return TEST_SUCCESS;
+}
