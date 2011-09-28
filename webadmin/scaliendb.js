@@ -4,6 +4,7 @@ var scaliendb =
 	developer: false,
 	onResponse: this.showResult,
 	onDisconnect: this.showError,
+	timeout: 60 * 1000,
 
     //========================================================================
 	//
@@ -85,11 +86,11 @@ var scaliendb =
 		this.json.rpc(scaliendb.controller, onConfigState, scaliendb.onDisconnect, "getConfigState");
 	},
 
-	pollConfigState: function(onConfigState, paxosID, changeTimeout)
+	pollConfigState: function(onConfigState, paxosID)
 	{                                                                                                       
 		var params = {};
 		params["paxosID"] = paxosID;
-		params["changeTimeout"] = changeTimeout;
+		params["changeTimeout"] = scaliendb.timeout;
 		this.json.rpc(scaliendb.controller, onConfigState, scaliendb.onDisconnect, "pollConfigState", params);
 	},
 
@@ -358,10 +359,21 @@ var scaliendb =
 		{
 			var xhr = new XMLHttpRequest();
 			var decode = this.decode;
+
+			xhr.open("GET", url + "&origin=*", true);
+
+			var requestTimer = setTimeout(function() {
+				xhr.abort();
+				errorfunc();
+			}, 2 * scaliendb.timeout);
+
 			var onreadystatechange = function()
 			{
 				if (xhr.readyState != 4)
 					return;
+
+				clearTimeout(requestTimer);
+
 				if (xhr.status != 200)
 				{   
 					// pollRequest == null indicates that the request is aborted
@@ -374,7 +386,6 @@ var scaliendb =
 				userfunc(decode(xhr.responseText));
 			}
 
-			xhr.open("GET", url + "&origin=*", true);
 			xhr.onreadystatechange = onreadystatechange;
 			this.pollRequest = xhr;
 			xhr.send();
