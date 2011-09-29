@@ -1087,13 +1087,13 @@ function createQuorumDiv(configState, quorum)
 				Shardservers: 																			\
 	';
 	quorum["activeNodes"].sort();
+	var catchupText = "";
 	for (var i in quorum["activeNodes"])
 	{
 		var nodeID = quorum["activeNodes"][i];
 		var shardServer = scaliendb.getShardServer(configState, nodeID);
 		var quorumInfo = scaliendb.getQuorumInfo(configState, nodeID, quorum["quorumID"]);
 		var infoText = "";
-		var catchupText = "";
 		if (quorumInfo != null)
 		{
 			infoText += " [" + quorumInfo["paxosID"] + "]";

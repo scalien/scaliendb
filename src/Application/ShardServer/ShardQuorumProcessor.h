@@ -103,7 +103,9 @@ public:
     void                    StopReplication();
     void                    ContinueReplication();
 
+    // Catchup sending:
     bool                    IsCatchupActive();
+    void                    AbortCatchup();
     uint64_t                GetCatchupBytesSent();
     uint64_t                GetCatchupBytesTotal();
     uint64_t                GetCatchupThroughput();

@@ -212,7 +212,8 @@ void Log(const char* file, int line, const char* func, int type, const char* fmt
         Log_Append(p, remaining, ": ", 2);
     }
 
-    if (type != LOG_TYPE_MSG && file && func)
+    // don't print filename and func in debug mode on ERRNO messages
+    if (file && func && (type == LOG_TYPE_TRACE || (type == LOG_TYPE_ERRNO && trace)))
     {
 #ifdef _WIN32
         sep = strrchr(file, '/');
@@ -258,7 +259,7 @@ void Log(const char* file, int line, const char* func, int type, const char* fmt
                 ret = -1;
 #elif _WIN32
         DWORD lastError = GetLastError();
-        ret = snprintf(p, remaining, "%u: ", lastError);
+        ret = snprintf(p, remaining, "Error %u: ", lastError);
         if (ret < 0 || ret >= remaining)
             ret = remaining - 1;
 
