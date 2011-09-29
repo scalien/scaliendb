@@ -16,8 +16,8 @@ namespace ScalienClientUnitTesting
             string dbName = "test_mp3_db";
             string tableName = "test_mp3_table";
 
-            Client client = new Client(Config.controllers);
-            Utils.deleteDBs(client);
+            Client client = new Client(Config.nodes);
+            Utils.DeleteDBs(client);
 
             Database db = client.CreateDatabase(dbName);
             Table tbl = db.CreateTable(tableName);
@@ -32,7 +32,7 @@ namespace ScalienClientUnitTesting
             byte[] res = tbl.Get(System.Text.Encoding.UTF8.GetBytes("mp3"));
             System.Console.WriteLine("mp3 buffer: {0}", res.GetLength(0));
 
-            Assert.IsTrue(Utils.byteArraysEqual(payload, res));
+            Assert.IsTrue(Utils.ByteArraysEqual(payload, res));
         }
 
         //[TestMethod]
@@ -41,8 +41,8 @@ namespace ScalienClientUnitTesting
             string dbName = "get_set_db";
             string tableName = "get_set_db_table";
 
-            Client client = new Client(Config.controllers);
-            Utils.deleteDBs(client);
+            Client client = new Client(Config.nodes);
+            Utils.DeleteDBs(client);
 
             Database db = client.CreateDatabase(dbName);
             Table tbl = db.CreateTable(tableName);
@@ -68,10 +68,10 @@ namespace ScalienClientUnitTesting
             string dbName = "create_and_close_clients_db";
             string tableName = "create_and_close_clients_table";
 
-            Client client1 = new Client(Config.controllers);
-            Client client2 = new Client(Config.controllers);
+            Client client1 = new Client(Config.nodes);
+            Client client2 = new Client(Config.nodes);
 
-            Utils.deleteDBs(client1);
+            Utils.DeleteDBs(client1);
 
             Database db1 = client1.CreateDatabase(dbName);
             Table tbl1 = db1.CreateTable(tableName);
@@ -113,8 +113,8 @@ namespace ScalienClientUnitTesting
             string tableName = "get_set_db_table";
             Client.SetLogFile("f:\\log.txt");
             Client.SetTrace(true);
-            Client client = new Client(Config.controllers);
-            Utils.deleteDBs(client);
+            Client client = new Client(Config.nodes);
+            Utils.DeleteDBs(client);
 
             Database db = client.CreateDatabase(dbName);
             Table tbl = db.CreateTable(tableName);
@@ -145,9 +145,9 @@ namespace ScalienClientUnitTesting
             string tableNameSeq = "seq_table";
             string tableNameTrunc = "trunc_table";
 
-            Client client = new Client(Config.controllers);
+            Client client = new Client(Config.nodes);
             
-            Utils.deleteDBs(client);
+            Utils.DeleteDBs(client);
 
             Database db = client.CreateDatabase(dbName);
             Table tblSeq = db.CreateTable(tableNameSeq);

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.IO;
+using System.Runtime.Serialization.Json;
 
 namespace Scalien
 {
@@ -10,7 +11,29 @@ namespace Scalien
     {
         public static System.Random RandomNumber = new System.Random();
 
-        public static void deleteDBs(Client c)
+        public static byte[] JsonSerialize(object obj)
+        {
+            MemoryStream _stream = new MemoryStream();
+            DataContractJsonSerializer jsonSerializer = new DataContractJsonSerializer(obj.GetType());
+            _stream.SetLength(0);
+            jsonSerializer.WriteObject(_stream, obj);
+            return _stream.ToArray();
+        }
+
+        public static T JsonDeserialize<T>(byte[] data)
+        {
+            DataContractJsonSerializer jsonSerializer = new DataContractJsonSerializer(typeof(T));
+            var stream = new MemoryStream(data);
+            T t = (T)jsonSerializer.ReadObject(stream);
+            return t;
+        }
+
+        public static string Id(Int64 num)
+        {
+            return String.Format("{0:0000000000000}", num);
+        }
+
+        public static void DeleteDBs(Client c)
         {
             foreach (Database db in c.GetDatabases())
                 db.DeleteDatabase();
@@ -31,16 +54,31 @@ namespace Scalien
             return res;
         }
 
-        public static byte[] RandomASCII(int size = 0)
+        // unique guarantees that ascii is unique in past ~35 minutes
+        public static byte[] RandomASCII(int size = 0, bool unique = false)
         {
             byte[] res;
+            Int64 mil;
 
             if (size == 0) size = RandomNumber.Next(5, 50);
 
             res = new byte[size];
 
-            for (int i = 0; i < size; i++)
-                res[i] = (byte)RandomNumber.Next(0, 127);
+            if (unique)
+            {
+                for (int i = 0; i < size; i++)
+                    res[i] = (byte)RandomNumber.Next(0, 127);
+            }
+            else
+            {
+                for (int i = 0; i < size - 3; i++)
+                    res[i] = (byte)RandomNumber.Next(0, 127);
+
+                mil = System.DateTime.Now.Millisecond;
+                res[size - 3] = (byte)System.Convert.ToSByte((mil / 16384) % 128);
+                res[size - 2] = (byte)System.Convert.ToSByte((mil / 128) % 128);
+                res[size - 1] = (byte)System.Convert.ToSByte(mil % 128);
+            }
 
             return res;
         }
@@ -67,7 +105,7 @@ namespace Scalien
             return buffer;
         }
 
-        public static bool byteArraysEqual(byte[] a, byte[] b)
+        public static bool ByteArraysEqual(byte[] a, byte[] b)
         {
             if (a.GetLength(0) != b.GetLength(0)) return false;
 

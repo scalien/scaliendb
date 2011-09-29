@@ -11,6 +11,16 @@ namespace Scalien
         public string Nick;
         public string DateOfBirth;
         public string LastLogin;
+
+        public static bool operator ==(TestUserInfo ui1, TestUserInfo ui2)
+        {
+            return ((ui1.id.Equals(ui2.id)) && (ui1.Nick.Equals(ui2.Nick)) && (ui1.DateOfBirth.Equals(ui2.DateOfBirth)) && (ui1.LastLogin.Equals(ui2.LastLogin))) ;
+        }
+
+        public static bool operator !=(TestUserInfo ui1, TestUserInfo ui2)
+        {
+            return !((ui1.id.Equals(ui2.id)) && (ui1.Nick.Equals(ui2.Nick)) && (ui1.DateOfBirth.Equals(ui2.DateOfBirth)) && (ui1.LastLogin.Equals(ui2.LastLogin)));
+        }
     }
 
     public class TestUser : IDisposable
@@ -22,7 +32,7 @@ namespace Scalien
         public TestUser(long newid)
         {
             info = new TestUserInfo();
-            info.id = Users.Id(newid);
+            info.id = Utils.Id(newid);
             info.DateOfBirth = System.DateTime.Now.ToShortDateString();
             info.LastLogin = System.DateTime.Now.ToShortDateString();
         }
@@ -39,15 +49,12 @@ namespace Scalien
 
     public class Users
     {
-        private string[] controllers;
-        // "192.168.137.50:7080"
-        // "192.168.137.50:37080"
-        private string dbname = "zszabo_test";
+        private string dbname = "users_test";
         private string tablename = "User";
 
-        private int client_count;
+        private int ciinum;
         private int client_index;
-        public Client[] clients;
+        private List<Client> clients = new List<Client>();
         private Database db;
         private Table indices;
         private Table table;
@@ -56,55 +63,37 @@ namespace Scalien
         private Table tableByLastLogin;
         private Sequence userIDs;
 
-        private MemoryStream _stream;
-        private System.Random RandomNumber;
-
-        public Users(string[] c)
+        public Users(string[] nodes = null)
         {
-            controllers = c;
-        }
-
-        private byte[] JsonSerialize(object obj)
-        {
-            DataContractJsonSerializer jsonSerializer = new DataContractJsonSerializer(obj.GetType());
-            _stream.SetLength(0);
-            jsonSerializer.WriteObject(_stream, obj);
-            return _stream.ToArray();
-        }
-
-        private T JsonDeserialize<T>(byte[] data)
-        {
-            DataContractJsonSerializer jsonSerializer = new DataContractJsonSerializer(typeof(T));
-            var stream = new MemoryStream(data);
-            T t = (T)jsonSerializer.ReadObject(stream);
-            return t;
-        }
-
-        public static string Id(Int64 num)
-        {
-            return String.Format("{0:0000000000000}", num);
-        }
-
-        private string RandomString(int size)
-        {
-            string res = "";
-            char ch;
-
-            for (int i = 0; i < size; i++)
+            client_index = ciinum = 0;
+            if (nodes != null)
             {
-                ch = Convert.ToChar(RandomNumber.Next(64, 125));
-                res = res + ch;
+                AddClient(nodes);
+                OpenDB();
             }
-            return res;
         }
 
-        public void addClient()
+        public void AddClient(string[] nodes)
         {
-            // add, open, client
-            // delete dbs on client
+            Client newclient = new Client(nodes);
+
+            clients.Add(newclient);
         }
 
-        public void get_dbs()
+        public void EmptyAll()
+        {
+            while(IterateClients())
+                Utils.DeleteDBs(clients[client_index]);
+            OpenDB();
+        }
+
+        public void SubmitAll()
+        {
+            while (IterateClients())
+                clients[client_index].Submit();
+        }
+
+        private void OpenDB()
         {
             db = clients[client_index].GetDatabase(dbname);
             if (db == null)
@@ -133,70 +122,68 @@ namespace Scalien
                 tableByLastLogin = db.CreateTable(tablename + "ByLastLogin");
         }
 
-        public void init()
+        public bool IterateClients()
         {
-            // Client.SetTrace(true);
-            clients = new Client[1];
+            if (clients.Count < ciinum + 1)
+            {
+                // TODO: force IterateClients usage
+                ciinum = 0;
+                return false;
+            }
 
-            client_count = 1;
-            client_index = 0;
+            client_index = ciinum;
 
-            clients[client_index] = new Client(controllers);
+            OpenDB();
 
-            Utils.deleteDBs(clients[client_index]);
+            ciinum++;
 
-            get_dbs();
-
-            _stream = new MemoryStream();
-
-            RandomNumber = new System.Random();
+            return true;
         }
 
-        public void resetTables()
+        public void ResetTables()
         {
             indices.TruncateTable();
-            // userIDs.Reset();
             table.TruncateTable();
             tableByNick.TruncateTable();
             tableByBirth.TruncateTable();
             tableByLastLogin.TruncateTable();
 
-            // TODO generate rows
+            userIDs.Reset();
         }
 
-        public void addUser()
+        public void AddUser()
         {
             // getID from Sequence
             using (TestUser user = new TestUser(userIDs.GetNext))
             {
-                user.info.Nick = RandomString(12);
-                setUser(user);
+                user.info.Nick = Utils.RandomString(12);
+                SetUser(user);
             }
         }
 
-        public TestUser getUser(string userID)
+        public TestUser GetUser(string userID)
         {
             TestUser user = new TestUser();
 
             byte[] row = table.Get(System.Text.Encoding.UTF8.GetBytes(userID));
             if (row == null) return null;
-            user.info = JsonDeserialize<TestUserInfo>(row);
+            user.info = Utils.JsonDeserialize<TestUserInfo>(row);
 
             return user;
         }
 
-        public void setUser(TestUser user)
+        public void SetUser(TestUser user)
         {
             bool update = false;
             // read old data for indexes
-            TestUser oldVersion = getUser(user.info.id);
+            TestUser oldVersion = GetUser(user.info.id);
             if (oldVersion != null) update = true;
 
             // last login will be last set :)
             user.info.LastLogin = System.DateTime.Now.ToShortDateString();
 
             // set user row
-            table.Set(System.Text.Encoding.UTF8.GetBytes(user.info.id), JsonSerialize(user.info));
+            table.Set(System.Text.Encoding.UTF8.GetBytes(user.info.id), Utils.JsonSerialize(user.info));
 
             if (update)
             {
@@ -204,54 +191,53 @@ namespace Scalien
                 if (oldVersion.info.Nick == user.info.Nick)
                 {
                     // just set
-                    tableByNick.Set(System.Text.Encoding.UTF8.GetBytes(user.info.Nick + "|" + user.info.id.ToString()), JsonSerialize(user.info));
+                    tableByNick.Set(System.Text.Encoding.UTF8.GetBytes(user.info.Nick + "|" + user.info.id.ToString()), Utils.JsonSerialize(user.info));
                 }
                 else
                 {
                     // delete old
                     tableByNick.Delete(oldVersion.info.Nick + "|" + user.info.id.ToString());
                     // set new
-                    tableByNick.Set(System.Text.Encoding.UTF8.GetBytes(user.info.Nick + "|" + user.info.id.ToString()), JsonSerialize(user.info));
+                    tableByNick.Set(System.Text.Encoding.UTF8.GetBytes(user.info.Nick + "|" + user.info.id.ToString()), Utils.JsonSerialize(user.info));
                 }
 
                 // set dateofbirth index
                 if (oldVersion.info.DateOfBirth == user.info.DateOfBirth)
                 {
                     // just set
-                    tableByBirth.Set(System.Text.Encoding.UTF8.GetBytes(user.info.DateOfBirth + "|" + user.info.id.ToString()), JsonSerialize(user.info));
+                    tableByBirth.Set(System.Text.Encoding.UTF8.GetBytes(user.info.DateOfBirth + "|" + user.info.id.ToString()), Utils.JsonSerialize(user.info));
                 }
                 else
                 {
                     // delete old
                     tableByBirth.Delete(oldVersion.info.DateOfBirth + "|" + user.info.id.ToString());
                     // set new
-                    tableByBirth.Set(System.Text.Encoding.UTF8.GetBytes(user.info.DateOfBirth + "|" + user.info.id.ToString()), JsonSerialize(user.info));
+                    tableByBirth.Set(System.Text.Encoding.UTF8.GetBytes(user.info.DateOfBirth + "|" + user.info.id.ToString()), Utils.JsonSerialize(user.info));
                 }
 
                 // set lastlogin index
                 if (oldVersion.info.LastLogin == user.info.LastLogin)
                 {
                     // just set
-                    tableByLastLogin.Set(System.Text.Encoding.UTF8.GetBytes(user.info.LastLogin + "|" + user.info.id.ToString()), JsonSerialize(user.info));
+                    tableByLastLogin.Set(System.Text.Encoding.UTF8.GetBytes(user.info.LastLogin + "|" + user.info.id.ToString()), Utils.JsonSerialize(user.info));
                 }
                 else
                 {
                     // delete old
                     tableByLastLogin.Delete(oldVersion.info.LastLogin + "|" + user.info.id.ToString());
                     // set new
-                    tableByLastLogin.Set(System.Text.Encoding.UTF8.GetBytes(user.info.LastLogin + "|" + user.info.id.ToString()), JsonSerialize(user.info));
+                    tableByLastLogin.Set(System.Text.Encoding.UTF8.GetBytes(user.info.LastLogin + "|" + user.info.id.ToString()), Utils.JsonSerialize(user.info));
                 }
             }
             else
             {
-                tableByNick.Set(System.Text.Encoding.UTF8.GetBytes(user.info.Nick + "|" + user.info.id.ToString()), JsonSerialize(user.info));
-                tableByBirth.Set(System.Text.Encoding.UTF8.GetBytes(user.info.DateOfBirth + "|" + user.info.id.ToString()), JsonSerialize(user.info));
-                tableByLastLogin.Set(System.Text.Encoding.UTF8.GetBytes(user.info.LastLogin + "|" + user.info.id.ToString()), JsonSerialize(user.info));
+                tableByNick.Set(System.Text.Encoding.UTF8.GetBytes(user.info.Nick + "|" + user.info.id.ToString()), Utils.JsonSerialize(user.info));
+                tableByBirth.Set(System.Text.Encoding.UTF8.GetBytes(user.info.DateOfBirth + "|" + user.info.id.ToString()), Utils.JsonSerialize(user.info));
+                tableByLastLogin.Set(System.Text.Encoding.UTF8.GetBytes(user.info.LastLogin + "|" + user.info.id.ToString()), Utils.JsonSerialize(user.info));
             }
-
         }
 
-        public void deleteUser(TestUser user)
+        public void DeleteUser(TestUser user)
         {
             table.Delete(user.info.id);
             tableByNick.Delete(user.info.Nick + "|" + user.info.id.ToString());
@@ -259,12 +245,12 @@ namespace Scalien
             tableByLastLogin.Delete(user.info.LastLogin + "|" + user.info.id.ToString());
         }
 
-        public long countUsers()
+        public long CountUsers()
         {
-            return (long)table.Count(new StringRangeParams());
+            return (long)table.Count(new ByteRangeParams());
         }
 
-        public void printbyNick(string prefix)
+        public void PrintByNick(string prefix)
         {
             foreach (KeyValuePair<string, string> kv in tableByNick.GetKeyValueIterator(new StringRangeParams().Prefix(prefix)))
             {
@@ -272,68 +258,107 @@ namespace Scalien
             }
         }
 
-        public void insertUsers(int cnt)
+        public void InsertUsers(int cnt)
         {
-            while (cnt-- > 0) addUser();
+            while (cnt-- > 0) AddUser();
             clients[client_index].Submit();
         }
 
-        public void testCycle(int userNum)
+        public bool IsConsistent()
+        {
+            TestUser user;
+            TestUserInfo cmpinfo;
+            byte[] row;
+
+            foreach (string key in table.GetKeyIterator(new StringRangeParams()))
+            {
+                user = GetUser(key);
+
+                row = tableByNick.Get(System.Text.Encoding.UTF8.GetBytes(user.info.Nick + "|" + user.info.id.ToString()));
+                if (row == null) return false;
+                cmpinfo = Utils.JsonDeserialize<TestUserInfo>(row);
+                if (user.info != cmpinfo) 
+                    return false;
+
+                row = tableByBirth.Get(System.Text.Encoding.UTF8.GetBytes(user.info.DateOfBirth + "|" + user.info.id.ToString()));
+                if (row == null) return false;
+                cmpinfo = Utils.JsonDeserialize<TestUserInfo>(row);
+                if (user.info != cmpinfo) 
+                    return false;
+
+                row = tableByLastLogin.Get(System.Text.Encoding.UTF8.GetBytes(user.info.LastLogin + "|" + user.info.id.ToString()));
+                if (row == null) return false;
+                cmpinfo = Utils.JsonDeserialize<TestUserInfo>(row);
+                if (user.info != cmpinfo) 
+                    return false;
+            }
+
+            return true;
+        }
+
+        public bool ClientDBsAreSame()
+        {
+            return false;
+        }
+
+        public void TestCycle(int userNum)
         {
             // uses count for ids, call reset_tables before using this
-            long count = countUsers();
-            long from = RandomNumber.Next((int)count - userNum);
+            long count = CountUsers();
+            long from = Utils.RandomNumber.Next((int)count - userNum);
             TestUser user;
 
-            foreach (string key in table.GetKeyIterator(new StringRangeParams().StartKey(Id(from)).EndKey(Id(from + userNum))))
+            foreach (string key in table.GetKeyIterator(new StringRangeParams().StartKey(Utils.Id(from)).EndKey(Utils.Id(from + userNum))))
             {
                 System.Console.WriteLine("===========================================================");
                 System.Console.WriteLine("Key for test:");
                 System.Console.WriteLine(key);
 
-                switch (RandomNumber.Next(5))
+                switch (Utils.RandomNumber.Next(5))
                 {
                     case 1:
                         // Get user
-                        user = getUser(key);
+                        user = GetUser(key);
                         System.Console.WriteLine("GetAction:");
                         user.Print();
                         break;
                     case 2:
                         // set user
-                        user = getUser(key);
+                        user = GetUser(key);
                         System.Console.WriteLine("SetAction:");
                         user.info.Nick = user.info.Nick + "-SetAt" + System.DateTime.Now.ToString("s");
-                        setUser(user);
+                        SetUser(user);
                         user.Print();
                         break;
                     case 3:
-                        user = getUser(key);
+                        user = GetUser(key);
                         System.Console.WriteLine("DeleteAction:");
                         user.Print();
-                        deleteUser(user);
+                        DeleteUser(user);
                         // 
                         break;
                     case 4:
-                        user = getUser(key);
+                        user = GetUser(key);
                         string prefix = user.info.Nick.Substring(0, 3);
                         System.Console.WriteLine("ListSimilar to Nick: " + user.info.Nick + " using prefix: " + prefix);
-                        printbyNick(prefix);
+                        PrintByNick(prefix);
                         break;
                     default:
                         //add user
                         System.Console.WriteLine("Add new");
-                        addUser();
+                        AddUser();
                         break;
                 }
+                clients[client_index].Submit();
             }
+            // TODO more operations
             // random operation on list
         }
 
-        public bool testGetSetSubmit()
+        public bool TestGetSetSubmit()
         {
             // this reset tables causes a test fail
-            resetTables();
+            ResetTables();
 
             table.Get("0000000000001");
             table.Set("0000000000001", "test");
@@ -345,22 +370,5 @@ namespace Scalien
             var i = table.Count(new ByteRangeParams());
             return i == 2;
         }
-
-        // test entry point
-        /*public static void Main(string[] args)
-        {
-            string[] controllers_conf = { "192.168.137.103:37080", "192.168.137.51:37080", "192.168.137.52:37080" };
-            Users uTest = new Users(controllers_conf);
-
-            uTest.init();
-
-            uTest.resetTables();
-
-            uTest.insertUsers(1000);
-
-            uTest.testCycle(10);
-
-            System.Console.ReadLine();
-        }*/
     }
 }

@@ -31,35 +31,35 @@ namespace ScalienClientUnitTesting
         }
         public static void IsTrue(bool cond)
         {
-            if (cond != true) throw new UnitTestException("Assert.IsTrue failed");
+            if (cond != true) Throw("Assert.IsTrue failed");
         }
         public static void IsTrue(bool cond, string message)
         {
-            if (cond != true) throw new UnitTestException(message);
+            if (cond != true) Throw(message);
         }
         public static void IsFalse(bool cond)
         {
-            if (cond != false) throw new UnitTestException("Assert.IsFalse failed");
+            if (cond != false) Throw("Assert.IsFalse failed");
         }
         public static void IsFalse(bool cond, string message)
         {
-            if (cond != false) throw new UnitTestException(message);
+            if (cond != false) Throw(message);
         }
         public static void IsNull(object value)
         {
-            if (value != null) throw new UnitTestException("Assert.IsNull failed");
+            if (value != null) Throw("Assert.IsNull failed");
         }
         public static void IsNull(object value, string message)
         {
-            if (value != null) throw new UnitTestException(message);
+            if (value != null) Throw(message);
         }
         public static void IsNotNull(object value)
         {
-            if (value == null) throw new UnitTestException("Assert.IsNotNull failed");
+            if (value == null) Throw("Assert.IsNotNull failed");
         }
         public static void IsNotNull(object value, string message)
         {
-            if (value == null) throw new UnitTestException(message);
+            if (value == null) Throw(message);
         }
 
     }

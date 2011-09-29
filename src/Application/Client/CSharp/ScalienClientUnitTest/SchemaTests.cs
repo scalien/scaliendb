@@ -14,9 +14,9 @@ namespace ScalienClientUnitTesting
         public void ManyDBs100()
         {
             string dbName = "manydb_test_";
-            Client client = new Client(Config.controllers);
+            Client client = new Client(Config.nodes);
 
-            Utils.deleteDBs(client);
+            Utils.DeleteDBs(client);
 
             Database[] db = new Database[100];
 
@@ -35,9 +35,9 @@ namespace ScalienClientUnitTesting
         {
             string dbName = "manydb_test_";
 
-            Client client = new Client(Config.controllers);
+            Client client = new Client(Config.nodes);
 
-            Utils.deleteDBs(client);
+            Utils.DeleteDBs(client);
 
             Database[] db = new Database[1000];
 
@@ -57,9 +57,9 @@ namespace ScalienClientUnitTesting
             string dbName = "manytables_test";
             string tableName = "manytables_test_";
 
-            Client client = new Client(Config.controllers);
+            Client client = new Client(Config.nodes);
 
-            Utils.deleteDBs(client);
+            Utils.DeleteDBs(client);
 
             Database db = client.CreateDatabase(dbName);
 
@@ -81,9 +81,9 @@ namespace ScalienClientUnitTesting
             string dbName = "manytables_test";
             string tableName = "manytables_test_";
 
-            Client client = new Client(Config.controllers);
+            Client client = new Client(Config.nodes);
 
-            Utils.deleteDBs(client);
+            Utils.DeleteDBs(client);
 
             Database db = client.CreateDatabase(dbName);
 
@@ -105,9 +105,9 @@ namespace ScalienClientUnitTesting
             string dbName = "manydbtables_test_";
             string tableName = "manydbtables_test_";
 
-            Client client = new Client(Config.controllers);
+            Client client = new Client(Config.nodes);
 
-            Utils.deleteDBs(client);
+            Utils.DeleteDBs(client);
 
             Database[] db = new Database[100];
             Table[,] tbl = new Table[100, 100];
@@ -135,9 +135,9 @@ namespace ScalienClientUnitTesting
         [TestMethod]
         public void RandomNamedDBs()
         {
-            Client client = new Client(Config.controllers);
+            Client client = new Client(Config.nodes);
 
-            Utils.deleteDBs(client);
+            Utils.DeleteDBs(client);
 
             Database[] db = new Database[100];
             string[] dbNames = new string[100];
@@ -161,9 +161,9 @@ namespace ScalienClientUnitTesting
             string dbName = "random_named_tables_db";
             string[] tableNames = new string[100];
 
-            Client client = new Client(Config.controllers);
+            Client client = new Client(Config.nodes);
 
-            Utils.deleteDBs(client);
+            Utils.DeleteDBs(client);
 
             Database db = client.CreateDatabase(dbName);
 
@@ -186,9 +186,9 @@ namespace ScalienClientUnitTesting
         public void RenameDBs()
         {
             string dbName = "rename_db_";
-            Client client = new Client(Config.controllers);
+            Client client = new Client(Config.nodes);
 
-            Utils.deleteDBs(client);
+            Utils.DeleteDBs(client);
 
             Database[] db = new Database[100];
             string[] dbNames = new string[100];
@@ -222,9 +222,9 @@ namespace ScalienClientUnitTesting
             string tblName = "rename_tables_table_";
             string[] tableNames = new string[100];
 
-            Client client = new Client(Config.controllers);
+            Client client = new Client(Config.nodes);
 
-            Utils.deleteDBs(client);
+            Utils.DeleteDBs(client);
 
             Database db = client.CreateDatabase(dbName);
 
@@ -258,9 +258,9 @@ namespace ScalienClientUnitTesting
             string dbName = "random_named_tables_db";
             string[] tableNames = new string[100];
 
-            Client client = new Client(Config.controllers);
+            Client client = new Client(Config.nodes);
 
-            Utils.deleteDBs(client);
+            Utils.DeleteDBs(client);
 
             Database db = client.CreateDatabase(dbName);
 

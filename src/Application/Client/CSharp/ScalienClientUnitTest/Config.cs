@@ -7,6 +7,6 @@ namespace ScalienClientUnitTesting
 {
     class Config
     {
-        public static string[] controllers = { "192.168.137.103:37080", "192.168.137.51:37080", "192.168.137.52:37080" };
+        public static string[] nodes = { "192.168.137.103:37080", "192.168.137.51:37080", "192.168.137.52:37080" };
     }
 }
