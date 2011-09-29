@@ -155,7 +155,7 @@ void StorageFileChunk::NextBunch(StorageBulkCursor& cursor, StorageShard* shard)
     {
         it = dataPages[index]->GetIndexedKeyValue(i);
         
-        if (STORAGE_KEY_LESS_THAN(shard->GetLastKey(), it->GetKey()))
+        if (shard->GetLastKey().GetLength() > 0 && ReadBuffer::Cmp(shard->GetLastKey(), it->GetKey()) < 0)
         {
             cursor.FinalizeKeyValues();
             cursor.SetLast(true);
