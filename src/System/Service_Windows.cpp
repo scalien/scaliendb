@@ -2,6 +2,7 @@
 #include "System/Events/EventLoop.h"
 #include "Service.h"
 #include <windows.h>
+#include <stdio.h>
 
 static SERVICE_STATUS_HANDLE    serviceHandle;
 static Callable                 serviceCallback;
@@ -159,7 +160,7 @@ static bool UninstallService()
     if (!IsAdministrator())
     {
         // message is an altered version of the one at http://msdn.microsoft.com/en-us/library/bb756922.aspx
-        Log_Message("Access Denied. Administrator permissions are needed to uninstall ScalienDB. Use an administrator command prompt to complete these tasks.");
+        fprintf(stderr, "\nAccess Denied. Administrator permissions are needed to uninstall ScalienDB. Use an administrator command prompt to complete these tasks.\n\n");
         return false;
     }
 
@@ -179,7 +180,7 @@ static bool UninstallService()
     if (scService == NULL)
     {
 
-        Log_Errno("Cannot find service: %s", serviceName.GetBuffer());
+        fprintf(stderr, "\nError %u: Cannot find service: %s\n\n", GetLastError(), serviceName.GetBuffer());
         CloseServiceHandle(scService);
         CloseServiceHandle(scManager);
         return false;
@@ -189,7 +190,7 @@ static bool UninstallService()
     SERVICE_STATUS serviceStatus;
     if (ControlService(scService, SERVICE_CONTROL_STOP, &serviceStatus))
     {
-        Log_Message("Stopping service...");
+        fprintf(stderr, "\nStopping service...");
         while (QueryServiceStatus(scService, &serviceStatus))
         {
             if (serviceStatus.dwCurrentState == SERVICE_STOP_PENDING)
@@ -199,12 +200,15 @@ static bool UninstallService()
         }
     }
 
-    Log_Message("Deleting service...");
     BOOL ret = DeleteService(scService);
     if (ret == 0)
-        Log_Errno();
+    {
+        fprintf(stderr, "\nError %u: Cannot delete service: %s\n\n", GetLastError(), serviceName.GetBuffer());
+        return false;
+    }
 
-    return ret > 0;
+    fprintf(stderr, "\n%s service deleted.\n\n", serviceName.GetBuffer());
+    return true;
 }
 
 static bool InstallService(int argc, char* argv[])
@@ -217,7 +221,7 @@ static bool InstallService(int argc, char* argv[])
 
     if (!IsAdministrator())
     {
-        Log_Message("Access Denied. Administrator permissions are needed to install ScalienDB. Use an administrator command prompt to complete these tasks.");
+        fprintf(stderr, "\nAccess Denied. Administrator permissions are needed to install ScalienDB. Use an administrator command prompt to complete these tasks.\n\n");
         return false;
     }
 
@@ -272,7 +276,7 @@ static bool InstallService(int argc, char* argv[])
     if (scService != NULL && !reinstall)
     {
 
-        Log_Errno("Service already exists: %s", serviceName.GetBuffer());
+        fprintf(stderr, "\nError: Service already exists: %s\n\n", serviceName.GetBuffer());
         CloseServiceHandle(scService);
         CloseServiceHandle(scManager);
         return false;
@@ -288,21 +292,21 @@ static bool InstallService(int argc, char* argv[])
 
         if (scService == NULL)
         {
-            Log_Errno("Cannot create service: %s", serviceName.GetBuffer());
+            fprintf(stderr, "\nError %u: Cannot create service: %s\n\n", GetLastError(), serviceName.GetBuffer());
             CloseServiceHandle(scManager);
             return false;
         }
     }
 
-    Log_Message("Service created.");
-    Log_Message("Service can be started from the command line via 'net start \"%s\"", serviceName.GetBuffer());
+    fprintf(stderr, "\n%s service created.\n", serviceName.GetBuffer());
+    fprintf(stderr, "Service can be started from the command line via 'net start %s'\n\n", serviceName.GetBuffer());
 
     // set the service description
     SERVICE_DESCRIPTION description;
     description.lpDescription = (LPTSTR)serviceDescription.GetBuffer();
     if (!ChangeServiceConfig2(scService, SERVICE_CONFIG_DESCRIPTION, &description))
     {
-        Log_Errno("Could not set service description");
+        fprintf(stderr, "\nError %u: Could not set service description\n", GetLastError());
         CloseServiceHandle(scService);
         CloseServiceHandle(scManager);
         return false;
@@ -317,7 +321,7 @@ static bool InstallService(int argc, char* argv[])
 
     if (!ChangeServiceConfig2(scService, SERVICE_CONFIG_FAILURE_ACTIONS, &serviceFailure))
     {
-        Log_Errno("Could not set service recovery options");
+        fprintf(stderr, "\nError %u: Could not set service recovery options\n", GetLastError());
         CloseServiceHandle(scService);
         CloseServiceHandle(scManager);
         return false;
