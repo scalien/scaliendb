@@ -358,8 +358,8 @@ void ShardQuorumProcessor::OnLeaseTimeout()
     migrateCache = 0;
     blockedShardID = 0;
     
-    if (catchupWriter.IsActive())
-        catchupWriter.Abort();
+    //if (catchupWriter.IsActive())
+    //    catchupWriter.Abort();
 }
 
 bool ShardQuorumProcessor::IsResumeAppendActive()
@@ -565,6 +565,11 @@ void ShardQuorumProcessor::ContinueReplication()
 bool ShardQuorumProcessor::IsCatchupActive()
 {
     return catchupWriter.IsActive();
+}
+
+void ShardQuorumProcessor::AbortCatchup()
+{
+    catchupWriter.Abort();
 }
 
 uint64_t ShardQuorumProcessor::GetCatchupBytesSent()

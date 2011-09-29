@@ -411,6 +411,8 @@ void ShardServer::OnSetConfigState(ClusterMessage& message)
         }
         if (configQuorum->IsInactiveMember(MY_NODEID))
         {
+            if (quorumProcessor->IsCatchupActive())
+                quorumProcessor->AbortCatchup();
             quorumProcessor->RegisterPaxosID(configQuorum->paxosID);
             continue;
         }
