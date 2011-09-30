@@ -11,6 +11,53 @@ namespace Scalien
     {
         public static System.Random RandomNumber = new System.Random();
 
+        public bool DBCompare(Database DB1, Database DB2)
+        {
+            bool res = true;
+            Table cmp_tbl;
+            byte[] cmp_val;
+
+            // DB1 -> DB2
+            // call the function vice versa too, to be sure in result
+            List<Table> tables = DB1.GetTables();
+            foreach (Table tbl in tables)
+            {
+                if (null == (cmp_tbl = DB2.GetTable(tbl.Name)))
+                {
+                    Console.WriteLine(tbl.Name + " table is not in database " + DB2.Name);
+                    res = false;
+                }
+                else
+                {
+                    Console.WriteLine("Comparing table " + tbl.Name);
+
+                    // check for table data
+                    foreach (KeyValuePair<byte[], byte[]> kv in tbl.GetKeyValueIterator(new ByteRangeParams()))
+                    {
+                        cmp_val = cmp_tbl.Get(kv.Key);
+
+                        if (null == cmp_val)
+                        {
+                            Console.WriteLine("Key \"" + kv.Key.ToString() + "\" is not in table " + tbl.Name);
+                            res = false;
+                            continue;
+                        }
+
+                        if (!Utils.ByteArraysEqual(kv.Value, cmp_val))
+                        {
+                            Console.WriteLine("Values for key \"" + kv.Key.ToString() + "\" doesn't match:");
+                            Console.WriteLine(kv.Value.ToString());
+                            Console.WriteLine(cmp_val.ToString());
+                            res = false;
+                            continue;
+                        }
+                    }
+                }
+            }
+
+            return res;
+        }
+
         public static byte[] JsonSerialize(object obj)
         {
             MemoryStream _stream = new MemoryStream();
@@ -85,7 +132,7 @@ namespace Scalien
 
         public static byte[] ReadFile(string filePath)
         {
-            byte[] buffer;
+            byte[] buffer = null;
             FileStream fileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read);
             try
             {
@@ -105,6 +152,29 @@ namespace Scalien
             return buffer;
         }
 
+        public static bool WriteFile(string filePath, byte[] data)
+        {
+            bool res = true;
+            
+            FileStream fileStream = new FileStream(filePath, FileMode.CreateNew, FileAccess.Write);
+            try
+            {
+                // TODO block
+                fileStream.Write(data, 0, data.Length);
+            }
+            catch (IOException exp)
+            {
+                res = false;
+                throw exp;
+            }
+            finally
+            {
+                fileStream.Close();
+            }
+
+            return res;
+        }
+
         public static bool ByteArraysEqual(byte[] a, byte[] b)
         {
             if (a.GetLength(0) != b.GetLength(0)) return false;
@@ -113,6 +183,45 @@ namespace Scalien
                 if (a[i] != b[i]) return false;
 
             return true;
+        }
+
+        public static bool NotLargerThan(byte[] s, byte[] l)
+        {
+            for (int i = 0; i < s.Length && i < l.Length; i++)
+            {
+                if (s[i] == l[i]) continue;
+
+                if (s[i] < l[i]) return true;
+                else return false;
+            }
+
+            if (s.Length > l.Length) return false;
+
+            return true;
+        }
+
+        public static void SortKeyValueArrays(ref byte[][] keys, ref byte[][] values, int len)
+        {
+            int minid;
+            byte[] tmp;
+
+            for (int i = 0; i < len; i++)
+            {
+                minid = i;
+
+                for (int j = i; j < len; j++)
+                {
+                    if (NotLargerThan(keys[j], keys[minid])) minid = j;
+                }
+
+                tmp = keys[minid];
+                keys[minid] = keys[i];
+                keys[i] = tmp;
+
+                tmp = values[minid];
+                values[minid] = values[i];
+                values[i] = tmp;
+            }
         }
     }
 }

@@ -16,7 +16,7 @@ namespace ScalienClientUnitTesting
             string dbName = "test_mp3_db";
             string tableName = "test_mp3_table";
 
-            Client client = new Client(Config.nodes);
+            Client client = new Client(Config.GetNodes());
             Utils.DeleteDBs(client);
 
             Database db = client.CreateDatabase(dbName);
@@ -41,7 +41,7 @@ namespace ScalienClientUnitTesting
             string dbName = "get_set_db";
             string tableName = "get_set_db_table";
 
-            Client client = new Client(Config.nodes);
+            Client client = new Client(Config.GetNodes());
             Utils.DeleteDBs(client);
 
             Database db = client.CreateDatabase(dbName);
@@ -68,8 +68,8 @@ namespace ScalienClientUnitTesting
             string dbName = "create_and_close_clients_db";
             string tableName = "create_and_close_clients_table";
 
-            Client client1 = new Client(Config.nodes);
-            Client client2 = new Client(Config.nodes);
+            Client client1 = new Client(Config.GetNodes());
+            Client client2 = new Client(Config.GetNodes());
 
             Utils.DeleteDBs(client1);
 
@@ -113,7 +113,7 @@ namespace ScalienClientUnitTesting
             string tableName = "get_set_db_table";
             Client.SetLogFile("f:\\log.txt");
             Client.SetTrace(true);
-            Client client = new Client(Config.nodes);
+            Client client = new Client(Config.GetNodes());
             Utils.DeleteDBs(client);
 
             Database db = client.CreateDatabase(dbName);
@@ -145,7 +145,7 @@ namespace ScalienClientUnitTesting
             string tableNameSeq = "seq_table";
             string tableNameTrunc = "trunc_table";
 
-            Client client = new Client(Config.nodes);
+            Client client = new Client(Config.GetNodes());
             
             Utils.DeleteDBs(client);
 

@@ -42,7 +42,7 @@ namespace ScalienClientUnitTesting
                 {
                     if (cls.GetCustomAttributes(typeof(TestClassAttribute), false).GetLength(0) > 0)
                     {
-                        System.Console.WriteLine("\n -- Runnung unit tests from TestClass: " + cls.Name.ToString() + " -- \n");
+                        System.Console.WriteLine("\n -- Running unit tests from TestClass: " + cls.Name.ToString() + " -- \n");
 
                         instance = Activator.CreateInstance(cls); ;
 
@@ -52,7 +52,7 @@ namespace ScalienClientUnitTesting
                             if (method.GetCustomAttributes(typeof(TestMethodAttribute), false).GetLength(0) > 0)
                             {
                                 // call test method
-                                System.Console.WriteLine("  |\n  |\n  |->  Runnung unit test: " + cls.Name.ToString() + " :: " + method.Name.ToString());
+                                System.Console.WriteLine("  |\n  |\n  |->  Running unit test: " + cls.Name.ToString() + " :: " + method.Name.ToString());
 
                                 try
                                 {

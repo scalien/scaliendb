@@ -2,13 +2,14 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.IO;
 using System.Threading;
 
 using Scalien;
 
 namespace ScalienClientUnitTesting
 {
-    [TestClass]
+    //[TestClass]
     class UsersTests
     {
         /* DEPRECATED
@@ -24,16 +25,16 @@ namespace ScalienClientUnitTesting
             Assert.IsTrue(uTest.TestGetSetSubmit());
         }*/
 
-        [TestMethod]
+        //[TestMethod]
         public void SimpleTest()
         {
-            Users usr = new Users(Config.nodes);
+            Users usr = new Users(Config.GetNodes());
             usr.EmptyAll();
 
             usr.InsertUsers(1000);
             // bug ?
             long cnt = usr.CountUsers();
-            //usr.SubmitAll();
+            usr.SubmitAll();
             usr.TestCycle(500);
             
             Assert.IsTrue(usr.IsConsistent());
@@ -42,9 +43,9 @@ namespace ScalienClientUnitTesting
         private static void TestWorker(Object param)
         {
             int loop = System.Convert.ToInt32(param);
-            int users_per_iteration = 100;
+            int users_per_iteration = 5;
 
-            Users usr = new Users(Config.nodes);
+            Users usr = new Users(Config.GetNodes());
             while (loop-- > 0)
             {
                 usr.TestCycle(users_per_iteration);
@@ -52,13 +53,51 @@ namespace ScalienClientUnitTesting
             }
         }
 
-        [TestMethod]
+        //[TestMethod]
         public void ShortTest_10_Threads()
         {
-            int init_users = 1000;
+            Client.SetTrace(true);
+            Client.SetLogFile("c:\\Users\\zszabo\\logs\\client_trace.txt");
+            int init_users = 10000;
             int threadnum = 10;
 
-            Users usr = new Users(Config.nodes);
+            FileStream fs = new FileStream("c:\\Users\\zszabo\\logs\\threadout.txt", FileMode.Create);
+            StreamWriter sw = new StreamWriter(fs);
+            Console.SetOut(sw);
+
+            Users usr = new Users(Config.GetNodes());
+            usr.EmptyAll();
+            usr.InsertUsers(init_users);
+
+            Thread[] threads = new Thread[threadnum];
+            for (int i = 0; i < threadnum; i++)
+            {
+                threads[i] = new Thread(new ParameterizedThreadStart(TestWorker));
+                threads[i].Start(500);
+            }
+
+            for (int i = 0; i < threadnum; i++)
+            {
+                threads[i].Join();
+            }
+
+            Assert.IsTrue(usr.IsConsistent());
+        }
+
+        [TestMethod]
+        public void ShortTest_100_Threads()
+        {
+            Client.SetTrace(true);
+            Client.SetLogFile("c:\\Users\\zszabo\\logs\\client_trace.txt");
+            int init_users = 10000;
+            int threadnum = 100;
+
+            FileStream fs = new FileStream("c:\\Users\\zszabo\\logs\\threadout.txt", FileMode.Create);
+            StreamWriter sw = new StreamWriter(fs);
+            Console.SetOut(sw);
+
+            Users usr = new Users(Config.GetNodes());
+            usr.EmptyAll();
             usr.InsertUsers(init_users);
 
             Thread[] threads = new Thread[threadnum];
@@ -77,19 +116,26 @@ namespace ScalienClientUnitTesting
         }
 
         //[TestMethod]
-        public void ShortTest_100_Threads()
-        {
-            Users usr = new Users(Config.nodes);
-            usr.InsertUsers(1000);
-
-            Assert.IsTrue(usr.IsConsistent());
-        }
-
-        //[TestMethod]
         public void ShortTest_1000_Threads()
         {
-            Users usr = new Users(Config.nodes);
-            usr.InsertUsers(1000);
+            int init_users = 1000;
+            int threadnum = 1000;
+
+            Users usr = new Users(Config.GetNodes());
+            usr.EmptyAll();
+            usr.InsertUsers(init_users);
+
+            Thread[] threads = new Thread[threadnum];
+            for (int i = 0; i < threadnum; i++)
+            {
+                threads[i] = new Thread(new ParameterizedThreadStart(TestWorker));
+                threads[i].Start(500);
+            }
+
+            for (int i = 0; i < threadnum; i++)
+            {
+                threads[i].Join();
+            }
 
             Assert.IsTrue(usr.IsConsistent());
         }
