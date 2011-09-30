@@ -154,7 +154,7 @@ static inline void UpdateClock()
     clockMsec = (uint64_t)tv.tv_sec * 1000 + tv.tv_usec / 1000;
     clockUsec = (uint64_t)tv.tv_sec * 1000000 + tv.tv_usec;
 
-    if (prevMsec != 0 && clockMsec - prevMsec > 5 * CLOCK_RESOLUTION)
+    if (prevMsec != 0 && clockMsec - prevMsec > MAX(2 * CLOCK_RESOLUTION, 100))
         Log_Debug("Softclock diff: %U", clockMsec - prevMsec);
 }
 
