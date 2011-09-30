@@ -118,6 +118,7 @@ int32_t StorageLogSegment::AppendSet(uint16_t contextID, uint64_t shardID,
  ReadBuffer& key, ReadBuffer& value)
 {
     ASSERT(fd != INVALID_FD);
+    ASSERT(key.GetLength() > 0);
 
     prevLength = writeBuffer.GetLength();
 
@@ -146,6 +147,7 @@ int32_t StorageLogSegment::AppendSet(uint16_t contextID, uint64_t shardID,
 int32_t StorageLogSegment::AppendDelete(uint16_t contextID, uint64_t shardID, ReadBuffer& key)
 {
     ASSERT(fd != INVALID_FD);
+    ASSERT(key.GetLength() > 0);
 
     prevLength = writeBuffer.GetLength();
 

@@ -641,6 +641,7 @@ bool StorageRecovery::ReplayLogSegment(uint64_t trackID, Buffer& filename)
             key.Wrap(parse.GetBuffer(), klen);
             parse.Advance(klen);
 
+            ASSERT(key.GetLength() > 0);
             if (type == STORAGE_LOGSEGMENT_COMMAND_SET)
             {
                 if (parse.GetLength() < 4)

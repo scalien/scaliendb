@@ -1080,6 +1080,7 @@ bool StorageEnvironment::SplitShard(uint16_t contextID,  uint64_t shardID,
 
     FOREACH (itKeyValue, memoChunk->keyValues)
     {
+        ASSERT(itKeyValue->GetKey().GetLength() > 0);
         if (newShard->RangeContains(itKeyValue->GetKey()))
         {
 //            kv = new StorageMemoKeyValue;
