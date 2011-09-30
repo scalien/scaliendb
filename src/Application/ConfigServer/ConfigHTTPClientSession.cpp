@@ -487,6 +487,7 @@ void ConfigHTTPClientSession::ProcessSettings()
     {
         boolValue = PARAM_BOOL_VALUE(param);
         Log_SetTrace(boolValue);
+        Log_Flush();
         session.PrintPair("Trace", boolValue ? "on" : "off");
     }
     
