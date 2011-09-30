@@ -310,7 +310,7 @@ namespace Scalien
                 System.Console.WriteLine("Key for test:");
                 System.Console.WriteLine(key);
 
-                switch (Utils.RandomNumber.Next(5))
+                switch (Utils.RandomNumber.Next(15))
                 {
                     case 1:
                         // Get user

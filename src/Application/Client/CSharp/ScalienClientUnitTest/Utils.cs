@@ -184,5 +184,44 @@ namespace Scalien
 
             return true;
         }
+
+        public static bool NotLargerThan(byte[] s, byte[] l)
+        {
+            for (int i = 0; i < s.Length && i < l.Length; i++)
+            {
+                if (s[i] == l[i]) continue;
+
+                if (s[i] < l[i]) return true;
+                else return false;
+            }
+
+            if (s.Length > l.Length) return false;
+
+            return true;
+        }
+
+        public static void SortKeyValueArrays(ref byte[][] keys, ref byte[][] values, int len)
+        {
+            int minid;
+            byte[] tmp;
+
+            for (int i = 0; i < len; i++)
+            {
+                minid = i;
+
+                for (int j = i; j < len; j++)
+                {
+                    if (NotLargerThan(keys[j], keys[minid])) minid = j;
+                }
+
+                tmp = keys[minid];
+                keys[minid] = keys[i];
+                keys[i] = tmp;
+
+                tmp = values[minid];
+                values[minid] = values[i];
+                values[i] = tmp;
+            }
+        }
     }
 }

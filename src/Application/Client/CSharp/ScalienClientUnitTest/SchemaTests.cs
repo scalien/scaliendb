@@ -10,7 +10,7 @@ namespace ScalienClientUnitTesting
     //[TestClass]
     class SchemaTests
     {
-        [TestMethod]
+        //[TestMethod]
         public void ManyDBs100()
         {
             string dbName = "manydb_test_";
@@ -30,7 +30,7 @@ namespace ScalienClientUnitTesting
             }
         }
 
-        [TestMethod]
+        //[TestMethod]
         public void ManyDBs1000()
         {
             string dbName = "manydb_test_";
@@ -51,7 +51,7 @@ namespace ScalienClientUnitTesting
             }
         }
 
-        [TestMethod]
+        //[TestMethod]
         public void ManyTables1000()
         {
             string dbName = "manytables_test";
@@ -75,7 +75,7 @@ namespace ScalienClientUnitTesting
             }
         }
 
-        [TestMethod]
+       // [TestMethod]
         public void ManyTables10000()
         {
             string dbName = "manytables_test";
@@ -99,7 +99,7 @@ namespace ScalienClientUnitTesting
             }
         }
 
-        [TestMethod]
+        //[TestMethod]
         public void ManyDB_AND_Tables_100x100()
         {
             string dbName = "manydbtables_test_";
@@ -156,6 +156,29 @@ namespace ScalienClientUnitTesting
         }
 
         [TestMethod]
+        public void RandomNamedDBs_CheckByDBList()
+        {
+            Client client = new Client(Config.GetNodes());
+
+            Utils.DeleteDBs(client);
+
+            Database[] db = new Database[100];
+            List<string> dbNames = new List<string>();
+
+            for (int i = 0; i < 100; i++)
+            {
+                dbNames.Add(Utils.RandomString());
+                client.CreateDatabase(dbNames[i]);
+            }
+
+            int j = 0;
+            foreach (Database db2chk in client.GetDatabases())
+            {
+                Assert.IsTrue(db2chk.Name.Equals(dbNames[j++]));
+            }
+        }
+
+        [TestMethod]
         public void RandomNamedTables()
         {
             string dbName = "random_named_tables_db";
@@ -183,6 +206,33 @@ namespace ScalienClientUnitTesting
         }
 
         [TestMethod]
+        public void RandomNamedTables_CheckByTableList()
+        {
+            string dbName = "random_named_tables_db";
+            List<string> tableNames = new List<string>(100);
+
+            Client client = new Client(Config.GetNodes());
+
+            Utils.DeleteDBs(client);
+
+            Database db = client.CreateDatabase(dbName);
+
+            Table[] tbl = new Table[100];
+
+            for (int i = 0; i < 100; i++)
+            {
+                tableNames.Add(Utils.RandomString());
+                db.CreateTable(tableNames[i]);
+            }
+
+            int j = 0;
+            foreach (Table tbl2chk in db.GetTables())
+            {
+                Assert.IsTrue(tbl2chk.Name.Equals(tableNames[j++]));
+            }
+        }
+
+        /*[TestMethod]
         public void RenameDBs()
         {
             string dbName = "rename_db_";
