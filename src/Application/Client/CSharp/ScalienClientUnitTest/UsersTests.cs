@@ -43,7 +43,7 @@ namespace ScalienClientUnitTesting
         private static void TestWorker(Object param)
         {
             int loop = System.Convert.ToInt32(param);
-            int users_per_iteration = 3;
+            int users_per_iteration = 5;
 
             Users usr = new Users(Config.GetNodes());
             while (loop-- > 0)
@@ -53,15 +53,15 @@ namespace ScalienClientUnitTesting
             }
         }
 
-        [TestMethod]
+        //[TestMethod]
         public void ShortTest_10_Threads()
         {
             Client.SetTrace(true);
-            Client.SetLogFile("f:\\out.txt");
+            Client.SetLogFile("c:\\Users\\zszabo\\logs\\client_trace.txt");
             int init_users = 10000;
             int threadnum = 10;
 
-            FileStream fs = new FileStream("f:\\threadout.txt", FileMode.Create);
+            FileStream fs = new FileStream("c:\\Users\\zszabo\\logs\\threadout.txt", FileMode.Create);
             StreamWriter sw = new StreamWriter(fs);
             Console.SetOut(sw);
 
@@ -84,11 +84,17 @@ namespace ScalienClientUnitTesting
             Assert.IsTrue(usr.IsConsistent());
         }
 
-        //[TestMethod]
+        [TestMethod]
         public void ShortTest_100_Threads()
         {
-            int init_users = 1000;
+            Client.SetTrace(true);
+            Client.SetLogFile("c:\\Users\\zszabo\\logs\\client_trace.txt");
+            int init_users = 10000;
             int threadnum = 100;
+
+            FileStream fs = new FileStream("c:\\Users\\zszabo\\logs\\threadout.txt", FileMode.Create);
+            StreamWriter sw = new StreamWriter(fs);
+            Console.SetOut(sw);
 
             Users usr = new Users(Config.GetNodes());
             usr.EmptyAll();

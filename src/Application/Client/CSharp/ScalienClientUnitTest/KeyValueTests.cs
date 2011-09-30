@@ -55,7 +55,7 @@ namespace ScalienClientUnitTesting
             string dbName = "random_key_values_db";
             string tableName = "random_key_values_tbl";
 
-            Client client = new Client(Config.nodes);
+            Client client = new Client(Config.GetNodes());
             Utils.DeleteDBs(client);
 
             Database db = client.CreateDatabase(dbName);
@@ -87,7 +87,7 @@ namespace ScalienClientUnitTesting
             string dbName = "random_key_values_db";
             string tableName = "random_key_values_tbl";
 
-            Client client = new Client(Config.nodes);
+            Client client = new Client(Config.GetNodes());
             Utils.DeleteDBs(client);
 
             Database db = client.CreateDatabase(dbName);
@@ -122,7 +122,7 @@ namespace ScalienClientUnitTesting
             string dbName = "random_key_values_db";
             string tableName = "random_key_values_tbl";
 
-            Client client = new Client(Config.nodes);
+            Client client = new Client(Config.GetNodes());
             Utils.DeleteDBs(client);
 
             Database db = client.CreateDatabase(dbName);
@@ -164,7 +164,7 @@ namespace ScalienClientUnitTesting
             string dbName = "random_key_values_db";
             string tableName = "random_key_values_tbl";
 
-            Client client = new Client(Config.nodes);
+            Client client = new Client(Config.GetNodes());
             Utils.DeleteDBs(client);
 
             Database db = client.CreateDatabase(dbName);
@@ -198,7 +198,7 @@ namespace ScalienClientUnitTesting
             string dbName = "random_key_values_db";
             string tableName = "random_key_values_tbl";
 
-            Client client = new Client(Config.nodes);
+            Client client = new Client(Config.GetNodes());
             Utils.DeleteDBs(client);
 
             Database db = client.CreateDatabase(dbName);
@@ -239,7 +239,7 @@ namespace ScalienClientUnitTesting
             string dbName = "random_key_values_db";
             string tableName = "random_key_values_tbl";
 
-            Client client = new Client(Config.nodes);
+            Client client = new Client(Config.GetNodes());
             Utils.DeleteDBs(client);
 
             Database db = client.CreateDatabase(dbName);
