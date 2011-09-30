@@ -12,8 +12,17 @@ void ClientRequest::Init()
     session = NULL;
     response.request = this;
     prev = next = this;
+    type = CLIENTREQUEST_UNDEFINED;
+    commandID = 0;
+    quorumID = 0;
+    databaseID = 0;
+    tableID = 0;
+    shardID = 0;
+    nodeID = 0;
     paxosID = 0;
     configPaxosID = 0;
+    number = 0;
+    count = 0;
     changeTimeout = 0;
     lastChangeTime = 0;
 

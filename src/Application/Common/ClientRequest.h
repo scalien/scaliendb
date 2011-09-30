@@ -6,6 +6,7 @@
 #include "ClientResponse.h"
 #include "ClientSession.h"
 
+#define CLIENTREQUEST_UNDEFINED                         ' '
 #define CLIENTREQUEST_GET_MASTER                        'm'
 #define CLIENTREQUEST_GET_MASTER_HTTP                   'H'
 #define CLIENTREQUEST_GET_CONFIG_STATE                  'A'
@@ -175,6 +176,9 @@ public:
     ClientResponse  response;
     ClientSession*  session;
 
+    ClientRequest*  prev;
+    ClientRequest*  next;
+
     char            type;
     uint64_t        commandID;
     uint64_t        quorumID;
@@ -196,9 +200,6 @@ public:
     uint64_t        changeTimeout;
     uint64_t        lastChangeTime;
     
-    ClientRequest*  prev;
-    ClientRequest*  next;
-
 };
 
 #endif
