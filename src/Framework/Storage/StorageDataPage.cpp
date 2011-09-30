@@ -86,7 +86,9 @@ uint32_t StorageDataPage::GetIncrement(StorageKeyValue* kv)
 void StorageDataPage::Append(StorageKeyValue* kv, bool keysOnly)
 {
     StorageFileKeyValue fkv;
-    
+
+    ASSERT(kv->GetKey().GetLength() > 0);
+
     keysBuffer.Append(kv->GetType());                               // 1 byte(s)
     keysBuffer.AppendLittle16(kv->GetKey().GetLength());            // 2 byte(s)
     keysBuffer.Append(kv->GetKey());
@@ -155,6 +157,7 @@ void StorageDataPage::Finalize()
     for (unsigned i = 0; i < numKeys; i++)
     {
         it = GetIndexedKeyValue(i);
+        ASSERT(it->GetKey().GetLength() > 0);
         
         kit += 1;                                                // type
         if (it->GetType() == STORAGE_KEYVALUE_TYPE_SET)
@@ -358,13 +361,14 @@ bool StorageDataPage::Read(Buffer& buffer_, bool keysOnly)
         if (!kparse.ReadLittle16(klen))
             goto Fail;
         kparse.Advance(2);
+        ASSERT(klen > 0);
         
         // key
         if (kparse.GetLength() < klen)
             goto Fail;
         key.Wrap(kparse.GetBuffer(), klen);
         kparse.Advance(klen);
-        
+
         if (type == STORAGE_KEYVALUE_TYPE_SET)
         {
             if (!keysOnly)
@@ -420,5 +424,6 @@ void StorageDataPage::Unload()
 
 void StorageDataPage::AppendKeyValue(StorageFileKeyValue& kv)
 {
+    ASSERT(kv.GetKey().GetLength() > 0);
     storageFileKeyValueBuffer.Append((const char*) &kv, sizeof(StorageFileKeyValue));
 }

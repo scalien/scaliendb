@@ -249,6 +249,8 @@ bool StorageChunkMerger::WriteDataPages(ReadBuffer /*firstKey*/, ReadBuffer last
 //        key = it->GetKey();
 //        Log_Debug("Merge: %R", &key);
         
+        ASSERT(it->GetKey().GetLength() > 0);
+
         if (this->firstKey.GetLength() == 0)
             this->firstKey.Write(it->GetKey());
         this->lastKey.Write(it->GetKey());

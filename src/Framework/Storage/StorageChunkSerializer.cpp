@@ -88,6 +88,7 @@ bool StorageChunkSerializer::WriteDataPages()
     dataPage->SetOffset(offset);
     FOREACH (it, memoChunk->keyValues)
     {
+        ASSERT(it->GetKey().GetLength() > 0);
         if (memoChunk->UseBloomFilter())
             fileChunk->bloomPage->Add(it->GetKey());
 

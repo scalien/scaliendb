@@ -172,6 +172,8 @@ bool StorageMemoChunk::Set(ReadBuffer key, ReadBuffer value)
     int                     cmpres;
     StorageMemoKeyValue*    it;
     
+    ASSERT(key.GetLength() > 0);
+
     if (keyValues.GetCount() != 0)
     {
         it = keyValues.Locate<const ReadBuffer&>(key, cmpres);
@@ -193,6 +195,8 @@ bool StorageMemoChunk::Delete(ReadBuffer key)
 {
     int                     cmpres;
     StorageMemoKeyValue*    it;
+
+    ASSERT(key.GetLength() > 0);
     
     if (keyValues.GetCount() != 0)
     {
