@@ -2,7 +2,7 @@
 SET ARCH=%1
 SET BIN_DIR=..\bin\%ARCH%
 FOR /F %%a IN ('..\script\version.cmd ..\src\Version.h') DO SET VERSION=%%a
-SET BUILD_DIR=..\build\%ARCH%\%VERSION%
+SET BUILD_DIR=..\build\%ARCH%\ScalienDB-%ARCH%-%VERSION%
 echo "Creating build directory: %BUILD_DIR%"
 
 RMDIR /S /Q %BUILD_DIR%
