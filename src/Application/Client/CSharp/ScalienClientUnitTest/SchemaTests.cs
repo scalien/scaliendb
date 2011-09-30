@@ -14,7 +14,7 @@ namespace ScalienClientUnitTesting
         public void ManyDBs100()
         {
             string dbName = "manydb_test_";
-            Client client = new Client(Config.nodes);
+            Client client = new Client(Config.GetNodes());
 
             Utils.DeleteDBs(client);
 
@@ -35,7 +35,7 @@ namespace ScalienClientUnitTesting
         {
             string dbName = "manydb_test_";
 
-            Client client = new Client(Config.nodes);
+            Client client = new Client(Config.GetNodes());
 
             Utils.DeleteDBs(client);
 
@@ -57,7 +57,7 @@ namespace ScalienClientUnitTesting
             string dbName = "manytables_test";
             string tableName = "manytables_test_";
 
-            Client client = new Client(Config.nodes);
+            Client client = new Client(Config.GetNodes());
 
             Utils.DeleteDBs(client);
 
@@ -81,7 +81,7 @@ namespace ScalienClientUnitTesting
             string dbName = "manytables_test";
             string tableName = "manytables_test_";
 
-            Client client = new Client(Config.nodes);
+            Client client = new Client(Config.GetNodes());
 
             Utils.DeleteDBs(client);
 
@@ -105,7 +105,7 @@ namespace ScalienClientUnitTesting
             string dbName = "manydbtables_test_";
             string tableName = "manydbtables_test_";
 
-            Client client = new Client(Config.nodes);
+            Client client = new Client(Config.GetNodes());
 
             Utils.DeleteDBs(client);
 
@@ -135,7 +135,7 @@ namespace ScalienClientUnitTesting
         [TestMethod]
         public void RandomNamedDBs()
         {
-            Client client = new Client(Config.nodes);
+            Client client = new Client(Config.GetNodes());
 
             Utils.DeleteDBs(client);
 
@@ -161,7 +161,7 @@ namespace ScalienClientUnitTesting
             string dbName = "random_named_tables_db";
             string[] tableNames = new string[100];
 
-            Client client = new Client(Config.nodes);
+            Client client = new Client(Config.GetNodes());
 
             Utils.DeleteDBs(client);
 
@@ -186,7 +186,7 @@ namespace ScalienClientUnitTesting
         public void RenameDBs()
         {
             string dbName = "rename_db_";
-            Client client = new Client(Config.nodes);
+            Client client = new Client(Config.GetNodes());
 
             Utils.DeleteDBs(client);
 
@@ -222,7 +222,7 @@ namespace ScalienClientUnitTesting
             string tblName = "rename_tables_table_";
             string[] tableNames = new string[100];
 
-            Client client = new Client(Config.nodes);
+            Client client = new Client(Config.GetNodes());
 
             Utils.DeleteDBs(client);
 
@@ -258,7 +258,7 @@ namespace ScalienClientUnitTesting
             string dbName = "random_named_tables_db";
             string[] tableNames = new string[100];
 
-            Client client = new Client(Config.nodes);
+            Client client = new Client(Config.GetNodes());
 
             Utils.DeleteDBs(client);
 

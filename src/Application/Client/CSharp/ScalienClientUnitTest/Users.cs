@@ -270,6 +270,7 @@ namespace Scalien
             TestUserInfo cmpinfo;
             byte[] row;
 
+            // byte array?
             foreach (string key in table.GetKeyIterator(new StringRangeParams()))
             {
                 user = GetUser(key);
@@ -294,11 +295,6 @@ namespace Scalien
             }
 
             return true;
-        }
-
-        public bool ClientDBsAreSame()
-        {
-            return false;
         }
 
         public void TestCycle(int userNum)
