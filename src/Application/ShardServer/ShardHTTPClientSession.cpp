@@ -138,6 +138,10 @@ void ShardHTTPClientSession::PrintStatus()
     session.PrintPair("ScalienDB", "ShardServer");
     session.PrintPair("Version", VERSION_STRING);
 
+    valbuf.Writef("%U", GetProcessID());
+    valbuf.NullTerminate();
+    session.PrintPair("ProcessID", valbuf.GetBuffer());
+
     UInt64ToBufferWithBase(hexbuf, sizeof(hexbuf), REPLICATION_CONFIG->GetClusterID(), 64);
     session.PrintPair("ClusterID", hexbuf);
 

@@ -107,6 +107,10 @@ void ConfigHTTPClientSession::PrintStatus()
     session.PrintPair("ScalienDB", "Controller");
     session.PrintPair("Version", VERSION_STRING);
 
+    buf.Writef("%U", GetProcessID());
+    buf.NullTerminate();
+    session.PrintPair("ProcessID", buf.GetBuffer());
+
     UInt64ToBufferWithBase(hexbuf, sizeof(hexbuf), REPLICATION_CONFIG->GetClusterID(), 64);
     session.PrintPair("ClusterID", hexbuf);
 
