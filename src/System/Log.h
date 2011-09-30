@@ -66,6 +66,7 @@ void Log(const char* file, int line, const char* func,
  int type, const char* fmt, ...);
 bool Log_SetTrace(bool trace);
 void Log_SetTimestamping(bool ts);
+void Log_SetThreadedOutput(bool to);
 void Log_SetMaxLine(int maxLine);
 void Log_SetTarget(int target);
 int  Log_GetTarget();

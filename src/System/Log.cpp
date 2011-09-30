@@ -1,5 +1,6 @@
 #include "Log.h"
 #include "Formatting.h"
+#include "Threading/ThreadPool.h"
 #define _XOPEN_SOURCE 600
 #include <string.h>
 #include <errno.h>
@@ -19,6 +20,7 @@
 #define LOG_MSG_SIZE    1024
 
 static bool     timestamping = false;
+static bool     threadedOutput = false;
 static bool     trace = false;
 static int      maxLine = LOG_MSG_SIZE;
 static int      target = LOG_TARGET_NOWHERE;
@@ -114,6 +116,11 @@ void Log_SetTimestamping(bool ts)
     timestamping = ts;
 }
 
+void Log_SetThreadedOutput(bool to)
+{
+    threadedOutput = to;
+}
+
 bool Log_SetTrace(bool trace_)
 {
     bool prev = trace;
@@ -197,6 +204,7 @@ void Log(const char* file, int line, const char* func, int type, const char* fmt
     const char  *sep;
     int         ret;
     va_list     ap;
+    uint64_t    threadID;
 
     // In debug mode enable ERRNO type messages
 #ifdef DEBUG
@@ -218,6 +226,18 @@ void Log(const char* file, int line, const char* func, int type, const char* fmt
         p += sizeof(log_timestamp_t) - 1;
         remaining -= sizeof(log_timestamp_t) - 1;
         Log_Append(p, remaining, ": ", 2);
+    }
+
+    // print threadID
+    if (threadedOutput)
+    {
+        threadID = ThreadPool::GetThreadID();
+        ret = Writef(p, remaining, "[%U]: ", threadID);
+        if (ret < 0 || ret > remaining)
+            ret = remaining;
+
+        p += ret;
+        remaining -= ret;
     }
 
     // don't print filename and func in debug mode on ERRNO messages
