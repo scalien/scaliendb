@@ -70,6 +70,45 @@ static const char* GetFullTimestamp(log_timestamp_t ts)
     return ts;
 }
 
+static void Log_Append(char*& p, int& remaining, const char* s, int len)
+{
+    if (len > remaining)
+        len = remaining;
+        
+    if (len > 0)
+        memcpy(p, s, len);
+    
+    p += len;
+    remaining -= len;
+}
+
+static void Log_Write(const char* buf, int /*size*/, int flush)
+{
+    if ((target & LOG_TARGET_STDOUT) == LOG_TARGET_STDOUT)
+    {
+        if (buf)
+            fputs(buf, stdout);
+        if (flush)
+			fflush(stdout);
+    }
+    
+    if ((target & LOG_TARGET_STDERR) == LOG_TARGET_STDERR)
+    {
+        if (buf)
+            fputs(buf, stderr);
+		if (flush)
+			fflush(stderr);
+    }
+    
+    if ((target & LOG_TARGET_FILE) == LOG_TARGET_FILE && logfile)
+    {
+        if (buf)
+            fputs(buf, logfile);
+		if (flush)
+			fflush(logfile);
+    }
+}
+
 void Log_SetTimestamping(bool ts)
 {
     timestamping = ts;
@@ -124,6 +163,11 @@ bool Log_SetOutputFile(const char* filename, bool truncate)
     return true;
 }
 
+void Log_Flush()
+{
+    Log_Write(NULL, 0, true);
+}
+
 void Log_Shutdown()
 {
     if (logfilename)
@@ -143,42 +187,6 @@ void Log_Shutdown()
     
     trace = false;
     timestamping = false;
-}
-
-static void Log_Append(char*& p, int& remaining, const char* s, int len)
-{
-    if (len > remaining)
-        len = remaining;
-        
-    if (len > 0)
-        memcpy(p, s, len);
-    
-    p += len;
-    remaining -= len;
-}
-
-static void Log_Write(const char* buf, int /*size*/, int flush)
-{
-    if ((target & LOG_TARGET_STDOUT) == LOG_TARGET_STDOUT)
-    {
-        fputs(buf, stdout);
-        if (flush)
-			fflush(stdout);
-    }
-    
-    if ((target & LOG_TARGET_STDERR) == LOG_TARGET_STDERR)
-    {
-        fputs(buf, stderr);
-		if (flush)
-			fflush(stderr);
-    }
-    
-    if ((target & LOG_TARGET_FILE) == LOG_TARGET_FILE && logfile)
-    {
-        fputs(buf, logfile);
-		if (flush)
-			fflush(logfile);
-    }
 }
 
 void Log(const char* file, int line, const char* func, int type, const char* fmt, ...)
