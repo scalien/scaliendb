@@ -9,6 +9,12 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ScalienClientLib", "Scalien
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ScalienTest", "ScalienTest.vcxproj", "{F9BB17C5-AFB8-4700-A75C-8AAF4A50A0A2}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ScalienWindowsPackage", "ScalienWindowsPackage.vcxproj", "{3AD98872-2DF5-4882-9125-BC652E8E93BF}"
+	ProjectSection(ProjectDependencies) = postProject
+		{F715807D-757A-4A04-B010-D794D1A39E86} = {F715807D-757A-4A04-B010-D794D1A39E86}
+		{F4DD91C3-235A-46A2-A61A-FCD79A6BA2A3} = {F4DD91C3-235A-46A2-A61A-FCD79A6BA2A3}
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -41,6 +47,12 @@ Global
 		{F9BB17C5-AFB8-4700-A75C-8AAF4A50A0A2}.Release|Win32.Build.0 = Release|Win32
 		{F9BB17C5-AFB8-4700-A75C-8AAF4A50A0A2}.Release|x64.ActiveCfg = Release|x64
 		{F9BB17C5-AFB8-4700-A75C-8AAF4A50A0A2}.Release|x64.Build.0 = Release|x64
+		{3AD98872-2DF5-4882-9125-BC652E8E93BF}.Debug|Win32.ActiveCfg = Debug|Win32
+		{3AD98872-2DF5-4882-9125-BC652E8E93BF}.Debug|Win32.Build.0 = Debug|Win32
+		{3AD98872-2DF5-4882-9125-BC652E8E93BF}.Debug|x64.ActiveCfg = Debug|x64
+		{3AD98872-2DF5-4882-9125-BC652E8E93BF}.Release|Win32.ActiveCfg = Release|Win32
+		{3AD98872-2DF5-4882-9125-BC652E8E93BF}.Release|Win32.Build.0 = Release|Win32
+		{3AD98872-2DF5-4882-9125-BC652E8E93BF}.Release|x64.ActiveCfg = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
