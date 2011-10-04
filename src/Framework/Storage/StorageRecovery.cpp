@@ -77,7 +77,6 @@ bool StorageRecovery::TryRecovery(StorageEnvironment* env_)
         if (!replayedTrackIDs.Contains(trackID))
         {
             ReplayLogSegments(trackID);
-            TryWriteChunks();
             replayedTrackIDs.Add(trackID);
         }
     }
@@ -329,6 +328,8 @@ void StorageRecovery::ReplayLogSegments(uint64_t trackID)
         segmentName = *itSegment;
         ReplayLogSegment(trackID, *segmentName);
         delete segmentName;
+
+        TryWriteChunks();
     }
     
     FS_CloseDir(dir);
@@ -840,7 +841,7 @@ void StorageRecovery::TryWriteChunks()
         
         memoChunk = shard->GetMemoChunk();
         
-        if (memoChunk->GetSize() > (env->config.chunkSize / 2))
+        if (memoChunk->GetSize() > env->config.chunkSize)
         {
             Log_Debug("Serializing chunk %U, size: %s", memoChunk->GetChunkID(),
                 HUMAN_BYTES(memoChunk->GetSize()));
