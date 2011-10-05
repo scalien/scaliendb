@@ -1115,11 +1115,11 @@ function createQuorumDiv(configState, quorum)
 	}
 	if (primaryID == null)
 		explanation += "The quorum has no primary, it is not writable. ";
+	if (quorum["inactiveNodes"].length > 0 && primaryID != null)
+		explanation += "The quorum has inactive nodes. These can be brought back into the quorum (once they are up and running and catchup is complete) by clicking them above. ";
 	quorum["inactiveNodes"].sort();
 	for (var i in quorum["inactiveNodes"])
 	{
-		if (primaryID != null)
-			explanation += "The quorum has inactive nodes. These can be brought back into the quorum (once they are up and running and catchup is complete) by clicking them above. ";
 		var nodeID = quorum["inactiveNodes"][i];
 		var shardServer = scaliendb.getShardServer(configState, nodeID);
 		var quorumInfo = scaliendb.getQuorumInfo(configState, nodeID, quorum["quorumID"]);
