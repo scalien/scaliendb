@@ -1475,6 +1475,23 @@ void Client::InvalidateQuorumRequests(uint64_t quorumID)
     requests.PrependList(*qrequests);
 }
 
+void Client::ActivateQuorumMembership(ShardConnection* conn)
+{
+    ConfigQuorum*   quorum;
+    uint64_t*       nit;
+    uint64_t        nodeID;
+
+    nodeID = conn->GetNodeID();
+    FOREACH (quorum, configState.quorums)
+    {
+        FOREACH (nit, quorum->activeNodes)
+        {
+            if (*nit == nodeID)
+                conn->SetQuorumMembership(quorum->quorumID);
+        }
+    }
+}
+
 void Client::NextRequest(
  Request* req, ReadBuffer nextShardKey, ReadBuffer endKey, ReadBuffer prefix,
  uint64_t count)

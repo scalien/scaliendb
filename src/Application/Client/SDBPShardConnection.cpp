@@ -221,7 +221,7 @@ void ShardConnection::OnConnect()
     CLIENT_MUTEX_GUARD_DECLARE();
 
     MessageConnection::OnConnect();
-    
+    client->ActivateQuorumMembership(this);
     SendQuorumRequests();
 }
 

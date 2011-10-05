@@ -152,6 +152,7 @@ private:
     void                    ClearQuorumRequests();
     void                    InvalidateQuorum(uint64_t quorumID, uint64_t nodeID);
     void                    InvalidateQuorumRequests(uint64_t quorumID);
+    void                    ActivateQuorumMembership(ShardConnection* conn);
     void                    NextRequest(Request* req, ReadBuffer nextShardKey, ReadBuffer endKey,
                              ReadBuffer prefix, uint64_t count);
 
