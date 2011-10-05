@@ -80,6 +80,11 @@ namespace Scalien
             clients.Add(newclient);
         }
 
+        public Client GetClient()
+        {
+            return clients[client_index];
+        }
+
         public void EmptyAll()
         {
             while(IterateClients())
@@ -304,13 +309,13 @@ namespace Scalien
             long from = Utils.RandomNumber.Next((int)count - userNum);
             TestUser user;
 
-            foreach (string key in table.GetKeyIterator(new StringRangeParams().StartKey(Utils.Id(from)).EndKey(Utils.Id(from + userNum))))
+            foreach (string key in table.GetKeyIterator(new StringRangeParams().StartKey(Utils.Id(from)).Count((uint)userNum)))
             {
                 System.Console.WriteLine("===========================================================");
                 System.Console.WriteLine("Key for test:");
                 System.Console.WriteLine(key);
 
-                switch (Utils.RandomNumber.Next(15))
+                switch (Utils.RandomNumber.Next(5))
                 {
                     case 1:
                         // Get user
@@ -349,6 +354,86 @@ namespace Scalien
             }
             // TODO more operations
             // random operation on list
+        }
+
+        public void TestCycle_MultiUser()
+        {
+            int operation = Utils.RandomNumber.Next(15);
+            long count = CountUsers(); // we hope counts are the same
+            long from = Utils.RandomNumber.Next((int)count - 1);
+            TestUser user;
+            
+            while (IterateClients())
+            {
+                foreach (string key in table.GetKeyIterator(new StringRangeParams().StartKey(Utils.Id(from)).Count(1)))
+                {
+                    System.Console.WriteLine("===========================================================");
+                    System.Console.WriteLine("Key for test:");
+                    System.Console.WriteLine(key);
+
+                    switch (operation)
+                    {
+                        case 1:
+                            // Get user
+                            user = GetUser(key);
+                            System.Console.WriteLine("GetAction:");
+                            user.Print();
+                            break;
+                        case 2:
+                            // set user
+                            user = GetUser(key);
+                            System.Console.WriteLine("SetAction:");
+                            user.info.Nick = user.info.Nick + "-SetAt" + System.DateTime.Now.ToString("s");
+                            SetUser(user);
+                            user.Print();
+                            break;
+                        case 3:
+                            user = GetUser(key);
+                            System.Console.WriteLine("DeleteAction:");
+                            user.Print();
+                            DeleteUser(user);
+                            // 
+                            break;
+                        case 4:
+                            user = GetUser(key);
+                            string prefix = user.info.Nick.Substring(0, 3);
+                            System.Console.WriteLine("ListSimilar to Nick: " + user.info.Nick + " using prefix: " + prefix);
+                            PrintByNick(prefix);
+                            break;
+                        default:
+                            //add user
+                            System.Console.WriteLine("Add new");
+                            AddUser();
+                            break;
+                    }
+                }
+            }
+
+            SubmitAll();
+        }
+
+        public bool ClientDBsAreSame(int client_index_a, int client_index_b)
+        {
+            bool res = true;
+
+            if (clients.Count < Math.Max(client_index_a, client_index_b) + 1) return false;
+
+            Database dba = clients[client_index_a].GetDatabase(dbname);
+            Database dbb = clients[client_index_b].GetDatabase(dbname);
+
+            if (!Utils.DBCompare(dba, dbb))
+            {
+                Console.WriteLine("Database on client " + client_index_b + " differs from reference db on " + client_index_a);
+                res = false;
+            }
+
+            if (!Utils.DBCompare(dbb, dba))
+            {
+                Console.WriteLine("Database on client " + client_index_a + " differs from reference db on " + client_index_b);
+                res = false;
+            }
+
+            return res;
         }
 
         public bool TestGetSetSubmit()

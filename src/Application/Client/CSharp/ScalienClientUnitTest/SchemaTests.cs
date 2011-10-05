@@ -7,9 +7,43 @@ using Scalien;
 
 namespace ScalienClientUnitTesting
 {
-    //[TestClass]
+    [TestClass]
     class SchemaTests
     {
+        //[TestMethod]
+        public void DeleteSomeDBs()
+        {
+            /*
+             * Client scalien = context.getScalien ();
+            for (Database database: scalien.getDatabases ())
+                if (database.getName ().equals (DATABASE)) {
+                    database.deleteDatabase ();
+                    break;
+                }*/
+
+            string dbName = "manydb_test_";
+            Client client = new Client(Config.GetNodes());
+
+            Utils.DeleteDBs(client);
+
+            Database[] db = new Database[500];
+
+            for (int i = 0; i < 500; i++)
+                client.CreateDatabase(dbName + i.ToString());
+
+            client.Submit();
+
+            while (client.GetDatabases().Count > 10)
+            {
+                foreach (Database db2del in client.GetDatabases())
+                    if (Utils.RandomNumber.Next(10) < 5)
+                    {
+                        db2del.DeleteDatabase();
+                        break; //?
+                    }
+            }
+        }
+
         //[TestMethod]
         public void ManyDBs100()
         {
@@ -132,7 +166,7 @@ namespace ScalienClientUnitTesting
             }
         }
 
-        [TestMethod]
+        //[TestMethod]
         public void RandomNamedDBs()
         {
             Client client = new Client(Config.GetNodes());
@@ -155,7 +189,7 @@ namespace ScalienClientUnitTesting
             }
         }
 
-        [TestMethod]
+        //[TestMethod]
         public void RandomNamedDBs_CheckByDBList()
         {
             Client client = new Client(Config.GetNodes());
@@ -178,7 +212,7 @@ namespace ScalienClientUnitTesting
             }
         }
 
-        [TestMethod]
+        //[TestMethod]
         public void RandomNamedTables()
         {
             string dbName = "random_named_tables_db";
@@ -205,7 +239,7 @@ namespace ScalienClientUnitTesting
             }
         }
 
-        [TestMethod]
+        //[TestMethod]
         public void RandomNamedTables_CheckByTableList()
         {
             string dbName = "random_named_tables_db";

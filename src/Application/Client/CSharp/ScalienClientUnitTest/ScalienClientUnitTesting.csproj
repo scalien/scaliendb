@@ -45,6 +45,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="KeyValueTests.cs" />
+    <Compile Include="MultiClusterTests.cs" />
     <Compile Include="TestingFramework\Assert.cs" />
     <Compile Include="Config.cs" />
     <Compile Include="SchemaTests.cs" />
