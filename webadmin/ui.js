@@ -1096,7 +1096,10 @@ function createQuorumDiv(configState, quorum)
 		var infoText = "";
 		if (quorumInfo != null)
 		{
-			infoText += " [" + quorumInfo["paxosID"] + "]";
+			if (paxosID !== "unknown")
+				infoText += " [" + paxosID + "]";
+			else
+				infoText += " [" + quorumInfo["paxosID"] + "]";
 			if (quorumInfo["isSendingCatchup"])
 				catchupText += "Shard server " + nodeID + " is sending catchup: " + scaliendb.util.humanBytes(quorumInfo["catchupBytesSent"]) + "/" + scaliendb.util.humanBytes(quorumInfo["catchupBytesTotal"]) + " (" + scaliendb.util.humanBytes(quorumInfo["catchupThroughput"]) + "/s)";
 		}
@@ -1112,11 +1115,11 @@ function createQuorumDiv(configState, quorum)
 	}
 	if (primaryID == null)
 		explanation += "The quorum has no primary, it is not writable. ";
+	if (quorum["inactiveNodes"].length > 0 && primaryID != null)
+		explanation += "The quorum has inactive nodes. These can be brought back into the quorum (once they are up and running and catchup is complete) by clicking them above. ";
 	quorum["inactiveNodes"].sort();
 	for (var i in quorum["inactiveNodes"])
 	{
-		if (primaryID != null)
-			explanation += "The quorum has inactive nodes. These can be brought back into the quorum (once they are up and running and catchup is complete) by clicking them above. ";
 		var nodeID = quorum["inactiveNodes"][i];
 		var shardServer = scaliendb.getShardServer(configState, nodeID);
 		var quorumInfo = scaliendb.getQuorumInfo(configState, nodeID, quorum["quorumID"]);
