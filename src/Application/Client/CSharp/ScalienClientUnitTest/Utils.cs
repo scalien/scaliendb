@@ -11,7 +11,7 @@ namespace Scalien
     {
         public static System.Random RandomNumber = new System.Random();
 
-        public bool DBCompare(Database DB1, Database DB2)
+        public static bool DBCompare(Database DB1, Database DB2)
         {
             bool res = true;
             Table cmp_tbl;
