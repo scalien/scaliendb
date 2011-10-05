@@ -1445,9 +1445,6 @@ void Client::InvalidateQuorum(uint64_t quorumID, uint64_t nodeID)
         
     if (quorum->hasPrimary && quorum->primaryID == nodeID)
     {
-        quorum->hasPrimary = false;
-        quorum->primaryID = 0;
-    
         Log_Debug("Invalidating quorum %U, nodeID %U", quorumID, nodeID);
 
         // invalidate shard connections
