@@ -57,7 +57,7 @@ struct IOOperation
         buffer = buffer_;
     }
 
-    enum Type       { UDP_WRITE, UDP_READ, TCP_WRITE, TCP_READ, UNKNOWN };
+    enum Type       { TCP_WRITE, TCP_READ, UNKNOWN };
     
     Buffer*         buffer;
     
@@ -74,30 +74,6 @@ struct IOOperation
 
     IOOperation*    prev;
     IOOperation*    next;
-};
-
-struct UDPWrite : public IOOperation
-{
-    UDPWrite()
-    : IOOperation()
-    {
-        type = UDP_WRITE;
-    }
-
-    Endpoint        endpoint;
-};
-
-struct UDPRead : public IOOperation
-{
-public:
-    UDPRead()
-    : IOOperation()
-    {
-        type = UDP_READ;
-    }
-
-public:
-    Endpoint        endpoint;
 };
 
 struct TCPWrite : public IOOperation

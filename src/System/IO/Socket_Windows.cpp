@@ -30,9 +30,9 @@ Socket::Socket()
     listening = false;
 }
 
-bool Socket::Create(Proto proto_)
+bool Socket::Create()
 {
-    int     ret, stype, ipproto;
+    int     ret;
     BOOL    trueval = TRUE;
 
     if (fd.handle != INVALID_SOCKET)
@@ -41,22 +41,10 @@ bool Socket::Create(Proto proto_)
         return false;
     }
 
-    proto = proto_;
     listening = false;
 
-    if (proto == UDP)
-    {
-        stype = SOCK_DGRAM;
-        ipproto = IPPROTO_UDP;
-    }
-    else
-    {
-        stype = SOCK_STREAM;
-        ipproto = IPPROTO_TCP;
-    }
-
     // create the socket with WSA_FLAG_OVERLAPPED to support async operations
-    fd.handle = WSASocket(AF_INET, stype, ipproto, NULL, 0, WSA_FLAG_OVERLAPPED);
+    fd.handle = WSASocket(AF_INET, SOCK_STREAM, IPPROTO_TCP, NULL, 0, WSA_FLAG_OVERLAPPED);
     if (fd.handle == INVALID_SOCKET)
         return false;
 

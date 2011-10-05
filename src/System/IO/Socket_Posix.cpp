@@ -23,22 +23,15 @@ Socket::Socket()
     listening = false;
 }
 
-bool Socket::Create(Proto proto_)
+bool Socket::Create()
 {
-    int stype;
-    
     if (fd >= 0)
     {
         Log_Trace("Called Create() on existing socket");
         return false;
     }
     
-    if (proto_ == UDP)
-        stype = SOCK_DGRAM;
-    else
-        stype = SOCK_STREAM;
-    
-    fd = socket(AF_INET, stype, 0);
+    fd = socket(AF_INET, SOCK_STREAM, 0);
     if (fd < 0)
     {
         Log_Errno();

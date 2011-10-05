@@ -33,7 +33,7 @@ void TCPConnection::Connect(Endpoint &endpoint, unsigned timeout)
     state = CONNECTING;
 
 
-    ret = socket.Create(Socket::TCP);
+    ret = socket.Create();
     if (ret == false)
     {
         Log_Debug("Socket creation failed");
