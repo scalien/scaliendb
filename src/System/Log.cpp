@@ -11,7 +11,11 @@
 #ifdef _WIN32
 #include <windows.h>
 #define snprintf _snprintf
+#ifndef strdup
 #define strdup _strdup
+#endif
+// disable strdup related warnings
+#pragma warning(disable: 4996)
 #define strerror_r(errno, buf, buflen) strerror_s(buf, buflen, errno)
 #else
 #include <sys/time.h>
