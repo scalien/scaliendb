@@ -214,8 +214,6 @@ bool StorageRecovery::ReadShardVersion1(ReadBuffer& parse)
         if (fileChunk == NULL)
         {
             fileChunk = new StorageFileChunk;
-            if (shard->IsLogStorage())
-                fileChunk->useCache = false; // don't cache log storage filechunks
 
             fileChunk->SetFilename(env->chunkPath, chunkID);
             fileChunk->written = true;
