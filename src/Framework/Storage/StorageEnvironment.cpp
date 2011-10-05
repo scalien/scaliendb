@@ -1378,11 +1378,6 @@ void StorageEnvironment::OnChunkSerialize(StorageSerializeChunkJob* job)
         fileChunks.Append(fileChunk);
 
         shard = GetFirstShard(fileChunk);
-        if (shard)
-        {
-            if (shard->IsLogStorage())
-                fileChunk->useCache = false; // don't cache log storage filechunks
-        }
     }
 
     deleteChunkJobs.Execute(new StorageDeleteMemoChunkJob(job->memoChunk));
