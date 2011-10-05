@@ -1039,7 +1039,6 @@ bool StorageEnvironment::SplitShard(uint16_t contextID,  uint64_t shardID,
     StorageMemoChunk*       newMemoChunk;
     StorageChunk**          itChunk;
     StorageMemoKeyValue*    itKeyValue;
-    StorageMemoKeyValue*    kv;
     StorageLogSegment*      logSegment;
 
     shard = GetShard(contextID, newShardID);
@@ -1083,13 +1082,10 @@ bool StorageEnvironment::SplitShard(uint16_t contextID,  uint64_t shardID,
         ASSERT(itKeyValue->GetKey().GetLength() > 0);
         if (newShard->RangeContains(itKeyValue->GetKey()))
         {
-//            kv = new StorageMemoKeyValue;
-            kv = newMemoChunk->NewStorageMemoKeyValue();
             if (itKeyValue->GetType() == STORAGE_KEYVALUE_TYPE_SET)
                 newMemoChunk->Set(itKeyValue->GetKey(), itKeyValue->GetValue());
             else
                 newMemoChunk->Delete(itKeyValue->GetKey());
-            newMemoChunk->keyValues.Insert<ReadBuffer>(kv);
         }
     }
 
@@ -1382,11 +1378,6 @@ void StorageEnvironment::OnChunkSerialize(StorageSerializeChunkJob* job)
         fileChunks.Append(fileChunk);
 
         shard = GetFirstShard(fileChunk);
-        if (shard)
-        {
-            if (shard->IsLogStorage())
-                fileChunk->useCache = false; // don't cache log storage filechunks
-        }
     }
 
     deleteChunkJobs.Execute(new StorageDeleteMemoChunkJob(job->memoChunk));
