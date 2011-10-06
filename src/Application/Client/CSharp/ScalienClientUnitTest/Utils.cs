@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.IO;
+using System.Net;
 using System.Runtime.Serialization.Json;
 
 namespace Scalien
@@ -10,6 +11,25 @@ namespace Scalien
     class Utils
     {
         public static System.Random RandomNumber = new System.Random();
+
+        public static string HTTP_GET(string url, int Timeout = 30000)
+        {
+            HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
+            request.UserAgent = "ScalienClient CSharp";
+            request.KeepAlive = false;
+            request.Method = "GET";
+            request.Timeout = Timeout;
+            try
+            {
+                HttpWebResponse response = (HttpWebResponse)request.GetResponse();
+                StreamReader sr = new StreamReader(response.GetResponseStream());
+                return sr.ReadToEnd();
+            }
+            catch (Exception e)
+            {
+                return e.Message;
+            }
+        }
 
         public static bool DBCompare(Database DB1, Database DB2)
         {

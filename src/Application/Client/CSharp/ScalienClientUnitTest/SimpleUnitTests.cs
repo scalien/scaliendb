@@ -237,10 +237,6 @@ namespace ScalienClientUnitTesting
             Client.SetTrace(true);
             Client.SetLogFile("c:\\Users\\zszabo\\logs\\no_service_trace.txt");
 
-            FileStream fs = new FileStream("c:\\Users\\zszabo\\logs\\no_service_console.txt", FileMode.Create);
-            StreamWriter sw = new StreamWriter(fs);
-            Console.SetOut(sw);
-
             string dbName = "test_db";
             string tableName = "test_table";
 
