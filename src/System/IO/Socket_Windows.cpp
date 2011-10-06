@@ -192,8 +192,7 @@ bool Socket::GetEndpoint(Endpoint &endpoint)
     
     if (ret == SOCKET_ERROR)
     {
-        ret = WSAGetLastError();
-        Log_Trace("error = %d", ret);
+        Log_Errno();
         Close();
         return false;
     }
