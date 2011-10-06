@@ -417,6 +417,14 @@ namespace Scalien
             scaliendb_client.SDBP_SetBatchLimit(cptr, batchLimit);
         }
 
+        /// <summary>
+        /// Return the config state as a JSON string.
+        /// </summary>
+        public string GetJSONConfigState()
+        {
+            return scaliendb_client.SDBP_GetJSONConfigState(cptr);
+        }
+
         #endregion
 
         #region Quorum and node management

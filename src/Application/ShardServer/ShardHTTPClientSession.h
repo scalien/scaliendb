@@ -39,6 +39,7 @@ private:
     void                PrintConfigFile();
 
     bool                ProcessCommand(ReadBuffer& cmd);
+    void                ProcessDebugCommand();
     bool                ProcessSettings();
     void                ProcessClearCache();
     ClientRequest*      ProcessShardServerCommand(ReadBuffer& cmd);

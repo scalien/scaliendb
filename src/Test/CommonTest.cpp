@@ -1,6 +1,8 @@
 #include "Test.h"
 #include "System/Common.h"
 
+#include <limits.h>
+
 typedef struct human_bytes_pair {
     uint64_t    value;
     char        text[5];
@@ -44,11 +46,11 @@ TEST_DEFINE(TestCommonHumanBytes)
     return TEST_SUCCESS;
 }
 
-TEST_DEFINE(TestCommonRandomDistribution)
+static int TestCommonRandomDistributionWithCount(unsigned numCount)
 {
     unsigned    num;
     unsigned    i;
-    unsigned    count[11];
+    unsigned    count[numCount];
     unsigned    min;
     unsigned    max;
     unsigned    maxdev;
@@ -90,12 +92,27 @@ TEST_DEFINE(TestCommonRandomDistribution)
         TEST_LOG("i: % 3d percentage: %2.2f%%", i, (float)count[i] / num * 100.0);
     }
     
-    // more than 10% error considered bad discrete uniform distribution
-    // the C library random()/rand() is such bad random generator
-    if (maxdev > (float)num / SIZE(count) * 0.10)
+    // more than 1% error considered bad discrete uniform distribution
+    if (maxdev > (float)num / SIZE(count) * 0.01)
     {
         TEST_LOG("Error: %2.1f%%", maxdev / ((float)num / SIZE(count) / 100.0));
         TEST_FAIL();
+    }
+    
+    return TEST_SUCCESS;
+}
+
+TEST_DEFINE(TestCommonRandomDistribution)
+{
+    int     num = 3;    // run each test num times
+    int     maxCount = INT_MAX;
+
+    for (int count = 2; count < maxCount; count++)
+    {
+        for (int j = 0; j < num; j++)
+        {
+            TestCommonRandomDistributionWithCount(count);
+        }
     }
     
     return TEST_SUCCESS;

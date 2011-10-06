@@ -1,6 +1,5 @@
 #include "Log.h"
 #include "Formatting.h"
-#include "Threading/ThreadPool.h"
 #define _XOPEN_SOURCE 600
 #include <string.h>
 #include <errno.h>
@@ -11,14 +10,15 @@
 #ifdef _WIN32
 #include <windows.h>
 #define snprintf _snprintf
-#ifndef strdup
 #define strdup _strdup
-#endif
-// disable strdup related warnings
-#pragma warning(disable: 4996)
 #define strerror_r(errno, buf, buflen) strerror_s(buf, buflen, errno)
+typedef unsigned __int64    uint64_t;
+#define GetThreadID() (uint64_t)(GetCurrentThreadId())
 #else
 #include <sys/time.h>
+#include <pthread.h>
+#include <stdint.h>
+#define GetThreadID() ((uint64_t)(pthread_self()))
 #endif
 
 #define LOG_MSG_SIZE    1024
@@ -235,7 +235,7 @@ void Log(const char* file, int line, const char* func, int type, const char* fmt
     // print threadID
     if (threadedOutput)
     {
-        threadID = ThreadPool::GetThreadID();
+        threadID = GetThreadID();
         ret = Writef(p, remaining, "[%U]: ", threadID);
         if (ret < 0 || ret > remaining)
             ret = remaining;

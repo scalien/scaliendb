@@ -47,6 +47,7 @@ private:
     void                ProcessActivateShardServer();
     void                ProcessSettings();
     bool                ProcessCommand(ReadBuffer& cmd);
+    void                ProcessDebugCommand();
     ClientRequest*      ProcessConfigCommand(ReadBuffer& cmd);
     ClientRequest*      ProcessGetMaster();
     ClientRequest*      ProcessGetMasterHTTP();
