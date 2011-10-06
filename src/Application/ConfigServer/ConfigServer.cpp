@@ -182,6 +182,16 @@ void ConfigServer::OnIncomingConnectionReady(uint64_t nodeID, Endpoint endpoint)
 
     if (IS_CONTROLLER(nodeID))
     {
+        if (REPLICATION_CONFIG->GetClusterID() == 0 && CONTEXT_TRANSPORT->GetClusterID() > 0)
+        {
+            // another controller connected, it has a clusterID, I don't, so set mine
+            // the other side's was set in CONTEXT_TRANSPORT at a layer below,
+            // more specifically in ClusterConnection.cpp:224
+
+            REPLICATION_CONFIG->SetClusterID(CONTEXT_TRANSPORT->GetClusterID());
+            REPLICATION_CONFIG->Commit();
+        }
+
         controller = CONFIG_STATE->controllers.Get(nodeID);
         ASSERT(controller);
         controller->isConnected = true;
