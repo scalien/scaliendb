@@ -618,8 +618,8 @@ void ConfigQuorumProcessor::OnAppend(uint64_t paxosID, ConfigMessage& message, b
         
         UInt64ToBufferWithBase(hexbuf, sizeof(hexbuf), message.clusterID, 64);
         Log_Debug("ClusterID set to %s (%U)", hexbuf, message.clusterID);
-        REPLICATION_CONFIG->SetClusterID(message.clusterID);
         CONTEXT_TRANSPORT->SetClusterID(message.clusterID);
+        REPLICATION_CONFIG->SetClusterID(message.clusterID);
         REPLICATION_CONFIG->Commit();
     }
     else if (message.type == CONFIGMESSAGE_UNREGISTER_SHARDSERVER)
