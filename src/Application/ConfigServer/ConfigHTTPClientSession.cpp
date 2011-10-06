@@ -549,6 +549,11 @@ bool ConfigHTTPClientSession::ProcessCommand(ReadBuffer& cmd)
         PrintConfigFile();
         return true;
     }
+    if (HTTP_MATCH_COMMAND(cmd, "debug"))
+    {
+        ProcessDebugCommand();
+        return true;
+    }
 
     request = ProcessConfigCommand(cmd);
     if (!request)
@@ -558,6 +563,33 @@ bool ConfigHTTPClientSession::ProcessCommand(ReadBuffer& cmd)
     configServer->OnClientRequest(request);
     
     return true;
+}
+
+void ConfigHTTPClientSession::ProcessDebugCommand()
+{
+#ifdef DEBUG
+    ReadBuffer  param;
+
+    if (HTTP_GET_OPT_PARAM(params, "crash", param))
+    {
+        Log_Debug("Crashing server from web console...");
+        char* null = NULL;
+        *null = 0;
+        // Access violation
+    }
+
+    if (HTTP_GET_OPT_PARAM(params, "sleep", param))
+    {
+        unsigned sleep = 0;
+        param.Readf("%u", &sleep);
+        Log_Debug("Sleeping for %u seconds", sleep);
+        session.Print("Start sleeping");
+        MSleep(sleep * 1000);
+        session.Print("Sleep finished");
+    }
+
+    session.Flush();
+#endif
 }
 
 ClientRequest* ConfigHTTPClientSession::ProcessConfigCommand(ReadBuffer& cmd)

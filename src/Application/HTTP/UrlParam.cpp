@@ -76,9 +76,9 @@ int UrlParam::GetParamIndex(const char* name, int namelen)
         length = PARAM_LENGTH(i);
 
         param = &buffer.GetBuffer()[offset];
-        if (length > namelen && 
-            strncasecmp(name, param, namelen) == 0 &&
-            param[namelen] == '=')
+        if (strncasecmp(name, param, namelen) == 0 &&
+            ((length > namelen && param[namelen] == '=') || 
+             (length = namelen && param[namelen] == '\0')))
         {
             return i;
         }
@@ -90,13 +90,18 @@ int UrlParam::GetParamIndex(const char* name, int namelen)
 bool UrlParam::GetNamed(const char* name, int namelen, ReadBuffer& bs)
 {
     int         n;
+    int         len;
     
     n = GetParamIndex(name, namelen);
     if (n < 0)
         return false;
     
+    len = GetParamLen(n) - (namelen + 1);
+    if (len == -1)
+        len = 0;        // param without value
+    
     bs.SetBuffer((char*) GetParam(n) + (namelen + 1));
-    bs.SetLength(GetParamLen(n) - (namelen + 1));
+    bs.SetLength(len);
 
     return true;
 }
