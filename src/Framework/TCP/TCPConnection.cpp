@@ -51,8 +51,14 @@ void TCPConnection::Connect(Endpoint &endpoint, unsigned timeout)
     tcpwrite.SetOnComplete(MFUNC(TCPConnection, OnConnect));
     tcpwrite.SetOnClose(MFUNC(TCPConnection, OnClose));
     tcpwrite.AsyncConnect();
+
+    // TODO: FIXME: make Posix behavior default by storing endpoint in 
+    // IODesc in IOProcessor_Windows, and start ConnectEx only when adding
+    // tcpwrite _after_ Socket::Connect
+#ifdef PLATFORM_WINDOWS
     IOProcessor::Add(&tcpwrite);
-    
+#endif    
+
     ret = socket.Connect(endpoint);
     if (ret == false)
     {
@@ -61,6 +67,10 @@ void TCPConnection::Connect(Endpoint &endpoint, unsigned timeout)
         EventLoop::Reset(&connectTimeout);
         return;
     }
+
+#ifndef PLATFORM_WINDOWS
+    IOProcessor::Add(&tcpwrite);
+#endif
 
     if (timeout > 0)
     {
