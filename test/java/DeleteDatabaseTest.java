@@ -15,11 +15,11 @@ public class DeleteDatabaseTest {
 	public static void main(String[] args) {
         try {
             String[] controllers = {"192.168.137.100:7080", "192.168.137.101:7080", "192.168.137.102:7080"};
-			ConfigLoader configLoader = new ConfigLoader(controllers);
-			controllers = configLoader.getControllers();
+			ConfigLoader config = new ConfigLoader(controllers);
+			controllers = config.getControllers();
 
             Client client = new Client(controllers);
-            // client.setTrace(true);
+            client.setTrace(config.isTrace());
 
 			deleteDatabaseTest(client);
             

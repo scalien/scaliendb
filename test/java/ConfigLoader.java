@@ -3,9 +3,11 @@ import java.io.*;
 public class ConfigLoader {
 	private String[] controllers;
 	private String configFile;
+	private boolean trace;
 
 	ConfigLoader(String[] controllers) {
 		this.controllers = controllers;
+		trace = false;
 		configFile = "client.conf";		
 		loadFile();
 	}
@@ -20,7 +22,9 @@ public class ConfigLoader {
 	        while ((line = reader.readLine()) != null) {
 				String[] parts = line.split("=");
 	            if (parts.length > 1) {
-	                if ("controllers".equals(parts[0].trim())) {
+					String namepart = parts[0].trim();
+					String valuepart = parts[1].trim();
+	                if ("controllers".equals(namepart)) {
 	                    String[] controllerParts = parts[1].split(",");
 	                    controllers = new String[controllerParts.length];
 	                    int i = 0;
@@ -29,6 +33,9 @@ public class ConfigLoader {
 	                        i += 1;
 	                    }
 	                }
+					else if ("log.trace".equals(namepart)) {
+						trace = isBooleanTrueString(valuepart);
+					}
 	            }
 	        }
 			in.close();
@@ -39,7 +46,17 @@ public class ConfigLoader {
 		return true;
 	}
 	
+	private boolean isBooleanTrueString(String s) {
+		if ("true".equals(s) || "on".equals(s) || "yes".equals(s))
+			return true;
+		return false;
+	}
+	
 	public String[] getControllers() {
 		return controllers;
+	}
+	
+	public boolean isTrace() {
+		return trace;
 	}
 }
