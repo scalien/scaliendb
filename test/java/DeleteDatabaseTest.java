@@ -18,8 +18,8 @@ public class DeleteDatabaseTest {
 			ConfigLoader config = new ConfigLoader(controllers);
 			controllers = config.getControllers();
 
+            Client.setTrace(config.isTrace());
             Client client = new Client(controllers);
-            client.setTrace(config.isTrace());
 
 			deleteDatabaseTest(client);
             
