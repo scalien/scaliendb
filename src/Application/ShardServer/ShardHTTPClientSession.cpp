@@ -1,6 +1,7 @@
 #include "ShardHTTPClientSession.h"
 #include "ShardServer.h"
 #include "System/Config.h"
+#include "System/Common.h"
 #include "System/FileSystem.h"
 #include "System/IO/IOProcessor.h"
 #include "Application/HTTP/HTTPConnection.h"
@@ -319,6 +320,11 @@ bool ShardHTTPClientSession::ProcessCommand(ReadBuffer& cmd)
         PrintConfigFile();
         return true;
     }
+    else if (HTTP_MATCH_COMMAND(cmd, "debug"))
+    {
+        ProcessDebugCommand();
+        return true;
+    }
 
     request = ProcessShardServerCommand(cmd);
     if (!request)
@@ -328,6 +334,33 @@ bool ShardHTTPClientSession::ProcessCommand(ReadBuffer& cmd)
     shardServer->OnClientRequest(request);
     
     return true;
+}
+
+void ShardHTTPClientSession::ProcessDebugCommand()
+{
+#ifdef DEBUG
+    ReadBuffer  param;
+
+    if (HTTP_GET_OPT_PARAM(params, "crash", param))
+    {
+        Log_Debug("Crashing server from web console...");
+        char* null = NULL;
+        *null = 0;
+        // Access violation
+    }
+
+    if (HTTP_GET_OPT_PARAM(params, "sleep", param))
+    {
+        unsigned sleep = 0;
+        param.Readf("%u", &sleep);
+        Log_Debug("Sleeping for %u seconds", sleep);
+        session.Print("Start sleeping");
+        MSleep(sleep * 1000);
+        session.Print("Sleep finished");
+    }
+
+    session.Flush();
+#endif
 }
 
 bool ShardHTTPClientSession::ProcessSettings()

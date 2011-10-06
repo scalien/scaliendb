@@ -278,8 +278,11 @@ void ShardQuorumContext::RegisterPaxosID(uint64_t paxosID)
 {
     if (paxosID > highestPaxosID)
         highestPaxosID = paxosID;
-    
-    if (IsLeaseKnown())
+ 
+    // ReplicatedLog::RegisterPaxosID() will perform a RequestChosen()
+    // so don't call it if replication is inactive,
+    // because catchup is already running
+    if (isReplicationActive && IsLeaseKnown())
         replicatedLog.RegisterPaxosID(paxosID, GetLeaseOwner());
 }
 

@@ -393,8 +393,11 @@ void SeedRandomWith(uint64_t seed)
 
 int RandomInt(int min, int max)
 {
-    int     rnd;
-    int     interval;
+    int             rnd;
+    int             interval;
+    int             rndout;
+    const double    DIV = (double)RAND_MAX + 1;
+    double          tmp;
     
     ASSERT(min < max);
 
@@ -405,8 +408,9 @@ int RandomInt(int min, int max)
 #else
     rnd = rand();
 #endif
-    rnd = (int)(((float) rnd) / (RAND_MAX+1) * interval);
-    return rnd + min;
+    tmp = rnd / DIV;
+    rndout = (int)floor(tmp * interval);
+    return rndout + min;
 }
 
 void RandomBuffer(char* buffer, unsigned length)
