@@ -210,13 +210,30 @@ bool ClusterConnection::OnMessage(ReadBuffer& msg)
             return true;
         }
         
-        if (otherClusterID > 0 && otherClusterID != transport->GetClusterID())
+        if (otherClusterID > 0)
         {
-            Log_Message("[%R] Cluster invalid configuration, disconnecting...", &buffer);
-            Log_Debug("mine: %U != controller %U", transport->GetClusterID(), otherClusterID);
+            if (transport->GetClusterID() == 0)
+            {
+                // the other side has a clusterID, I don't, so set mine
+                // if I'm a config server:
+                //   the clusterID also needs to be set in REPLICATON_CONFIG,
+                //   this is set in ConfigServer::OnIncomingConnectionReady()
+                // if I'm a shard server:
+                //   the controllers will send a SetNodeID message, which
+                //   contains the clusterID, so I'll be fine
+                transport->SetClusterID(otherClusterID);
+            }
+            else
+            {
+                if (otherClusterID != transport->GetClusterID())
+                {
+                    Log_Message("[%R] Cluster invalid configuration, disconnecting...", &buffer);
+                    Log_Debug("mine: %U != controller %U", transport->GetClusterID(), otherClusterID);
             
-            transport->DeleteConnection(this);          // drop this
-            return true;            
+                    transport->DeleteConnection(this);          // drop this
+                    return true;
+                }
+            }
         }
         
         dup = transport->GetConnection(otherNodeID);

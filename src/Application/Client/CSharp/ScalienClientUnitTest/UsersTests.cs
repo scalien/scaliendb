@@ -26,6 +26,17 @@ namespace ScalienClientUnitTesting
         }*/
 
         //[TestMethod]
+        public void CountUsers() // for debug only
+        {
+            Users usr = new Users(Config.GetNodes());
+
+            long cnt = usr.CountUsers();
+
+            Console.WriteLine("Count is " + cnt);
+        }
+
+
+        //[TestMethod]
         public void SimpleTest()
         {
             Users usr = new Users(Config.GetNodes());
@@ -43,27 +54,26 @@ namespace ScalienClientUnitTesting
         private static void TestWorker(Object param)
         {
             int loop = System.Convert.ToInt32(param);
-            int users_per_iteration = 5;
+            int users_per_iteration = 2;
 
             Users usr = new Users(Config.GetNodes());
             while (loop-- > 0)
             {
                 usr.TestCycle(users_per_iteration);
-                usr.SubmitAll();
             }
         }
 
         //[TestMethod]
         public void ShortTest_10_Threads()
         {
-            Client.SetTrace(true);
-            Client.SetLogFile("c:\\Users\\zszabo\\logs\\client_trace.txt");
+            /*Client.SetTrace(true);
+            Client.SetLogFile("c:\\Users\\zszabo\\logs\\client_trace.txt");*/
             int init_users = 10000;
             int threadnum = 10;
 
-            FileStream fs = new FileStream("c:\\Users\\zszabo\\logs\\threadout.txt", FileMode.Create);
+            /*FileStream fs = new FileStream("c:\\Users\\zszabo\\logs\\threadout_10.txt", FileMode.Create);
             StreamWriter sw = new StreamWriter(fs);
-            Console.SetOut(sw);
+            Console.SetOut(sw);*/
 
             Users usr = new Users(Config.GetNodes());
             usr.EmptyAll();
@@ -87,14 +97,14 @@ namespace ScalienClientUnitTesting
         [TestMethod]
         public void ShortTest_100_Threads()
         {
-            Client.SetTrace(true);
-            Client.SetLogFile("c:\\Users\\zszabo\\logs\\client_trace.txt");
-            int init_users = 10000;
+            /*Client.SetTrace(true);
+            Client.SetLogFile("c:\\Users\\zszabo\\logs\\client_trace_100.txt");*/
+            int init_users = 50000;
             int threadnum = 100;
-
-            FileStream fs = new FileStream("c:\\Users\\zszabo\\logs\\threadout.txt", FileMode.Create);
+            /*
+            FileStream fs = new FileStream("c:\\Users\\zszabo\\logs\\threadout_100.txt", FileMode.Create);
             StreamWriter sw = new StreamWriter(fs);
-            Console.SetOut(sw);
+            Console.SetOut(sw);*/
 
             Users usr = new Users(Config.GetNodes());
             usr.EmptyAll();
@@ -111,6 +121,8 @@ namespace ScalienClientUnitTesting
             {
                 threads[i].Join();
             }
+
+            Console.WriteLine("Checking consistency");
 
             Assert.IsTrue(usr.IsConsistent());
         }
@@ -138,6 +150,18 @@ namespace ScalienClientUnitTesting
             }
 
             Assert.IsTrue(usr.IsConsistent());
+        }
+
+        public void LongTest_10_Threads()
+        {
+        }
+
+        public void LongTest_100_Threads()
+        {
+        }
+
+        public void LongTest_1000_Threads()
+        {
         }
     }
 }

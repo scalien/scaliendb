@@ -7,10 +7,10 @@ using Scalien;
 
 namespace ScalienClientUnitTesting
 {
-    [TestClass]
+    //[TestClass]
     class SchemaTests
     {
-        //[TestMethod]
+        [TestMethod]
         public void DeleteSomeDBs()
         {
             /*

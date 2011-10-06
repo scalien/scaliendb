@@ -72,7 +72,7 @@ namespace ScalienClientUnitTesting
                         System.Console.WriteLine("  |\n\n");
                     }
                 }
-                System.Console.WriteLine(" Press Enter to confirm the results");
+                System.Console.WriteLine("\n\n Press Enter to confirm the results");
                 System.Console.ReadLine();
             }
             catch (System.NullReferenceException)

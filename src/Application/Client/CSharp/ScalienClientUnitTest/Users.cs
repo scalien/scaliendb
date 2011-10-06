@@ -311,42 +311,43 @@ namespace Scalien
 
             foreach (string key in table.GetKeyIterator(new StringRangeParams().StartKey(Utils.Id(from)).Count((uint)userNum)))
             {
-                System.Console.WriteLine("===========================================================");
-                System.Console.WriteLine("Key for test:");
-                System.Console.WriteLine(key);
+                //System.Console.WriteLine("===========================================================");
+                //System.Console.WriteLine("Key for test:");
+                //System.Console.WriteLine(key);
+                System.Console.Write(".");
 
-                switch (Utils.RandomNumber.Next(5))
+                switch (Utils.RandomNumber.Next(6))
                 {
                     case 1:
                         // Get user
                         user = GetUser(key);
-                        System.Console.WriteLine("GetAction:");
-                        user.Print();
+                        //System.Console.WriteLine("GetAction:");
+                        //user.Print();
                         break;
                     case 2:
                         // set user
                         user = GetUser(key);
-                        System.Console.WriteLine("SetAction:");
+                        //System.Console.WriteLine("SetAction:");
                         user.info.Nick = user.info.Nick + "-SetAt" + System.DateTime.Now.ToString("s");
                         SetUser(user);
-                        user.Print();
+                        //user.Print();
                         break;
-                    case 3:
+                    /*case 3:
                         user = GetUser(key);
                         System.Console.WriteLine("DeleteAction:");
                         user.Print();
                         DeleteUser(user);
                         // 
-                        break;
+                        break;*/
                     case 4:
                         user = GetUser(key);
                         string prefix = user.info.Nick.Substring(0, 3);
-                        System.Console.WriteLine("ListSimilar to Nick: " + user.info.Nick + " using prefix: " + prefix);
-                        PrintByNick(prefix);
+                        //System.Console.WriteLine("ListSimilar to Nick: " + user.info.Nick + " using prefix: " + prefix);
+                        //PrintByNick(prefix);
                         break;
                     default:
                         //add user
-                        System.Console.WriteLine("Add new");
+                        //System.Console.WriteLine("Add new");
                         AddUser();
                         break;
                 }

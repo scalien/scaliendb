@@ -111,7 +111,8 @@ OBJECTS = \
 
 TEST_OBJECTS = \
 	$(BUILD_DIR)/Test/ClientTest.o \
-	$(BUILD_DIR)/Test/Test.o
+	$(BUILD_DIR)/Test/Test.o \
+
 
 SWIG_WRAPPER_OBJECT = \
 	$(BUILD_DIR)/Application/Client/SDBPClientWrapper.o
