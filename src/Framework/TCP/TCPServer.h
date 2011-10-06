@@ -87,7 +87,7 @@ bool TCPServer<T, Conn>::Init(int port_, bool listen, int backlog_)
     Log_Trace();
     backlog = backlog_;
 
-    ret = listener.Create(Socket::TCP);
+    ret = listener.Create();
     if (!ret)
         return false;
     ret = listener.Listen(port_);

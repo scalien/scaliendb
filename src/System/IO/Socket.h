@@ -16,14 +16,9 @@
 class Socket
 {
 public:
-    enum Proto {
-        TCP,
-        UDP
-    };
-    
     Socket();
     
-    bool            Create(Proto proto);
+    bool            Create();
 
     bool            SetNonblocking();
     bool            SetNodelay();
@@ -46,7 +41,6 @@ public:
 
 public: 
     FD              fd;
-    int             proto;
     bool            listening;
 
 };

@@ -64,8 +64,6 @@ static bool AddKq(int ident, short filter, IOOperation* ioop);
 static void ProcessAsyncOp();
 static void ProcessTCPRead(struct kevent* ev);
 static void ProcessTCPWrite(struct kevent* ev);
-static void ProcessUDPRead(struct kevent* ev);
-static void ProcessUDPWrite(struct kevent* ev);
 
 void SignalHandler(int )
 {
@@ -260,8 +258,7 @@ bool IOProcessor::Add(IOOperation* ioop)
     MutexGuard guard(mutex);
 #endif
     
-    if (ioop->type == IOOperation::TCP_READ
-     || ioop->type == IOOperation::UDP_READ)
+    if (ioop->type == IOOperation::TCP_READ)
     {
         readOps[ioop->fd] = true;
         filter = EVFILT_READ;
@@ -319,7 +316,7 @@ bool IOProcessor::Remove(IOOperation* ioop)
 
     if (ioop->pending)
     {
-        if (ioop->type == IOOperation::TCP_READ || ioop->type == IOOperation::UDP_READ)
+        if (ioop->type == IOOperation::TCP_READ)
             readOps[ioop->fd] = false;
         else
             writeOps[ioop->fd] = false;
@@ -335,8 +332,7 @@ bool IOProcessor::Remove(IOOperation* ioop)
         return false;
     }
 
-    if (ioop->type == IOOperation::TCP_READ
-     || ioop->type == IOOperation::UDP_READ)
+    if (ioop->type == IOOperation::TCP_READ)
     {
         readOps[ioop->fd] = false;
         filter = EVFILT_READ;
@@ -450,18 +446,6 @@ bool IOProcessor::Poll(int sleep)
         {
             writeOps[events[i].ident] = false;
             ProcessTCPWrite(&events[i]);
-        }
-        else if (ioop->type == IOOperation::UDP_READ && readOps[events[i].ident]
-         && (events[i].filter & EVFILT_READ))
-        {
-            readOps[events[i].ident] = false;
-            ProcessUDPRead(&events[i]);
-        }
-        else if (ioop->type == IOOperation::UDP_WRITE && writeOps[events[i].ident]
-         && (events[i].filter & EVFILT_WRITE))
-        {
-            writeOps[events[i].ident] = false;
-            ProcessUDPWrite(&events[i]);
         }
     }
     
@@ -613,83 +597,6 @@ void ProcessTCPWrite(struct kevent* ev)
                 UNLOCKED_ADD(tcpwrite);
         }
     }
-}
-
-void ProcessUDPRead(struct kevent* ev)
-{
-    int         salen, nread;
-    UDPRead*    udpread;
-
-    iostat.numUDPReads++;
-    udpread = (UDPRead*) ev->udata;
-    
-    salen = ENDPOINT_SOCKADDR_SIZE;
-    nread = recvfrom(udpread->fd,
-                     udpread->buffer->GetBuffer(),
-                     udpread->buffer->GetSize(),
-                     0,
-                     (sockaddr*) udpread->endpoint.GetSockAddr(),
-                     (socklen_t*)&salen);
-    
-    if (nread < 0)
-    {
-        if (errno == EWOULDBLOCK || errno == EAGAIN)
-            UNLOCKED_ADD(udpread); // try again
-        else
-            Log_Errno();
-    }
-    else
-    {
-        iostat.numUDPBytesReceived += nread;
-        udpread->buffer->SetLength(nread);
-        UNLOCKED_CALL(udpread->onComplete);
-    }
-                    
-    if (ev->flags & EV_EOF)
-        UNLOCKED_CALL(udpread->onClose);
-}
-
-void ProcessUDPWrite(struct kevent* ev)
-{
-    int         nwrite;
-    UDPWrite*   udpwrite;
-
-    iostat.numUDPWrites++;
-    udpwrite = (UDPWrite*) ev->udata;
-
-    if (ev->data >= (int) udpwrite->buffer->GetLength())
-    {
-        nwrite = sendto(udpwrite->fd,
-                        udpwrite->buffer->GetBuffer(),
-                        udpwrite->buffer->GetLength(),
-                        0,
-                        (const sockaddr*) udpwrite->endpoint.GetSockAddr(),
-                        ENDPOINT_SOCKADDR_SIZE);
-        
-        if (nwrite < 0)
-        {
-            if (errno == EWOULDBLOCK || errno == EAGAIN)
-                UNLOCKED_ADD(udpwrite); // try again
-            else
-                Log_Errno();
-        }
-        else
-        {
-            iostat.numUDPBytesSent += nwrite;
-            if (nwrite == (int) udpwrite->buffer->GetLength())
-            {
-                UNLOCKED_CALL(udpwrite->onComplete);
-            }
-            else
-            {
-                Log_Trace("sendto() datagram fragmentation");
-                UNLOCKED_ADD(udpwrite); // try again
-            }
-        }
-    }
-    
-    if (ev->flags & EV_EOF)
-        UNLOCKED_CALL(udpwrite->onClose);
 }
 
 void IOProcessor::GetStats(IOProcessorStat* stat_)

@@ -127,9 +127,6 @@ static void             ProcessAsyncOp();
 static void             ProcessIOOperation(IOOperation* ioop);
 static void             ProcessTCPRead(TCPRead* tcpread);
 static void             ProcessTCPWrite(TCPWrite* tcpwrite);
-static void             ProcessUDPRead(UDPRead* udpread);
-static void             ProcessUDPWrite(UDPWrite* udpwrite);
-
 
 bool /*IOProcessor::*/InitPipe(PipeOp &pipeop, Callable callback)
 {
@@ -337,9 +334,9 @@ bool IOProcessor::Add(IOOperation* ioop)
 #endif
 
     filter = EPOLLONESHOT;
-    if (ioop->type == IOOperation::TCP_READ || ioop->type == IOOperation::UDP_READ)
+    if (ioop->type == IOOperation::TCP_READ)
         filter |= EPOLLIN;
-    else if (ioop->type == IOOperation::TCP_WRITE || ioop->type == IOOperation::UDP_WRITE)
+    else if (ioop->type == IOOperation::TCP_WRITE)
         filter |= EPOLLOUT;
     
     return AddEvent(ioop->fd, filter, ioop);
@@ -420,7 +417,7 @@ bool IOProcessor::Remove(IOOperation* ioop)
         // if the ioop is pending it doesn't need to be removed because every op is one shot
         // still, it needs to be removed from epollOps
         epollOp = &epollOps[ioop->fd];
-        if (ioop->type == IOOperation::TCP_READ || ioop->type == IOOperation::UDP_READ)
+        if (ioop->type == IOOperation::TCP_READ)
             epollOp->read = NULL;
         else
             epollOp->write = NULL;
@@ -442,7 +439,7 @@ bool IOProcessor::Remove(IOOperation* ioop)
     ev.data.ptr = ioop;
 
     epollOp = &epollOps[ioop->fd];
-    if (ioop->type == IOOperation::TCP_READ || ioop->type == IOOperation::UDP_READ)
+    if (ioop->type == IOOperation::TCP_READ)
     {
         epollOp->read = NULL;
         if (epollOp->write)
@@ -620,12 +617,6 @@ void ProcessIOOperation(IOOperation* ioop)
     case IOOperation::TCP_WRITE:
         ProcessTCPWrite((TCPWrite*) ioop);
         break;
-    case IOOperation::UDP_READ:
-        ProcessUDPRead((UDPRead*) ioop);
-        break;
-    case IOOperation::UDP_WRITE:
-        ProcessUDPWrite((UDPWrite*) ioop);
-        break;
     default:
         /* do nothing */
         break;
@@ -765,93 +756,6 @@ void ProcessTCPWrite(TCPWrite* tcpwrite)
             UNLOCKED_CALL(tcpwrite->onComplete);
         else
             UNLOCKED_ADD(tcpwrite);
-    }
-}
-
-void ProcessUDPRead(UDPRead* udpread)
-{
-    int         nread;
-    socklen_t   salen = ENDPOINT_SOCKADDR_SIZE;
-
-    iostat.numUDPReads++;
-    
-    do
-    {
-        nread = recvfrom(udpread->fd,
-                         udpread->buffer->GetBuffer(),
-                         udpread->buffer->GetSize(),
-                         0,
-                         (sockaddr*) udpread->endpoint.GetSockAddr(),
-                         &salen);
-    
-        if (nread < 0)
-        {
-            if (errno == EWOULDBLOCK || errno == EAGAIN)
-            {
-                UNLOCKED_ADD(udpread); // try again
-            }
-            else
-            {
-                Log_Errno();
-                UNLOCKED_CALL(udpread->onClose);
-            }
-        } 
-        else if (nread == 0)
-        {
-            UNLOCKED_CALL(udpread->onClose);
-        }
-        else
-        {
-            iostat.numUDPBytesReceived += nread;
-            udpread->buffer->SetLength(nread);
-            UNLOCKED_CALL(udpread->onComplete);
-        }
-    } while (nread > 0);
-}
-
-void ProcessUDPWrite(UDPWrite* udpwrite)
-{
-    int         nwrite;
-    socklen_t   salen = ENDPOINT_SOCKADDR_SIZE;
-
-    iostat.numUDPWrites++;
-
-    nwrite = sendto(udpwrite->fd,
-                    udpwrite->buffer->GetBuffer() + udpwrite->offset,
-                    udpwrite->buffer->GetLength() - udpwrite->offset,
-                    0,
-                    (const sockaddr*) udpwrite->endpoint.GetSockAddr(),
-                    salen);
-
-    if (nwrite < 0)
-    {
-        if (errno == EWOULDBLOCK || errno == EAGAIN)
-        {
-            UNLOCKED_ADD(udpwrite); // try again
-        }
-        else
-        {
-            Log_Errno();
-            UNLOCKED_CALL(udpwrite->onClose);
-        }
-    }
-    else if (nwrite == 0)
-    {
-        UNLOCKED_CALL(udpwrite->onClose);
-    }
-    else
-    {
-        iostat.numUDPBytesSent += nwrite;
-        if (nwrite == (int)udpwrite->buffer->GetLength() - udpwrite->offset)
-        {
-            UNLOCKED_CALL(udpwrite->onComplete);
-        }
-        else
-        {
-            udpwrite->offset += nwrite;
-            Log_Trace("sendto() datagram fragmentation");
-            UNLOCKED_ADD(udpwrite); // try again
-        }
     }
 }
 
