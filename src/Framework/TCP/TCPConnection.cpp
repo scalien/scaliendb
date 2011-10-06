@@ -31,14 +31,13 @@ void TCPConnection::Connect(Endpoint &endpoint, unsigned timeout)
 
     Init(false);
     state = CONNECTING;
-
+    connectTimeout.SetDelay(timeout);
 
     ret = socket.Create();
     if (ret == false)
     {
         Log_Debug("Socket creation failed");
         // HACK: make sure connectTimeout is called eventually
-        connectTimeout.SetDelay(timeout);
         EventLoop::Reset(&connectTimeout);
         return;
     }
@@ -59,7 +58,6 @@ void TCPConnection::Connect(Endpoint &endpoint, unsigned timeout)
     {
         Log_Debug("Connect failed");
         // HACK: make sure connectTimeout is called eventually
-        connectTimeout.SetDelay(timeout);
         EventLoop::Reset(&connectTimeout);
         return;
     }
@@ -67,8 +65,6 @@ void TCPConnection::Connect(Endpoint &endpoint, unsigned timeout)
     if (timeout > 0)
     {
         Log_Trace("starting timeout with %d", timeout);
-
-        connectTimeout.SetDelay(timeout);
         EventLoop::Reset(&connectTimeout);
     }
 }

@@ -27,6 +27,8 @@
 #define UNLOCKED_CALL(callable)     \
 do                                  \
 {                                   \
+    if (!callable.IsSet())          \
+        break;                      \
     mutex.Unlock();                 \
     Call(callable);                 \
     mutex.Lock();                   \
