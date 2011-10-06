@@ -64,7 +64,7 @@ class Linker:
 		ldlibs = prefix_each(" -l", self.ldlibs)
 		objects = " ".join(objects)
 		cmd = self.ld + " " + self.ldflags + " " + ldpaths + ldlibs + " -o " + output + " " + objects
-		#print(cmd)
+		trace(cmd)
 		try:
 			os.remove(output)
 		except OSError, e:
@@ -77,6 +77,30 @@ class Linker:
 		except OSError, e:
 			pass
 		return output
+
+TRACE = True
+LOGFUNC = None
+def trace(*msgs):
+	if not TRACE:
+		return
+	caller = ""
+	import sys
+	frame = sys._getframe(1)
+	if frame.f_locals.has_key("self"):
+		caller = str(frame.f_locals["self"].__class__.__name__) + "."
+	caller += frame.f_code.co_name
+	logstr = unicode(caller + ": ", "utf-8", "ignore")
+	for msg in msgs:
+		if isinstance(msg, unicode):
+			logstr += msg
+		elif isinstance(msg, str):
+			logstr += unicode(msg, "utf-8", "ignore")
+		else:
+			logstr += unicode(msg)
+	if LOGFUNC != None:
+		LOGFUNC(logstr)
+	else:
+		print logstr
 	
 def prefix_each(prefix, list):
 	out = prefix.join(list)
@@ -89,7 +113,7 @@ def find_objects(root_dir, exclude_files, exclude_dirs):
 	exclude_files = set(exclude_files)
 	exclude_dirs = set(exclude_dirs)
 	for root, dirs, files in os.walk(root_dir):
-		#print(root, dirs, files)
+		trace(root, dirs, files)
 		for file in files:
 			if file not in exclude_files:
 				objects.append(os.path.join(root, file))
@@ -99,7 +123,7 @@ def find_objects(root_dir, exclude_files, exclude_dirs):
 	return objects
 
 def shell_exec(cmd, redirect_output = True, quiet = True):
-	#print(cmd)
+	trace(cmd)
 	args = shlex.split(cmd)
 	stdout = ""
 	stderr = ""
@@ -149,7 +173,7 @@ def create_main(file, testname, funcs):
 	#include "%s"
 	""" % (testname, funcs_str, file)
 	f = tempfile.NamedTemporaryFile(suffix=".cpp")
-	#print(main)
+	trace(main)
 	f.write(main)
 	f.flush()
 	return f
@@ -172,7 +196,7 @@ def compile_program(file, funcs = None, run=False):
 	objects.append(obj)
 	output = BUILD_DIR + "/" + "TestProgram" #+ str(uuid.uuid1())
 	bin = ld.link(objects, output)
-	#print(bin)
+	trace(bin)
 	ret = None
 	if run:
 		ret, stdout, stderr = shell_exec(bin, False, False)
