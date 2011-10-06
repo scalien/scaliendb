@@ -253,7 +253,6 @@
 		9ADD108013433E5C002C5C66 /* ClientRequestCache.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 543DE63812BFBB420069786A /* ClientRequestCache.cpp */; };
 		9ADD18DE1353568A002C5C66 /* StorageAsyncBulkCursor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9ADD18DD1353568A002C5C66 /* StorageAsyncBulkCursor.cpp */; };
 		9ADD18DF1353568A002C5C66 /* StorageAsyncBulkCursor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9ADD18DD1353568A002C5C66 /* StorageAsyncBulkCursor.cpp */; };
-		9AE54328142CB1D80002D500 /* Query.java in Sources */ = {isa = PBXBuildFile; fileRef = 9AE54327142CB1D80002D500 /* Query.java */; };
 		9AE5437F1431CF260002D500 /* Service_Posix.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9AE5437C1431CF260002D500 /* Service_Posix.cpp */; };
 		9AE543801431CF260002D500 /* Service_Windows.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9AE5437D1431CF260002D500 /* Service_Windows.cpp */; };
 		9AE8197512D4BFE80038BDB1 /* ArrayListTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9AE8196612D4BFE80038BDB1 /* ArrayListTest.cpp */; };
@@ -1791,7 +1790,6 @@
 				9ACBF28514228E2400297EE1 /* HTTPFileHandler.cpp in Sources */,
 				9ACBF28814228E3200297EE1 /* Mime.cpp in Sources */,
 				9ACBF28B14228E4700297EE1 /* SDBPConnection.cpp in Sources */,
-				9AE54328142CB1D80002D500 /* Query.java in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
