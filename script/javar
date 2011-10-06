@@ -1,9 +1,10 @@
 #!/bin/sh
 
 export LD_LIBRARY_PATH=.
+export CLASSPATH=scaliendb.jar:.
 
-FILE=$1
+FILE=`echo $1 | sed 's/\(.*\)\(\..*\)$/\1/'`
 shift
 
-javac -cp scaliendb.jar:. $FILE.java && java -cp scaliendb.jar:. $FILE $*
+javac -cp $CLASSPATH $FILE.java && java -cp $CLASSPATH $FILE $*
 
