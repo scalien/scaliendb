@@ -11,3 +11,4 @@ echo "#define SOURCE_CONTROL_VERSION \"$COMMIT_ID\"" >> $OUTPUT
 echo >> $OUTPUT
 echo "#endif" >> $OUTPUT
 echo >> $OUTPUT
+
