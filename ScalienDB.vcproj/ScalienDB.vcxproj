@@ -153,8 +153,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <PreBuildEvent>
-      <Command>
-      </Command>
+      <Command>..\script\replaceversion.cmd ScalienDB.rc</Command>
     </PreBuildEvent>
     <ClCompile>
       <Optimization>MaxSpeed</Optimization>
@@ -176,6 +175,9 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
     </Link>
     <PostBuildEvent />
+    <PostBuildEvent>
+      <Command>..\script\replaceversion.cmd ScalienDB.rc</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\src\System\Common.cpp" />
@@ -483,6 +485,10 @@
     <ClInclude Include="..\src\Framework\Storage\StorageUnwrittenChunkLister.h" />
     <ClInclude Include="..\src\Framework\Storage\StorageWriteChunkJob.h" />
     <ClInclude Include="..\src\Version.h" />
+    <ClInclude Include="resource.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="ScalienDB.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

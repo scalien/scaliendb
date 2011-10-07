@@ -985,5 +985,9 @@
     <ClInclude Include="..\src\System\Service.h">
       <Filter>System</Filter>
     </ClInclude>
+    <ClInclude Include="resource.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="ScalienDB.rc" />
   </ItemGroup>
 </Project>
