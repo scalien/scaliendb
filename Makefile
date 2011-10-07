@@ -379,10 +379,10 @@ objects: $(BUILD_DIR) $(ALL_OBJECTS) $(TEST_OBJECTS) $(CLIENTLIB_OBJECTS)
 clienttest:
 	$(MAKE) targets BUILD="release"
 
-clientlib-target:
+clientlib-target: scversion
 	$(MAKE) $(CLIENTLIB_TARGET) BUILD_DIR=$(BUILD_DIR)/client EXTRA_CFLAGS="-DCLIENT_MULTITHREADED -DIOPROCESSOR_MULTITHREADED -DEVENTLOOP_MULTITHREADED"
 
-clientlib: 
+clientlib:
 	$(MAKE) clientlib-target CLIENTLIB_TARGET=clientlibs
 
 clientlib-debug:
@@ -408,7 +408,7 @@ phplib: $(BUILD_DIR) clientlib
 testlib: $(BUILD_DIR)
 	$(MAKE) clientlib-target CLIENTLIB_TARGET="objects"
 
-targets: $(BUILD_DIR) executables
+targets: $(BUILD_DIR) scversion executables
 
 testmain: $(BUILD_DIR) $(BUILD_DIR)/TestMain
 
@@ -440,6 +440,8 @@ uninstall:
 selfupdate:
 	-script/updatemakefile.sh
 
+scversion:
+	-script/createscversion.sh
 
 ##############################################################################
 #
