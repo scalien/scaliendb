@@ -29,5 +29,9 @@
     <ClInclude Include="..\src\Application\Client\CSharp\stdint.h">
       <Filter>Application\Client\CSharp</Filter>
     </ClInclude>
+    <ClInclude Include="ScalienClientCSharpDLL.resource.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="ScalienClientCSharpDLL.rc" />
   </ItemGroup>
 </Project>

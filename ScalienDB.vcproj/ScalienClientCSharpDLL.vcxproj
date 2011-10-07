@@ -166,6 +166,9 @@
       <OptimizeReferences>true</OptimizeReferences>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
     </Link>
+    <PreBuildEvent>
+      <Command>..\script\replaceversion.cmd $(ProjectName).rc</Command>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\src\Application\Client\SDBPClientWrapper.cpp" />
@@ -175,12 +178,16 @@
     <ClInclude Include="..\src\Application\Client\SDBPClientWrapper.h" />
     <ClInclude Include="..\src\Application\Client\CSharp\inttypes.h" />
     <ClInclude Include="..\src\Application\Client\CSharp\stdint.h" />
+    <ClInclude Include="ScalienClientCSharpDLL.resource.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="ScalienClientLib.vcxproj">
       <Project>{976e9a99-01ca-4a96-a801-6c7d1c17aaa2}</Project>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="ScalienClientCSharpDLL.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

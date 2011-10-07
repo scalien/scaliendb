@@ -491,7 +491,7 @@
     <ClInclude Include="..\src\Framework\Storage\StorageUnwrittenChunkLister.h" />
     <ClInclude Include="..\src\Framework\Storage\StorageWriteChunkJob.h" />
     <ClInclude Include="..\src\Version.h" />
-    <ClInclude Include="resource.h" />
+    <ClInclude Include="ScalienDB.resource.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="ScalienDB.rc" />
