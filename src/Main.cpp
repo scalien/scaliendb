@@ -207,12 +207,11 @@ void LogPrintVersion(bool isController)
 {
     const char*     debugInfo = "";
     const char*     buildDate = BUILD_DATE;
-
-#ifdef DEBUG
     Buffer          debugBuffer;
     
     debugBuffer.Appendf(" -- DEBUG %s, Pid: %U", buildDate, GetProcessID());
     debugBuffer.NullTerminate();
+#ifdef DEBUG
     debugInfo = debugBuffer.GetBuffer();
 #endif
     
