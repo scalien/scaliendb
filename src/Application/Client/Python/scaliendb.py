@@ -270,14 +270,14 @@ class Client:
         def delete(self, key):
             return self._client._delete(self._table_id, key)
 
-        def count(self, prefix="", start_key="", end_key=""):
-            return self._client._count(self._table_id, prefix, start_key, end_key)
+        def count(self, prefix="", start_key="", end_key="", direction="forward"):
+            return self._client._count(self._table_id, prefix, start_key, end_key, direction)
         
-        def get_key_iterator(self, prefix="", start_key="", end_key="", count=-1):
-            return self._client.Iterator(self, prefix, start_key, end_key, count, False)
+        def get_key_iterator(self, prefix="", start_key="", end_key="", count=-1, direction="forward"):
+            return self._client.Iterator(self, prefix, start_key, end_key, count, direction, False)
     
-        def get_key_value_iterator(self, prefix="", start_key="", end_key="", count=-1):
-            return self._client.Iterator(self, prefix, start_key, end_key, count, True)
+        def get_key_value_iterator(self, prefix="", start_key="", end_key="", count=-1, direction="forward"):
+            return self._client.Iterator(self, prefix, start_key, end_key, count, direction, True)
             
         def get_sequence(self, key):
             return self._client.Sequence(self, key)
@@ -290,12 +290,13 @@ class Client:
     # =========================================================================================
 
     class Iterator:
-        def __init__(self, table, prefix, start_key, end_key, count, values):
+        def __init__(self, table, prefix, start_key, end_key, count, direction, values):
             self._table = table
             self._start_key = start_key
             self._end_key = end_key
             self._prefix = prefix
             self._count = count
+            self._direction = direction
             self._values = values
             self._gran = 100
             self._result = []
@@ -307,10 +308,10 @@ class Client:
             if self._count > 0 and self._count < self._gran:
                 num = self._count
             if self._values:
-                self._result = self._table._client._list_key_values(self._table._table_id, self._prefix, self._start_key, self._end_key, num, skip).items()
+                self._result = self._table._client._list_key_values(self._table._table_id, self._prefix, self._start_key, self._end_key, num, self._direction, skip).items()
             else:
-                self._result = self._table._client._list_keys(self._table._table_id, self._prefix, self._start_key, self._end_key, num, skip)
-            self._result.sort()
+                self._result = self._table._client._list_keys(self._table._table_id, self._prefix, self._start_key, self._end_key, num, self._direction, skip)
+            #self._result.sort()
             self._len = len(self._result)
             self._pos = 0
         
@@ -500,18 +501,18 @@ class Client:
         key = Client._typemap(key)
         status, ret = self._data_command(SDBP_Delete, table_id, key)
 
-    def _count(self, table_id, prefix="", start_key="", end_key=""):
+    def _count(self, table_id, prefix="", start_key="", end_key="", direction="forward"):
         start_key = Client._typemap(start_key)
         end_key = Client._typemap(end_key)
-        status = SDBP_Count(self._cptr, table_id, start_key, end_key, prefix)
+        status = SDBP_Count(self._cptr, table_id, start_key, end_key, prefix, direction == "forward")
         self._result = Client.Result(SDBP_GetResult(self._cptr))
         self._check_status(status)
         return self._result.number()
 
-    def _list_keys(self, table_id, prefix="", start_key="", end_key="", count=0, skip=False):
+    def _list_keys(self, table_id, prefix="", start_key="", end_key="", count=0, direction="forward", skip=False):
         start_key = Client._typemap(start_key)
         end_key = Client._typemap(end_key)
-        status = SDBP_ListKeys(self._cptr, table_id, start_key, end_key, prefix, count, skip)
+        status = SDBP_ListKeys(self._cptr, table_id, start_key, end_key, prefix, count, direction=="forward", skip)
         self._result = Client.Result(SDBP_GetResult(self._cptr))
         self._check_status(status)
         keys = []
@@ -521,10 +522,10 @@ class Client:
             self._result.next()
         return keys
 
-    def _list_key_values(self, table_id, prefix="", start_key="", end_key="", count=0, skip=False):
+    def _list_key_values(self, table_id, prefix="", start_key="", end_key="", count=0, direction="forward", skip=False):
         start_key = Client._typemap(start_key)
         end_key = Client._typemap(end_key)
-        status = SDBP_ListKeyValues(self._cptr, table_id, start_key, end_key, prefix, count, skip)
+        status = SDBP_ListKeyValues(self._cptr, table_id, start_key, end_key, prefix, count, direction=="forward", skip)
         self._result = Client.Result(SDBP_GetResult(self._cptr))
         self._check_status(status)
         key_values = {}

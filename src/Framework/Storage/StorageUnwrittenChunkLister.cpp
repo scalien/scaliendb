@@ -6,28 +6,57 @@ StorageUnwrittenChunkLister::StorageUnwrittenChunkLister() : dataPage(NULL, 0)
 }
 
 // copy key-values from file chunk to a temporary data page, that will be used for listing
-void StorageUnwrittenChunkLister::Init(StorageFileChunk* chunk, ReadBuffer& startKey,
- unsigned count)
+void StorageUnwrittenChunkLister::Init(StorageFileChunk& fileChunk, ReadBuffer& firstKey,
+ unsigned count, bool forwardDirection_)
 {
     StorageFileKeyValue*    kv;
     int                     cmpres;
     unsigned                num;
     uint32_t                index;
-    uint64_t                pageOffset;
+    uint64_t                offset;
     int                     ret;
+
+    Log_Debug("Listing unwritten chunk");
 
     num = 0;
     index = 0;
+    forwardDirection = forwardDirection_;
     
-    if (ReadBuffer::Cmp(startKey, chunk->indexPage->GetFirstKey()) >= 0)
+    if (forwardDirection && ReadBuffer::Cmp(firstKey, fileChunk.indexPage->GetFirstKey()) < 0)
     {
-        ret = chunk->indexPage->Locate(startKey, index, pageOffset);
+        index = 0;
+        offset = fileChunk.indexPage->GetFirstDatapageOffset();
+    }
+    else if (!forwardDirection && firstKey.GetLength() > 0 && ReadBuffer::Cmp(firstKey, fileChunk.indexPage->GetFirstKey()) < 0)
+    {
+        // firstKey is set and smaller that the first key in this chunk
+        dataPage.Finalize();
+        return;
+    }
+    else if (!forwardDirection && firstKey.GetLength() > 0 && ReadBuffer::Cmp(firstKey, fileChunk.indexPage->GetLastKey()) > 0)
+    {
+        index = fileChunk.numDataPages - 1;
+        offset = fileChunk.indexPage->GetLastDatapageOffset();
+    }
+    else if (!forwardDirection && firstKey.GetLength() == 0)
+    {
+        index = fileChunk.numDataPages - 1;
+        offset = fileChunk.indexPage->GetLastDatapageOffset();
+    }
+    else
+    {
+        ret = fileChunk.indexPage->Locate(firstKey, index, offset);
         ASSERT(ret);
     }
 
-    kv = chunk->dataPages[index]->LocateKeyValue(startKey, cmpres);
-    if (kv != NULL && cmpres > 0)
-        kv = NextChunkKeyValue(chunk, index, kv);
+    kv = fileChunk.dataPages[index]->LocateKeyValue(firstKey, cmpres);
+    if (kv != NULL)
+    {
+        if (forwardDirection && cmpres > 0)
+            kv = NextChunkKeyValue(fileChunk, index, kv);
+        else if (!forwardDirection && cmpres < 0)
+            kv = PrevChunkKeyValue(fileChunk, index, kv);
+    }
 
     while (kv != NULL)
     {
@@ -38,7 +67,10 @@ void StorageUnwrittenChunkLister::Init(StorageFileChunk* chunk, ReadBuffer& star
             if (count != 0 && num == count)
                 break;
         }
-        kv = NextChunkKeyValue(chunk, index, kv);
+        if (forwardDirection)
+            kv = NextChunkKeyValue(fileChunk, index, kv);
+        else
+            kv = PrevChunkKeyValue(fileChunk, index, kv);
     }
     
     dataPage.Finalize();
@@ -47,6 +79,11 @@ void StorageUnwrittenChunkLister::Init(StorageFileChunk* chunk, ReadBuffer& star
 void StorageUnwrittenChunkLister::Load()
 {
     // do nothing
+}
+
+void StorageUnwrittenChunkLister::SetDirection(bool forwardDirection_)
+{
+    ASSERT(forwardDirection == forwardDirection_);
 }
 
 StorageFileKeyValue* StorageUnwrittenChunkLister::First(ReadBuffer& firstKey)
@@ -75,19 +112,36 @@ StorageDataPage* StorageUnwrittenChunkLister::GetDataPage()
     return &dataPage;
 }
 
-StorageFileKeyValue* StorageUnwrittenChunkLister::NextChunkKeyValue(StorageFileChunk* chunk,
+StorageFileKeyValue* StorageUnwrittenChunkLister::NextChunkKeyValue(StorageFileChunk& fileChunk,
  uint32_t& index, StorageFileKeyValue* kv)
 {
     StorageFileKeyValue*    next;
     
-    next = chunk->dataPages[index]->Next(kv);
+    next = fileChunk.dataPages[index]->Next(kv);
     
     if (next != NULL)
         return next;
     
     index++;
-    if (index >= chunk->numDataPages)
+    if (index >= fileChunk.numDataPages)
         return NULL;
 
-    return chunk->dataPages[index]->First();
+    return fileChunk.dataPages[index]->First();
+}
+
+StorageFileKeyValue* StorageUnwrittenChunkLister::PrevChunkKeyValue(StorageFileChunk& fileChunk,
+ uint32_t& index, StorageFileKeyValue* kv)
+{
+    StorageFileKeyValue*    next;
+    
+    next = fileChunk.dataPages[index]->Prev(kv);
+    
+    if (next != NULL)
+        return next;
+    
+    if (index == 0)
+        return NULL;
+    index--;
+
+    return fileChunk.dataPages[index]->Last();
 }

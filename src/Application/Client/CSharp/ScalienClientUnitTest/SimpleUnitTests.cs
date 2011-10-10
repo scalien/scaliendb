@@ -262,5 +262,269 @@ namespace ScalienClientUnitTesting
             
             client.Close();
         }
+
+        [TestMethod]
+        public void ListTests()
+        {
+            var dbName = "test_db";
+            var tableName = "test_table";
+            int length = 10 * 1000;
+            uint num = 22*1000;
+
+            Client client = new Client(Config.GetNodes());
+
+            Database db = client.GetDatabase(dbName);
+            Table tbl = db.GetTable(tableName);
+
+            //Utils.DeleteDBs(client);
+
+            //Database db = client.CreateDatabase(dbName);
+            //Table tbl = db.CreateTable(tableName);
+
+            //var value = Utils.RandomString(length);
+
+            //for (int i = 0; i < num; i++)
+            //    tbl.Set(Utils.Id(i), value);
+
+            //client.Submit();
+
+            ListTest1(tbl, num);
+            ListTest2(tbl, num);
+            ListTest3(tbl, num);
+            ListTest4(tbl, num);
+            ListTest5(tbl, num);
+            ListTest6(tbl, num);
+            ListTest7(tbl, num);
+            ListTest8(tbl, num);
+            ListTest9(tbl, num);
+            ListTest10(tbl, num);
+            ListTest11(tbl, num);
+            ListTest12(tbl, num);
+            ListTest13(tbl, num);
+            ListTest14(tbl, num);
+            ListTest15(tbl, num);
+            ListTest16(tbl, num);
+            ListTest17(tbl, num);
+            ListTest18(tbl, num);
+            ListTest19(tbl, num);
+        }
+
+        public void PerformListTest(Table tbl, StringRangeParams ps, uint expected)
+        {
+            int cnt;
+            
+            cnt = 0;
+            foreach (String key in tbl.GetKeyIterator(ps))
+            {
+                //Console.WriteLine(key);
+                cnt++;
+            }
+            Console.WriteLine("Expecting {0}, received {1}", expected, cnt);
+            Assert.IsTrue(expected == cnt);
+
+            cnt = 0;
+            foreach (KeyValuePair<string, string> kv in tbl.GetKeyValueIterator(ps))
+            {
+                cnt++;
+            }
+            Console.WriteLine("Expecting {0}, received {1}", expected, cnt);
+            Assert.IsTrue(expected == cnt);
+        }
+
+        public void ListTest1(Table tbl, uint num)
+        {
+            uint count = 111;
+
+            StringRangeParams ps = new StringRangeParams();
+            ps.StartKey(Utils.Id(100));
+            ps.Count(count);
+            
+            uint expected = count;
+            PerformListTest(tbl, ps, expected);
+        }
+
+        public void ListTest2(Table tbl, uint num)
+        {
+            uint count = 111;
+
+            StringRangeParams ps = new StringRangeParams();
+            ps.StartKey(Utils.Id(100));
+            ps.Count(count);
+            ps.Backward();
+            
+            uint expected = 101;
+            PerformListTest(tbl, ps, expected);
+        }
+
+        public void ListTest3(Table tbl, uint num)
+        {
+            uint count = 100;
+
+            StringRangeParams ps = new StringRangeParams();
+            ps.StartKey(Utils.Id(100));
+            ps.Count(count);
+            ps.Backward();
+            
+            uint expected = count;
+            PerformListTest(tbl, ps, expected);
+        }
+
+        public void ListTest4(Table tbl, uint num)
+        {
+            StringRangeParams ps = new StringRangeParams();
+            PerformListTest(tbl, ps, num);
+        }
+
+        public void ListTest5(Table tbl, uint num)
+        {
+            StringRangeParams ps = new StringRangeParams();
+            ps.Backward();
+            PerformListTest(tbl, ps, num);
+        }
+
+        public void ListTest6(Table tbl, uint num)
+        {
+            uint count = 1234;
+
+            StringRangeParams ps = new StringRangeParams();
+            ps.Count(count);
+
+            uint expected = count;
+            PerformListTest(tbl, ps, expected);
+        }
+
+        public void ListTest7(Table tbl, uint num)
+        {
+            uint count = 1234;
+
+            StringRangeParams ps = new StringRangeParams();
+            ps.Backward();
+            ps.Count(count);
+
+            uint expected = count;
+            PerformListTest(tbl, ps, expected);
+        }
+
+        public void ListTest8(Table tbl, uint num)
+        {
+            StringRangeParams ps = new StringRangeParams();
+            ps.EndKey(Utils.Id(15000));
+            
+            uint expected = 15000;
+            PerformListTest(tbl, ps, expected);
+        }
+
+        public void ListTest9(Table tbl, uint num)
+        {
+            StringRangeParams ps = new StringRangeParams();
+            ps.EndKey(Utils.Id(15000));
+            ps.Backward();
+
+            uint expected = num - 15000 - 1;
+            PerformListTest(tbl, ps, expected);
+        }
+
+        public void ListTest10(Table tbl, uint num)
+        {
+            StringRangeParams ps = new StringRangeParams();
+            ps.StartKey(Utils.Id(10000));
+            ps.EndKey(Utils.Id(15000));
+
+            uint expected = 5000;
+            PerformListTest(tbl, ps, expected);            
+        }
+
+        public void ListTest11(Table tbl, uint num)
+        {
+            StringRangeParams ps = new StringRangeParams();
+            ps.StartKey(Utils.Id(15000));
+            ps.EndKey(Utils.Id(10000));
+            ps.Backward();
+
+            uint expected = 5000;
+            PerformListTest(tbl, ps, expected);
+        }
+
+        public void ListTest12(Table tbl, uint num)
+        {
+            StringRangeParams ps = new StringRangeParams();
+            ps.StartKey(Utils.Id(10000));
+            ps.EndKey(Utils.Id(15000));
+            ps.Prefix("0000000012");
+
+            uint expected = 1000;
+            PerformListTest(tbl, ps, expected);
+        }
+
+        public void ListTest13(Table tbl, uint num)
+        {
+            StringRangeParams ps = new StringRangeParams();
+            ps.StartKey(Utils.Id(15000));
+            ps.EndKey(Utils.Id(10000));
+            ps.Prefix("00000000120");
+            ps.Backward();
+
+            uint expected = 100;
+            PerformListTest(tbl, ps, expected);
+        }
+
+        public void ListTest14(Table tbl, uint num)
+        {
+            StringRangeParams ps = new StringRangeParams();
+            ps.Prefix("0000000012");
+
+            uint expected = 1000;
+            PerformListTest(tbl, ps, expected);
+        }
+
+        public void ListTest15(Table tbl, uint num)
+        {
+            StringRangeParams ps = new StringRangeParams();
+            ps.Prefix("00000000120");
+            ps.Backward();
+
+            uint expected = 100;
+            PerformListTest(tbl, ps, expected);
+        }
+
+        public void ListTest16(Table tbl, uint num)
+        {
+            StringRangeParams ps = new StringRangeParams();
+            ps.Prefix("000000002");
+
+            uint expected = 2000;
+            PerformListTest(tbl, ps, expected);
+        }
+
+        public void ListTest17(Table tbl, uint num)
+        {
+            StringRangeParams ps = new StringRangeParams();
+            ps.Prefix("000000002");
+            ps.Backward();
+
+            uint expected = 2000;
+            PerformListTest(tbl, ps, expected);
+        }
+
+        public void ListTest18(Table tbl, uint num)
+        {
+            StringRangeParams ps = new StringRangeParams();
+            ps.StartKey(Utils.Id(13000));
+            ps.Prefix("0000000012");
+
+            uint expected = 0;
+            PerformListTest(tbl, ps, expected);
+        }
+
+        public void ListTest19(Table tbl, uint num)
+        {
+            StringRangeParams ps = new StringRangeParams();
+            ps.StartKey(Utils.Id(12000));
+            ps.Prefix("0000000013");
+            ps.Backward();
+
+            uint expected = 0;
+            PerformListTest(tbl, ps, expected);
+        }
     }
 }

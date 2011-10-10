@@ -15,10 +15,12 @@ StorageFileChunkLister
 class StorageFileChunkLister : public StorageChunkLister
 {
 public:
-    void                    Init(ReadBuffer filename, bool keysOnly, uint64_t preloadBufferSize);
+    void                    Init(ReadBuffer filename, bool keysOnly,
+                            uint64_t preloadBufferSize, bool forwardDirection);
 
     void                    Load();
     
+    void                    SetDirection(bool forwardDirection);
     StorageFileKeyValue*    First(ReadBuffer& firstKey);
     StorageFileKeyValue*    Next(StorageFileKeyValue*);
 
@@ -26,6 +28,7 @@ public:
 
 private:
     Buffer                  filename;
+    bool                    forwardDirection;
     bool                    keysOnly;
     uint64_t                preloadBufferSize;
     StorageChunkReader      reader;

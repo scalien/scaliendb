@@ -833,9 +833,18 @@ void ShardDatabaseManager::OnExecuteLists()
 
         // set if prefix is set it is assumed that startKey and endKey is prefixed
         prefix = itRequest->prefix;
+        if (itRequest->key.GetLength() == 0 && itRequest->prefix.GetLength() > 0)
+        {
+            itRequest->key.Write(itRequest->prefix);
+            if (!itRequest->forwardDirection)
+            {
+                if (itRequest->prefix.GetCharAt(itRequest->prefix.GetLength() - 1) < 255)
+                    itRequest->key.GetBuffer()[itRequest->key.GetLength() - 1]++;
+                else
+                    itRequest->key.Append((char)0);
+            }
+        }
         startKey = itRequest->key;
-        if (startKey.GetLength() == 0)
-            startKey = itRequest->prefix;
         endKey = itRequest->endKey;
         
         // find the exact shard based on what startKey is given in the request
@@ -866,6 +875,7 @@ void ShardDatabaseManager::OnExecuteLists()
         asyncList.endKey = endKey;
         asyncList.prefix = itRequest->prefix;
         asyncList.count = itRequest->count;
+        asyncList.forwardDirection = itRequest->forwardDirection;
         asyncList.shardFirstKey.Write(startKey);
         asyncList.shardLastKey.Write(configShard->lastKey);
         asyncList.onComplete = MFunc<ShardDatabaseAsyncList, &ShardDatabaseAsyncList::OnShardComplete>(&asyncList);

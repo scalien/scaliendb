@@ -492,22 +492,26 @@ public class Client
 
     long count(long tableID, StringRangeParams ps) throws SDBPException {
         BigInteger biTableID = BigInteger.valueOf(tableID);
-        int status = scaliendb_client.SDBP_Count(cptr, biTableID, ps.startKey, ps.endKey, ps.prefix);
+        int status = scaliendb_client.SDBP_Count(
+         cptr, biTableID, ps.startKey, ps.endKey, ps.prefix, ps.forwardDirection);
         checkResultStatus(status);        
         return result.getNumber();
     }
     
     long count(long tableID, ByteRangeParams ps) throws SDBPException {
         BigInteger biTableID = BigInteger.valueOf(tableID);
-        int status = scaliendb_client.SDBP_CountCStr(cptr, biTableID, ps.startKey, ps.startKey.length, ps.endKey, ps.endKey.length, ps.prefix, ps.prefix.length);
+        int status = scaliendb_client.SDBP_CountCStr(
+         cptr, biTableID, ps.startKey, ps.startKey.length, ps.endKey, ps.endKey.length,
+         ps.prefix, ps.prefix.length, ps.forwardDirection);
         checkResultStatus(status);
         return result.getNumber();
     }
     
-    protected List<String> listKeys(long tableID, String startKey, String endKey, String prefix, int count, boolean skip)
+    protected List<String> listKeys(long tableID, String startKey, String endKey, String prefix, int count, boolean forwardDirection, boolean skip)
     throws SDBPException {
         BigInteger biTableID = BigInteger.valueOf(tableID);
-        int status = scaliendb_client.SDBP_ListKeys(cptr, biTableID, startKey, endKey, prefix, count, skip);
+        int status = scaliendb_client.SDBP_ListKeys(
+         cptr, biTableID, startKey, endKey, prefix, count, forwardDirection, skip);
         checkResultStatus(status);
 
         ArrayList<String> keys = new ArrayList<String>();
@@ -517,12 +521,13 @@ public class Client
         return keys;
     }
 
-    protected List<byte[]> listKeys(long tableID, byte[] startKey, byte[] endKey, byte[] prefix, int count, boolean skip)
+    protected List<byte[]> listKeys(long tableID, byte[] startKey, byte[] endKey, byte[] prefix, int count, boolean forwardDirection, boolean skip)
     throws SDBPException {
         BigInteger biTableID = BigInteger.valueOf(tableID);
-        int status = scaliendb_client.SDBP_ListKeysCStr(cptr, biTableID, startKey, startKey.length, 
-        endKey, endKey.length, prefix, prefix.length, count, skip);
-        checkResultStatus(status);
+        int status = scaliendb_client.SDBP_ListKeysCStr(
+         cptr, biTableID, startKey, startKey.length, 
+         endKey, endKey.length, prefix, prefix.length, count, forwardDirection, skip);
+         checkResultStatus(status);
 
         ArrayList<byte[]> keys = new ArrayList<byte[]>();
         for (result.begin(); !result.isEnd(); result.next())
@@ -531,10 +536,11 @@ public class Client
         return keys;
     }
 
-    protected Map<String, String> listKeyValues(long tableID, String startKey, String endKey, String prefix, int count, boolean skip)
+    protected Map<String, String> listKeyValues(long tableID, String startKey, String endKey, String prefix, int count, boolean forwardDirection, boolean skip)
     throws SDBPException {
         BigInteger biTableID = BigInteger.valueOf(tableID);
-        int status = scaliendb_client.SDBP_ListKeyValues(cptr, biTableID, startKey, endKey, prefix, count, skip);
+        int status = scaliendb_client.SDBP_ListKeyValues(
+         cptr, biTableID, startKey, endKey, prefix, count, forwardDirection, skip);
         checkResultStatus(status);
             
         TreeMap<String, String> keyValues = new TreeMap<String, String>();
@@ -544,9 +550,11 @@ public class Client
         return keyValues;
     }
 
-    protected Map<byte[], byte[]> listKeyValues(long tableID, byte[] startKey, byte[] endKey, byte[] prefix, int count, boolean skip) throws SDBPException {
+    protected Map<byte[], byte[]> listKeyValues(long tableID, byte[] startKey, byte[] endKey, byte[] prefix, int count, boolean forwardDirection, boolean skip) throws SDBPException {
         BigInteger biTableID = BigInteger.valueOf(tableID);
-        int status = scaliendb_client.SDBP_ListKeyValuesCStr(cptr, biTableID, startKey, startKey.length, endKey, endKey.length, prefix, prefix.length, count, skip);
+        int status = scaliendb_client.SDBP_ListKeyValuesCStr(cptr, biTableID,
+         startKey, startKey.length, endKey, endKey.length, prefix, prefix.length,
+         count, forwardDirection, skip);
         checkResultStatus(status);
             
         TreeMap<byte[], byte[]> keyValues = new TreeMap<byte[], byte[]>(new ByteArrayComparator());

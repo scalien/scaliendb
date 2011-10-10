@@ -15,15 +15,16 @@
     /// <item>start key</item>
     /// <item>end key</item>
     /// <item>count</item>
+    /// <item>direction</item>
     /// </list>
     /// </para>
     /// <para>
     /// ByteRangeParams is convenient because is uses chaining, so you can write
     /// expressions like <c>new ByteRangeParams().Prefix(prefix).StartKey(startKey).EndKey(endKey).Count(count)</c>
-    /// and it returns the ByteRangeParam instance.
+    /// and it returns the ByteRangeParam instance. Optionally call .Backward() to get a backward iterator.
     /// </para>
     /// <para>
-    /// The default values are empty byte arrays.
+    /// The default values are empty byte arrays and forward iteration.
     /// </para>
     /// </remarks>
     /// <seealso cref="Table.GetKeyIterator(ByteRangeParams)"/>
@@ -35,6 +36,7 @@
         internal byte[] startKey = new byte[0];
         internal byte[] endKey = new byte[0];
         internal long count = -1;
+        internal bool forwardDirection = true;
 
         /// <summary>Specify the prefix parameter for iteration.</summary>
         /// <remarks>Only keys starting with prefix will be returned by the iteration.</remarks>
@@ -73,6 +75,14 @@
         public ByteRangeParams Count(uint count)
         {
             this.count = count;
+            return this;
+        }
+
+        /// <summary>Iteration will proceed backwards</summary>
+        /// <returns>The ByteRangeParams instance, useful for chaining.</returns>
+        public ByteRangeParams Backward()
+        {
+            this.forwardDirection = false;
             return this;
         }
     }

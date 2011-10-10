@@ -11,6 +11,7 @@ namespace Scalien
         string endKey;
         string prefix;
         long count;
+        bool forwardDirection;
         uint gran = 100;
         int pos;
         List<string> keys;
@@ -22,6 +23,7 @@ namespace Scalien
             this.endKey = ps.endKey;
             this.prefix = ps.prefix;
             this.count = ps.count;
+            this.forwardDirection = ps.forwardDirection;
 
             Query(false);
         }
@@ -32,9 +34,9 @@ namespace Scalien
 
             num = gran;
             if (count > 0 && count < gran)
-                num = (uint)count; 
-            
-            keys = table.Client.ListKeys(table.TableID, startKey, endKey, prefix, num, skip);
+                num = (uint)count;
+
+            keys = table.Client.ListKeys(table.TableID, startKey, endKey, prefix, num, forwardDirection, skip);
             pos = 0;
         }
 

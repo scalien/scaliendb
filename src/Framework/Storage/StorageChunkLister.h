@@ -21,7 +21,8 @@ public:
 
     virtual void                    Load() = 0;
     
-    virtual StorageFileKeyValue*    First(ReadBuffer& firstKey) = 0;
+    virtual void                    SetDirection(bool forwardDirection) = 0;
+    virtual StorageFileKeyValue*    First(ReadBuffer& startKey) = 0;
     virtual StorageFileKeyValue*    Next(StorageFileKeyValue*) = 0;
     
     virtual uint64_t                GetNumKeys() = 0;

@@ -54,6 +54,7 @@ void StorageAsyncList::Init()
     ret = false;
     completed = false;
     aborted = false;
+    forwardDirection = true;
     num = 0;
     stage = START;
     threadPool = NULL;
@@ -90,12 +91,15 @@ void StorageAsyncList::ExecuteAsyncList()
     StorageUnwrittenChunkLister*    unwrittenLister;
     Buffer*                         filename;
     StorageChunk::ChunkState        chunkState;
-    ReadBuffer                      firstKey;
+//    ReadBuffer                      firstKey;
     bool                            keysOnly;
     
     Log_Debug("StorageAsyncList START");
     firstKey.Wrap(shardFirstKey);
     keysOnly = (type == KEY || type == COUNT);
+
+    if (!forwardDirection && prefix.GetLength() > 0 && !firstKey.BeginsWith(prefix) && count > 0)
+        count++;
 
     if (stage == START)
     {
@@ -114,14 +118,14 @@ void StorageAsyncList::ExecuteAsyncList()
             if (chunkState == StorageChunk::Serialized)
             {
                 memoLister = new StorageMemoChunkLister;
-                memoLister->Init((StorageMemoChunk*) *itChunk, firstKey, count, keysOnly);
+                memoLister->Init((StorageMemoChunk*) *itChunk, firstKey, count, keysOnly, forwardDirection);
                 listers[numListers] = memoLister;
                 numListers++;
             }
             else if (chunkState == StorageChunk::Unwritten)
             {
                 unwrittenLister = new StorageUnwrittenChunkLister;
-                unwrittenLister->Init((StorageFileChunk*) *itChunk, firstKey, count);
+                unwrittenLister->Init(*((StorageFileChunk*) *itChunk), firstKey, count, forwardDirection);
                 listers[numListers] = unwrittenLister;
                 numListers++;
             }
@@ -130,8 +134,7 @@ void StorageAsyncList::ExecuteAsyncList()
                 fileChunk = (StorageFileChunk*) *itChunk;
                 filename = &fileChunk->GetFilename();
                 fileLister = new StorageFileChunkLister;
-                fileLister->Init(
-                 fileChunk->GetFilename(), keysOnly, preloadBufferSize);
+                fileLister->Init(fileChunk->GetFilename(), keysOnly, preloadBufferSize, forwardDirection);
                 listers[numListers] = fileLister;
                 numListers++;
             }
@@ -164,7 +167,7 @@ void StorageAsyncList::LoadMemoChunk(bool keysOnly)
     firstKey.Wrap(shardFirstKey);
     
     memoLister = new StorageMemoChunkLister;
-    memoLister->Init(shard->GetMemoChunk(), firstKey, count, keysOnly);
+    memoLister->Init(shard->GetMemoChunk(), firstKey, count, keysOnly, forwardDirection);
 
     // memochunk is always on the last position, because it is the most current
     listers[numListers] = memoLister;
@@ -196,7 +199,10 @@ void StorageAsyncList::AsyncMergeResult()
     Log_Debug("starting AsyncMergeResult");
 
     result = new StorageAsyncListResult(this);
-    
+
+    if (!forwardDirection && prefix.GetLength() > 0 && !firstKey.BeginsWith(prefix) && count > 0)
+        count--;
+
     while(!IsDone())
     {
         // TODO: Yield
@@ -207,11 +213,23 @@ void StorageAsyncList::AsyncMergeResult()
         if (it == NULL)
             break;
         
-        if (endKey.GetLength() != 0 && STORAGE_KEY_GREATER_THAN(it->GetKey(), endKey))
-            break;
-        
+        if (forwardDirection)
+        {
+            if (endKey.GetLength() != 0 && STORAGE_KEY_GREATER_THAN(it->GetKey(), endKey))
+                break;
+        }
+        else
+        {
+            if (endKey.GetLength() != 0 && STORAGE_KEY_GREATER_THAN(endKey, it->GetKey()))
+                break;
+        }
+
         if (prefix.GetLength() != 0 && !it->GetKey().BeginsWith(prefix))
+        {
+            if (num == 0)
+                continue;
             break;
+        }
                 
         result->Append(it, type == COUNT);
         num++;
@@ -305,7 +323,8 @@ Restart:
             }
             
             // find the next smallest key
-            if (STORAGE_KEY_LESS_THAN(iterators[i]->GetKey(), key))
+            if ((forwardDirection && STORAGE_KEY_LESS_THAN(iterators[i]->GetKey(), key)) ||
+             (!forwardDirection && STORAGE_KEY_LESS_THAN(key, iterators[i]->GetKey())))
             {
                 if (iterators[i]->GetType() == STORAGE_KEYVALUE_TYPE_DELETE)
                 {

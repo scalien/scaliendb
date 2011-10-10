@@ -10,6 +10,7 @@ public class ByteKeyIterator implements java.lang.Iterable<byte[]>, java.util.It
     private byte[] endKey;
     private byte[] prefix;
     private int count;
+    private boolean forwardDirection;
     private int gran = 100;
     private List<byte[]> keys;
     private int pos;
@@ -20,6 +21,7 @@ public class ByteKeyIterator implements java.lang.Iterable<byte[]>, java.util.It
         this.endKey = ps.endKey;
         this.prefix = ps.prefix;
         this.count = ps.count;
+        this.forwardDirection = ps.forwardDirection;
         
         query(false);
     }
@@ -70,8 +72,9 @@ public class ByteKeyIterator implements java.lang.Iterable<byte[]>, java.util.It
         if (count > 0 && count < gran)
             num = count;
 
-        keys = table.getClient().listKeys(table.getTableID(), startKey, endKey, prefix, num, skip);
-        Collections.sort(keys, new ByteArrayComparator());
+        keys = table.getClient().listKeys(
+         table.getTableID(), startKey, endKey, prefix, num, forwardDirection, skip);
+        //Collections.sort(keys, new ByteArrayComparator());
         pos = 0;
     }
 }

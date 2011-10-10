@@ -81,11 +81,47 @@ ReadBuffer StorageIndexPage::GetFirstKey()
     return indexTree.First()->key;
 }
 
+ReadBuffer StorageIndexPage::GetLastKey()
+{
+    ASSERT(indexTree.Last() != NULL);
+    return indexTree.Last()->key;
+}
+
 ReadBuffer StorageIndexPage::GetMidpoint()
 {
     if (midpoint.GetLength() > 0)
         return midpoint;
     return indexTree.Mid()->key;
+}
+
+uint64_t StorageIndexPage::GetFirstDatapageOffset()
+{
+    ASSERT(indexTree.First() != NULL);
+    return indexTree.First()->offset;
+}
+
+uint64_t StorageIndexPage::GetLastDatapageOffset()
+{
+    ASSERT(indexTree.Last() != NULL);
+    return indexTree.Last()->offset;
+}
+
+uint32_t StorageIndexPage::GetOffsetIndex(uint64_t& offset)
+{
+    StorageIndexRecord* it;
+
+    FOREACH(it, indexTree)
+    {
+        if (it->offset > offset)
+        {
+            if (it != indexTree.First())
+                it = indexTree.Prev(it);
+            offset = it->offset;
+            return it->index;
+        }
+    }
+
+    return indexTree.Last()->index;
 }
 
 void StorageIndexPage::Append(ReadBuffer key, uint32_t index, uint64_t offset)

@@ -12,6 +12,7 @@ public class StringKeyValueIterator implements java.lang.Iterable<KeyValue<Strin
     private String endKey;
     private String prefix;
     private int count;
+    private boolean forwardDirection;
     private int gran = 100;
     private int pos;
     private LinkedList<String> keys;
@@ -23,6 +24,7 @@ public class StringKeyValueIterator implements java.lang.Iterable<KeyValue<Strin
         this.endKey = ps.endKey;
         this.prefix = ps.prefix;
         this.count = ps.count;
+        this.forwardDirection = ps.forwardDirection;
         
         query(false);
     }
@@ -74,7 +76,8 @@ public class StringKeyValueIterator implements java.lang.Iterable<KeyValue<Strin
         if (count > 0 && count < gran)
             num = count;
 
-        result = table.getClient().listKeyValues(table.getTableID(), startKey, endKey, prefix, num, skip);
+        result = table.getClient().listKeyValues(
+         table.getTableID(), startKey, endKey, prefix, num, forwardDirection, skip);
         keys = new LinkedList<String>();
         values = new LinkedList<String>();
 

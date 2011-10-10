@@ -163,14 +163,14 @@ namespace Scalien
 
         #region Internal and private helpers
 
-        internal List<string> ListKeys(ulong tableID, string startKey, string endKey, string prefix, uint count, bool skip)
+        internal List<string> ListKeys(ulong tableID, string startKey, string endKey, string prefix, uint count, bool forwardDirection, bool skip)
         {
-            int status = scaliendb_client.SDBP_ListKeys(cptr, tableID, startKey, endKey, prefix, count, skip);
+            int status = scaliendb_client.SDBP_ListKeys(cptr, tableID, startKey, endKey, prefix, count, forwardDirection, skip);
             CheckResultStatus(status);
             return result.GetStringKeys();
         }
 
-        internal List<byte[]> ListKeys(ulong tableID, byte[] startKey, byte[] endKey, byte[] prefix, uint count, bool skip)
+        internal List<byte[]> ListKeys(ulong tableID, byte[] startKey, byte[] endKey, byte[] prefix, uint count, bool forwardDirection, bool skip)
         {
             int status;
 
@@ -181,21 +181,21 @@ namespace Scalien
                     IntPtr ipStartKey = new IntPtr(pStartKey);
                     IntPtr ipEndKey = new IntPtr(pEndKey);
                     IntPtr ipPrefix = new IntPtr(pPrefix);
-                    status = scaliendb_client.SDBP_ListKeysCStr(cptr, tableID,  ipStartKey, startKey.Length, ipEndKey, endKey.Length, ipPrefix, prefix.Length, count, skip);
+                    status = scaliendb_client.SDBP_ListKeysCStr(cptr, tableID,  ipStartKey, startKey.Length, ipEndKey, endKey.Length, ipPrefix, prefix.Length, count, forwardDirection, skip);
                 }
             }
             CheckResultStatus(status);
             return result.GetByteArrayKeys();
         }
 
-        internal Dictionary<string, string> ListKeyValues(ulong tableID, string startKey, string endKey, string prefix, uint count, bool skip)
+        internal Dictionary<string, string> ListKeyValues(ulong tableID, string startKey, string endKey, string prefix, uint count, bool forwardDirection, bool skip)
         {
-            int status = scaliendb_client.SDBP_ListKeyValues(cptr, tableID, startKey, endKey, prefix, count, skip);
+            int status = scaliendb_client.SDBP_ListKeyValues(cptr, tableID, startKey, endKey, prefix, count, forwardDirection, skip);
             CheckResultStatus(status);
             return result.GetStringKeyValues();
         }
 
-        internal Dictionary<byte[], byte[]> ListKeyValues(ulong tableID, byte[] startKey, byte[] endKey, byte[] prefix, uint count, bool skip)
+        internal Dictionary<byte[], byte[]> ListKeyValues(ulong tableID, byte[] startKey, byte[] endKey, byte[] prefix, uint count, bool forwardDirection, bool skip)
         {
             int status;
 
@@ -206,7 +206,7 @@ namespace Scalien
                     IntPtr ipStartKey = new IntPtr(pStartKey);
                     IntPtr ipEndKey = new IntPtr(pEndKey);
                     IntPtr ipPrefix = new IntPtr(pPrefix);
-                    status = scaliendb_client.SDBP_ListKeyValuesCStr(cptr, tableID, ipStartKey, startKey.Length, ipEndKey, endKey.Length, ipPrefix, prefix.Length, count, skip);
+                    status = scaliendb_client.SDBP_ListKeyValuesCStr(cptr, tableID, ipStartKey, startKey.Length, ipEndKey, endKey.Length, ipPrefix, prefix.Length, count, forwardDirection, skip);
                 }
             }
             CheckResultStatus(status);
@@ -673,7 +673,7 @@ namespace Scalien
 
         internal ulong Count(ulong tableID, StringRangeParams ps)
         {
-            int status = scaliendb_client.SDBP_Count(cptr, tableID, ps.startKey, ps.endKey, ps.prefix);
+            int status = scaliendb_client.SDBP_Count(cptr, tableID, ps.startKey, ps.endKey, ps.prefix, ps.forwardDirection);
             CheckResultStatus(status);
             return result.GetNumber();
         }
@@ -689,7 +689,7 @@ namespace Scalien
                     IntPtr ipStartKey = new IntPtr(pStartKey);
                     IntPtr ipEndKey = new IntPtr(pEndKey);
                     IntPtr ipPrefix = new IntPtr(pPrefix);
-                    status = scaliendb_client.SDBP_CountCStr(cptr, tableID, ipStartKey, ps.startKey.Length, ipEndKey, ps.endKey.Length, ipPrefix, ps.prefix.Length);
+                    status = scaliendb_client.SDBP_CountCStr(cptr, tableID, ipStartKey, ps.startKey.Length, ipEndKey, ps.endKey.Length, ipPrefix, ps.prefix.Length, ps.forwardDirection);
                 }
             }
             CheckResultStatus(status);

@@ -576,63 +576,87 @@ ClientRequest* ShardHTTPClientSession::ProcessRemove()
 
 ClientRequest* ShardHTTPClientSession::ProcessListKeys()
 {
-    ClientRequest*  request;
+    bool            forwardDirection;
     uint64_t        tableID;
+    uint64_t        count;
     ReadBuffer      startKey;
     ReadBuffer      endKey;
     ReadBuffer      prefix;
-    uint64_t        count;
+    ReadBuffer      dirBuffer;
+    ClientRequest*  request;
     
     HTTP_GET_U64_PARAM(params, "tableID", tableID);
     HTTP_GET_OPT_PARAM(params, "startKey", startKey);
     HTTP_GET_OPT_PARAM(params, "endKey", endKey);
     HTTP_GET_OPT_PARAM(params, "prefix", prefix);
+    HTTP_GET_OPT_PARAM(params, "direction", dirBuffer);
     count = 0;
     HTTP_GET_OPT_U64_PARAM(params, "count", count);
 
+    if (ReadBuffer::Cmp(dirBuffer, "backward") == 0)
+        forwardDirection = false;
+    else
+        forwardDirection = true;
+
     request = new ClientRequest;
-    request->ListKeys(0, 0, tableID, startKey, endKey, prefix, count);
+    request->ListKeys(0, 0, tableID, startKey, endKey, prefix, count, forwardDirection);
 
     return request;    
 }
 
 ClientRequest* ShardHTTPClientSession::ProcessListKeyValues()
 {
-    ClientRequest*  request;
+    bool            forwardDirection;
     uint64_t        tableID;
+    uint64_t        count;
     ReadBuffer      startKey;
     ReadBuffer      endKey;
     ReadBuffer      prefix;
-    uint64_t        count;
+    ReadBuffer      dirBuffer;
+    ClientRequest*  request;
     
     HTTP_GET_U64_PARAM(params, "tableID", tableID);
     HTTP_GET_OPT_PARAM(params, "startKey", startKey);
     HTTP_GET_OPT_PARAM(params, "endKey", endKey);
     HTTP_GET_OPT_PARAM(params, "prefix", prefix);
+    HTTP_GET_OPT_PARAM(params, "direction", dirBuffer);
     count = 0;
     HTTP_GET_OPT_U64_PARAM(params, "count", count);
 
+    if (ReadBuffer::Cmp(dirBuffer, "backward") == 0)
+        forwardDirection = false;
+    else
+        forwardDirection = true;
+
     request = new ClientRequest;
-    request->ListKeyValues(0, 0, tableID, startKey, endKey, prefix, count);
+    request->ListKeyValues(0, 0, tableID, startKey, endKey, prefix, count, forwardDirection);
 
     return request;    
 }
 
 ClientRequest* ShardHTTPClientSession::ProcessCount()
 {
+    bool            forwardDirection;
     ClientRequest*  request;
     uint64_t        tableID;
     ReadBuffer      startKey;
     ReadBuffer      endKey;
     ReadBuffer      prefix;
+    ReadBuffer      dirBuffer;
     
     HTTP_GET_U64_PARAM(params, "tableID", tableID);
     HTTP_GET_OPT_PARAM(params, "startKey", startKey);
     HTTP_GET_OPT_PARAM(params, "endKey", endKey);
     HTTP_GET_OPT_PARAM(params, "prefix", prefix);
+    HTTP_GET_OPT_PARAM(params, "direction", dirBuffer);
+
+    if (ReadBuffer::Cmp(dirBuffer, "backward") == 0)
+        forwardDirection = false;
+    else
+        forwardDirection = true;
 
     request = new ClientRequest;
-    request->Count(0, 0, tableID, startKey, endKey, prefix);
+    request->Count(0, 0, tableID, startKey, endKey, prefix, forwardDirection);
 
     return request;    
 }

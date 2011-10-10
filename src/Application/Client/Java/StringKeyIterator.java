@@ -10,6 +10,7 @@ public class StringKeyIterator implements java.lang.Iterable<String>, java.util.
     private String endKey;
     private String prefix;
     private int count;
+    private boolean forwardDirection;
     private int gran = 100;
     private int pos;
     private List<String> keys;
@@ -20,6 +21,7 @@ public class StringKeyIterator implements java.lang.Iterable<String>, java.util.
         this.endKey = ps.endKey;
         this.prefix = ps.prefix;
         this.count = ps.count;
+        this.forwardDirection = ps.forwardDirection;
         
         query(false);
     }
@@ -70,8 +72,9 @@ public class StringKeyIterator implements java.lang.Iterable<String>, java.util.
         if (count > 0 && count < gran)
             num = count;
 
-        keys = table.getClient().listKeys(table.getTableID(), startKey, endKey, prefix, num, skip);
-        Collections.sort(keys);
+        keys = table.getClient().listKeys(
+         table.getTableID(), startKey, endKey, prefix, num, forwardDirection, skip);
+        //Collections.sort(keys);
         pos = 0;
     }    
 }

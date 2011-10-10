@@ -13,18 +13,19 @@ package com.scalien.scaliendb;
  * <li>start key</li>
  * <li>end key</li>
  * <li>count</li>
+ * <li>direction</li>
  * </ul>
  * <p>
  * StringRangeParams is convenient because is uses chaining, so you can write
  * expressions like <code>new StringRangeParams().prefix(prefix).startKey(startKey).endKey(endKey).count(count)</code>
- * and it returns the StringRangeParams instance.
+ * and it returns the StringRangeParams instance. Optionally call .backward() to get a backward iterator.
  * <p>
- * The default values are empty strings.
+ * The default values are empty strings and forward iteration.
  * <p>
  * Example:
  * <pre>
  * // print keys that start with "foo", starting at "foobar"
- * for (String key : client.getKeyIterator(new StringRangeParams().prefix("foo").startKey("foobar")))
+ * for (String key : table.getKeyIterator(new StringRangeParams().prefix("foo").startKey("foobar")))
  *     System.out.println(key);
  * </pre>
  * @see Table#getKeyIterator(StringRangeParams) 
@@ -37,6 +38,7 @@ public class StringRangeParams
     public String startKey = "";
     public String endKey = "";
     public int count = -1;
+    public boolean forwardDirection = true;
     
     /**
      * Specify the prefix parameter for iteration.
@@ -83,6 +85,16 @@ public class StringRangeParams
     public StringRangeParams count(int count)
     {
         this.count = count;
+        return this;
+    }
+
+    /**
+     * Iteration will proceed backwards
+     * @return The StringRangeParams instance, useful for chaining.
+     */    
+    public StringRangeParams backward()
+    {
+        this.forwardDirection = false;
         return this;
     }
 }

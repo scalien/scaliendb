@@ -11,6 +11,7 @@ namespace Scalien
         byte[] endKey;
         byte[] prefix;
         long count;
+        bool forwardDirection;
         uint gran = 100;
         int pos;
         List<byte[]> keys;
@@ -23,6 +24,7 @@ namespace Scalien
             this.endKey = ps.endKey;
             this.prefix = ps.prefix;
             this.count = ps.count;
+            this.forwardDirection = ps.forwardDirection;
 
             Query(false);
         }
@@ -36,7 +38,7 @@ namespace Scalien
             if (count > 0 && count < gran)
                 num = (uint)count;
             
-            result = table.Client.ListKeyValues(table.TableID, startKey, endKey, prefix, num, skip);
+            result = table.Client.ListKeyValues(table.TableID, startKey, endKey, prefix, num, forwardDirection, skip);
 
             keys = new List<byte[]>();
             values = new List<byte[]>();

@@ -41,7 +41,9 @@ public:
     void                    Reset();
     
     StorageFileKeyValue*    First();
+    StorageFileKeyValue*    Last();
     StorageFileKeyValue*    Next(StorageFileKeyValue* it);
+    StorageFileKeyValue*    Prev(StorageFileKeyValue* it);
     StorageFileKeyValue*    GetIndexedKeyValue(unsigned index);
     StorageFileKeyValue*    LocateKeyValue(ReadBuffer& key, int& cmpres);
 

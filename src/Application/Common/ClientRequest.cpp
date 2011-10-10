@@ -432,7 +432,7 @@ bool ClientRequest::Remove(
 bool ClientRequest::ListKeys(
  uint64_t commandID_, uint64_t configPaxosID_, uint64_t tableID_, 
  ReadBuffer& startKey_, ReadBuffer& endKey_, ReadBuffer& prefix_,
- unsigned count_)
+ unsigned count_, bool forwardDirection_)
 {
     type = CLIENTREQUEST_LIST_KEYS;
     commandID = commandID_;
@@ -442,13 +442,14 @@ bool ClientRequest::ListKeys(
     endKey.Write(endKey_);
     prefix.Write(prefix_);
     count = count_;
+    forwardDirection = forwardDirection_;
     return true;
 }
 
 bool ClientRequest::ListKeyValues(
  uint64_t commandID_, uint64_t configPaxosID_, uint64_t tableID_,
  ReadBuffer& startKey_, ReadBuffer& endKey_, ReadBuffer& prefix_,
- unsigned count_)
+ unsigned count_, bool forwardDirection_)
 {
     type = CLIENTREQUEST_LIST_KEYVALUES;
     commandID = commandID_;
@@ -458,12 +459,14 @@ bool ClientRequest::ListKeyValues(
     endKey.Write(endKey_);
     prefix.Write(prefix_);
     count = count_;
+    forwardDirection = forwardDirection_;
     return true;
 }
 
 bool ClientRequest::Count(
  uint64_t commandID_, uint64_t configPaxosID_, uint64_t tableID_,
- ReadBuffer& startKey_, ReadBuffer& endKey_, ReadBuffer& prefix_)
+ ReadBuffer& startKey_, ReadBuffer& endKey_, ReadBuffer& prefix_,
+ bool forwardDirection_)
 {
     type = CLIENTREQUEST_COUNT;
     commandID = commandID_;
@@ -472,6 +475,7 @@ bool ClientRequest::Count(
     key.Write(startKey_);
     endKey.Write(endKey_);
     prefix.Write(prefix_);
+    forwardDirection = forwardDirection_;
     count = 0;
     return true;
 }

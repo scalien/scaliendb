@@ -13,13 +13,14 @@ package com.scalien.scaliendb;
  * <li>start key</li>
  * <li>end key</li>
  * <li>count</li>
+ * <li>direction</li>
  * </ul>
  * <p>
  * ByteRangeParams is convenient because is uses chaining, so you can write
  * expressions like <code>new ByteRangeParams().prefix(prefix).startKey(startKey).endKey(endKey).count(count)</code>
- * and it returns the ByteIterParam instance.
+ * and it returns the ByteIterParam instance. Optionally call .backward() to get a backward iterator.
  * <p>
- * The default values are empty byte arrays.
+ * The default values are empty byte arrays and forward iteration.
  * <p>
  * @see Table#getKeyIterator(ByteRangeParams) 
  * @see Table#getKeyValueIterator(ByteRangeParams) 
@@ -30,6 +31,7 @@ package com.scalien.scaliendb;
     public byte[] startKey = new byte[0];
     public byte[] endKey = new byte[0];
     public int count = -1;
+    public boolean forwardDirection = true;
 
     /**
      * Specify the prefix parameter for iteration.
@@ -78,4 +80,15 @@ package com.scalien.scaliendb;
         this.count = count;
         return this;
     }
+    
+    /**
+     * Iteration will proceed backwards
+     * @return The StringRangeParams instance, useful for chaining.
+     */    
+    public ByteRangeParams backward()
+    {
+        this.forwardDirection = false;
+        return this;
+    }
+
 }

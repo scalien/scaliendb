@@ -103,11 +103,11 @@ public:
     int                     Delete(uint64_t tableID, const ReadBuffer& key);
 
     int                     ListKeys(uint64_t tableID, const ReadBuffer& startKey, const ReadBuffer& endKey,
-                             const ReadBuffer& prefix, unsigned count, bool skip);
+                             const ReadBuffer& prefix, unsigned count, bool forwardDirection, bool skip);
     int                     ListKeyValues(uint64_t tableID, const ReadBuffer& startKey, const ReadBuffer& endKey, 
-                             const ReadBuffer& prefix, unsigned count, bool skip);
+                             const ReadBuffer& prefix, unsigned count, bool forwardDirection, bool skip);
     int                     Count(uint64_t tableID, const ReadBuffer& startKey, const ReadBuffer& endKey, 
-                             const ReadBuffer& prefix);    
+                             const ReadBuffer& prefix, bool forwardDirection);    
 
     int                     Filter(uint64_t tableID, const ReadBuffer& startKey, const ReadBuffer& endKey,
                              const ReadBuffer& prefix, unsigned count, uint64_t& commandID);

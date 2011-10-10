@@ -15,19 +15,16 @@ StorageMemoChunkLister::StorageMemoChunkLister() : dataPage(NULL, 0)
 {
 }
 
-void StorageMemoChunkLister::Init(StorageMemoChunk* chunk, ReadBuffer& startKey, 
- unsigned count, bool keysOnly)
+void StorageMemoChunkLister::Init(
+ StorageMemoChunk* chunk, ReadBuffer& firstKey, 
+ unsigned count, bool keysOnly, bool forwardDirection)
 {
     StorageMemoKeyValue*    kv;
-    int                     cmpres;
     unsigned                num;
 
-    num = 0;
-    
-    kv = chunk->keyValues.Locate(startKey, cmpres);
-    if (kv != NULL && cmpres > 0)
-        kv = chunk->keyValues.Next(kv);
+    kv = GetFirstKey(chunk, firstKey, forwardDirection);
 
+    num = 0;
     while (kv != NULL)
     {
         dataPage.Append(kv, keysOnly);
@@ -37,7 +34,10 @@ void StorageMemoChunkLister::Init(StorageMemoChunk* chunk, ReadBuffer& startKey,
             if (count != 0 && num == count)
                 break;
         }
-        kv = chunk->keyValues.Next(kv);
+        if (forwardDirection)
+            kv = chunk->keyValues.Next(kv);
+        else
+            kv = chunk->keyValues.Prev(kv);
     }
     
     dataPage.Finalize();
@@ -48,19 +48,30 @@ void StorageMemoChunkLister::Load()
     // do nothing
 }
 
+void StorageMemoChunkLister::SetDirection(bool forwardDirection_)
+{
+    forwardDirection = forwardDirection_;
+}
+
 StorageFileKeyValue* StorageMemoChunkLister::First(ReadBuffer& firstKey)
 {
-    StorageFileKeyValue*    kv;
-    
-    kv = dataPage.First();
-    while (kv != NULL && ReadBuffer::Cmp(kv->GetKey(), firstKey) < 0)
-        kv = dataPage.Next(kv);
-            
-    return kv;
+    // use dataPage.First()
+    // both in case of forward and backward iteration
+    // because dataPage is a linear & unsorted store that
+    // returns items in order of insertion
+    // and we insert in order of iteration
+
+    return dataPage.First();    
 }
 
 StorageFileKeyValue* StorageMemoChunkLister::Next(StorageFileKeyValue* kv)
 {
+    // use dataPage.Next()
+    // both in case of forward and backward iteration
+    // because dataPage is a linear & unsorted store that
+    // returns items in order of insertion
+    // and we insert in order of iteration
+
     return dataPage.Next(kv);
 }
 
@@ -72,4 +83,31 @@ uint64_t StorageMemoChunkLister::GetNumKeys()
 StorageDataPage* StorageMemoChunkLister::GetDataPage()
 {
     return &dataPage;
+}
+
+StorageMemoKeyValue* StorageMemoChunkLister::GetFirstKey(
+ StorageMemoChunk* chunk, ReadBuffer& startKey, bool forwardDirection)
+{
+    StorageMemoKeyValue*    kv;
+    int                     cmpres;
+
+    if (!forwardDirection && startKey.GetLength() == 0)
+        return chunk->keyValues.Last();
+
+    kv = chunk->keyValues.Locate(startKey, cmpres);
+
+    if (forwardDirection)
+    {
+        // forward iteration
+        if (kv != NULL && cmpres > 0)
+            kv = chunk->keyValues.Next(kv);
+    }
+    else
+    {
+        // backward iteration
+        if (kv != NULL && cmpres < 0)
+            kv = chunk->keyValues.Prev(kv);
+    }
+
+    return kv;
 }

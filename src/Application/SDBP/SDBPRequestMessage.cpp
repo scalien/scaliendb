@@ -170,15 +170,17 @@ bool SDBPRequestMessage::Read(ReadBuffer& buffer)
 
         case CLIENTREQUEST_LIST_KEYS:
         case CLIENTREQUEST_LIST_KEYVALUES:
-            read = buffer.Readf("%c:%U:%U:%#B:%#B:%#B:%U",
+            read = buffer.Readf("%c:%U:%U:%#B:%#B:%#B:%U:%b",
              &request->type, &request->commandID,
-             &request->tableID, &request->key, &request->endKey, &request->prefix, &request->count);
+             &request->tableID, &request->key, &request->endKey, &request->prefix,
+             &request->count, &request->forwardDirection);
             break;
 
         case CLIENTREQUEST_COUNT:
-            read = buffer.Readf("%c:%U:%U:%U:%#B:%#B:%#B",
+            read = buffer.Readf("%c:%U:%U:%U:%#B:%#B:%#B:%b",
              &request->type, &request->commandID, &request->configPaxosID,
-             &request->tableID, &request->key, &request->endKey, &request->prefix);
+             &request->tableID, &request->key, &request->endKey, &request->prefix,
+             &request->forwardDirection);
             break;
             
         case CLIENTREQUEST_SUBMIT:
@@ -344,14 +346,16 @@ bool SDBPRequestMessage::Write(Buffer& buffer)
 
         case CLIENTREQUEST_LIST_KEYS:
         case CLIENTREQUEST_LIST_KEYVALUES:
-            buffer.Appendf("%c:%U:%U:%#B:%#B:%#B:%U",
+            buffer.Appendf("%c:%U:%U:%#B:%#B:%#B:%U:%b",
              request->type, request->commandID,
-             request->tableID, &request->key, &request->endKey, &request->prefix, request->count);
+             request->tableID, &request->key, &request->endKey, &request->prefix,
+             request->count, request->forwardDirection);
             return true;
         case CLIENTREQUEST_COUNT:
-            buffer.Appendf("%c:%U:%U:%U:%#B:%#B:%#B",
+            buffer.Appendf("%c:%U:%U:%U:%#B:%#B:%#B:%b",
              request->type, request->commandID, request->configPaxosID,
-             request->tableID, &request->key, &request->endKey, &request->prefix);
+             request->tableID, &request->key, &request->endKey, &request->prefix,
+             request->forwardDirection);
             return true;
             
         case CLIENTREQUEST_SUBMIT:

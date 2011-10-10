@@ -6,7 +6,8 @@
 class StorageChunkReader
 {
 public:
-    void                    Open(ReadBuffer filename, uint64_t preloadThreshold, bool keysOnly = false);
+    void                    Open(ReadBuffer filename, uint64_t preloadThreshold,
+                             bool keysOnly = false, bool forwardDirection = true);
 
     StorageFileKeyValue*    First(ReadBuffer& firstKey);
     StorageFileKeyValue*    Next(StorageFileKeyValue*);
@@ -22,13 +23,14 @@ public:
 private:
     void                    PreloadDataPages();
 
-    StorageFileChunk        fileChunk;
+    bool                    keysOnly;
+    bool                    forwardDirection;
     uint64_t                offset;
     uint32_t                index;
     uint32_t                prevIndex;
     uint32_t                preloadIndex;
     uint64_t                preloadThreshold;
-    bool                    keysOnly;
+    StorageFileChunk        fileChunk;
 };
 
 #endif

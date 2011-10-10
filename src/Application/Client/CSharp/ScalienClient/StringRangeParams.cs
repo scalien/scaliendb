@@ -14,20 +14,21 @@
     /// <item>prefix</item>
     /// <item>start key</item>
     /// <item>end key</item>
+    /// <item>direction</item>
     /// </list>
     /// </para>
     /// <para>
     /// StringRangeParams is convenient because is uses chaining, so you can write
     /// expressions like <c>new StringRangeParams().Prefix(prefix).StartKey(startKey).EndKey(endKey)</c>
-    /// and it returns the StringRangeParams instance.
+    /// and it returns the StringRangeParams instance. Optionally call .Backward() to get a backward iterator.
     /// </para>
     /// <para>
-    /// The default values are empty strings.
+    /// The default values are empty strings and forward iteration.
     /// </para>
     /// </remarks>
     /// <example><code>
     /// // print keys that start with "foo", starting at "foobar"
-    /// foreach (string key in client.GetKeyIterator(new StringRangeParams().Prefix("foo").StartKey("foobar")))
+    /// foreach (string key in table.GetKeyIterator(new StringRangeParams().Prefix("foo").StartKey("foobar")))
     ///     System.Console.WriteLine(key);
     /// </code></example>
     /// <seealso cref="Table.GetKeyIterator(StringRangeParams)"/>
@@ -39,6 +40,7 @@
         internal string startKey = "";
         internal string endKey = "";
         internal long count = -1;
+        internal bool forwardDirection = true;
 
         /// <summary>Specify the prefix parameter for iteration.</summary>
         /// <remarks>Only keys starting with prefix will be returned by the iteration.</remarks>
@@ -77,6 +79,14 @@
         public StringRangeParams Count(uint count)
         {
             this.count = count;
+            return this;
+        }
+
+        /// <summary>Iteration will proceed backwards</summary>
+        /// <returns>The StringRangeParams instance, useful for chaining.</returns>
+        public StringRangeParams Backward()
+        {
+            this.forwardDirection = false;
             return this;
         }
     }

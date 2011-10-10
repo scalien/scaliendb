@@ -9,7 +9,7 @@ namespace ScalienClientUnitTesting
 {
     class Config
     {
-        public string[] _default_nodes = { "192.168.137.103:37080", "192.168.137.51:37080", "192.168.137.52:37080" };
+        public string[] _default_nodes = { "localhost:7080" };
 
         private Dictionary<string, string[]> conf;
 
@@ -17,11 +17,18 @@ namespace ScalienClientUnitTesting
 
         public Config()
         {
-            byte[] data = Utils.ReadFile("UnitTestConfig.txt");
-            if (data == null) 
+            try
+            {
+                byte[] data = Utils.ReadFile("UnitTestConfig.txt");
+                if (data == null)
+                    conf = null;
+                else
+                    conf = Utils.JsonDeserialize<Dictionary<string, string[]>>(data);
+            }
+            catch (Exception)
+            {
                 conf = null;
-            else 
-                conf = Utils.JsonDeserialize<Dictionary<string, string[]>>(data);
+            }
         }
 
         private string[] _GetNodes(string section)

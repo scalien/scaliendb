@@ -230,12 +230,25 @@ StorageFileKeyValue* StorageDataPage::First()
     return GetIndexedKeyValue(0);
 }
 
+StorageFileKeyValue* StorageDataPage::Last()
+{
+    return GetIndexedKeyValue(GetNumKeys() - 1);
+}
+
 StorageFileKeyValue* StorageDataPage::Next(StorageFileKeyValue* it)
 {
     unsigned index;
 
     index = ((char*) it - storageFileKeyValueBuffer.GetBuffer()) / sizeof(StorageFileKeyValue);
     return GetIndexedKeyValue(index + 1);
+}
+
+StorageFileKeyValue* StorageDataPage::Prev(StorageFileKeyValue* it)
+{
+    unsigned index;
+
+    index = ((char*) it - storageFileKeyValueBuffer.GetBuffer()) / sizeof(StorageFileKeyValue);
+    return GetIndexedKeyValue(index - 1);
 }
 
 StorageFileKeyValue* StorageDataPage::GetIndexedKeyValue(unsigned index)

@@ -67,9 +67,11 @@ public:
     };
 
     unsigned                count;
+    ReadBuffer              firstKey;
     ReadBuffer              endKey;
     ReadBuffer              prefix;
     Type                    type;
+    bool                    forwardDirection;
     
     bool                    ret;
     bool                    completed;

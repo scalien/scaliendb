@@ -860,7 +860,7 @@ int Client::Delete(uint64_t tableID, const ReadBuffer& key)
 int Client::ListKeys(
  uint64_t tableID,
  const ReadBuffer& startKey, const ReadBuffer& endKey, const ReadBuffer& prefix,
- unsigned count, bool skip)
+ unsigned count, bool forwardDirection, bool skip)
 {
     Request*    req;
 
@@ -874,7 +874,7 @@ int Client::ListKeys(
     req->userCount = count;
     req->skip = skip;
     req->ListKeys(NextCommandID(), configState.paxosID, tableID,
-     (ReadBuffer&) startKey, (ReadBuffer&) endKey, (ReadBuffer&) prefix, count);
+     (ReadBuffer&) startKey, (ReadBuffer&) endKey, (ReadBuffer&) prefix, count, forwardDirection);
 
     if (req->userCount > 0)
     {
@@ -899,7 +899,7 @@ int Client::ListKeys(
 int Client::ListKeyValues(
  uint64_t tableID,
  const ReadBuffer& startKey, const ReadBuffer& endKey, const ReadBuffer& prefix,
- unsigned count, bool skip)
+ unsigned count, bool forwardDirection, bool skip)
 {
     Request*    req;
 
@@ -913,7 +913,7 @@ int Client::ListKeyValues(
     req->userCount = count;
     req->skip = skip;
     req->ListKeyValues(NextCommandID(), configState.paxosID, tableID,
-     (ReadBuffer&) startKey, (ReadBuffer&) endKey, (ReadBuffer&) prefix, count);
+     (ReadBuffer&) startKey, (ReadBuffer&) endKey, (ReadBuffer&) prefix, count, forwardDirection);
 
     if (req->userCount > 0)
     {
@@ -937,10 +937,10 @@ int Client::ListKeyValues(
 
 int Client::Count(
  uint64_t tableID,
- const ReadBuffer& startKey, const ReadBuffer& endKey, const ReadBuffer& prefix)
+ const ReadBuffer& startKey, const ReadBuffer& endKey, const ReadBuffer& prefix, bool forwardDirection)
 {
     CLIENT_DATA_COMMAND(Count,
-     (ReadBuffer&) startKey, (ReadBuffer&) endKey, (ReadBuffer&) prefix);
+     (ReadBuffer&) startKey, (ReadBuffer&) endKey, (ReadBuffer&) prefix, forwardDirection);
 }
 
 int Client::Begin()
@@ -1686,10 +1686,11 @@ void Client::ComputeListResponse()
             continue;
         if (itProxyRequest->tableID > request->tableID)
             break;
+        // tableID matches, look at keys
         if (request->endKey.GetLength() > 0)
         {
             cmp = Buffer::Cmp(itProxyRequest->key, request->endKey);
-            if (cmp >= 0)
+            if ((request->forwardDirection && cmp >= 0) || (!request->forwardDirection && cmp <= 0))
                 break;
         }
         
@@ -1698,7 +1699,7 @@ void Client::ComputeListResponse()
             cmp = Buffer::Cmp(itProxyRequest->key, request->key /*startKey*/);
             if (cmp == 0 && request->skip)
                 continue;
-            else if (cmp >= 0)
+            else if ((request->key.GetLength() == 0) || ((request->forwardDirection && cmp >= 0) || (!request->forwardDirection && cmp <= 0)))
             {
                 key.Wrap(itProxyRequest->key);
                 proxyKeys.Append(key);
@@ -1801,7 +1802,7 @@ void Client::ComputeListResponse()
             ADVANCE_PROXY();
             ADVANCE_SERVER();
         }
-        else if (cmp < 0)
+        else if ((request->forwardDirection && cmp < 0) || (!request->forwardDirection && cmp > 0))
         {
             APPEND_PROXY();
             ADVANCE_PROXY();

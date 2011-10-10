@@ -18,11 +18,12 @@ class StorageMemoChunkLister : public StorageChunkLister
 public:
     StorageMemoChunkLister();
     
-    void                    Init(StorageMemoChunk* chunk, ReadBuffer& startKey, unsigned count, 
-                             bool keysOnly);
+    void                    Init(StorageMemoChunk* chunk, ReadBuffer& firstKey,
+                             unsigned count, bool keysOnly, bool forwardDirection);
 
     void                    Load();
     
+    void                    SetDirection(bool forwardDirection);
     StorageFileKeyValue*    First(ReadBuffer& firstKey);
     StorageFileKeyValue*    Next(StorageFileKeyValue*);
     
@@ -30,6 +31,10 @@ public:
     StorageDataPage*        GetDataPage();
 
 private:
+    StorageMemoKeyValue*    GetFirstKey(StorageMemoChunk* chunk, 
+                             ReadBuffer& firstKey, bool forwardDirection);
+
+    bool                    forwardDirection;
     StorageDataPage         dataPage;
 };
 

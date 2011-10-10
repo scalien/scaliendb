@@ -251,28 +251,28 @@ public class scaliendb_client {
     return scaliendb_clientJNI.SDBP_DeleteCStr(SWIGTYPE_p_void.getCPtr(client_), tableID, key, len);
   }
 
-  public static int SDBP_ListKeys(SWIGTYPE_p_void client, java.math.BigInteger tableID, String startKey, String endKey, String prefix, long count, boolean skip) {
-    return scaliendb_clientJNI.SDBP_ListKeys(SWIGTYPE_p_void.getCPtr(client), tableID, startKey, endKey, prefix, count, skip);
+  public static int SDBP_ListKeys(SWIGTYPE_p_void client, java.math.BigInteger tableID, String startKey, String endKey, String prefix, long count, boolean forwardDirection, boolean skip) {
+    return scaliendb_clientJNI.SDBP_ListKeys(SWIGTYPE_p_void.getCPtr(client), tableID, startKey, endKey, prefix, count, forwardDirection, skip);
   }
 
-  public static int SDBP_ListKeysCStr(SWIGTYPE_p_void client, java.math.BigInteger tableID, byte[] startKey, int startKeyLen, byte[] endKey, int endKeyLen, byte[] prefix, int prefixLen, long count, boolean skip) {
-    return scaliendb_clientJNI.SDBP_ListKeysCStr(SWIGTYPE_p_void.getCPtr(client), tableID, startKey, startKeyLen, endKey, endKeyLen, prefix, prefixLen, count, skip);
+  public static int SDBP_ListKeysCStr(SWIGTYPE_p_void client, java.math.BigInteger tableID, byte[] startKey, int startKeyLen, byte[] endKey, int endKeyLen, byte[] prefix, int prefixLen, long count, boolean forwardDirection, boolean skip) {
+    return scaliendb_clientJNI.SDBP_ListKeysCStr(SWIGTYPE_p_void.getCPtr(client), tableID, startKey, startKeyLen, endKey, endKeyLen, prefix, prefixLen, count, forwardDirection, skip);
   }
 
-  public static int SDBP_ListKeyValues(SWIGTYPE_p_void client, java.math.BigInteger tableID, String startKey, String endKey, String prefix, long count, boolean skip) {
-    return scaliendb_clientJNI.SDBP_ListKeyValues(SWIGTYPE_p_void.getCPtr(client), tableID, startKey, endKey, prefix, count, skip);
+  public static int SDBP_ListKeyValues(SWIGTYPE_p_void client, java.math.BigInteger tableID, String startKey, String endKey, String prefix, long count, boolean forwardDirection, boolean skip) {
+    return scaliendb_clientJNI.SDBP_ListKeyValues(SWIGTYPE_p_void.getCPtr(client), tableID, startKey, endKey, prefix, count, forwardDirection, skip);
   }
 
-  public static int SDBP_ListKeyValuesCStr(SWIGTYPE_p_void client, java.math.BigInteger tableID, byte[] startKey, int startKeyLen, byte[] endKey, int endKeyLen, byte[] prefix, int prefixLen, long count, boolean skip) {
-    return scaliendb_clientJNI.SDBP_ListKeyValuesCStr(SWIGTYPE_p_void.getCPtr(client), tableID, startKey, startKeyLen, endKey, endKeyLen, prefix, prefixLen, count, skip);
+  public static int SDBP_ListKeyValuesCStr(SWIGTYPE_p_void client, java.math.BigInteger tableID, byte[] startKey, int startKeyLen, byte[] endKey, int endKeyLen, byte[] prefix, int prefixLen, long count, boolean forwardDirection, boolean skip) {
+    return scaliendb_clientJNI.SDBP_ListKeyValuesCStr(SWIGTYPE_p_void.getCPtr(client), tableID, startKey, startKeyLen, endKey, endKeyLen, prefix, prefixLen, count, forwardDirection, skip);
   }
 
-  public static int SDBP_Count(SWIGTYPE_p_void client, java.math.BigInteger tableID, String startKey, String endKey, String prefix) {
-    return scaliendb_clientJNI.SDBP_Count(SWIGTYPE_p_void.getCPtr(client), tableID, startKey, endKey, prefix);
+  public static int SDBP_Count(SWIGTYPE_p_void client, java.math.BigInteger tableID, String startKey, String endKey, String prefix, boolean forwardDirection) {
+    return scaliendb_clientJNI.SDBP_Count(SWIGTYPE_p_void.getCPtr(client), tableID, startKey, endKey, prefix, forwardDirection);
   }
 
-  public static int SDBP_CountCStr(SWIGTYPE_p_void client, java.math.BigInteger tableID, byte[] startKey, int startKeyLen, byte[] endKey, int endKeyLen, byte[] prefix, int prefixLen) {
-    return scaliendb_clientJNI.SDBP_CountCStr(SWIGTYPE_p_void.getCPtr(client), tableID, startKey, startKeyLen, endKey, endKeyLen, prefix, prefixLen);
+  public static int SDBP_CountCStr(SWIGTYPE_p_void client, java.math.BigInteger tableID, byte[] startKey, int startKeyLen, byte[] endKey, int endKeyLen, byte[] prefix, int prefixLen, boolean forwardDirection) {
+    return scaliendb_clientJNI.SDBP_CountCStr(SWIGTYPE_p_void.getCPtr(client), tableID, startKey, startKeyLen, endKey, endKeyLen, prefix, prefixLen, forwardDirection);
   }
 
   public static int SDBP_Begin(SWIGTYPE_p_void client) {

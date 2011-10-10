@@ -12,6 +12,7 @@ public class ByteKeyValueIterator implements java.lang.Iterable<KeyValue<byte[],
     private byte[] endKey;
     private byte[] prefix;
     private int count;
+    private boolean forwardDirection;
     private int gran = 100;
     private int pos;
     private LinkedList<byte[]> keys;
@@ -23,6 +24,7 @@ public class ByteKeyValueIterator implements java.lang.Iterable<KeyValue<byte[],
         this.endKey = ps.endKey;
         this.prefix = ps.prefix;
         this.count = ps.count;
+        this.forwardDirection = ps.forwardDirection;
         
         query(false);
     }
@@ -74,7 +76,8 @@ public class ByteKeyValueIterator implements java.lang.Iterable<KeyValue<byte[],
         if (count > 0 && count < gran)
             num = count;
 
-        result = table.getClient().listKeyValues(table.getTableID(), startKey, endKey, prefix, num, skip);
+        result = table.getClient().listKeyValues(
+         table.getTableID(), startKey, endKey, prefix, num, forwardDirection, skip);
         keys = new LinkedList<byte[]>();
         values = new LinkedList<byte[]>();
 

@@ -92,12 +92,12 @@ class scaliendb_clientJNI {
   public final static native int SDBP_AddCStr(long jarg1, java.math.BigInteger jarg2, byte[] jarg3, int jarg4, long jarg5);
   public final static native int SDBP_Delete(long jarg1, java.math.BigInteger jarg2, String jarg3);
   public final static native int SDBP_DeleteCStr(long jarg1, java.math.BigInteger jarg2, byte[] jarg3, int jarg4);
-  public final static native int SDBP_ListKeys(long jarg1, java.math.BigInteger jarg2, String jarg3, String jarg4, String jarg5, long jarg6, boolean jarg7);
-  public final static native int SDBP_ListKeysCStr(long jarg1, java.math.BigInteger jarg2, byte[] jarg3, int jarg4, byte[] jarg5, int jarg6, byte[] jarg7, int jarg8, long jarg9, boolean jarg10);
-  public final static native int SDBP_ListKeyValues(long jarg1, java.math.BigInteger jarg2, String jarg3, String jarg4, String jarg5, long jarg6, boolean jarg7);
-  public final static native int SDBP_ListKeyValuesCStr(long jarg1, java.math.BigInteger jarg2, byte[] jarg3, int jarg4, byte[] jarg5, int jarg6, byte[] jarg7, int jarg8, long jarg9, boolean jarg10);
-  public final static native int SDBP_Count(long jarg1, java.math.BigInteger jarg2, String jarg3, String jarg4, String jarg5);
-  public final static native int SDBP_CountCStr(long jarg1, java.math.BigInteger jarg2, byte[] jarg3, int jarg4, byte[] jarg5, int jarg6, byte[] jarg7, int jarg8);
+  public final static native int SDBP_ListKeys(long jarg1, java.math.BigInteger jarg2, String jarg3, String jarg4, String jarg5, long jarg6, boolean jarg7, boolean jarg8);
+  public final static native int SDBP_ListKeysCStr(long jarg1, java.math.BigInteger jarg2, byte[] jarg3, int jarg4, byte[] jarg5, int jarg6, byte[] jarg7, int jarg8, long jarg9, boolean jarg10, boolean jarg11);
+  public final static native int SDBP_ListKeyValues(long jarg1, java.math.BigInteger jarg2, String jarg3, String jarg4, String jarg5, long jarg6, boolean jarg7, boolean jarg8);
+  public final static native int SDBP_ListKeyValuesCStr(long jarg1, java.math.BigInteger jarg2, byte[] jarg3, int jarg4, byte[] jarg5, int jarg6, byte[] jarg7, int jarg8, long jarg9, boolean jarg10, boolean jarg11);
+  public final static native int SDBP_Count(long jarg1, java.math.BigInteger jarg2, String jarg3, String jarg4, String jarg5, boolean jarg6);
+  public final static native int SDBP_CountCStr(long jarg1, java.math.BigInteger jarg2, byte[] jarg3, int jarg4, byte[] jarg5, int jarg6, byte[] jarg7, int jarg8, boolean jarg9);
   public final static native int SDBP_Begin(long jarg1);
   public final static native int SDBP_Submit(long jarg1);
   public final static native int SDBP_Cancel(long jarg1);

@@ -49,7 +49,11 @@ public:
 
     bool                Locate(ReadBuffer& key, uint32_t& index, uint64_t& offset);
     ReadBuffer          GetFirstKey();
+    ReadBuffer          GetLastKey();
     ReadBuffer          GetMidpoint();
+    uint64_t            GetFirstDatapageOffset();
+    uint64_t            GetLastDatapageOffset();
+    uint32_t            GetOffsetIndex(uint64_t& offset);
 
     void                Append(ReadBuffer key, uint32_t index, uint64_t offset);
     void                Finalize();

@@ -155,25 +155,27 @@ int             SDBP_DeleteCStr(ClientObj client_, uint64_t tableID, char* key, 
 int             SDBP_ListKeys(
                  ClientObj client, uint64_t tableID,
                  const std::string& startKey, const std::string& endKey, const std::string& prefix,
-                 unsigned count, bool skip);
+                 unsigned count, bool forwardDirection, bool skip);
 int             SDBP_ListKeysCStr(
                  ClientObj client, uint64_t tableID,
                  char* startKey, int startKeyLen, char* endKey, int endKeyLen, char* prefix, int prefixLen,
-                 unsigned count, bool skip);
+                 unsigned count, bool forwardDirection, bool skip);
 int             SDBP_ListKeyValues(
                  ClientObj client, uint64_t tableID,
                  const std::string& startKey, const std::string& endKey, const std::string& prefix,
-                 unsigned count, bool skip);
+                 unsigned count, bool forwardDirection, bool skip);
 int             SDBP_ListKeyValuesCStr(
                  ClientObj client, uint64_t tableID,
                  char* startKey, int startKeyLen, char* endKey, int endKeyLen, char* prefix, int prefixLen,
-                 unsigned count, bool skip);
+                 unsigned count, bool forwardDirection, bool skip);
 int             SDBP_Count(
                  ClientObj client, uint64_t tableID,
-                 const std::string& startKey, const std::string& endKey, const std::string& prefix);
+                 const std::string& startKey, const std::string& endKey, const std::string& prefix,
+                 bool forwardDirection);
 int             SDBP_CountCStr(
                  ClientObj client, uint64_t tableID,
-                 char* startKey, int startKeyLen, char* endKey, int endKeyLen, char* prefix, int prefixLen);
+                 char* startKey, int startKeyLen, char* endKey, int endKeyLen, char* prefix, int prefixLen,
+                 bool forwardDirection);
 
 /*
 ===============================================================================================

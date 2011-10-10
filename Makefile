@@ -481,9 +481,12 @@ clean-perllib:
 	-rm -f $(BUILD_DIR)/$(PERL_CLIENT_DIR)/* 2>&1
 	-rm -f $(BIN_DIR)/$(PERL_DIR)/* 2>&1
 
+clean-csharplib-swig:
+	-rm -f $(SRC_DIR)/$(CSHARP_CLIENT_WRAPPER).cpp 2>&1
+
 clean-pythonlib-swig:
 	-rm -f $(SRC_DIR)/$(PYTHON_CLIENT_WRAPPER).cpp 2>&1
-	
+
 clean-javalib-swig:
 	-rm -f $(SRC_DIR)/$(JAVA_CLIENT_WRAPPER).cpp 2>&1
 
@@ -496,7 +499,7 @@ clean-rubylib-swig:
 clean-perllib-swig:
 	-rm -f $(SRC_DIR)/$(PERL_CLIENT_WRAPPER).cpp 2>&1
 
-clean-swig: clean-pythonlib-swig clean-javalib-swig clean-phplib-swig clean-rubylib-swig clean-perllib-swig
+clean-swig: clean-pythonlib-swig clean-javalib-swig clean-phplib-swig clean-rubylib-swig clean-perllib-swig clean-csharplib-swig
 
 clean-executables:
 	-rm -rf $(EXECUTABLES) 2>&1
