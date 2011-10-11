@@ -167,7 +167,9 @@ namespace Scalien
         {
             int status = scaliendb_client.SDBP_ListKeys(cptr, tableID, startKey, endKey, prefix, count, forwardDirection, skip);
             CheckResultStatus(status);
-            return result.GetStringKeys();
+            List<string> keys = result.GetStringKeys();
+            result.Close();
+            return keys;
         }
 
         internal List<byte[]> ListKeys(ulong tableID, byte[] startKey, byte[] endKey, byte[] prefix, uint count, bool forwardDirection, bool skip)
@@ -185,14 +187,18 @@ namespace Scalien
                 }
             }
             CheckResultStatus(status);
-            return result.GetByteArrayKeys();
+            List<byte[]> keys = result.GetByteArrayKeys();
+            result.Close();
+            return keys;
         }
 
         internal Dictionary<string, string> ListKeyValues(ulong tableID, string startKey, string endKey, string prefix, uint count, bool forwardDirection, bool skip)
         {
             int status = scaliendb_client.SDBP_ListKeyValues(cptr, tableID, startKey, endKey, prefix, count, forwardDirection, skip);
             CheckResultStatus(status);
-            return result.GetStringKeyValues();
+            Dictionary<string, string> keyValues = result.GetStringKeyValues();
+            result.Close();
+            return keyValues;
         }
 
         internal Dictionary<byte[], byte[]> ListKeyValues(ulong tableID, byte[] startKey, byte[] endKey, byte[] prefix, uint count, bool forwardDirection, bool skip)
@@ -210,7 +216,9 @@ namespace Scalien
                 }
             }
             CheckResultStatus(status);
-            return result.GetByteArrayKeyValues();
+            Dictionary<byte[], byte[]> keyValues = result.GetByteArrayKeyValues();
+            result.Close();
+            return keyValues;
         }
 
         internal void CheckResultStatus(int status, string msg)
@@ -543,7 +551,9 @@ namespace Scalien
             }
 
             result = new Result(scaliendb_client.SDBP_GetResult(cptr));
-            return result.GetValue();
+            string value = result.GetValue();
+            result.Close();
+            return value;
         }
 
         internal byte[] Get(ulong tableID, byte[] key)
@@ -567,7 +577,9 @@ namespace Scalien
             }
 
             result = new Result(scaliendb_client.SDBP_GetResult(cptr));
-            return result.GetValueBytes();
+            byte[] value = result.GetValueBytes();
+            result.Close();
+            return value;
         }
 
         internal void Set(ulong tableID, string key, string value)
@@ -581,6 +593,7 @@ namespace Scalien
                 else
                     CheckStatus(status);
             }
+            result.Close();
         }
 
         internal void Set(ulong tableID, byte[] key, byte[] value)
@@ -603,6 +616,7 @@ namespace Scalien
                 else
                     CheckStatus(status);
             }
+            result.Close();
         }
 
         internal long Add(ulong tableID, string key, long value)
@@ -614,7 +628,9 @@ namespace Scalien
                 CheckStatus(status);
             }
 
-            return result.GetSignedNumber();
+            long number = result.GetSignedNumber();
+            result.Close();
+            return number;
         }
 
         internal long Add(ulong tableID, byte[] key, long value)
@@ -634,7 +650,9 @@ namespace Scalien
                 CheckStatus(status);
             }
 
-            return result.GetSignedNumber();
+            long number = result.GetSignedNumber();
+            result.Close();
+            return number;
         }
 
         internal void Delete(ulong tableID, string key)
@@ -648,6 +666,7 @@ namespace Scalien
                 else
                     CheckStatus(status);
             }
+            result.Close();
         }
 
         internal void Delete(ulong tableID, byte[] key)
@@ -669,13 +688,16 @@ namespace Scalien
                 else
                     CheckStatus(status);
             }
+            result.Close();
         }
 
         internal ulong Count(ulong tableID, StringRangeParams ps)
         {
             int status = scaliendb_client.SDBP_Count(cptr, tableID, ps.startKey, ps.endKey, ps.prefix, ps.forwardDirection);
             CheckResultStatus(status);
-            return result.GetNumber();
+            ulong number = result.GetNumber();
+            result.Close();
+            return number;
         }
 
         internal ulong Count(ulong tableID, ByteRangeParams ps)
@@ -693,7 +715,9 @@ namespace Scalien
                 }
             }
             CheckResultStatus(status);
-            return result.GetNumber();
+            ulong number = result.GetNumber();
+            result.Close();
+            return number;
         }
 
         #endregion
