@@ -1815,7 +1815,6 @@ void Client::ComputeListResponse()
     }
     
     // construct new response
-    request->responses.Clear();
     response = new ClientResponse;
     response->commandID = request->commandID;
     response->valueBuffer = new Buffer();
@@ -1845,8 +1844,11 @@ void Client::ComputeListResponse()
     }    
 
     // delete server responses
-    FOREACH(itResponse, request->responses)
+    FOREACH_FIRST(itResponse, request->responses)
+    {
         delete *itResponse;
+        request->responses.Remove(itResponse);
+    }
 
     request->responses.Append(response);
 }
