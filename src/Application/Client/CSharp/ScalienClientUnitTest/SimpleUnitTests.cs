@@ -264,30 +264,66 @@ namespace ScalienClientUnitTesting
         }
 
         [TestMethod]
-        public void ListTests()
+        public void ListTestsWithoutProxies()
         {
             var dbName = "test_db";
             var tableName = "test_table";
             int length = 10 * 1000;
-            uint num = 22*1000;
+            uint num = 22 * 1000;
 
             Client client = new Client(Config.GetNodes());
 
-            Database db = client.GetDatabase(dbName);
-            Table tbl = db.GetTable(tableName);
+            //Database db = client.GetDatabase(dbName);
+            //Table tbl = db.GetTable(tableName);
 
-            //Utils.DeleteDBs(client);
+            Utils.DeleteDBs(client);
 
-            //Database db = client.CreateDatabase(dbName);
-            //Table tbl = db.CreateTable(tableName);
+            Database db = client.CreateDatabase(dbName);
+            Table tbl = db.CreateTable(tableName);
 
-            //var value = Utils.RandomString(length);
+            var value = Utils.RandomString(length);
 
-            //for (int i = 0; i < num; i++)
-            //    tbl.Set(Utils.Id(i), value);
+            for (int i = 0; i < num; i++)
+                tbl.Set(Utils.Id(i), value);
 
+            // Submit, no proxied values left
+            client.Submit();
+
+            ListTests(tbl, num);
+        }
+
+        [TestMethod]
+        public void ListTestsWithProxies()
+        {
+            var dbName = "test_db";
+            var tableName = "test_table";
+            int length = 10 * 1000;
+            uint num = 22 * 1000;
+
+            Client client = new Client(Config.GetNodes());
+
+            //Database db = client.GetDatabase(dbName);
+            //Table tbl = db.GetTable(tableName);
+
+            Utils.DeleteDBs(client);
+
+            Database db = client.CreateDatabase(dbName);
+            Table tbl = db.CreateTable(tableName);
+
+            var value = Utils.RandomString(length);
+
+            for (int i = 0; i < num; i++)
+                tbl.Set(Utils.Id(i), value);
+
+            // don't Submit, proxied values
             //client.Submit();
 
+            ListTests(tbl, num);
+        }
+
+
+        public void ListTests(Table tbl, uint num)
+        {
             ListTest1(tbl, num);
             ListTest2(tbl, num);
             ListTest3(tbl, num);
