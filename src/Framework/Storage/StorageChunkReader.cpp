@@ -171,6 +171,7 @@ void StorageChunkReader::PreloadDataPages()
     uint64_t    origOffset;
     
     totalSize = 0;
+    origOffset = 0; // to make the compiler happy
 
     if (forwardDirection)
         i = index;

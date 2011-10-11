@@ -55,6 +55,8 @@ void StorageMemoChunkLister::SetDirection(bool forwardDirection_)
 
 StorageFileKeyValue* StorageMemoChunkLister::First(ReadBuffer& firstKey)
 {
+    UNUSED(firstKey);
+
     // use dataPage.First()
     // both in case of forward and backward iteration
     // because dataPage is a linear & unsorted store that

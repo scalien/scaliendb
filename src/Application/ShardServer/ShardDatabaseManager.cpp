@@ -838,7 +838,7 @@ void ShardDatabaseManager::OnExecuteLists()
             itRequest->key.Write(itRequest->prefix);
             if (!itRequest->forwardDirection)
             {
-                if (itRequest->prefix.GetCharAt(itRequest->prefix.GetLength() - 1) < 255)
+                if ((unsigned)itRequest->prefix.GetCharAt(itRequest->prefix.GetLength() - 1) < 255)
                     itRequest->key.GetBuffer()[itRequest->key.GetLength() - 1]++;
                 else
                     itRequest->key.Append((char)0);

@@ -421,7 +421,10 @@ DeleteQuorum:
         // if the PaxosAcceptor inside the QuorumProcessor is doing an async commit,
         // then we can't delete the quorumProcessor, because the OnComplete() would crash
         if (databaseManager.GetEnvironment()->IsCommiting(quorumProcessor->GetQuorumID()))
+        {
+            next = quorumProcessors.Next(quorumProcessor);
             continue;
+        }
 
         databaseManager.DeleteQuorumPaxosShard(quorumProcessor->GetQuorumID());
         databaseManager.DeleteQuorumLogShard(quorumProcessor->GetQuorumID());
