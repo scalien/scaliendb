@@ -56,8 +56,8 @@ static int SetupDefaultClient(Client& client)
     const char*     nodes[] = {"127.0.0.1:7080"};
 //    const char*     nodes[] = {"192.168.137.52:7080"};
 //    const char*     nodes[] = {"192.168.1.5:7080"};
-    std::string     databaseName = "test";
-    std::string     tableName = "test";
+    std::string     databaseName = "test_db";
+    std::string     tableName = "test_table";
     uint64_t        databaseID;
     uint64_t        tableID;
     int             ret;
@@ -67,8 +67,8 @@ static int SetupDefaultClient(Client& client)
     if (ret != SDBP_SUCCESS)
         TEST_CLIENT_FAIL();
    
-    client.SetMasterTimeout(10*1000);
-    client.SetGlobalTimeout(30*1000);
+    //client.SetMasterTimeout(10*1000);
+    //client.SetGlobalTimeout(30*1000);
     //client.SetConsistencyMode(SDBP_CONSISTENCY_RYW);
 
     clientObj = (ClientObj) &client;
@@ -246,7 +246,7 @@ TEST_DEFINE(TestClientListKeys)
 
     ret = snprintf(keybuf, sizeof(keybuf), "cfcd208495d565ef66e7dff9f98764da");
 //    key.Wrap(keybuf, ret);
-    ret = client.ListKeys(defaultTableID, key, endKey, prefix, 3000, false);
+    ret = client.ListKeys(defaultTableID, key, endKey, prefix, 3000, true, false);
     if (ret != SDBP_SUCCESS)
         TEST_CLIENT_FAIL();
 
@@ -278,7 +278,7 @@ TEST_DEFINE(TestClientListKeysWithPrefix)
     if (ret != SDBP_SUCCESS)
         TEST_CLIENT_FAIL();
     
-    ret = client.ListKeys(defaultTableID, "aa1", "", "aa1", 0, 0);
+    ret = client.ListKeys(defaultTableID, "aa1", "", "aa1", 0, true, false);
     if (ret != SDBP_SUCCESS)
         TEST_CLIENT_FAIL();
 
@@ -655,43 +655,28 @@ TEST_DEFINE(TestClientGetLatency)
 
 TEST_DEFINE(TestClientMaro)
 {
-    Client          client;
-    ReadBuffer      rk, rv;
-    Buffer          k, v;
-    int             ret;
-    Stopwatch       sw;
-
-    ret = SetupDefaultClient(client);
-    if (ret != SDBP_SUCCESS)
-        TEST_CLIENT_FAIL();
-   
-    k.Write("key");
-    v.Write("value");
-    rk.Wrap(k);
-    rv.Wrap(v);
-
-    k.Writef("key");
-    v.Writef("value");
-    rk.Wrap(k);
-    rv.Wrap(v);
-
-    client.Set(defaultTableID, "index", "0");
+//    Client          client;
+    Result*         result;
+    ReadBuffer      key;
+    ReadBuffer      value;
+    ReadBuffer      startKey;
+    ReadBuffer      endKey;
+    ReadBuffer      prefix;
     
-    sw.Start();
-    for (int i = 0; i < 10*1000; i++)
+    //TEST(SetupDefaultClient(client));
+
+    int i = 0;
+    while(true)
     {
-        client.Add(defaultTableID, "index", 1);
-
-        k.Writef("%d", i);
-        v.Writef("%d", i*i);
-        rk.Wrap(k);
-        rv.Wrap(v);
-        client.Set(defaultTableID, rk, rv);
+        Client client;
+        TEST(SetupDefaultClient(client));
+        Log_Debug("%d", i);
+        TEST(client.ListKeyValues(defaultTableID, startKey, endKey, prefix, 0, true, false));
+        result = client.GetResult();
+        delete result;
+        i++;
     }
-    sw.Stop();
-
-    Log_Message("Elapsed: %U", sw.Elapsed());
-        
+    
     return TEST_SUCCESS;
 }
 
@@ -833,7 +818,7 @@ TEST_DEFINE(TestClientListKeyValues)
         else
             offset = 1;
 
-        TEST(client.ListKeyValues(defaultTableID, lastKey, endKey, prefix, 1000, false));
+        TEST(client.ListKeyValues(defaultTableID, lastKey, endKey, prefix, 1000, true, false));
         
         result = client.GetResult();
         num = 0;
@@ -864,7 +849,7 @@ TEST_DEFINE(TestClientCount)
     uint64_t        number;
     
     TEST(SetupDefaultClient(client));
-    TEST(client.Count(defaultTableID, "", "", ""));
+    TEST(client.Count(defaultTableID, "", "", "", true));
     
     result = client.GetResult();
     TEST(result->GetNumber(number));
@@ -972,7 +957,7 @@ TEST_DEFINE(TestClientDistributeList)
     client.SetConsistencyMode(SDBP_CONSISTENCY_ANY);
     for (int i = 0; i < num; i++)
     {
-        TEST(client.ListKeys(defaultTableID, "", "", "", 100, false));
+        TEST(client.ListKeys(defaultTableID, "", "", "", 100, true, false));
         result = client.GetResult();
         count = 0;
         for (result->Begin(); !result->IsEnd(); result->Next())
@@ -1006,7 +991,7 @@ TEST_DEFINE(TestClientGetSetGetSetSubmit)
 
     TEST(client.Submit());
 
-    TEST(client.Count(defaultTableID, "", "", ""));
+    TEST(client.Count(defaultTableID, "", "", "", true));
     result = client.GetResult();
     TEST_ASSERT(result != NULL);
     TEST(result->GetNumber(count));
