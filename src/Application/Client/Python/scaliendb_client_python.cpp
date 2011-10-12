@@ -7311,6 +7311,34 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_SDBP_LogTrace(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  std::string *arg1 = 0 ;
+  int res1 = SWIG_OLDOBJ ;
+  PyObject * obj0 = 0 ;
+  
+  if(!PyArg_UnpackTuple(args,(char *)"SDBP_LogTrace",1,1,&obj0)) SWIG_fail;
+  {
+    std::string *ptr = (std::string *)0;
+    res1 = SWIG_AsPtr_std_string(obj0, &ptr);
+    if (!SWIG_IsOK(res1)) {
+      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SDBP_LogTrace" "', argument " "1"" of type '" "std::string const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "SDBP_LogTrace" "', argument " "1"" of type '" "std::string const &""'"); 
+    }
+    arg1 = ptr;
+  }
+  SDBP_LogTrace((std::string const &)*arg1);
+  resultobj = SWIG_Py_Void();
+  if (SWIG_IsNewObj(res1)) delete arg1;
+  return resultobj;
+fail:
+  if (SWIG_IsNewObj(res1)) delete arg1;
+  return NULL;
+}
+
+
 static PyMethodDef SwigMethods[] = {
 	 { (char *)"delete_PySwigIterator", _wrap_delete_PySwigIterator, METH_VARARGS, NULL},
 	 { (char *)"PySwigIterator_value", _wrap_PySwigIterator_value, METH_VARARGS, NULL},
@@ -7430,6 +7458,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"SDBP_SetLogFile", _wrap_SDBP_SetLogFile, METH_VARARGS, NULL},
 	 { (char *)"SDBP_GetVersion", _wrap_SDBP_GetVersion, METH_VARARGS, NULL},
 	 { (char *)"SDBP_GetDebugString", _wrap_SDBP_GetDebugString, METH_VARARGS, NULL},
+	 { (char *)"SDBP_LogTrace", _wrap_SDBP_LogTrace, METH_VARARGS, NULL},
 	 { NULL, NULL, 0, NULL }
 };
 

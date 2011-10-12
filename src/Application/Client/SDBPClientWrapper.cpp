@@ -917,3 +917,8 @@ std::string SDBP_GetDebugString()
 {
     return "Build date: " __DATE__ " " __TIME__;
 }
+
+void SDBP_LogTrace(const std::string& msg)
+{
+    Log_Trace("Client app: %s", msg.c_str());
+}

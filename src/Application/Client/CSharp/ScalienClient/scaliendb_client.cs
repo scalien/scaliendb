@@ -380,6 +380,11 @@ public class scaliendb_client {
     return ret;
   }
 
+  public unsafe static void SDBP_LogTrace(string msg) {
+    scaliendb_clientPINVOKE.SDBP_LogTrace(msg);
+    if (scaliendb_clientPINVOKE.SWIGPendingException.Pending) throw scaliendb_clientPINVOKE.SWIGPendingException.Retrieve();
+  }
+
 }
 
 }

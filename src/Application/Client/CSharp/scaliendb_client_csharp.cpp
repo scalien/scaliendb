@@ -1733,6 +1733,19 @@ SWIGEXPORT char * SWIGSTDCALL CSharp_SDBP_GetDebugString() {
 }
 
 
+SWIGEXPORT void SWIGSTDCALL CSharp_SDBP_LogTrace(char * jarg1) {
+  std::string *arg1 = 0 ;
+  
+  if (!jarg1) {
+    SWIG_CSharpSetPendingExceptionArgument(SWIG_CSharpArgumentNullException, "null string", 0);
+    return ;
+  }
+  std::string arg1_str(jarg1);
+  arg1 = &arg1_str; 
+  SDBP_LogTrace((std::string const &)*arg1);
+}
+
+
 #ifdef __cplusplus
 }
 #endif

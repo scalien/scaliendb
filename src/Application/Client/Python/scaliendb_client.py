@@ -203,5 +203,6 @@ SDBP_SetTrace = _scaliendb_client.SDBP_SetTrace
 SDBP_SetLogFile = _scaliendb_client.SDBP_SetLogFile
 SDBP_GetVersion = _scaliendb_client.SDBP_GetVersion
 SDBP_GetDebugString = _scaliendb_client.SDBP_GetDebugString
+SDBP_LogTrace = _scaliendb_client.SDBP_LogTrace
 
 

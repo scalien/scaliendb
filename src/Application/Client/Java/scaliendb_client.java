@@ -303,4 +303,8 @@ public class scaliendb_client {
     return scaliendb_clientJNI.SDBP_GetDebugString();
   }
 
+  public static void SDBP_LogTrace(String msg) {
+    scaliendb_clientJNI.SDBP_LogTrace(msg);
+  }
+
 }

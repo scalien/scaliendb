@@ -472,6 +472,9 @@ class scaliendb_clientPINVOKE {
 
   [DllImport("scaliendb_client", EntryPoint="CSharp_SDBP_GetDebugString")]
   public static extern string SDBP_GetDebugString();
+
+  [DllImport("scaliendb_client", EntryPoint="CSharp_SDBP_LogTrace")]
+  public static extern void SDBP_LogTrace(string jarg1);
 }
 
 }

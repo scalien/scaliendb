@@ -589,6 +589,12 @@ class Client:
 def set_trace(trace=True):
     SDBP_SetTrace(trace)
 
+def set_logfile(filename):
+    SDBP_SetLogFile(filename)
+
+def log_trace(msg):
+    SDBP_LogTrace(msg)
+
 def _get_version():
     return SDBP_GetVersion()
 

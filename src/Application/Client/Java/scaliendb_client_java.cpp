@@ -2768,6 +2768,24 @@ SWIGEXPORT jstring JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_
 }
 
 
+SWIGEXPORT void JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_1LogTrace(JNIEnv *jenv, jclass jcls, jstring jarg1) {
+  std::string *arg1 = 0 ;
+  
+  (void)jenv;
+  (void)jcls;
+  if(!jarg1) {
+    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "null std::string");
+    return ;
+  }
+  const char *arg1_pstr = (const char *)jenv->GetStringUTFChars(jarg1, 0); 
+  if (!arg1_pstr) return ;
+  std::string arg1_str(arg1_pstr);
+  arg1 = &arg1_str;
+  jenv->ReleaseStringUTFChars(jarg1, arg1_pstr); 
+  SDBP_LogTrace((std::string const &)*arg1);
+}
+
+
 #ifdef __cplusplus
 }
 #endif

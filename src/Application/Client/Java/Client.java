@@ -136,7 +136,7 @@ public class Client
         close();
     }
     
-        void checkResultStatus(int status) throws SDBPException {
+    void checkResultStatus(int status) throws SDBPException {
         checkResultStatus(status, null);
     }
 
@@ -168,6 +168,23 @@ public class Client
     public static void setTrace(boolean trace) {
         scaliendb_client.SDBP_SetTrace(trace);
     }
+    
+    /**
+     * Sets the name of the trace log output file in the underlying C++ client library.
+     * @param the name of the logfile.
+     */
+    public static void setLogFile(String filename) {
+        scaliendb_client.SDBP_SetLogFile(filename);
+    }
+
+   /**
+     * Send a log message thru the unedrlying C++ client library.
+     * @param the message.
+     */
+    public static void logTrace(String msg) {
+        scaliendb_client.SDBP_LogTrace(msg);
+    }
+
 
     /**
      * The maximum time the client library will wait to complete operations, in miliseconds.
