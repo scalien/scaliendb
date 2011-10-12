@@ -306,6 +306,15 @@ namespace Scalien
         }
 
         /// <summary>
+        /// Send a log message thru the unedrlying C++ client library.
+        /// </summary>
+        /// <param name="msg">The message.</param>
+        public static void LogTrace(string msg)
+        {
+            scaliendb_client.SDBP_LogTrace(msg);
+        }
+
+        /// <summary>
         /// The maximum time the client library will wait to complete operations, in miliseconds. Default 120 seconds.
         /// </summary>
         /// <param name="timeout">The global timeout in miliseconds.</param>
