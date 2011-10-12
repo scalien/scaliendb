@@ -58,6 +58,7 @@ protected:
     Buffer              readBuffer;
     Buffer              writeBuffers[2];
     unsigned            writeIndex;
+    uint64_t            connectTime;
     Countdown           connectTimeout;
 };
 

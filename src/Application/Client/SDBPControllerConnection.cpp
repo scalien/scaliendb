@@ -168,14 +168,22 @@ void ControllerConnection::OnClose()
     // close socket
     MessageConnection::OnClose();
     
-    // restart reconnection with timeout
-    EventLoop::Reset(&connectTimeout);
-
     // clear timers
     EventLoop::Remove(&getConfigStateTimeout);
     
     // update the controller connectivity status
     controller->OnDisconnected(this);
+    
+    if (EventLoop::Now() - connectTime > connectTimeout.GetDelay())
+    {
+        // lot of time has elapsed since last connect, reconnect immediately
+        Connect();
+    }
+    else
+    {
+        // wait for timeout
+        EventLoop::Reset(&connectTimeout);
+    }
 }
 
 // =============================================================================================

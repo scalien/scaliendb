@@ -239,9 +239,6 @@ void ShardConnection::OnClose()
     // close the socket and try reconnecting
     MessageConnection::OnClose();
 
-    // restart reconnection with timeout
-    EventLoop::Reset(&connectTimeout);
-    
     // invalidate quorums
     for (itQuorum = quorums.First(); itQuorum != NULL; itQuorum = itNext)
     {
@@ -255,6 +252,17 @@ void ShardConnection::OnClose()
         prev = sentRequests.Prev(it);
         sentRequests.Remove(it);
         client->AddRequestToQuorum(it, false);
+    }
+    
+    if (EventLoop::Now() - connectTime > connectTimeout.GetDelay())
+    {
+        // lot of time has elapsed since last connect, reconnect immediately
+        Connect();
+    }
+    else
+    {
+        // wait for timeout
+        EventLoop::Reset(&connectTimeout);
     }
 }
 

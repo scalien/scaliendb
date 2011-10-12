@@ -5,6 +5,7 @@ TCPConnection::TCPConnection()
 {
     state = DISCONNECTED;
     connectTimeout.SetCallable(MFUNC(TCPConnection, OnConnectTimeout));
+    connectTime = 0;
     writeIndex = 0;
     prev = next = this;
 }
@@ -29,6 +30,7 @@ void TCPConnection::Connect(Endpoint &endpoint, unsigned timeout)
     if (state != DISCONNECTED)
         return;
 
+    connectTime = EventLoop::Now();
     Init(false);
     state = CONNECTING;
     connectTimeout.SetDelay(timeout);
