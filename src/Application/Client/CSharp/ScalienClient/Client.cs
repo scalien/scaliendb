@@ -452,7 +452,7 @@ namespace Scalien
                 if (quorum.Name == name)
                     return quorum;
             }
-            throw new SDBPException(Status.SDBP_BADSCHEMA, "Quorum not found"); ;
+            throw new SDBPException(Status.SDBP_BADSCHEMA, "Quorum not found");
         }
 
         /// <summary>
@@ -496,7 +496,7 @@ namespace Scalien
                 if (name == databaseName)
                     return new Database(this, databaseID, name);
             }
-            return null;
+            throw new SDBPException(Status.SDBP_BADSCHEMA, "Database not found");
         }
 
         /// <summary>

@@ -78,7 +78,7 @@ namespace Scalien
                 if (name == tableName)
                     return new Table(client, this, tableID, name);
             }
-            return null;
+            throw new SDBPException(Status.SDBP_BADSCHEMA, "Table not found");
         }
         
         /// <summary>
