@@ -9,7 +9,7 @@ using Scalien;
 
 namespace ScalienClientUnitTesting
 {
-    //[TestClass]
+    [TestClass]
     class UsersTests
     {
         /* DEPRECATED
@@ -63,7 +63,7 @@ namespace ScalienClientUnitTesting
             }
         }
 
-        //[TestMethod]
+        [TestMethod]
         public void ShortTest_10_Threads()
         {
             /*Client.SetTrace(true);

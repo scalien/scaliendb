@@ -9,7 +9,7 @@ using Scalien;
 
 namespace ScalienClientUnitTesting
 {
-    [TestClass]
+    //[TestClass]
     class SimpleUnitTests
     {
         //[TestMethod]

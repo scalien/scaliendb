@@ -100,31 +100,60 @@ namespace Scalien
 
         private void OpenDB()
         {
-            db = clients[client_index].GetDatabase(dbname);
-            if (db == null)
+            try
+            {
+                db = clients[client_index].GetDatabase(dbname);
+            }
+            catch (SDBPException)
+            {
                 db = clients[client_index].CreateDatabase(dbname);
+            }
 
-            indices = db.GetTable("indices");
-            if (indices == null)
+            try
+            {
+                indices = db.GetTable("indices");
+            }
+            catch (SDBPException)
+            {
                 indices = db.CreateTable("indices");
-
+            }
             userIDs = indices.GetSequence("userIDs");
 
-            table = db.GetTable(tablename);
-            if (table == null)
+            try
+            {
+                table = db.GetTable(tablename);
+            }
+            catch (SDBPException)
+            {
                 table = db.CreateTable(tablename);
+            }
 
-            tableByNick = db.GetTable(tablename + "ByNick");
-            if (tableByNick == null)
+            try
+            {
+                tableByNick = db.GetTable(tablename + "ByNick");
+            }
+            catch (SDBPException)
+            {
                 tableByNick = db.CreateTable(tablename + "ByNick");
+            }
 
-            tableByBirth = db.GetTable(tablename + "ByBirth");
-            if (tableByBirth == null)
+            try
+            {
+                tableByBirth = db.GetTable(tablename + "ByBirth");
+            }
+            catch (SDBPException)
+            {
                 tableByBirth = db.CreateTable(tablename + "ByBirth");
+            }
 
-            tableByLastLogin = db.GetTable(tablename + "ByLastLogin");
-            if (tableByLastLogin == null)
+            try
+            {
+                tableByLastLogin = db.GetTable(tablename + "ByLastLogin");
+            }
+            catch (SDBPException)
+            {
                 tableByLastLogin = db.CreateTable(tablename + "ByLastLogin");
+            }
         }
 
         public bool IterateClients()
