@@ -271,8 +271,10 @@ int Client::Init(int nodec, const char* nodev[])
         Shutdown();
         return SDBP_API_ERROR;
     }
+    Lock();
     controller->AddClient(this);
-       
+    Unlock();
+
     return SDBP_SUCCESS;
 }
 
@@ -1254,6 +1256,10 @@ bool Client::GetQuorumID(uint64_t tableID, ReadBuffer& key, uint64_t& quorumID)
     ASSERT(configState.paxosID != 0);
 
     table = configState.GetTable(tableID);
+    if (!table)
+    {
+        Log_Trace("table is NULL; tableID = %U, key = %R, quorumID = %U", tableID, key, quorumID);
+    }
     ASSERT(table != NULL);
     FOREACH (it, table->shards)
     {
