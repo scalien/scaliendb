@@ -71,7 +71,7 @@ Signal                                  ioThreadSignal;
                                                     \
     CLIENT_MUTEX_GUARD_DECLARE();                   \
                                                     \
-    if (configStateVersion == 0)					\
+    if (!configState.hasMaster)  					\
 		return SDBP_API_ERROR;						\
 													\
 	req = new Request;                              \
@@ -91,7 +91,7 @@ Signal                                  ioThreadSignal;
                                                     \
     CLIENT_MUTEX_GUARD_DECLARE();                   \
                                                     \
-    if (configStateVersion == 0)    				\
+    if (!configState.hasMaster)     				\
 		return SDBP_API_ERROR;						\
 													\
     req = new Request;                              \
@@ -134,7 +134,7 @@ Signal                                  ioThreadSignal;
     CLIENT_MUTEX_GUARD_DECLARE();                   \
     VALIDATE_CONTROLLERS();                         \
                                                     \
-    if (configStateVersion == 0)                    \
+    if (!configState.hasMaster)                     \
     {                                               \
         result->Close();                            \
         CLIENT_MUTEX_GUARD_UNLOCK();                \
@@ -142,7 +142,7 @@ Signal                                  ioThreadSignal;
         CLIENT_MUTEX_GUARD_LOCK();                  \
     }                                               \
                                                     \
-    if (configStateVersion == 0)                    \
+    if (!configState.hasMaster)                     \
         return SDBP_NOSERVICE;                      \
                                                     \
     if (proxySize > 0)                              \
@@ -249,7 +249,6 @@ int Client::Init(int nodec, const char* nodev[])
     // set defaults
     master = -1;
     commandID = 0;
-    configStateVersion = 0;
     result = NULL;
     batchMode = SDBP_BATCH_DEFAULT;
     batchLimit = DEFAULT_BATCH_LIMIT;
@@ -395,7 +394,7 @@ ConfigState* Client::GetConfigState()
     if (controller == NULL)
         return NULL;
     
-    if (configStateVersion == 0)
+    if (!configState.hasMaster)
     {
         result->Close();
         CLIENT_MUTEX_GUARD_UNLOCK();
@@ -403,10 +402,11 @@ ConfigState* Client::GetConfigState()
         CLIENT_MUTEX_GUARD_LOCK();
     }
 
-    if (configStateVersion != configState.paxosID)
-    {
-        controller->GetConfigState(configState, true);
-    }
+    // TODO: remove if working
+    //if (configStateVersion != configState.paxosID)
+    //{
+    //    controller->GetConfigState(configState, true);
+    //}
 
     return &configState;
 }
@@ -418,7 +418,7 @@ void Client::CloneConfigState(ConfigState& configState_)
     if (controller == NULL)
         return;
     
-    if (configStateVersion == 0)
+    if (!configState.hasMaster)
     {
         result->Close();
         CLIENT_MUTEX_GUARD_UNLOCK();
@@ -426,10 +426,11 @@ void Client::CloneConfigState(ConfigState& configState_)
         CLIENT_MUTEX_GUARD_LOCK();
     }
 
-    if (configStateVersion != configState.paxosID)
-    {
-        controller->GetConfigState(configState, true);
-    }
+    // TODO: remove if working
+    //if (configStateVersion != configState.paxosID)
+    //{
+    //    controller->GetConfigState(configState, true);
+    //}
 
     configState_ = configState;
 }
@@ -442,7 +443,7 @@ void Client::WaitConfigState()
         return;
 
     // delete configState, so EventLoop() will wait for a new one
-    configStateVersion = 0;
+    configState.hasMaster = false;
     result->Close();
     CLIENT_MUTEX_GUARD_UNLOCK();
     EventLoop();
@@ -526,14 +527,14 @@ int Client::TruncateTable(uint64_t tableID)
     if (controller == NULL)             \
         return __VA_ARGS__;             \
                                         \
-    if (configStateVersion == 0)        \
+    if (!configState.hasMaster)         \
     {                                   \
         result->Close();                \
         CLIENT_MUTEX_GUARD_UNLOCK();    \
         EventLoop();                    \
         CLIENT_MUTEX_GUARD_LOCK();      \
     }                                   \
-    if (configStateVersion == 0)        \
+    if (!configState.hasMaster)         \
         return __VA_ARGS__;
 
 unsigned Client::GetNumQuorums()
@@ -725,7 +726,7 @@ int Client::Get(uint64_t tableID, const ReadBuffer& key)
     VALIDATE_CONTROLLERS();
     CLIENT_MUTEX_GUARD_DECLARE();
     
-    if (configStateVersion == 0)
+    if (!configState.hasMaster)
         return SDBP_API_ERROR;
     
     req = new Request;
@@ -767,7 +768,7 @@ int Client::Set(uint64_t tableID, const ReadBuffer& key, const ReadBuffer& value
     VALIDATE_CONTROLLERS();
     CLIENT_MUTEX_GUARD_DECLARE();                   
     
-	if (configStateVersion == 0)
+    if (!configState.hasMaster)
 		return SDBP_API_ERROR;
 
     req = new Request;                              
@@ -812,7 +813,7 @@ int Client::Add(uint64_t tableID, const ReadBuffer& key, int64_t number)
     VALIDATE_CONTROLLERS();
     CLIENT_MUTEX_GUARD_DECLARE();
 	
-    if (configStateVersion == 0)
+    if (!configState.hasMaster)
         return SDBP_API_ERROR;
 
     result->Close();
@@ -869,7 +870,7 @@ int Client::ListKeys(
     VALIDATE_CONTROLLERS();
     CLIENT_MUTEX_GUARD_DECLARE();
 
-	if (configStateVersion == 0)
+    if (!configState.hasMaster)
 		return SDBP_API_ERROR;
 
     req = new Request;
@@ -908,7 +909,7 @@ int Client::ListKeyValues(
     VALIDATE_CONTROLLERS();
     CLIENT_MUTEX_GUARD_DECLARE();
 
-    if (configStateVersion == 0)
+    if (!configState.hasMaster)
 		return SDBP_API_ERROR;
 
     req = new Request;
@@ -1169,7 +1170,6 @@ void Client::OnMasterTimeout()
 
 void Client::SetConfigState(ConfigState& configState_)
 {
-    configStateVersion = configState_.paxosID;
     configState = configState_;
 
     Log_Debug("configState.paxosID = %U", configState.paxosID);
