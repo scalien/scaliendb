@@ -1055,11 +1055,11 @@ void Client::EventLoop()
     timeoutStatus = SDBP_SUCCESS;
     if (!IsDone())
     {
-        CLIENT_MUTEX_GUARD_UNLOCK();
-    
         EventLoop::Reset(&globalTimeout);
         if (master == -1)
             EventLoop::Reset(&masterTimeout);
+    
+        CLIENT_MUTEX_GUARD_UNLOCK();
     
         //Log_Debug("%p => %U", &isDone, ThreadPool::GetThreadID());
         isDone.Wait(); // wait for IO thread to process ops

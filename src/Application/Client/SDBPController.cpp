@@ -172,6 +172,7 @@ void Controller::OnDisconnected(ControllerConnection* conn)
     {
         configState.hasMaster = false;
         configState.masterID = -1;
+        configState.paxosID = 0;
         OnConfigStateChanged();
     }
 }
