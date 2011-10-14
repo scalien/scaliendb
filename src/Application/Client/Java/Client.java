@@ -171,7 +171,7 @@ public class Client
     
     /**
      * Sets the name of the trace log output file in the underlying C++ client library.
-     * @param the name of the logfile.
+     * @param filename the name of the logfile.
      */
     public static void setLogFile(String filename) {
         scaliendb_client.SDBP_SetLogFile(filename);
@@ -179,7 +179,7 @@ public class Client
 
    /**
      * Send a log message thru the unedrlying C++ client library.
-     * @param the message.
+     * @param msg the message.
      */
     public static void logTrace(String msg) {
         scaliendb_client.SDBP_LogTrace(msg);
