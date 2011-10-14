@@ -12,6 +12,7 @@ public class Query
     private byte[] startKey;
     private byte[] endKey;
     private int count;
+    private boolean reversed;
     
     Query(Table table) {
         this.table = table;
@@ -19,6 +20,7 @@ public class Query
         startKey = new byte[0];
         endKey = new byte[0];
         count = 0;
+        reversed = false;
     }
     
     /**
@@ -85,6 +87,15 @@ public class Query
     }
     
     /**
+     * Specify the direction fo the iteration. If true, the iteration will
+     * be reversed.
+     * @param reversed If true, the iteration will be reversed.
+     */
+    public void setReversed(boolean reversed) {
+        this.reversed = true;
+    }
+    
+    /**
      * Return an iterator that will return only keys.
      * @return The iterator.
      * @see #getStringKeyIterator() 
@@ -98,6 +109,8 @@ public class Query
         params.startKey(startKey);
         params.endKey(endKey);
         params.count(count);
+        if (reversed)
+            params.backward();
 
         return new ByteKeyIterator(table, params);
     }
@@ -116,6 +129,8 @@ public class Query
         params.startKey(startKey);
         params.endKey(endKey);
         params.count(count);
+        if (reversed)
+            params.backward();
         
         return new ByteKeyValueIterator(table, params);
     }
@@ -144,6 +159,8 @@ public class Query
         params.startKey(new String(startKey));
         params.endKey(new String(endKey));
         params.count(count);
+        if (reversed)
+            params.backward();
 
         return new StringKeyIterator(table, params);
     }
@@ -172,6 +189,8 @@ public class Query
         params.startKey(new String(startKey));
         params.endKey(new String(endKey));
         params.count(count);
+        if (reversed)
+            params.backward();
 
         return new StringKeyValueIterator(table, params);
     }
