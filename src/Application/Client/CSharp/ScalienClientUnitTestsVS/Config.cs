@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
+using System.IO;
+using System.Reflection;
+
 using Scalien;
 
 namespace ScalienClientUnitTesting
@@ -15,11 +18,13 @@ namespace ScalienClientUnitTesting
 
         private static Config instance;
 
-        public Config()
+        public Config(string FilePath = "c:/Users/Public/")
         {
+            string filePath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+
             try
             {
-                byte[] data = Utils.ReadFile("UnitTestConfig.txt");
+                byte[] data = Utils.ReadFile(filePath + "\\UnitTestConfig.txt");
                 if (data == null)
                     conf = null;
                 else
@@ -52,7 +57,9 @@ namespace ScalienClientUnitTesting
 
             sample_conf.Add("default", sample_nodes);
 
-            Utils.WriteFile("UnitTestConfig.sample.txt", Utils.JsonSerialize(sample_conf));
+            string filePath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location); ;
+
+            Utils.WriteFile(filePath + "\\UnitTestConfig.sample.txt", Utils.JsonSerialize(sample_conf));
         }
     }
 }

@@ -5,27 +5,18 @@ using System.Text;
 using System.IO;
 using System.Threading;
 
+#if !SCALIEN_UNIT_TEST_FRAMEWORK
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+#endif
+
 using Scalien;
 
 namespace ScalienClientUnitTesting
 {
     [TestClass]
-    class UsersTests
+    public class UsersTests
     {
-        /* DEPRECATED
         [TestMethod]
-        public void GetSetSubmitUsers()
-        {
-            System.Console.WriteLine("TestingGetSetSubmit");
-
-            Users uTest = new Users();
-            //uTest.addClient();
-            uTest.ResetTables();
-
-            Assert.IsTrue(uTest.TestGetSetSubmit());
-        }*/
-
-        //[TestMethod]
         public void CountUsers() // for debug only
         {
             Users usr = new Users(Config.GetNodes());
@@ -35,8 +26,7 @@ namespace ScalienClientUnitTesting
             Console.WriteLine("Count is " + cnt);
         }
 
-
-        //[TestMethod]
+        [TestMethod]
         public void SimpleTest()
         {
             Users usr = new Users(Config.GetNodes());

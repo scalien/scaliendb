@@ -3,12 +3,16 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
+#if !SCALIEN_UNIT_TEST_FRAMEWORK
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+#endif
+
 using Scalien;
 
 namespace ScalienClientUnitTesting
 {
-    //[TestClass]
-    class SchemaTests
+    [TestClass]
+    public class SchemaTests
     {
         [TestMethod]
         public void DeleteSomeDBs()
@@ -44,7 +48,7 @@ namespace ScalienClientUnitTesting
             }
         }
 
-        //[TestMethod]
+        [TestMethod]
         public void ManyDBs100()
         {
             string dbName = "manydb_test_";
@@ -64,7 +68,7 @@ namespace ScalienClientUnitTesting
             }
         }
 
-        //[TestMethod]
+        [TestMethod]
         public void ManyDBs1000()
         {
             string dbName = "manydb_test_";
@@ -85,7 +89,7 @@ namespace ScalienClientUnitTesting
             }
         }
 
-        //[TestMethod]
+        [TestMethod]
         public void ManyTables1000()
         {
             string dbName = "manytables_test";
@@ -109,7 +113,7 @@ namespace ScalienClientUnitTesting
             }
         }
 
-       // [TestMethod]
+        [TestMethod]
         public void ManyTables10000()
         {
             string dbName = "manytables_test";
@@ -133,7 +137,7 @@ namespace ScalienClientUnitTesting
             }
         }
 
-        //[TestMethod]
+        [TestMethod]
         public void ManyDB_AND_Tables_100x100()
         {
             string dbName = "manydbtables_test_";
@@ -166,7 +170,7 @@ namespace ScalienClientUnitTesting
             }
         }
 
-        //[TestMethod]
+        [TestMethod]
         public void RandomNamedDBs()
         {
             Client client = new Client(Config.GetNodes());
@@ -189,7 +193,7 @@ namespace ScalienClientUnitTesting
             }
         }
 
-        //[TestMethod]
+        [TestMethod]
         public void RandomNamedDBs_CheckByDBList()
         {
             Client client = new Client(Config.GetNodes());
@@ -212,7 +216,7 @@ namespace ScalienClientUnitTesting
             }
         }
 
-        //[TestMethod]
+        [TestMethod]
         public void RandomNamedTables()
         {
             string dbName = "random_named_tables_db";
@@ -239,7 +243,7 @@ namespace ScalienClientUnitTesting
             }
         }
 
-        //[TestMethod]
+        [TestMethod]
         public void RandomNamedTables_CheckByTableList()
         {
             string dbName = "random_named_tables_db";

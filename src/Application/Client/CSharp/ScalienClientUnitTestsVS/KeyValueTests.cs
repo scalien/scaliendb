@@ -3,12 +3,16 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
+#if !SCALIEN_UNIT_TEST_FRAMEWORK
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+#endif
+
 using Scalien;
 
 namespace ScalienClientUnitTesting
 {
-    //[TestClass]
-    class KeyValueTests
+    [TestClass]
+    public class KeyValueTests
     {
         [TestMethod]
         public void RandomKey_Values_CheckUsingGetByKey()
