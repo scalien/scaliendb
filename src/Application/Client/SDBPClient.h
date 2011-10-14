@@ -179,7 +179,6 @@ private:
     Countdown               globalTimeout;
     Countdown               masterTimeout;
     ConfigState             configState;
-    uint64_t                configStateVersion;
     Result*                 result;
     RequestList             requests;
     RequestMap              proxiedRequests;

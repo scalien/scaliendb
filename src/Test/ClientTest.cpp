@@ -56,8 +56,8 @@ static int SetupDefaultClient(Client& client)
     const char*     nodes[] = {"127.0.0.1:7080"};
 //    const char*     nodes[] = {"192.168.137.52:7080"};
 //    const char*     nodes[] = {"192.168.1.5:7080"};
-    std::string     databaseName = "test_db";
-    std::string     tableName = "test_table";
+    std::string     databaseName = "test";
+    std::string     tableName = "test";
     uint64_t        databaseID;
     uint64_t        tableID;
     int             ret;
@@ -655,7 +655,6 @@ TEST_DEFINE(TestClientGetLatency)
 
 TEST_DEFINE(TestClientMaro)
 {
-//    Client          client;
     Result*         result;
     ReadBuffer      key;
     ReadBuffer      value;
@@ -663,15 +662,13 @@ TEST_DEFINE(TestClientMaro)
     ReadBuffer      endKey;
     ReadBuffer      prefix;
     
-    //TEST(SetupDefaultClient(client));
-
     int i = 0;
     while(true)
     {
         Client client;
         TEST(SetupDefaultClient(client));
         Log_Debug("%d", i);
-        TEST(client.ListKeyValues(defaultTableID, startKey, endKey, prefix, 0, true, false));
+        TEST(client.ListKeyValues(defaultTableID, startKey, endKey, prefix, 1000, true, false));
         result = client.GetResult();
         delete result;
         i++;
@@ -1085,7 +1082,7 @@ TEST_DEFINE(TestClientInfiniteLoop)
 TEST_DEFINE(TestClientMultiThread)
 {
     ThreadPool*     threadPool;
-    unsigned        numThread = 1;
+    unsigned        numThread = 10;
     uint32_t        runCount;
     Stopwatch       sw;
 
@@ -1102,10 +1099,8 @@ TEST_DEFINE(TestClientMultiThread)
 		threadPool->SetStackSize(256*KiB);
 
 		for (unsigned i = 0; i < numThread; i++)
-		{  
-            //threadPool->Execute(CFunc((void (*)(void)) TestClientListKeyValues));
-	        //threadPool->Execute(CFunc((void (*)(void)) TestClientBatchedGet));
-            threadPool->Execute(CFunc((void (*)(void)) TestClientSet));
+		{
+            threadPool->Execute(CFunc((void (*)(void)) TestClientMaro));
 		}
     
 		threadPool->Start();
