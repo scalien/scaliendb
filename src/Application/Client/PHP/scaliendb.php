@@ -1,4 +1,9 @@
 <?php
+/*
+ * This code is highly experimental, don't use it in production yet!
+ * 
+ */
+
 
 include_once("scaliendb_client.php");
 
@@ -377,3 +382,5 @@ class ScalienDBClient {
         scaliendb_client::SDBP_SetTrace($trace);
     }
 }
+
+?>

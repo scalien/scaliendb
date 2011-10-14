@@ -38,8 +38,9 @@ package com.scalien.scaliendb;
  * for (var i = 0; i < 1000; i++)
  *     System.out.println(peopleIDs.Get());
  * </pre>
- * @see Table#getSequence(String) getSequence
- * @see Table#getSequence(byte[]) getSequence
+ * @see Database#getSequenceNumber(String, String) getSequenceNumber
+ * @see Database#resetSequenceNumber(String, String) resetSequenceNumber
+ * @see Database#setSequenceGranularity(String, String, long) setSequenceGranularity
  */
 public class Sequence
 {
