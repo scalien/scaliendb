@@ -65,6 +65,10 @@ namespace ScalienClientUnitTesting
         {
             Throw(message);
         }
+        public static void Fail(string message, object obj)
+        {
+            Throw(message);
+        }
         public static void AreEqual<T>(T left, T right, string message)
         {
             if (!left.Equals(right))
