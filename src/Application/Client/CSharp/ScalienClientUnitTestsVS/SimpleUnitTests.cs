@@ -5,12 +5,16 @@ using System.Text;
 using System.Threading;
 using System.IO;
 
+#if !SCALIEN_UNIT_TEST_FRAMEWORK
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+#endif
+
 using Scalien;
 
 namespace ScalienClientUnitTesting
 {
-    //[TestClass]
-    class SimpleUnitTests
+    [TestClass]
+    public class SimpleUnitTests
     {
         //[TestMethod]
         public void SetGetMP3()
@@ -37,7 +41,7 @@ namespace ScalienClientUnitTesting
             Assert.IsTrue(Utils.ByteArraysEqual(payload, res));
         }
 
-        //[TestMethod]
+        [TestMethod]
         public void GetSetSubmit()
         {
             string dbName = "get_set_db";
@@ -62,9 +66,10 @@ namespace ScalienClientUnitTesting
 
             var i = tbl.Count(new ByteRangeParams());
             Assert.IsTrue(i == 2);
+            Assert.Fail("");
         }
 
-        //[TestMethod]
+        [TestMethod]
         public void CreateAndCloseClients()
         {
             string dbName = "create_and_close_clients_db";
@@ -108,7 +113,7 @@ namespace ScalienClientUnitTesting
             //client2.Close();
         }
 
-        //[TestMethod]
+        [TestMethod]
         public void TruncateAfterSet()
         {
             string dbName = "get_set_db";
@@ -131,7 +136,7 @@ namespace ScalienClientUnitTesting
 
                 client.Submit();
 
-                Assert.Throw("No SDBPException!");
+                Assert.Fail("No SDBPException!");
             }
             catch (SDBPException)
             {
@@ -140,7 +145,7 @@ namespace ScalienClientUnitTesting
             //client.Close();
         }
 
-        //[TestMethod]
+        [TestMethod]
         public void SequenceResetAndTruncate()
         {
             string dbName = "seq_and_trunc_db";
@@ -165,7 +170,7 @@ namespace ScalienClientUnitTesting
 
                 client.Submit();
 
-                Assert.Throw("No SDBPException!");
+                Assert.Fail("No SDBPException!");
             }
             catch (SDBPException)
             {
@@ -174,7 +179,7 @@ namespace ScalienClientUnitTesting
             //client.Close();
         }
 
-        //[TestMethod]
+        [TestMethod]
         public void SequenceAddAfterSet()
         {
             string dbName = "seq_and_set_db";
@@ -202,7 +207,7 @@ namespace ScalienClientUnitTesting
             client.Close();
         }
 
-        //[TestMethod]
+        [TestMethod]
         public void CountBeforeSubmit()
         {
             string dbName = "test_db";
@@ -231,7 +236,7 @@ namespace ScalienClientUnitTesting
             client.Close();
         }
 
-        //[TestMethod]
+        [TestMethod]
         public void ClientInactivityTest()
         {
             Client.SetTrace(true);

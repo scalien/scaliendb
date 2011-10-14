@@ -5,12 +5,17 @@ using System.Text;
 using System.Threading;
 using System.Runtime.Serialization.Json;
 
+#if !SCALIEN_UNIT_TEST_FRAMEWORK
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+#endif
+
 using Scalien;
 
 // TODO
 // move Killing feature to it's own, independent class
 // Kill controllers too
 // configurable crash or sleep
+// make seceral tests
 
 // http://192.168.137.103:38080/debug?crash
 // http://192.168.137.103:38080/debug?sleep=10 seconds
@@ -29,6 +34,13 @@ namespace ScalienClientUnitTesting
         KILL_CONTROLLERS,
         KILL_SHARDS,
         KILL_RANDOMLY_BOTH
+    };
+
+    enum KillActionType
+    {
+        KILL_USING_CRASH,
+        KILL_USING_SLEEP,
+        KILL_USING_BOTH_RANDOMLY
     }
     
     /*
@@ -41,19 +53,23 @@ namespace ScalienClientUnitTesting
     {
         public int timeout;
         public KillMode mode;
+        public KillVictimType victimtype;
+        public KillActionType action;
         public int repeat;
 
-        public KillerConf(int TimeOut, KillMode Mode, int Repeat)
+        public KillerConf(int TimeOut, KillMode Mode, int Repeat, KillVictimType VictimType = KillVictimType.KILL_RANDOMLY_BOTH, KillActionType Action = KillActionType.KILL_USING_BOTH_RANDOMLY)
         {
             timeout = TimeOut;
             mode = Mode;
-            // victims
             repeat = Repeat;
+
+            victimtype = VictimType;
+            action = Action;
         }
     }
 
     [TestClass]
-    class FailOverTests
+    public class FailOverTests
     {
         public void Killer(Object param)
         {
@@ -82,7 +98,7 @@ namespace ScalienClientUnitTesting
                 Thread.Sleep(actions[0].timeout);
 
                 cstate = Utils.JsonDeserialize<ConfigState>(System.Text.Encoding.UTF8.GetBytes(client.GetJSONConfigState()));
-                if (cstate.quorums.Count < 1) Assert.Throw("No quorum in ConfigState");
+                if (cstate.quorums.Count < 1) Assert.Fail("No quorum in ConfigState");
 
                 // select victim and next timeout
                 switch (actions[0].mode)
@@ -97,13 +113,11 @@ namespace ScalienClientUnitTesting
                         vix = cstate.quorums[0].activeNodes[Utils.RandomNumber.Next(cstate.quorums[0].activeNodes.Count)];
 
                         foreach(ShardServer shardsrv in cstate.shardServers)
-                        {
                             if (shardsrv.nodeID == vix)
                             {
                                 victim = shardsrv.endpoint;
                                 break;
                             }
-                        }
 
                         break;
 
@@ -119,13 +133,11 @@ namespace ScalienClientUnitTesting
                             vix = cstate.quorums[0].primaryID;
 
                             foreach (ShardServer shardsrv in cstate.shardServers)
-                            {
                                 if (shardsrv.nodeID == vix)
                                 {
                                     victim = shardsrv.endpoint;
                                     break;
                                 }
-                            }
                         }
                         break;
 
@@ -139,13 +151,11 @@ namespace ScalienClientUnitTesting
                         vix = cstate.quorums[0].activeNodes[Utils.RandomNumber.Next(cstate.quorums[0].activeNodes.Count)];
 
                         foreach(ShardServer shardsrv in cstate.shardServers)
-                        {
                             if (shardsrv.nodeID == vix)
                             {
                                 victim = shardsrv.endpoint;
                                 break;
                             }
-                        }
 
                         break;
 
@@ -162,13 +172,11 @@ namespace ScalienClientUnitTesting
                             vix = cstate.quorums[0].activeNodes[Utils.RandomNumber.Next(cstate.quorums[0].activeNodes.Count)];
 
                             foreach (ShardServer shardsrv in cstate.shardServers)
-                            {
                                 if (shardsrv.nodeID == vix)
                                 {
                                     victim = shardsrv.endpoint;
                                     break;
                                 }
-                            }
                         }
                         break;
                 }
@@ -217,10 +225,12 @@ namespace ScalienClientUnitTesting
             }
         }
 
-        //[TestMethod]
+        [TestMethod]
         public void TestConfigState() // debug purposes only
         {
             Client client = new Client(Config.GetNodes());
+
+            client.SetGlobalTimeout(15000);
 
             string config_string = client.GetJSONConfigState();
             System.Console.WriteLine(config_string);
@@ -232,8 +242,8 @@ namespace ScalienClientUnitTesting
         [TestMethod]
         public void TestRandomCrash()
         {
-            Client.SetTrace(true);
-            Client.SetLogFile("c:\\Users\\zszabo\\logs\\client_trace.txt");
+            //Client.SetTrace(true);
+            //Client.SetLogFile("c:\\Users\\zszabo\\logs\\client_trace.txt");
             int init_users = 10000;
             int threadnum = 10;
 
@@ -263,11 +273,6 @@ namespace ScalienClientUnitTesting
             Assert.IsTrue(usr.IsConsistent());
 
             killer.Abort();
-        }
-
-        //[TestMethod]
-        public void TestMasterCrash()
-        {
         }
 
         /*

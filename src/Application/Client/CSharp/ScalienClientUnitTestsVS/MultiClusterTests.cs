@@ -4,12 +4,16 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 
+#if !SCALIEN_UNIT_TEST_FRAMEWORK
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+#endif
+
 using Scalien;
 
 namespace ScalienClientUnitTesting
 {
     //[TestClass]
-    class MultiClusterTests
+    public class MultiClusterTests
     {
         private static void MultiClusterTestWorker(Object param)
         {
@@ -22,7 +26,7 @@ namespace ScalienClientUnitTesting
             }
         }
 
-        [TestMethod]
+        //[TestMethod]
         public void MultiClusterTest_10_Threads()
         {
             int init_users = 10000;
