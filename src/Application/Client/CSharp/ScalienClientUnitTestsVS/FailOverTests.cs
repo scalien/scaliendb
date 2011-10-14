@@ -15,7 +15,7 @@ using Scalien;
 // move Killing feature to it's own, independent class
 // Kill controllers too
 // configurable crash or sleep
-// make seceral tests
+// make several tests
 
 // http://192.168.137.103:38080/debug?crash
 // http://192.168.137.103:38080/debug?sleep=10 seconds
@@ -57,14 +57,14 @@ namespace ScalienClientUnitTesting
         public KillActionType action;
         public int repeat;
 
-        public KillerConf(int TimeOut, KillMode Mode, int Repeat, KillVictimType VictimType = KillVictimType.KILL_RANDOMLY_BOTH, KillActionType Action = KillActionType.KILL_USING_BOTH_RANDOMLY)
+        public KillerConf(int TimeOut, KillMode Mode, int Repeat, KillActionType Action = KillActionType.KILL_USING_BOTH_RANDOMLY, KillVictimType VictimType = KillVictimType.KILL_RANDOMLY_BOTH)
         {
             timeout = TimeOut;
             mode = Mode;
             repeat = Repeat;
 
-            victimtype = VictimType;
             action = Action;
+            victimtype = VictimType;
         }
     }
 
@@ -183,21 +183,27 @@ namespace ScalienClientUnitTesting
 
                 if (victim != null)
                 {
-                    // take sleep or crash action randomly
+                    string action_string = "";
+
+                    switch (actions[0].action)
+                    {
+                        case KillActionType.KILL_USING_SLEEP:
+                            action_string = "/debug?sleep=25";
+                            break;
+                        case KillActionType.KILL_USING_CRASH:
+                            action_string = "/debug?crash";
+                            break;
+                        case KillActionType.KILL_USING_BOTH_RANDOMLY:
+                            if (Utils.RandomNumber.Next(10) < 5)
+                                action_string = "/debug?sleep=25";
+                            else
+                                action_string = "/debug?crash";
+                            break;
+                    }
+
                     victim = victim.Substring(0, victim.Length - 4) + "8090";
-                    // TODO event control
-                    if (Utils.RandomNumber.Next(6) > 6)
-                    {
-                        // crash
-                        url = "http://" + victim + "/debug?crash";
-                        System.Console.WriteLine("Shard action(" + vix + "): " + url);
-                    }
-                    else
-                    {
-                        // sleep 20 seconds
-                        url = "http://" + victim + "/debug?sleep=25";
-                        System.Console.WriteLine("Shard action(" + vix + "): " + url);
-                    }
+                    url = "http://" + victim + action_string;
+                    System.Console.WriteLine("Shard action(" + vix + "): " + url);
 
                     System.Console.WriteLine(Utils.HTTP_GET(url, 3000));
                 }
@@ -215,13 +221,25 @@ namespace ScalienClientUnitTesting
 
         private static void TestWorker(Object param)
         {
-            int loop = System.Convert.ToInt32(param);
+            Utils.TestThreadConf conf = (Utils.TestThreadConf)param;
+
+            int loop = System.Convert.ToInt32(conf.param);
             int users_per_iteration = 2;
 
-            Users usr = new Users(Config.GetNodes());
-            while (loop-- > 0)
+            try
             {
-                usr.TestCycle(users_per_iteration);
+                Users usr = new Users(Config.GetNodes());
+                while (loop-- > 0)
+                {
+                    usr.TestCycle(users_per_iteration);
+                }
+            }
+            catch (Exception e)
+            {
+                lock (conf.exceptionsCatched)
+                {
+                    conf.exceptionsCatched.Add(e);
+                }
             }
         }
 
@@ -242,43 +260,76 @@ namespace ScalienClientUnitTesting
         [TestMethod]
         public void TestRandomCrash()
         {
-            //Client.SetTrace(true);
-            //Client.SetLogFile("c:\\Users\\zszabo\\logs\\client_trace.txt");
             int init_users = 10000;
             int threadnum = 10;
 
-            /*FileStream fs = new FileStream("c:\\Users\\zszabo\\logs\\threadout_10.txt", FileMode.Create);
-            StreamWriter sw = new StreamWriter(fs);
-            Console.SetOut(sw);*/
-
+            var nodes = Config.GetNodes();
             Users usr = new Users(Config.GetNodes());
             usr.EmptyAll();
             usr.InsertUsers(init_users);
+
+            Utils.TestThreadConf threadConf = new Utils.TestThreadConf();
+            threadConf.param = 500;
 
             Thread[] threads = new Thread[threadnum];
             for (int i = 0; i < threadnum; i++)
             {
                 threads[i] = new Thread(new ParameterizedThreadStart(TestWorker));
-                threads[i].Start(500);
+                threads[i].Start(threadConf);
             }
 
             Thread killer = new Thread(new ParameterizedThreadStart(Killer));
-            killer.Start(new KillerConf(10000, KillMode.KILL_MAJORITY, 10));
+            killer.Start(new KillerConf(10000, KillMode.KILL_MAJORITY, 10, KillActionType.KILL_USING_CRASH));
 
             for (int i = 0; i < threadnum; i++)
             {
                 threads[i].Join();
             }
 
+            if (threadConf.exceptionsCatched.Count > 0)
+                Assert.Fail("Exceptions catched in threads", threadConf);
+
             Assert.IsTrue(usr.IsConsistent());
 
             killer.Abort();
         }
 
-        /*
         [TestMethod]
-        public void TestMasterCrash()
+        public void TestRandomSleep()
         {
-        }*/
+            int init_users = 10000;
+            int threadnum = 10;
+
+            var nodes = Config.GetNodes();
+            Users usr = new Users(Config.GetNodes());
+            usr.EmptyAll();
+            usr.InsertUsers(init_users);
+
+            Utils.TestThreadConf threadConf = new Utils.TestThreadConf();
+            threadConf.param = 500;
+
+            Thread[] threads = new Thread[threadnum];
+            for (int i = 0; i < threadnum; i++)
+            {
+                threads[i] = new Thread(new ParameterizedThreadStart(TestWorker));
+                threads[i].Start(threadConf);
+            }
+
+            Thread killer = new Thread(new ParameterizedThreadStart(Killer));
+            killer.Start(new KillerConf(10000, KillMode.KILL_MAJORITY, 10, KillActionType.KILL_USING_SLEEP));
+
+            for (int i = 0; i < threadnum; i++)
+            {
+                threads[i].Join();
+            }
+
+            if (threadConf.exceptionsCatched.Count > 0)
+                Assert.Fail("Exceptions catched in threads", threadConf);
+
+            Assert.IsTrue(usr.IsConsistent());
+
+            killer.Abort();
+        }
+
     }
 }

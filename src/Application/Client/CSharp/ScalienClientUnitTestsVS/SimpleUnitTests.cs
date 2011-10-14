@@ -66,7 +66,6 @@ namespace ScalienClientUnitTesting
 
             var i = tbl.Count(new ByteRangeParams());
             Assert.IsTrue(i == 2);
-            Assert.Fail("");
         }
 
         [TestMethod]

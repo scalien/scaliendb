@@ -8,8 +8,19 @@ using System.Runtime.Serialization.Json;
 
 namespace Scalien
 {
-    class Utils
+    public class Utils
     {
+        public class TestThreadConf
+        {
+            public List<Exception> exceptionsCatched;
+            public object param;
+
+            public TestThreadConf()
+            {
+                exceptionsCatched = new List<Exception>();
+            }
+        }
+
         public static System.Random RandomNumber = new System.Random();
 
         public static string HTTP_GET(string url, int Timeout = 30000)

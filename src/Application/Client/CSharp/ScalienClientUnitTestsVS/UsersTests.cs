@@ -43,13 +43,25 @@ namespace ScalienClientUnitTesting
 
         private static void TestWorker(Object param)
         {
-            int loop = System.Convert.ToInt32(param);
+            Utils.TestThreadConf conf = (Utils.TestThreadConf) param;
+
+            int loop = System.Convert.ToInt32(conf.param);
             int users_per_iteration = 2;
 
-            Users usr = new Users(Config.GetNodes());
-            while (loop-- > 0)
+            try
             {
-                usr.TestCycle(users_per_iteration);
+                Users usr = new Users(Config.GetNodes());
+                while (loop-- > 0)
+                {
+                    usr.TestCycle(users_per_iteration);
+                }
+            }
+            catch (Exception e)
+            {
+                lock (conf.exceptionsCatched)
+                {
+                    conf.exceptionsCatched.Add(e);
+                }
             }
         }
 
@@ -69,17 +81,25 @@ namespace ScalienClientUnitTesting
             usr.EmptyAll();
             usr.InsertUsers(init_users);
 
+            Utils.TestThreadConf threadConf = new Utils.TestThreadConf();
+            threadConf.param = 500;
+
             Thread[] threads = new Thread[threadnum];
             for (int i = 0; i < threadnum; i++)
             {
                 threads[i] = new Thread(new ParameterizedThreadStart(TestWorker));
-                threads[i].Start(500);
+                threads[i].Start(threadConf);
             }
 
             for (int i = 0; i < threadnum; i++)
             {
                 threads[i].Join();
             }
+
+            if (threadConf.exceptionsCatched.Count > 0) 
+                Assert.Fail("Exceptions catched in threads", threadConf);
+
+            Console.WriteLine("Checking consistency");
 
             Assert.IsTrue(usr.IsConsistent());
         }
@@ -100,17 +120,23 @@ namespace ScalienClientUnitTesting
             usr.EmptyAll();
             usr.InsertUsers(init_users);
 
+            Utils.TestThreadConf threadConf = new Utils.TestThreadConf();
+            threadConf.param = 500;
+
             Thread[] threads = new Thread[threadnum];
             for (int i = 0; i < threadnum; i++)
             {
                 threads[i] = new Thread(new ParameterizedThreadStart(TestWorker));
-                threads[i].Start(500);
+                threads[i].Start(threadConf);
             }
 
             for (int i = 0; i < threadnum; i++)
             {
                 threads[i].Join();
             }
+
+            if (threadConf.exceptionsCatched.Count > 0)
+                Assert.Fail("Exceptions catched in threads", threadConf);
 
             Console.WriteLine("Checking consistency");
 
@@ -127,17 +153,25 @@ namespace ScalienClientUnitTesting
             usr.EmptyAll();
             usr.InsertUsers(init_users);
 
+            Utils.TestThreadConf threadConf = new Utils.TestThreadConf();
+            threadConf.param = 500;
+
             Thread[] threads = new Thread[threadnum];
             for (int i = 0; i < threadnum; i++)
             {
                 threads[i] = new Thread(new ParameterizedThreadStart(TestWorker));
-                threads[i].Start(500);
+                threads[i].Start(threadConf);
             }
 
             for (int i = 0; i < threadnum; i++)
             {
                 threads[i].Join();
             }
+
+            if (threadConf.exceptionsCatched.Count > 0)
+                Assert.Fail("Exceptions catched in threads", threadConf);
+
+            Console.WriteLine("Checking consistency");
 
             Assert.IsTrue(usr.IsConsistent());
         }
