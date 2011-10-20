@@ -278,6 +278,8 @@ void ShardDatabaseManager::Init(ShardServer* shardServer_)
     // TODO: replace 1 with symbolic name
     systemShard.Init(&environment, QUORUM_DATABASE_SYSTEM_CONTEXT, 1);
     REPLICATION_CONFIG->Init(&systemShard);
+    if (REPLICATION_CONFIG->GetNodeID() > 0)
+        Log_Message("My nodeID is %U", REPLICATION_CONFIG->GetNodeID());
     
     // Initialize async GET
     asyncGet.active = false;

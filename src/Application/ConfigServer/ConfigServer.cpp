@@ -45,7 +45,8 @@ void ConfigServer::Init(ConfigServerApp* app)
     
     CONTEXT_TRANSPORT->SetSelfNodeID(nodeID);
     REPLICATION_CONFIG->SetNodeID(nodeID);
-    
+    Log_Message("My nodeID is %U", REPLICATION_CONFIG->GetNodeID());
+
     CONTEXT_TRANSPORT->SetClusterContext(this);
     CONTEXT_TRANSPORT->SetClusterID(REPLICATION_CONFIG->GetClusterID());
         
