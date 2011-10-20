@@ -28,6 +28,7 @@ class StorageArchiveLogSegmentJob;
 
 #define STORAGE_DEFAULT_BACKGROUND_TIMER_DELAY      1  // sec
 
+
 /*
 ===============================================================================================
 
@@ -74,7 +75,7 @@ public:
     bool                    CreateShard(uint64_t trackID,
                              uint16_t contextID, uint64_t shardID, uint64_t tableID,
                              ReadBuffer firstKey, ReadBuffer lastKey,
-                             bool useBloomFilter, bool isLogStorage);
+                             bool useBloomFilter, char storageType);
     void                    DeleteShard(uint16_t contextID, uint64_t shardID);
     bool                    SplitShard(uint16_t contextID,  uint64_t shardID,
                              uint64_t newShardID, ReadBuffer splitKey);

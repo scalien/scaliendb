@@ -67,7 +67,7 @@ void ShardCatchupReader::OnBeginShard(CatchupMessage& msg)
     environment->Commit(quorumProcessor->GetQuorumID());
     environment->CreateShard(quorumProcessor->GetQuorumID(),
      QUORUM_DATABASE_DATA_CONTEXT, shard->shardID,
-     shard->tableID, shard->firstKey, shard->lastKey, true, false);
+     shard->tableID, shard->firstKey, shard->lastKey, true, STORAGE_SHARD_TYPE_STANDARD);
      
     shardID = shard->shardID;
 }

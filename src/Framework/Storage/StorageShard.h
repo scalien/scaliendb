@@ -9,6 +9,10 @@
 class StorageRecovery;
 class StorageBulkCursor;
 
+#define STORAGE_SHARD_TYPE_STANDARD         'F'
+#define STORAGE_SHARD_TYPE_LOG              'T'
+#define STORAGE_SHARD_TYPE_DUMP             'D'
+
 /*
 ===============================================================================================
 
@@ -24,7 +28,7 @@ class StorageShard
     
 public:
     typedef SortedList<StorageChunk*> ChunkList;
-
+    
     StorageShard();
     ~StorageShard();
 
@@ -37,7 +41,7 @@ public:
     void                SetFirstKey(ReadBuffer firstKey);
     void                SetLastKey(ReadBuffer lastKey);
     void                SetUseBloomFilter(bool useBloomFilter);
-    void                SetLogStorage(bool isLogStorage);
+    void                SetStorageType(char type);
 
     uint64_t            GetTrackID();
     uint16_t            GetContextID();
@@ -48,7 +52,7 @@ public:
     ReadBuffer          GetFirstKey();
     ReadBuffer          GetLastKey();
     bool                UseBloomFilter();
-    bool                IsLogStorage();
+    char                GetStorageType();
     bool                IsSplitable();
     
     bool                RangeContains(ReadBuffer key);
@@ -59,7 +63,6 @@ public:
     ChunkList&          GetChunks();
     void                OnChunkSerialized(StorageMemoChunk* memoChunk, StorageFileChunk* fileChunk);
     void                GetMergeInputChunks(List<StorageFileChunk*>& inputChunks);
-
 
     StorageShard*       prev;
     StorageShard*       next;
@@ -76,7 +79,7 @@ private:
     Buffer              firstKey;
     Buffer              lastKey;
     bool                useBloomFilter;
-    bool                isLogStorage;
+    char                storageType;
 
     ChunkList           chunks;
     
