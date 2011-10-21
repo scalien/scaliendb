@@ -70,20 +70,22 @@ bool ConfigMessage::RemoveShardServerFromQuorum(
 }
 
 bool ConfigMessage::ActivateShardServer(
- uint64_t quorumID_, uint64_t nodeID_)
+ uint64_t quorumID_, uint64_t nodeID_, bool force_)
 {
     type = CONFIGMESSAGE_ACTIVATE_SHARDSERVER;
     quorumID = quorumID_;
     nodeID = nodeID_;
+    force = force_;
     return true;
 }
 
 bool ConfigMessage::DeactivateShardServer(
- uint64_t quorumID_, uint64_t nodeID_)
+ uint64_t quorumID_, uint64_t nodeID_, bool force_)
 {
     type = CONFIGMESSAGE_DEACTIVATE_SHARDSERVER;
     quorumID = quorumID_;
     nodeID = nodeID_;
+    force = force_;
     return true;
 }
 
@@ -258,12 +260,12 @@ bool ConfigMessage::Read(ReadBuffer& buffer)
              &type, &quorumID, &nodeID);
             break;
         case CONFIGMESSAGE_ACTIVATE_SHARDSERVER:
-            read = buffer.Readf("%c:%U:%U",
-             &type, &quorumID, &nodeID);
+            read = buffer.Readf("%c:%U:%U:%b",
+             &type, &quorumID, &nodeID, &force);
             break;
         case CONFIGMESSAGE_DEACTIVATE_SHARDSERVER:
-            read = buffer.Readf("%c:%U:%U",
-             &type, &quorumID, &nodeID);
+            read = buffer.Readf("%c:%U:%U:%b",
+             &type, &quorumID, &nodeID, &force);
             break;
 
         // Database management
@@ -381,12 +383,12 @@ bool ConfigMessage::Write(Buffer& buffer)
              type, quorumID, nodeID);
             break;
         case CONFIGMESSAGE_ACTIVATE_SHARDSERVER:
-            buffer.Writef("%c:%U:%U",
-             type, quorumID, nodeID);
+            buffer.Writef("%c:%U:%U:%b",
+             type, quorumID, nodeID, force);
             break;
         case CONFIGMESSAGE_DEACTIVATE_SHARDSERVER:
-            buffer.Writef("%c:%U:%U",
-             type, quorumID, nodeID);
+            buffer.Writef("%c:%U:%U:%b",
+             type, quorumID, nodeID, force);
             break;
 
         // Database management

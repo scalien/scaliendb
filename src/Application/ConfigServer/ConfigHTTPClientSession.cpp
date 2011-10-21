@@ -457,18 +457,23 @@ void ConfigHTTPClientSession::PrintConfigState()
 
 void ConfigHTTPClientSession::ProcessActivateShardServer()
 {
-    uint64_t    nodeID;    
-    ReadBuffer  rb;
-    Buffer      wb;
+    bool        force;
     unsigned    nread;
+    uint64_t    nodeID;
+    ReadBuffer  param;
+    Buffer      wb;
 
-    if (!params.GetNamed("nodeID", sizeof("nodeID") - 1, rb))
+    if (!params.GetNamed("nodeID", sizeof("nodeID") - 1, param))
         goto Failed;
-    nodeID = BufferToUInt64(rb.GetBuffer(), rb.GetLength(), &nread);
-    if (nread != rb.GetLength())
+    nodeID = BufferToUInt64(param.GetBuffer(), param.GetLength(), &nread);
+    if (nread != param.GetLength())
         goto Failed;
 
-    configServer->GetActivationManager()->TryActivateShardServer(nodeID);
+    force = false;
+    if (HTTP_GET_OPT_PARAM(params, "force", param))
+        force = PARAM_BOOL_VALUE(param);
+
+    configServer->GetActivationManager()->TryActivateShardServer(nodeID, true, force);
 
     
     session.Print("Activation process started...");

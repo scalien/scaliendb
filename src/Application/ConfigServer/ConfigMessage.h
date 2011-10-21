@@ -53,6 +53,7 @@ public:
     // Variables
     bool            fromClient;
 
+    bool            force;
     char            type;
     uint64_t        clusterID;
     uint64_t        nodeID;
@@ -67,7 +68,7 @@ public:
     ReadBuffer      firstKey;
     Buffer          splitKey;
     Endpoint        endpoint;
-    List<uint64_t>  nodes;    
+    List<uint64_t>  nodes;
     
     // For InList<>
     ConfigMessage*  prev;
@@ -91,9 +92,9 @@ public:
     bool            RemoveShardServerFromQuorum(
                      uint64_t quorumID, uint64_t nodeID);    
     bool            ActivateShardServer(
-                     uint64_t quorumID, uint64_t nodeID);
+                     uint64_t quorumID, uint64_t nodeID, bool force);
     bool            DeactivateShardServer(
-                     uint64_t quorumID, uint64_t nodeID);
+                     uint64_t quorumID, uint64_t nodeID, bool force);
 
     // Database management
     bool            CreateDatabase(

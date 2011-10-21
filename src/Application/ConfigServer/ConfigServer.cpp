@@ -260,6 +260,8 @@ bool ConfigServer::OnAwaitingNodeID(Endpoint endpoint)
     {
         if (shardServer->endpoint == endpoint)
         {
+            activationManager.TryDeactivateShardServer(shardServer->nodeID, /* force */ true);
+
             // tell ContextTransport that this connection has a new nodeID
             CONTEXT_TRANSPORT->SetConnectionNodeID(endpoint, shardServer->nodeID);       
             

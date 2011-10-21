@@ -283,25 +283,25 @@ void ConfigQuorumProcessor::OnClientClose(ClientSession* session)
     }
 }
 
-void ConfigQuorumProcessor::ActivateNode(uint64_t quorumID, uint64_t nodeID)
+void ConfigQuorumProcessor::ActivateNode(uint64_t quorumID, uint64_t nodeID, bool force)
 {
     ConfigMessage* message;
  
     message = new ConfigMessage();
     message->fromClient = false;
-    message->ActivateShardServer(quorumID, nodeID);
+    message->ActivateShardServer(quorumID, nodeID, force);
     configMessages.Append(message);
     
     TryAppend();
 }
 
-void ConfigQuorumProcessor::DeactivateNode(uint64_t quorumID, uint64_t nodeID)
+void ConfigQuorumProcessor::DeactivateNode(uint64_t quorumID, uint64_t nodeID, bool force)
 {
     ConfigMessage* message;
 
     message = new ConfigMessage();
     message->fromClient = false;
-    message->DeactivateShardServer(quorumID, nodeID);
+    message->DeactivateShardServer(quorumID, nodeID, force);
     configMessages.Append(message);
     
     TryAppend();
