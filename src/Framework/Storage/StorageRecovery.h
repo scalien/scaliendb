@@ -25,7 +25,6 @@ private:
     bool                    ReadShards(uint32_t version, ReadBuffer& parse);
     bool                    ReadShardVersion1(ReadBuffer& parse);
     void                    CreateMemoChunks();
-    void                    ReadFileChunks();
     void                    ComputeShardRecovery();
     ReadBuffer              ReadFromFileBuffer(FD fd, uint64_t len);
     void                    ReplayLogSegments(uint64_t trackID);

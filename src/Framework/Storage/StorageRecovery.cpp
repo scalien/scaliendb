@@ -44,8 +44,6 @@ bool StorageRecovery::TryRecovery(StorageEnvironment* env_)
     }
     
     CreateMemoChunks(); 
-       
-    ReadFileChunks();
     
     // compute the max. (logSegmentID, commandID) for each shard's chunk
     // log entries smaller must not be applied to its memo chunk
@@ -130,7 +128,9 @@ bool StorageRecovery::TryReadTOC(Buffer& filename)
     parse.ReadLittle32(version);
     parse.Advance(4);
 
+    Log_Message("Opening chunk files...");
     ReadShards(version, parse);
+    Log_Message("Opening done.");
     
     fd.Close();
     
@@ -199,7 +199,7 @@ bool StorageRecovery::ReadShardVersion1(ReadBuffer& parse)
     if (!parse.ReadLittle32(numChunks))
         return false;
     parse.Advance(4);
-    
+
     for (i = 0; i < numChunks; i++)
     {
         if (!parse.ReadLittle64(chunkID))
@@ -237,16 +237,6 @@ void StorageRecovery::CreateMemoChunks()
 
     FOREACH (it, env->shards)
         it->memoChunk = new StorageMemoChunk(env->nextChunkID++, it->UseBloomFilter());
-}
-
-void StorageRecovery::ReadFileChunks()
-{
-    StorageFileChunk* it;
-    
-    Log_Message("Opening chunk files...");
-    
-    FOREACH (it, env->fileChunks)
-        it->ReadHeaderPage();
 }
 
 void StorageRecovery::ComputeShardRecovery()
