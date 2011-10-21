@@ -17,6 +17,7 @@
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_HUN)
 LANGUAGE LANG_HUNGARIAN, SUBLANG_DEFAULT
+#pragma code_page(1250)
 
 #ifdef APSTUDIO_INVOKED
 /////////////////////////////////////////////////////////////////////////////
@@ -50,8 +51,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 2,0,9,0
- PRODUCTVERSION 2,0,9,0
+ FILEVERSION 2,0,10,0
+ PRODUCTVERSION 2,0,10,0
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -64,21 +65,21 @@ VS_VERSION_INFO VERSIONINFO
 BEGIN
     BLOCK "StringFileInfo"
     BEGIN
-        BLOCK "040e04b0"
+        BLOCK "000004b0"
         BEGIN
             VALUE "CompanyName", "Scalien Software"
             VALUE "FileDescription", "Scalien Native Client Library"
-            VALUE "FileVersion", "2.0.9"
+            VALUE "FileVersion", "2.0.10"
             VALUE "InternalName", "Scalien Native Client Library"
             VALUE "LegalCopyright", "Copyright (C) 2009-2011 Scalien"
             VALUE "OriginalFilename", "scaliendb_client.dll"
             VALUE "ProductName", "Scalien Native Client Library"
-            VALUE "ProductVersion", "2.0.9"
+            VALUE "ProductVersion", "2.0.10"
         END
     END
     BLOCK "VarFileInfo"
     BEGIN
-        VALUE "Translation", 0x40e, 1200
+        VALUE "Translation", 0x0, 1200
     END
 END
 
