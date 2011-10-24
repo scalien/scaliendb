@@ -370,7 +370,7 @@ class Client:
             return ret
         
         def _allocate_range(self):
-            self._seq = self._table._client._add(self._table._table_id, self._key, self._gran) - self._gran
+            self._seq = self._table._client._add(self._table._table_id, self._key, self._gran) - self._gran + 1
             self._num = self._gran
 
     # =============================================================================================

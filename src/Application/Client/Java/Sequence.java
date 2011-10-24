@@ -95,7 +95,7 @@ public class Sequence
     }
 
     private void allocateRange(Client client) throws SDBPException {
-        seq = client.add(tableID, name, gran) - gran;
+        seq = client.add(tableID, name, gran) - gran + 1;
         num = gran;
     }
 }

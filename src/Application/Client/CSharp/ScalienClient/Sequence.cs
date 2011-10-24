@@ -79,9 +79,9 @@ namespace Scalien
         private void AllocateRange()
         {
             if (stringKey != null)
-                seq = client.Add(tableID, stringKey, gran) - gran;
+                seq = client.Add(tableID, stringKey, gran) - gran + 1;
             else
-                seq = client.Add(tableID, byteKey, gran) - gran;
+                seq = client.Add(tableID, byteKey, gran) - gran + 1;
             num = gran;
         }
 
