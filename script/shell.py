@@ -188,7 +188,7 @@ class SHelp:
 
 # helper function for welcome message
 def welcome():
-    header = "ScalienDB shell " + scaliendb.get_version()
+    header = "ScalienDB shell " + scaliendb._get_version()
     line = "".join(["=" for x in xrange(len(header))])
     print(line + "\n" + header + "\n" + line + "\n")
     print("This is a standard Python shell, enhanced with ScalienDB client library commands.")
