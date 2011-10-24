@@ -174,7 +174,7 @@ public class Query
      * table = db.getTable("testTable");
      * query = table.createQuery()
      * query.setPrefix("foo");
-     * for (KeyValue&lt;String, String&gt; kv in table.getKeyValueIterator())
+     * for (KeyValue&lt;String, String&gt; kv in query.getKeyValueIterator())
      *     System.out.println(kv.getKey() + " => " + kv.getValue());
      * </pre>
      * @return The iterator.
