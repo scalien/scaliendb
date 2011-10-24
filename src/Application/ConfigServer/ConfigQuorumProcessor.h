@@ -43,8 +43,8 @@ public:
     bool                    HasActivateMessage(uint64_t quorumID, uint64_t nodeID);
     bool                    HasDeactivateMessage(uint64_t quorumID);
 
-    void                    ActivateNode(uint64_t quorumID, uint64_t nodeID);
-    void                    DeactivateNode(uint64_t quorumID, uint64_t nodeID);
+    void                    ActivateNode(uint64_t quorumID, uint64_t nodeID, bool force = false);
+    void                    DeactivateNode(uint64_t quorumID, uint64_t nodeID, bool force = false);
  
     void                    TryRegisterShardServer(Endpoint& endpoint);
     void                    TryUpdateShardServer(uint64_t nodeID, Endpoint& endpoint);

@@ -19,8 +19,8 @@ class ConfigActivationManager
 public:
     void            Init(ConfigServer* configServer);
 
-    void            TryDeactivateShardServer(uint64_t nodeID);
-    void            TryActivateShardServer(uint64_t nodeID, bool force = true);
+    void            TryDeactivateShardServer(uint64_t nodeID, bool force = false);
+    void            TryActivateShardServer(uint64_t nodeID, bool disregardPrevious = true, bool force = false);
     void            OnExtendLease(ConfigQuorum& quorum, ClusterMessage& message);
     
     void            OnActivationTimeout();

@@ -12,7 +12,7 @@ void ConfigActivationManager::Init(ConfigServer* configServer_)
     activationTimeout.SetCallable(MFUNC(ConfigActivationManager, OnActivationTimeout));
 }
 
-void ConfigActivationManager::TryDeactivateShardServer(uint64_t nodeID)
+void ConfigActivationManager::TryDeactivateShardServer(uint64_t nodeID, bool force)
 {
     ConfigState*        configState;
     ConfigQuorum*       itQuorum;
@@ -49,12 +49,12 @@ void ConfigActivationManager::TryDeactivateShardServer(uint64_t nodeID)
                  itQuorum->activatingNodeID, itQuorum->quorumID);
             }
             
-            configServer->GetQuorumProcessor()->DeactivateNode(itQuorum->quorumID, nodeID);
+            configServer->GetQuorumProcessor()->DeactivateNode(itQuorum->quorumID, nodeID, force);
         }
     }
 }
 
-void ConfigActivationManager::TryActivateShardServer(uint64_t nodeID, bool force)
+void ConfigActivationManager::TryActivateShardServer(uint64_t nodeID, bool disregardPrevious, bool force)
 {
     uint64_t            paxosID;
     ConfigState*        configState;
@@ -78,7 +78,14 @@ void ConfigActivationManager::TryActivateShardServer(uint64_t nodeID, bool force
         Log_Trace("itQuorum->isActivatingNode: %b", itQuorum->isActivatingNode);
         if (itQuorum->isActivatingNode)
             continue;
-            
+
+        if (force && itQuorum->IsInactiveMember(nodeID))
+        {
+            itQuorum->paxosID = 1;
+            configServer->GetQuorumProcessor()->ActivateNode(itQuorum->quorumID, nodeID);
+            return;
+        }
+
         Log_Trace("itQuorum->hasPrimary: %b", itQuorum->hasPrimary);
         if (!itQuorum->hasPrimary)
             continue;
@@ -92,7 +99,7 @@ void ConfigActivationManager::TryActivateShardServer(uint64_t nodeID, bool force
             if (paxosID >= (itQuorum->paxosID - RLOG_REACTIVATION_DIFF) ||
              itQuorum->paxosID <= RLOG_REACTIVATION_DIFF)
             {
-                if (!force && !shardServer->tryAutoActivation)
+                if (!disregardPrevious && !shardServer->tryAutoActivation)
                     continue;
 
                 // the shard server is "almost caught up", start the activation process

@@ -699,7 +699,7 @@ bool ConfigState::CompleteDeactivateShardServer(ConfigMessage& message)
 
     if (quorum->IsActiveMember(message.nodeID))
     {
-        if (quorum->activeNodes.GetLength() == 1)
+        if (!message.force && quorum->activeNodes.GetLength() == 1)
             return false;
 
         return true;

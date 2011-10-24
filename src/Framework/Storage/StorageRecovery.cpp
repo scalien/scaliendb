@@ -44,8 +44,6 @@ bool StorageRecovery::TryRecovery(StorageEnvironment* env_)
     }
     
     CreateMemoChunks(); 
-       
-    ReadFileChunks();
     
     // compute the max. (logSegmentID, commandID) for each shard's chunk
     // log entries smaller must not be applied to its memo chunk
@@ -130,7 +128,9 @@ bool StorageRecovery::TryReadTOC(Buffer& filename)
     parse.ReadLittle32(version);
     parse.Advance(4);
 
+    Log_Message("Opening chunk files...");
     ReadShards(version, parse);
+    Log_Message("Opening done.");
     
     fd.Close();
     
@@ -194,12 +194,12 @@ bool StorageRecovery::ReadShardVersion1(ReadBuffer& parse)
     parse.Advance(parse.Readf("%#B", &shard->firstKey));
     parse.Advance(parse.Readf("%#B", &shard->lastKey));
     parse.Advance(parse.Readf("%b", &shard->useBloomFilter));
-    parse.Advance(parse.Readf("%b", &shard->isLogStorage));
+    parse.Advance(parse.Readf("%c", &shard->storageType));
 
     if (!parse.ReadLittle32(numChunks))
         return false;
     parse.Advance(4);
-    
+
     for (i = 0; i < numChunks; i++)
     {
         if (!parse.ReadLittle64(chunkID))
@@ -237,16 +237,6 @@ void StorageRecovery::CreateMemoChunks()
 
     FOREACH (it, env->shards)
         it->memoChunk = new StorageMemoChunk(env->nextChunkID++, it->UseBloomFilter());
-}
-
-void StorageRecovery::ReadFileChunks()
-{
-    StorageFileChunk* it;
-    
-    Log_Message("Opening chunk files...");
-    
-    FOREACH (it, env->fileChunks)
-        it->ReadHeaderPage();
 }
 
 void StorageRecovery::ComputeShardRecovery()
@@ -774,7 +764,7 @@ void StorageRecovery::ExecuteSet(
     if (!memoChunk->Set(key, value))
         ASSERT_FAIL();
 
-    if (shard->IsLogStorage())
+    if (shard->GetStorageType() == STORAGE_SHARD_TYPE_LOG)
     {
         // remove old entries from the head of the log if its size exceeds chunkSize and we don't want filechunks
         while (memoChunk->GetSize() > env->GetConfig().chunkSize && env->config.numLogSegmentFileChunks == 0)
@@ -796,7 +786,7 @@ void StorageRecovery::ExecuteDelete(
     if (shard == NULL)
         return; // shard was deleted
 
-    if (shard->IsLogStorage())
+    if (shard->GetStorageType() == STORAGE_SHARD_TYPE_LOG)
         ASSERT_FAIL();
     
     if (shard->logSegmentID > logSegmentID)
@@ -834,7 +824,7 @@ void StorageRecovery::TryWriteChunks()
 
     FOREACH (shard, env->shards)
     {
-        if (shard->IsLogStorage() && env->config.numLogSegmentFileChunks == 0)
+        if (shard->GetStorageType() == STORAGE_SHARD_TYPE_LOG && env->config.numLogSegmentFileChunks == 0)
             continue; // never serialize log storage shards
         
         memoChunk = shard->GetMemoChunk();

@@ -486,7 +486,7 @@ bool StorageEnvironment::Set(uint16_t contextID, uint64_t shardID, ReadBuffer ke
     memoChunk = shard->GetMemoChunk();
     ASSERT(memoChunk != NULL);
     
-    if (shard->IsLogStorage())
+    if (shard->GetStorageType() == STORAGE_SHARD_TYPE_LOG)
     {
         // approximate size
         keyValueSize = key.GetLength() + value.GetLength();
@@ -516,7 +516,7 @@ bool StorageEnvironment::Delete(uint16_t contextID, uint64_t shardID, ReadBuffer
     if (shard == NULL)
         return false;
 
-    if (shard->IsLogStorage())
+    if (shard->GetStorageType() == STORAGE_SHARD_TYPE_LOG)
         ASSERT_FAIL();
 
     logSegment = GetLogSegment(shard->GetTrackID());
@@ -748,7 +748,7 @@ bool StorageEnvironment::PushMemoChunk(uint16_t contextID, uint64_t shardID)
     if (shard == NULL)
         return false;
 
-    if (shard->IsLogStorage() && config.numLogSegmentFileChunks == 0)
+    if (shard->GetStorageType() == STORAGE_SHARD_TYPE_LOG && config.numLogSegmentFileChunks == 0)
         return false; // never serialize log storage shards if we don't want file chunks
     
     memoChunk = shard->GetMemoChunk();            
@@ -919,7 +919,7 @@ StorageShard* StorageEnvironment::GetShard(uint16_t contextID, uint64_t shardID)
 
 bool StorageEnvironment::CreateShard(uint64_t trackID,
  uint16_t contextID, uint64_t shardID, uint64_t tableID,
- ReadBuffer firstKey, ReadBuffer lastKey, bool useBloomFilter, bool isLogStorage)
+ ReadBuffer firstKey, ReadBuffer lastKey, bool useBloomFilter, char storageType)
 {
     bool                ret;
     uint64_t            logSegmentID, nextLogSegmentID;
@@ -946,7 +946,10 @@ bool StorageEnvironment::CreateShard(uint64_t trackID,
     }
 
     if (shard != NULL)
+    {
+        shard->SetStorageType(storageType);
         return false;       // already exists
+    }
 
     Log_Debug("Creating shard %u/%U", contextID, shardID);
 
@@ -958,7 +961,7 @@ bool StorageEnvironment::CreateShard(uint64_t trackID,
     shard->SetFirstKey(firstKey);
     shard->SetLastKey(lastKey);
     shard->SetUseBloomFilter(useBloomFilter);
-    shard->SetLogStorage(isLogStorage);
+    shard->SetStorageType(storageType);
     shard->SetLogSegmentID(logSegment->GetLogSegmentID());
     shard->SetLogCommandID(logSegment->GetLogCommandID());
     shard->PushMemoChunk(new StorageMemoChunk(nextChunkID++, useBloomFilter));
@@ -1172,7 +1175,7 @@ void StorageEnvironment::TrySerializeChunks()
         if (memoChunk->GetSize() == 0)
             continue;
 
-        if (shard->IsLogStorage() && config.numLogSegmentFileChunks == 0)
+        if (shard->GetStorageType() == STORAGE_SHARD_TYPE_LOG && config.numLogSegmentFileChunks == 0)
             continue; // never serialize log storage shards if we don't want filechunks
         
         logSegment = GetLogSegment(shard->GetTrackID());
@@ -1286,10 +1289,11 @@ void StorageEnvironment::TryArchiveLogSegments()
 {
     bool                archive;
     uint64_t            logSegmentID;
+    uint64_t            minLogSegmentID;
     StorageLogSegment*  logSegment;
-    StorageShard*       itShard;
+    StorageShard*       shard;
     StorageMemoChunk*   memoChunk;
-    StorageChunk**      itChunk;
+    StorageChunk**      chunk;
     
     Log_Trace();
 
@@ -1305,27 +1309,40 @@ void StorageEnvironment::TryArchiveLogSegments()
 
         archive = true;
         logSegmentID = logSegment->GetLogSegmentID();
-        FOREACH (itShard, shards)
+        FOREACH (shard, shards)
         {
-            if (itShard->IsLogStorage())
-                continue; // log storage shards never hinder log segment archival
-            if (itShard->GetTrackID() != logSegment->GetTrackID())
+            if (shard->GetTrackID() != logSegment->GetTrackID())
                 continue;
+            if (shard->GetStorageType() == STORAGE_SHARD_TYPE_LOG)
+                continue; // log storage shards never hinder log segment archival
 
-            memoChunk = itShard->GetMemoChunk();
-            if (memoChunk->GetSize() > 0 &&
-             memoChunk->GetMinLogSegmentID() > 0 && memoChunk->GetMinLogSegmentID() <= logSegmentID)
-                archive = false;
-            FOREACH (itChunk, itShard->GetChunks())
+            memoChunk = shard->GetMemoChunk();
+
+            if (shard->GetStorageType() == STORAGE_SHARD_TYPE_DUMP)
             {
-                if ((*itChunk)->GetChunkState() <= StorageChunk::Unwritten)
+                if (logSegmentID + 1 < memoChunk->GetMaxLogSegmentID())
+                    continue;
+                // dump storage shard has been written to a higher numbered log segment, do not hinder archival
+            }
+
+            minLogSegmentID = memoChunk->GetMinLogSegmentID();
+            if (memoChunk->GetSize() > 0 && minLogSegmentID > 0 && minLogSegmentID <= logSegmentID)
+            {
+                archive = false;
+                break;
+            }
+
+            FOREACH (chunk, shard->GetChunks())
+            {
+                minLogSegmentID = (*chunk)->GetMinLogSegmentID();
+                if ((*chunk)->GetChunkState() <= StorageChunk::Unwritten && minLogSegmentID <= logSegmentID)
                 {
-                    ASSERT((*itChunk)->GetMinLogSegmentID() > 0);
-                    if ((*itChunk)->GetMinLogSegmentID() <= logSegmentID)
-                        archive = false;
+                    archive = false;
+                    break;
                 }
             }
         }
+
         if (archive)
         {
             archiveLogJobs.Execute(new StorageArchiveLogSegmentJob(this, logSegment, archiveScript));
@@ -1347,7 +1364,7 @@ void StorageEnvironment::TryDeleteLogSegmentFileChunks()
 
     FOREACH (shard, shards)
     {
-        if (!shard->IsLogStorage())
+        if (shard->GetStorageType() != STORAGE_SHARD_TYPE_LOG)
             continue;
         if (shard->GetChunks().GetLength() > config.numLogSegmentFileChunks)
         {

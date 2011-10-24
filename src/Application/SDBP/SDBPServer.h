@@ -21,10 +21,11 @@ public:
     void            Shutdown();
     
     void            InitConn(SDBPConnection* conn);
-    
     void            SetContext(SDBPContext* context);
+    void            UseKeepAlive(bool useKeepAlive_);
 
 private:
+    bool            useKeepAlive;
     SDBPContext*    context;
 };
 

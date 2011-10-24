@@ -32,7 +32,7 @@ void ReplicationConfig::Init(StorageShardProxy* shard_)
 
     // TODO: HACK
     shard->GetEnvironment()->CreateShard(0, shard->GetContextID(), shard->GetShardID(), 
-     0, "", "", true, false);
+     0, "", "", true, STORAGE_SHARD_TYPE_STANDARD);
     
     ret = shard->Get(ReadBuffer("nodeID"), value);
     nread = 0;
@@ -41,10 +41,6 @@ void ReplicationConfig::Init(StorageShardProxy* shard_)
     {
         Log_Message("No nodeID read from database");
         nodeID = 0;
-    }
-    else
-    {
-        Log_Message("My nodeID is %U", nodeID);
     }
 
     ret = shard->Get(ReadBuffer("runID"), value);

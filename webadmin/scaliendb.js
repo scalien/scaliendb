@@ -437,7 +437,11 @@ var scaliendb =
 		
 		decode: function(jsontext)
 		{
-			return JSON.parse(jsontext);
+			try {
+				return JSON.parse(jsontext);
+			} catch (e) {
+				return null;
+			}
 		}
 	},
 

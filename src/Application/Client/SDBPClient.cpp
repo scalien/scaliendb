@@ -1210,7 +1210,14 @@ void Client::ReassignRequest(Request* req)
     // find quorum by key
     key.Wrap(req->key);
     if (!GetQuorumID(req->tableID, key, quorumID))
-        ASSERT_FAIL();
+    {
+        ClientResponse  response;
+
+        response.BadSchema();
+        response.commandID = req->commandID;
+        result->AppendRequestResponse(&response);
+        return;
+    }
 
     // reassign the request to the new quorum
     req->quorumID = quorumID;
@@ -1259,8 +1266,10 @@ bool Client::GetQuorumID(uint64_t tableID, ReadBuffer& key, uint64_t& quorumID)
     if (!table)
     {
         Log_Trace("table is NULL; tableID = %U, key = %R, quorumID = %U", tableID, &key, quorumID);
+        // not found
+        return false;
     }
-    ASSERT(table != NULL);
+    
     FOREACH (it, table->shards)
     {
         shard = configState.GetShard(*it);

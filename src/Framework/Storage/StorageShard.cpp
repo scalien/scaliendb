@@ -10,7 +10,7 @@ StorageShard::StorageShard()
     memoChunk = NULL;
     recoveryLogSegmentID = 0;
     recoveryLogCommandID = 0;
-    isLogStorage = false;
+    storageType = STORAGE_SHARD_TYPE_STANDARD;
 }
 
 StorageShard::~StorageShard()
@@ -75,9 +75,9 @@ void StorageShard::SetUseBloomFilter(bool useBloomFilter_)
     useBloomFilter = useBloomFilter_;
 }
 
-void StorageShard::SetLogStorage(bool isLogStorage_)
+void StorageShard::SetStorageType(char storageType_)
 {
-    isLogStorage = isLogStorage_;
+    storageType = storageType_;
 }
 
 uint64_t StorageShard::GetTrackID()
@@ -125,9 +125,9 @@ bool StorageShard::UseBloomFilter()
     return useBloomFilter;
 }
 
-bool StorageShard::IsLogStorage()
+char StorageShard::GetStorageType()
 {
-    return isLogStorage;
+    return storageType;
 }
 
 bool StorageShard::IsSplitable()
@@ -200,7 +200,7 @@ void StorageShard::GetMergeInputChunks(List<StorageFileChunk*>& inputChunks)
     StorageFileChunk*       fileChunk;
     StorageChunk**          itChunk;
 
-    if (IsLogStorage())
+    if (GetStorageType() == STORAGE_SHARD_TYPE_LOG)
         return;
 
     if (IsSplitable() && tableID > 0)
