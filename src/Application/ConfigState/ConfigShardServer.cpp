@@ -119,6 +119,12 @@ bool QuorumShardInfo::WriteList(Buffer& buffer, List<QuorumShardInfo>& quorumSha
     return true;
 }
 
+QuorumPriority::QuorumPriority()
+{
+    quorumID = 0;
+    priority = 0;
+}
+
 ConfigShardServer::ConfigShardServer()
 {
     prev = next = this;
@@ -144,9 +150,22 @@ ConfigShardServer& ConfigShardServer::operator=(const ConfigShardServer& other)
     
     quorumInfos = other.quorumInfos;
     quorumShardInfos = other.quorumShardInfos;
+    quorumPriorities = other.quorumPriorities;
 
     prev = next = this;
     
     return *this;
 }
 
+uint64_t ConfigShardServer::GetQuorumPriority(uint64_t quorumID)
+{
+    QuorumPriority* quorumPriority;
+
+    FOREACH(quorumPriority, quorumPriorities)
+    {
+        if (quorumPriority->quorumID == quorumID)
+            return quorumPriority->priority;
+    }
+
+    return 1;
+}

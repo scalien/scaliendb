@@ -619,6 +619,8 @@ ClientRequest* ConfigHTTPClientSession::ProcessConfigCommand(ReadBuffer& cmd)
         return ProcessAddShardServerToQuorum();
     if (HTTP_MATCH_COMMAND(cmd, "removeShardserverFromQuorum"))
         return ProcessRemoveShardServerFromQuorum();
+    if (HTTP_MATCH_COMMAND(cmd, "setPriority"))
+        return ProcessSetPriority();
     if (HTTP_MATCH_COMMAND(cmd, "createDatabase"))
         return ProcessCreateDatabase();
     if (HTTP_MATCH_COMMAND(cmd, "renameDatabase"))
@@ -792,6 +794,23 @@ ClientRequest* ConfigHTTPClientSession::ProcessRemoveShardServerFromQuorum()
 
     request = new ClientRequest;
     request->RemoveShardServerFromQuorum(0, quorumID, nodeID);
+
+    return request;
+}
+
+ClientRequest* ConfigHTTPClientSession::ProcessSetPriority()
+{
+    ClientRequest*  request;
+    uint64_t        quorumID;
+    uint64_t        nodeID;
+    uint64_t        priority;
+
+    HTTP_GET_U64_PARAM(params, "quorumID", quorumID);
+    HTTP_GET_U64_PARAM(params, "nodeID", nodeID);
+    HTTP_GET_U64_PARAM(params, "priority", priority);
+
+    request = new ClientRequest;
+    request->SetPriority(0, quorumID, nodeID, priority);
 
     return request;
 }

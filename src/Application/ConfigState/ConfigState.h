@@ -112,6 +112,7 @@ private:
     bool                CompleteRemoveShardServerFromQuorum(ConfigMessage& message);
     bool                CompleteActivateShardServer(ConfigMessage& message);
     bool                CompleteDeactivateShardServer(ConfigMessage& message);
+    bool                CompleteSetPriority(ConfigMessage& message);
     bool                CompleteCreateDatabase(ConfigMessage& message);
     bool                CompleteRenameDatabase(ConfigMessage& message);
     bool                CompleteDeleteDatabase(ConfigMessage& message);
@@ -136,6 +137,7 @@ private:
     void                OnRemoveNode(ConfigMessage& message);
     void                OnActivateShardServer(ConfigMessage& message);
     void                OnDeactivateShardServer(ConfigMessage& message);
+    void                OnSetPriority(ConfigMessage& message);
     void                OnCreateDatabase(ConfigMessage& message);
     void                OnRenameDatabase(ConfigMessage& message);
     void                OnDeleteDatabase(ConfigMessage& message);
@@ -184,8 +186,10 @@ private:
 
     bool                ReadShardServer(ConfigShardServer& database,
                          ReadBuffer& buffer, bool withVolatile);
+    bool                ReadQuorumPriorities(ConfigShardServer& database, ReadBuffer& buffer);
     void                WriteShardServer(ConfigShardServer& shardServer,
                          Buffer& buffer, bool withVolatile);
+    void                WriteQuorumPriorities(ConfigShardServer& shardServer, Buffer& buffer);
                          
     bool                ReadNextIDs(ReadBuffer& buffer);
     void                WriteNextIDs(Buffer& buffer);

@@ -177,6 +177,8 @@ bool ConfigState::CompleteMessage(ConfigMessage& message)
             return CompleteActivateShardServer(message);
         case CONFIGMESSAGE_DEACTIVATE_SHARDSERVER:
             return CompleteDeactivateShardServer(message);
+        case CONFIGMESSAGE_SET_PRIORITY:
+            return CompleteSetPriority(message);
 
         /* Database management */
         case CONFIGMESSAGE_CREATE_DATABASE:
@@ -380,6 +382,8 @@ void ConfigState::OnMessage(ConfigMessage& message)
             return OnActivateShardServer(message);
         case CONFIGMESSAGE_DEACTIVATE_SHARDSERVER:
             return OnDeactivateShardServer(message);
+        case CONFIGMESSAGE_SET_PRIORITY:
+            return OnSetPriority(message);
 
         /* Database management */
         case CONFIGMESSAGE_CREATE_DATABASE:
@@ -706,6 +710,25 @@ bool ConfigState::CompleteDeactivateShardServer(ConfigMessage& message)
     }
 
     return false;
+}
+
+bool ConfigState::CompleteSetPriority(ConfigMessage& message)
+{
+    ConfigQuorum*       quorum;
+    ConfigShardServer*  shardServer;
+    
+    quorum = GetQuorum(message.quorumID);
+    if (quorum == NULL)
+        return false; // no such quorum
+
+    shardServer = GetShardServer(message.nodeID);
+    if (shardServer == NULL)
+        return false; // no such shard server
+
+    if (!quorum->IsActiveMember(message.nodeID) && !quorum->IsInactiveMember(message.nodeID))
+        return false;
+
+    return true;
 }
 
 bool ConfigState::CompleteCreateDatabase(ConfigMessage& message)
@@ -1082,7 +1105,30 @@ void ConfigState::OnDeactivateShardServer(ConfigMessage& message)
     quorum->inactiveNodes.Add(message.nodeID);
 
     Log_Message("Deactivating shard server %U in quorum %U...", message.nodeID, message.quorumID);
+}
 
+void ConfigState::OnSetPriority(ConfigMessage& message)
+{
+    QuorumPriority          quorumPriority;
+    QuorumPriority*         itQuorumPriority;
+    ConfigShardServer*      shardServer;
+    
+    shardServer = GetShardServer(message.nodeID);
+    // make sure shard server exists
+    ASSERT(shardServer != NULL);
+
+    FOREACH(itQuorumPriority, shardServer->quorumPriorities)
+    {
+        if (itQuorumPriority->quorumID == message.quorumID)
+        {
+            itQuorumPriority->priority = message.priority;
+            return;
+        }
+    }
+
+    quorumPriority.quorumID = message.quorumID;
+    quorumPriority.priority = message.priority;
+    shardServer->quorumPriorities.Append(quorumPriority);
 }
 
 void ConfigState::OnCreateDatabase(ConfigMessage& message)
@@ -1776,10 +1822,37 @@ bool ConfigState::ReadShardServer(ConfigShardServer& shardServer, ReadBuffer& bu
          &shardServer.httpPort, &shardServer.sdbpPort, &shardServer.hasHeartbeat);
         CHECK_ADVANCE(6);
         READ_SEPARATOR();
-        return QuorumInfo::ReadList(buffer, shardServer.quorumInfos);
+        if (!QuorumInfo::ReadList(buffer, shardServer.quorumInfos))
+            return false;
     }
-    else
+
+    return ReadQuorumPriorities(shardServer, buffer);
+}
+
+bool ConfigState::ReadQuorumPriorities(ConfigShardServer& shardServer, ReadBuffer& buffer)
+{
+    unsigned                i, num;
+    int                     read;
+    QuorumPriority          quorumPriority;
+
+    if (buffer.GetLength() == 0 || buffer.GetCharAt(0) != 'O')
+    {
+        // QuorumPriorities not present
         return true;
+    }
+    
+    num = 0;
+    read = buffer.Readf("O:%u", &num);
+    CHECK_ADVANCE(3);
+
+    for (i = 0; i < num; i++)
+    {
+        read = buffer.Readf(":%U:%U", &quorumPriority.quorumID, &quorumPriority.priority);
+        CHECK_ADVANCE(4);
+        shardServer.quorumPriorities.Append(quorumPriority);
+    }
+
+    return true;
 }
 
 void ConfigState::WriteShardServer(ConfigShardServer& shardServer, Buffer& buffer, bool withVolatile)
@@ -1788,7 +1861,7 @@ void ConfigState::WriteShardServer(ConfigShardServer& shardServer, Buffer& buffe
     
     endpoint = shardServer.endpoint.ToReadBuffer();
     buffer.Appendf("%U:%#R", shardServer.nodeID, &endpoint);
-    
+ 
     if (withVolatile)
     {
         buffer.Appendf(":%u:%u:%b",
@@ -1796,6 +1869,17 @@ void ConfigState::WriteShardServer(ConfigShardServer& shardServer, Buffer& buffe
         buffer.Appendf(":");
         QuorumInfo::WriteList(buffer, shardServer.quorumInfos);
     }
+
+    WriteQuorumPriorities(shardServer, buffer);
+}
+
+void ConfigState::WriteQuorumPriorities(ConfigShardServer& shardServer, Buffer& buffer)
+{
+    QuorumPriority* quorumPriority;
+
+    buffer.Appendf("O:%u", shardServer.quorumPriorities.GetLength());
+    FOREACH(quorumPriority, shardServer.quorumPriorities)
+        buffer.Appendf(":%U:%U", quorumPriority->quorumID, quorumPriority->priority);
 }
 
 bool ConfigState::ReadNextIDs(ReadBuffer& buffer)

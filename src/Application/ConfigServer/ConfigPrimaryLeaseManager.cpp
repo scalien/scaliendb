@@ -5,6 +5,8 @@
 #include "ConfigQuorumProcessor.h"
 #include "ConfigActivationManager.h"
 
+#define CONFIG_STATE (configServer->GetDatabaseManager()->GetConfigState())
+
 void ConfigPrimaryLeaseManager::Init(ConfigServer* configServer_)
 {
     configServer = configServer_;
@@ -19,38 +21,35 @@ void ConfigPrimaryLeaseManager::Shutdown()
 void ConfigPrimaryLeaseManager::OnPrimaryLeaseTimeout()
 {
     uint64_t        now;
-    ConfigState*    configState;
     ConfigQuorum*   quorum;
     ConfigShard*    shard;
-    PrimaryLease*   itLease;
+    PrimaryLease*   primaryLease;
     
     now = EventLoop::Now();
     
-    configState = configServer->GetDatabaseManager()->GetConfigState();
-
     shard = NULL;
-    if (configState->isMigrating)
-        shard = configState->GetShard(configState->migrateSrcShardID);
+    if (CONFIG_STATE->isMigrating)
+        shard = CONFIG_STATE->GetShard(CONFIG_STATE->migrateSrcShardID);
     
-    for (itLease = primaryLeases.First(); itLease != NULL; /* advanced in body */)
+    for (primaryLease = primaryLeases.First(); primaryLease != NULL; /* advanced in body */)
     {
-        if (itLease->expireTime < now)
+        if (primaryLease->expireTime < now)
         {
-            quorum = configState->GetQuorum(itLease->quorumID);
+            quorum = CONFIG_STATE->GetQuorum(primaryLease->quorumID);
 
             Log_Debug("Node %U lost the primary lease for quorum %U",
-             itLease->nodeID, itLease->quorumID);
+             primaryLease->nodeID, primaryLease->quorumID);
             
             // look for migration
-            if (configState->isMigrating)
+            if (CONFIG_STATE->isMigrating)
             {
                 ASSERT(shard != NULL);
                 
-                if (configState->migrateQuorumID == quorum->quorumID || // migration dst
-                 shard->quorumID == quorum->quorumID)                   // migration src
+                if (CONFIG_STATE->migrateQuorumID == quorum->quorumID || // migration dst
+                 shard->quorumID == quorum->quorumID)                    // migration src
                 {
                     Log_Message("Aborting shard migration...");                    
-                    configState->OnAbortShardMigration();
+                    CONFIG_STATE->OnAbortShardMigration();
                 }
             }
             
@@ -59,7 +58,7 @@ void ConfigPrimaryLeaseManager::OnPrimaryLeaseTimeout()
                 quorum->hasPrimary = false;
                 quorum->primaryID = 0;
             }
-            itLease = primaryLeases.Delete(itLease);            
+            primaryLease = primaryLeases.Delete(primaryLease);            
         }
         else
             break;
@@ -72,8 +71,11 @@ void ConfigPrimaryLeaseManager::OnPrimaryLeaseTimeout()
 
 void ConfigPrimaryLeaseManager::OnRequestPrimaryLease(ClusterMessage& message)
 {
-    ConfigQuorum*   quorum;
-    PrimaryLease*   primaryLease;
+    uint64_t            priority;
+    uint64_t*           itNodeID;
+    ConfigQuorum*       quorum;
+    ConfigShardServer*  shardServer;
+    PrimaryLease*       primaryLease;
 
     Log_Trace("nodeID %U requesting lease %U for quorum %U",
         message.nodeID, message.proposalID, message.quorumID);
@@ -92,9 +94,26 @@ void ConfigPrimaryLeaseManager::OnRequestPrimaryLease(ClusterMessage& message)
     
     if (!quorum->IsActiveMember(message.nodeID))
     {
-        Log_Trace("nodeID %U requesting lease but not active member or quorum %U",
+        Log_Trace("nodeID %U requesting lease but not active member of quorum %U",
          message.nodeID, message.quorumID);
         return;
+    }
+
+    shardServer = CONFIG_STATE->GetShardServer(message.nodeID);
+    priority = shardServer->GetQuorumPriority(message.quorumID);
+    if (priority == 0)
+    {
+        Log_Trace("nodeID %U requesting lease but priority is 0 in quorum %U",
+         message.nodeID, message.quorumID);
+        return;
+    }
+    FOREACH(itNodeID, quorum->activeNodes)
+    {
+        if (!configServer->GetHeartbeatManager()->HasHeartbeat(*itNodeID))
+            continue;
+        shardServer = CONFIG_STATE->GetShardServer(*itNodeID);
+        if (shardServer->GetQuorumPriority(message.quorumID) > priority)
+            return; // a higher priority shard server is active
     }
 
     FOREACH(primaryLease, primaryLeases)
@@ -159,9 +178,6 @@ void ConfigPrimaryLeaseManager::ExtendPrimaryLease(ConfigQuorum& quorum, Cluster
     PrimaryLease*           it;
     ClusterMessage          response;
     SortedList<uint64_t>    activeNodes;
-
-    if (!configServer->GetQuorumProcessor()->IsMaster())
-        return;
 
     FOREACH (it, primaryLeases)
     {

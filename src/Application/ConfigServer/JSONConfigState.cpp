@@ -302,6 +302,7 @@ void JSONConfigState::WriteShardServer(ConfigShardServer* server)
 {
     QuorumInfo*         quorumInfo;
     QuorumShardInfo*    quorumShardInfo;
+    QuorumPriority*     quorumPriority;
     
     json->PrintObjectStart();
 
@@ -340,7 +341,18 @@ void JSONConfigState::WriteShardServer(ConfigShardServer* server)
         WriteQuorumShardInfo(quorumShardInfo);
 
     json->PrintArrayEnd();
-        
+
+    json->PrintComma();
+
+    json->PrintString("quorumPriorities");
+    json->PrintColon();
+    json->PrintArrayStart();
+
+    FOREACH (quorumPriority, server->quorumPriorities)
+        WriteQuorumPriority(quorumPriority);
+
+    json->PrintArrayEnd();
+
     json->PrintObjectEnd();
 }
 
@@ -388,6 +400,17 @@ void JSONConfigState::WriteQuorumShardInfo(QuorumShardInfo* info)
         json->PrintComma();
         JSON_NUMBER(info, migrationThroughput);
     }
+    
+    json->PrintObjectEnd();    
+}
+
+void JSONConfigState::WriteQuorumPriority(QuorumPriority* prio)
+{
+    json->PrintObjectStart();
+
+    JSON_NUMBER(prio, quorumID);
+    json->PrintComma();
+    JSON_NUMBER(prio, priority);
     
     json->PrintObjectEnd();    
 }

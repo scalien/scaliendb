@@ -1092,14 +1092,20 @@ function createQuorumDiv(configState, quorum)
 	{
 		var nodeID = quorum["activeNodes"][i];
 		var shardServer = scaliendb.getShardServer(configState, nodeID);
+		var priority = 1;
+		for (var qp in shardServer["quorumPriorities"])
+		{
+			if (shardServer["quorumPriorities"][qp]["quorumID"] == quorum["quorumID"])
+				priority = shardServer["quorumPriorities"][qp]["priority"]
+		}
 		var quorumInfo = scaliendb.getQuorumInfo(configState, nodeID, quorum["quorumID"]);
-		var infoText = "";
+		var infoText = " [prio = " + priority + ", ";
 		if (quorumInfo != null)
 		{
 			if (paxosID !== "unknown")
-				infoText += " [" + paxosID + "]";
+				infoText += " repl = " + paxosID + "]";
 			else
-				infoText += " [" + quorumInfo["paxosID"] + "]";
+				infoText += " repl = " + quorumInfo["paxosID"] + "]";
 			if (quorumInfo["isSendingCatchup"])
 				catchupText += "Shard server " + nodeID + " is sending catchup: " + scaliendb.util.humanBytes(quorumInfo["catchupBytesSent"]) + "/" + scaliendb.util.humanBytes(quorumInfo["catchupBytesTotal"]) + " (" + scaliendb.util.humanBytes(quorumInfo["catchupThroughput"]) + "/s)";
 		}
@@ -1122,10 +1128,16 @@ function createQuorumDiv(configState, quorum)
 	{
 		var nodeID = quorum["inactiveNodes"][i];
 		var shardServer = scaliendb.getShardServer(configState, nodeID);
+		var priority = 1;
+		for (var qp in shardServer["quorumPriorities"])
+		{
+			if (shardServer["quorumPriorities"][qp]["quorumID"] == quorum["quorumID"])
+				priority = shardServer["quorumPriorities"][qp]["priority"]
+		}
 		var quorumInfo = scaliendb.getQuorumInfo(configState, nodeID, quorum["quorumID"]);
-		var infoText = "";
+		var infoText = " [prio = " + priority + ", ";
 		if (quorumInfo != null)
-			infoText += " [" + quorumInfo["paxosID"] + "]";
+			infoText += " repl = " + quorumInfo["paxosID"] + "]";
 		if (shardServer["hasHeartbeat"] && primaryID != null)
 			html += ' <a class="no-line" style="color:black" title="Activate shard server" href="javascript:activateNode(' + quorum["quorumID"] + ", " + nodeID + ')"><span class="shardserver-number healthy">' + nodeID + infoText + ' (click to activate)</span></a> ';
 		else

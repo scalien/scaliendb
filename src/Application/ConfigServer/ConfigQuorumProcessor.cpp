@@ -822,6 +822,12 @@ void ConfigQuorumProcessor::ConstructMessage(ClientRequest* request, ConfigMessa
             message->quorumID = request->quorumID;
             message->nodeID = request->nodeID;
             return;
+        case CLIENTREQUEST_SET_PRIORITY:
+            message->type = CONFIGMESSAGE_SET_PRIORITY;
+            message->quorumID = request->quorumID;
+            message->nodeID = request->nodeID;
+            message->priority = request->priority;
+            return;
         case CLIENTREQUEST_CREATE_DATABASE:
             message->type = CONFIGMESSAGE_CREATE_DATABASE;
             message->name.Wrap(request->name);
@@ -897,6 +903,9 @@ void ConfigQuorumProcessor::ConstructResponse(ConfigMessage* message, ClientResp
             response->OK();
             return;
         case CLIENTREQUEST_REMOVE_SHARDSERVER_FROM_QUORUM:
+            response->OK();
+            return;
+        case CLIENTREQUEST_SET_PRIORITY:
             response->OK();
             return;
         case CLIENTREQUEST_CREATE_DATABASE:

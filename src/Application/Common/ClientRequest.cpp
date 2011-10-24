@@ -21,6 +21,7 @@ void ClientRequest::Init()
     nodeID = 0;
     paxosID = 0;
     configPaxosID = 0;
+    priority = 0;
     number = 0;
     count = 0;
     changeTimeout = 0;
@@ -59,6 +60,7 @@ bool ClientRequest::IsControllerRequest()
         type == CLIENTREQUEST_ADD_SHARDSERVER_TO_QUORUM         ||
         type == CLIENTREQUEST_REMOVE_SHARDSERVER_FROM_QUORUM    ||
         type == CLIENTREQUEST_ACTIVATE_SHARDSERVER              ||
+        type == CLIENTREQUEST_SET_PRIORITY                      ||
         type == CLIENTREQUEST_CREATE_DATABASE                   ||
         type == CLIENTREQUEST_RENAME_DATABASE                   ||
         type == CLIENTREQUEST_DELETE_DATABASE                   ||
@@ -199,6 +201,16 @@ bool ClientRequest::ActivateShardServer(uint64_t commandID_, uint64_t nodeID_)
     type = CLIENTREQUEST_ACTIVATE_SHARDSERVER;
     commandID = commandID_;
     nodeID = nodeID_;
+    return true;
+}
+
+bool ClientRequest::SetPriority(uint64_t commandID_, uint64_t quorumID_, uint64_t nodeID_, uint64_t priority_)
+{
+    type = CLIENTREQUEST_SET_PRIORITY;
+    commandID = commandID_;
+    quorumID = quorumID_;
+    nodeID = nodeID_;
+    priority = priority_;
     return true;
 }
 

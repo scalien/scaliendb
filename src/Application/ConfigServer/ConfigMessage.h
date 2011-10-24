@@ -18,6 +18,7 @@
 #define CONFIGMESSAGE_REMOVE_SHARDSERVER_FROM_QUORUM    'b'
 #define CONFIGMESSAGE_ACTIVATE_SHARDSERVER              'p'
 #define CONFIGMESSAGE_DEACTIVATE_SHARDSERVER            'm'
+#define CONFIGMESSAGE_SET_PRIORITY                      'P'
 
 #define CONFIGMESSAGE_CREATE_DATABASE                   'C'
 #define CONFIGMESSAGE_RENAME_DATABASE                   'R'
@@ -64,6 +65,7 @@ public:
     uint64_t        newShardID;
     uint64_t        srcShardID;
     uint64_t        dstShardID;
+    uint64_t        priority;
     ReadBuffer      name;
     ReadBuffer      firstKey;
     Buffer          splitKey;
@@ -95,6 +97,8 @@ public:
                      uint64_t quorumID, uint64_t nodeID, bool force);
     bool            DeactivateShardServer(
                      uint64_t quorumID, uint64_t nodeID, bool force);
+    bool            SetPriority(
+                     uint64_t quorumID, uint64_t nodeID, uint64_t priority);
 
     // Database management
     bool            CreateDatabase(

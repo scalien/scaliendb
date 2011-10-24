@@ -41,6 +41,7 @@ private:
     void                WriteShardServer(ConfigShardServer* server);
     void                WriteQuorumInfo(QuorumInfo* info);
     void                WriteQuorumShardInfo(QuorumShardInfo* info);
+    void                WriteQuorumPriority(QuorumPriority* priority);
 
     template<typename List>
     void                WriteIDList(List& list);
