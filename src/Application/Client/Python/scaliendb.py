@@ -266,6 +266,9 @@ class Client:
 
         def set(self, key, value):
             return self._client._set(self._table_id, key, value)
+
+        def add(self, key, number):
+            return self._client._add(self._table_id, key, number)
         
         def delete(self, key):
             return self._client._delete(self._table_id, key)

@@ -186,6 +186,34 @@ import java.util.Map;
     public void set(byte[] key, byte[] value) throws SDBPException {
         client.set(tableID, key, value);
     }
+
+    /**
+     * Add a number to a value, assuming the value is also a number.
+     * If the key does not exist, this operation will create it and
+     * set the number, as if the value was 0 before.
+     * @param key The key.
+     * @param number The number.
+     * @return The incremented value.
+     * @exception SDBPException 
+     * @see #add(byte[], long) 
+     */
+    public long add(String key, long number) throws SDBPException {
+        return client.add(tableID, key, number);
+    }
+
+    /**
+     * Add a number to a value, assuming the value is also a number.
+     * If the key does not exist, this operation will create it and
+     * set the number, as if the value was 0 before.
+     * @param key The key.
+     * @param number The number.
+     * @return The incremented value.
+     * @exception SDBPException 
+     * @see #add(string, long) 
+     */
+    public long add(byte[] key, long number) throws SDBPException {
+        return client.add(tableID, key, number);
+    }
     
     /**
      * Delete a key-value pair by key in the table.

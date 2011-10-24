@@ -231,6 +231,36 @@ namespace Scalien
         }
 
         /// <summary>
+        /// Add a number to a value, assuming the value is also a number.
+        /// If the key does not exist, this operation will create it and
+        /// set the number, as if the value was 0 before.
+        /// </summary>
+        /// <param name="key">The key.</param>
+        /// <param name="number">The number.</param>
+        /// <returns>The incremented value.</returns>
+        /// <exception cref="SDBPException"/>
+        /// <seealso cref="Add(byte[], long)"/>
+        public long Add(string key, long number)
+        {
+            return client.Add(tableID, key, number);
+        }
+
+        /// <summary>
+        /// Add a number to a value, assuming the value is also a number.
+        /// If the key does not exist, this operation will create it and
+        /// set the number, as if the value was 0 before.
+        /// </summary>
+        /// <param name="key">The key.</param>
+        /// <param name="number">The number.</param>
+        /// /// <returns>The incremented value.</returns>
+        /// <exception cref="SDBPException"/>
+        /// <seealso cref="Add(string, long)"/>
+        public long Add(byte[] key, long number)
+        {
+            return client.Add(tableID, key, number);
+        }
+
+        /// <summary>
         /// Delete a key-value pair by key in the table.
         /// </summary>
         /// <param name="key">The key.</param>
