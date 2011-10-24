@@ -5,6 +5,9 @@ void StorageChunkReader::Open(
  ReadBuffer filename, uint64_t preloadThreshold_,
  bool keysOnly_, bool forwardDirection_)
 {
+    count = 0;
+    numRead = 0;
+
     forwardDirection = forwardDirection_;
     preloadThreshold = preloadThreshold_;
     keysOnly = keysOnly_;
@@ -13,7 +16,21 @@ void StorageChunkReader::Open(
     fileChunk.SetFilename(filename);
     fileChunk.ReadHeaderPage();
     fileChunk.LoadIndexPage();
+}
 
+void StorageChunkReader::SetEndKey(ReadBuffer endKey_)
+{
+    endKey = endKey;
+}
+
+void StorageChunkReader::SetPrefix(ReadBuffer prefix_)
+{
+    prefix = prefix_;
+}
+
+void StorageChunkReader::SetCount(unsigned count_)
+{
+    count = count_;
 }
 
 StorageFileKeyValue* StorageChunkReader::First(ReadBuffer& firstKey)
@@ -170,6 +187,8 @@ void StorageChunkReader::PreloadDataPages()
     uint64_t    totalSize;
     uint64_t    origOffset;
     
+    Log_Debug("PreloadDataPages started");
+
     totalSize = 0;
     origOffset = 0; // to make the compiler happy
 
@@ -201,4 +220,6 @@ void StorageChunkReader::PreloadDataPages()
         preloadIndex = i-1;
     else
         offset = origOffset;
+
+    Log_Debug("PreloadDataPages finished");
 }

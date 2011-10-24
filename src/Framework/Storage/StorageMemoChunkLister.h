@@ -18,7 +18,7 @@ class StorageMemoChunkLister : public StorageChunkLister
 public:
     StorageMemoChunkLister();
     
-    void                    Init(StorageMemoChunk* chunk, ReadBuffer& firstKey,
+    void                    Init(StorageMemoChunk* chunk, ReadBuffer& firstKey, ReadBuffer& endKey, ReadBuffer& prefix,
                              unsigned count, bool keysOnly, bool forwardDirection);
 
     void                    Load();

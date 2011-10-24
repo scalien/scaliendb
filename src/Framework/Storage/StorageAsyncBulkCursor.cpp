@@ -88,6 +88,8 @@ StorageAsyncBulkResult* StorageAsyncBulkCursor::GetLastResult()
 void StorageAsyncBulkCursor::OnNextChunk()
 {
     ReadBuffer                  startKey;
+    ReadBuffer                  endKey;
+    ReadBuffer                  prefix;
     StorageFileChunk*           fileChunk;
     StorageMemoChunk*           memoChunk;
     StorageAsyncBulkResult*     result;
@@ -126,7 +128,7 @@ void StorageAsyncBulkCursor::OnNextChunk()
     else if ((*itChunk)->GetChunkState() == StorageChunk::Serialized)
     {
         memoChunk = (StorageMemoChunk*) (*itChunk);
-        memoLister.Init(memoChunk, startKey, 0, false, true);
+        memoLister.Init(memoChunk, startKey, endKey, prefix, 0, false, true);
         result = new StorageAsyncBulkResult(this);
         result->dataPage = *memoLister.GetDataPage();
         result->onComplete = onComplete;
