@@ -1,10 +1,14 @@
 #include "StorageFileChunkLister.h"
 
 void StorageFileChunkLister::Init(
- ReadBuffer filename_, bool keysOnly_,
+ ReadBuffer filename_, ReadBuffer firstKey_, ReadBuffer endKey_, ReadBuffer prefix_, unsigned count_, bool keysOnly_,
  uint64_t preloadBufferSize_, bool forwardDirection_)
 {
     filename.Write(filename_);
+    firstKey = firstKey_;
+    endKey = endKey_;
+    prefix = prefix_;
+    count = count_;
     keysOnly = keysOnly_;
     preloadBufferSize = preloadBufferSize_;
     forwardDirection = forwardDirection_;
@@ -14,6 +18,9 @@ void StorageFileChunkLister::Init(
 void StorageFileChunkLister::Load()
 {
     reader.Open(filename, preloadBufferSize, keysOnly, forwardDirection);
+    reader.SetPrefix(prefix);
+    reader.SetEndKey(endKey);
+    reader.SetCount(count);
 }
 
 void StorageFileChunkLister::SetDirection(bool forwardDirection_)

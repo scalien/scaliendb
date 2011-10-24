@@ -9,6 +9,10 @@ public:
     void                    Open(ReadBuffer filename, uint64_t preloadThreshold,
                              bool keysOnly = false, bool forwardDirection = true);
 
+    void                    SetEndKey(ReadBuffer endKey);
+    void                    SetPrefix(ReadBuffer prefix);
+    void                    SetCount(unsigned count);
+
     StorageFileKeyValue*    First(ReadBuffer& firstKey);
     StorageFileKeyValue*    Next(StorageFileKeyValue*);
 
@@ -31,6 +35,10 @@ private:
     uint32_t                preloadIndex;
     uint64_t                preloadThreshold;
     StorageFileChunk        fileChunk;
+    ReadBuffer              endKey;
+    ReadBuffer              prefix;
+    unsigned                count;
+    unsigned                numRead;
 };
 
 #endif

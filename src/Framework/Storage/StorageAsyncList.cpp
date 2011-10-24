@@ -7,7 +7,7 @@
 #include "StorageShard.h"
 #include "StorageEnvironment.h"
 
-#define MAX_RESULT_SIZE     1024*KiB
+#define MAX_RESULT_SIZE     (1024*KiB)
 
 StorageAsyncListResult::StorageAsyncListResult(StorageAsyncList* asyncList_) :
  dataPage(NULL, 0)
@@ -91,11 +91,13 @@ void StorageAsyncList::ExecuteAsyncList()
     StorageUnwrittenChunkLister*    unwrittenLister;
     Buffer*                         filename;
     StorageChunk::ChunkState        chunkState;
-//    ReadBuffer                      firstKey;
+    ReadBuffer                      firstKey;
+    ReadBuffer                      endKey;
     bool                            keysOnly;
     
     Log_Debug("StorageAsyncList START");
     firstKey.Wrap(shardFirstKey);
+    endKey.Wrap(shardLastKey);
     keysOnly = (type == KEY || type == COUNT);
 
     if (!forwardDirection && prefix.GetLength() > 0 && !firstKey.BeginsWith(prefix) && count > 0)
@@ -109,7 +111,7 @@ void StorageAsyncList::ExecuteAsyncList()
         listers = new StorageChunkLister*[numChunks];
         iterators = new StorageFileKeyValue*[numChunks];
         numListers = 0;
-        preloadBufferSize = env->GetConfig().mergeBufferSize / numChunks;
+        preloadBufferSize = 0;  // preload only one page
 
         FOREACH (itChunk, shard->GetChunks())
         {
@@ -118,7 +120,8 @@ void StorageAsyncList::ExecuteAsyncList()
             if (chunkState == StorageChunk::Serialized)
             {
                 memoLister = new StorageMemoChunkLister;
-                memoLister->Init((StorageMemoChunk*) *itChunk, firstKey, count, keysOnly, forwardDirection);
+                memoLister->Init((StorageMemoChunk*) *itChunk, firstKey, endKey, prefix, count, 
+                 keysOnly, forwardDirection);
                 listers[numListers] = memoLister;
                 numListers++;
             }
@@ -134,7 +137,8 @@ void StorageAsyncList::ExecuteAsyncList()
                 fileChunk = (StorageFileChunk*) *itChunk;
                 filename = &fileChunk->GetFilename();
                 fileLister = new StorageFileChunkLister;
-                fileLister->Init(fileChunk->GetFilename(), keysOnly, preloadBufferSize, forwardDirection);
+                fileLister->Init(fileChunk->GetFilename(), firstKey, endKey, prefix, count, 
+                 keysOnly, preloadBufferSize, forwardDirection);
                 listers[numListers] = fileLister;
                 numListers++;
             }
@@ -163,11 +167,13 @@ void StorageAsyncList::LoadMemoChunk(bool keysOnly)
 {
     StorageMemoChunkLister* memoLister;
     ReadBuffer              firstKey;
+    ReadBuffer              endKey;
     
     firstKey.Wrap(shardFirstKey);
+    endKey.Wrap(shardLastKey);
     
     memoLister = new StorageMemoChunkLister;
-    memoLister->Init(shard->GetMemoChunk(), firstKey, count, keysOnly, forwardDirection);
+    memoLister->Init(shard->GetMemoChunk(), firstKey, endKey, prefix, count, keysOnly, forwardDirection);
 
     // memochunk is always on the last position, because it is the most current
     listers[numListers] = memoLister;
@@ -179,11 +185,16 @@ void StorageAsyncList::AsyncLoadChunks()
 {
     unsigned    i;
     ReadBuffer  firstKey;
+    ReadBuffer  endKey;
     
     firstKey.Wrap(shardFirstKey);
+    endKey.Wrap(shardLastKey);
+
     for (i = 0; i < numListers; i++)
     {
+        Log_Debug("AsyncLoadChunks: Loading %d", i);
         listers[i]->Load();
+        Log_Debug("AsyncLoadChunks: Setting iterator to firstKey %R", &firstKey);
         iterators[i] = listers[i]->First(firstKey);
     }
     
