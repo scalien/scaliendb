@@ -59,6 +59,7 @@ private:
     ClientRequest*      ProcessDeleteQuorum();
     ClientRequest*      ProcessAddShardServerToQuorum();
     ClientRequest*      ProcessRemoveShardServerFromQuorum();
+    ClientRequest*      ProcessSetPriority();
     ClientRequest*      ProcessCreateDatabase();
     ClientRequest*      ProcessRenameDatabase();
     ClientRequest*      ProcessDeleteDatabase();

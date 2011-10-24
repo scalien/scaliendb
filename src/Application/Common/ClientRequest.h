@@ -17,6 +17,7 @@
 #define CLIENTREQUEST_ADD_SHARDSERVER_TO_QUORUM         'n'
 #define CLIENTREQUEST_REMOVE_SHARDSERVER_FROM_QUORUM    'b'
 #define CLIENTREQUEST_ACTIVATE_SHARDSERVER              'N'
+#define CLIENTREQUEST_SET_PRIORITY                      'P'
 #define CLIENTREQUEST_CREATE_DATABASE                   'C'
 #define CLIENTREQUEST_RENAME_DATABASE                   'R'
 #define CLIENTREQUEST_DELETE_DATABASE                   'D'
@@ -95,6 +96,8 @@ public:
                      uint64_t commandID, uint64_t quorumID, uint64_t nodeID);
     bool            ActivateShardServer(
                      uint64_t commandID, uint64_t nodeID);
+    bool            SetPriority(
+                     uint64_t commandID, uint64_t quorumID, uint64_t nodeID, uint64_t priority);
     
     // Database management
     bool            CreateDatabase(
@@ -190,6 +193,7 @@ public:
     uint64_t        nodeID;
     uint64_t        paxosID;
     uint64_t        configPaxosID;
+    uint64_t        priority;
     int64_t         number;
     uint64_t        count;
     Buffer          name;

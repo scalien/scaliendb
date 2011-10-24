@@ -89,6 +89,16 @@ bool ConfigMessage::DeactivateShardServer(
     return true;
 }
 
+bool ConfigMessage::SetPriority(
+ uint64_t quorumID_, uint64_t nodeID_, uint64_t priority_)
+{
+    type = CONFIGMESSAGE_SET_PRIORITY;
+    quorumID = quorumID_;
+    nodeID = nodeID_;
+    priority = priority_;
+    return true;
+}
+
 bool ConfigMessage::CreateDatabase(
  ReadBuffer& name_)
 {
@@ -267,6 +277,11 @@ bool ConfigMessage::Read(ReadBuffer& buffer)
             read = buffer.Readf("%c:%U:%U:%b",
              &type, &quorumID, &nodeID, &force);
             break;
+        case CONFIGMESSAGE_SET_PRIORITY:
+            read = buffer.Readf("%c:%U:%U:%U",
+             &type, &quorumID, &nodeID, &priority);
+            break;
+
 
         // Database management
         case CONFIGMESSAGE_CREATE_DATABASE:
@@ -389,6 +404,10 @@ bool ConfigMessage::Write(Buffer& buffer)
         case CONFIGMESSAGE_DEACTIVATE_SHARDSERVER:
             buffer.Writef("%c:%U:%U:%b",
              type, quorumID, nodeID, force);
+            break;
+        case CONFIGMESSAGE_SET_PRIORITY:
+            buffer.Writef("%c:%U:%U:%U",
+             type, quorumID, nodeID, priority);
             break;
 
         // Database management

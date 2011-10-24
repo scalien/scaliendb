@@ -67,6 +67,23 @@ public:
 /*
 ===============================================================================================
 
+ QuorumPriority
+
+===============================================================================================
+*/
+
+class QuorumPriority
+{
+public:
+    QuorumPriority();
+
+    uint64_t                quorumID;
+    uint64_t                priority;
+};
+
+/*
+===============================================================================================
+
  ConfigShardServer
 
 ===============================================================================================
@@ -79,9 +96,11 @@ public:
     ConfigShardServer(const ConfigShardServer& other);
     
     ConfigShardServer&      operator=(const ConfigShardServer& other);
+    uint64_t                GetQuorumPriority(uint64_t quorumID);
 
     uint64_t                nodeID;
     Endpoint                endpoint;
+    List<QuorumPriority>    quorumPriorities;
     
     // ========================================================================================
     //
