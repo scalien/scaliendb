@@ -126,4 +126,10 @@
     <Compile Include="SWIGTYPE_p_void.cs" />
     <Compile Include="Table.cs" />
   </ItemGroup>
+  <PropertyGroup>
+    <PreBuildEvent>..\..\..\..\..\..\..\script\replaceassemblyversion.cmd ..\..\..\..\..\..\.. ..\..\Properties AssemblyInfo.cs</PreBuildEvent>
+  </PropertyGroup>
+  <PropertyGroup>
+    <PostBuildEvent>..\..\..\..\..\..\..\script\copynetdll.cmd  ..\..\..\..\..\..\.. $(TargetPath)</PostBuildEvent>
+  </PropertyGroup>
 </Project>
