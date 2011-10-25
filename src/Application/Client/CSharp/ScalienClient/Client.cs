@@ -73,7 +73,6 @@ namespace Scalien
     {
         internal SWIGTYPE_p_void cptr;
         private Result result;
-        private Result lastResult;
 
         #region Mode flags
 
