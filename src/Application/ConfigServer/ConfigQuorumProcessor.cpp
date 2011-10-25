@@ -203,9 +203,27 @@ void ConfigQuorumProcessor::OnClientRequest(ClientRequest* request)
             }
         }
     }
+
+    if (request->type == CLIENTREQUEST_ADD_SHARDSERVER_TO_QUORUM)
+    {
+        if (!configServer->GetHeartbeatManager()->HasHeartbeat(request->nodeID))
+        {
+            request->response.Failed();
+            request->OnComplete();
+            return; 
+        }
+    }
+
     
     if (request->type == CLIENTREQUEST_ACTIVATE_SHARDSERVER)
     {
+        if (!configServer->GetHeartbeatManager()->HasHeartbeat(request->nodeID))
+        {
+            request->response.Failed();
+            request->OnComplete();
+            return; 
+        }
+
         configServer->GetActivationManager()->TryActivateShardServer(request->nodeID);
         request->response.OK();
         request->OnComplete();
@@ -250,14 +268,6 @@ void ConfigQuorumProcessor::OnClientRequest(ClientRequest* request)
     
     configMessage = new ConfigMessage;
     ConstructMessage(request, configMessage);
-    
-//    if (!configState->CompleteMessage(*configMessage))
-//    {
-//        delete configMessage;
-//        request->response.Failed();
-//        request->OnComplete();
-//        return;
-//    }
     
     requests.Append(request);
     configMessages.Append(configMessage);
