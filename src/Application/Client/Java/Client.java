@@ -327,7 +327,8 @@ public class Client
             if (quorum.getName().equals(name))
                 return quorum;
         }
-        return null;
+        
+        throw new SDBPException(Status.SDBP_BADSCHEMA, "Quorum not found"); 
     }
 
     /**
@@ -363,7 +364,8 @@ public class Client
             if (database.getName().equals(name))
                 return database;
         }
-        return null;
+        
+        throw new SDBPException(Status.SDBP_BADSCHEMA, "Database not found"); 
     }
 
     /**

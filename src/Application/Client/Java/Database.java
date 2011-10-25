@@ -60,7 +60,7 @@ public class Database
                 return table;
         }
 
-        return null;    
+        throw new SDBPException(Status.SDBP_BADSCHEMA, "Table not found"); 
     }
 
     /**
