@@ -661,8 +661,9 @@ bool StorageRecovery::ReplayLogSegment(uint64_t trackID, Buffer& filename)
     logSegment->logSegmentID = logSegmentID;
     logSegment->filename.Write(filename);
     env->logSegments.Append(logSegment);
+    tmp = 0;
     r = env->logSegmentIDMap.Get(trackID, tmp);
-    if (!ret || tmp <= logSegmentID)
+    if (!ret || (ret && tmp <= logSegmentID))
         env->logSegmentIDMap.Set(trackID, ++logSegmentID);
     
     fd.Close();
