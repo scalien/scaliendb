@@ -282,7 +282,8 @@ void Client::Shutdown()
     if (controller == NULL)
         return;
     
-    Submit();
+    if (batchMode != SDBP_BATCH_NOAUTOSUBMIT)
+        Submit();
 
     isShutdown.SetWaiting(true);
     if (EventLoop::IsRunning())
