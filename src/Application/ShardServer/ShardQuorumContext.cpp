@@ -13,6 +13,7 @@ void ShardQuorumContext::Init(ConfigQuorum* configQuorum,
     
     quorumProcessor = quorumProcessor_;
     quorumID = configQuorum->quorumID;
+    numPendingPaxos = 0;
   
     configQuorum->GetVolatileActiveNodes(activeNodes);
 
@@ -40,42 +41,13 @@ void ShardQuorumContext::Shutdown()
     replicatedLog.Shutdown();
 }
 
-//void ShardQuorumContext::SetActiveNodes(SortedList<uint64_t>& activeNodes)
-//{
-//    unsigned    i;
-//    uint64_t*   it;
-//    uint64_t*   oldNodes;
-//
-//    oldNodes = (uint64_t*) quorum.GetNodes();
-//
-//    if (activeNodes.GetLength() != quorum.GetNumNodes())
-//    {
-//        ReconfigureQuorum(activeNodes);
-//        return;
-//    }
-//
-//    i = 0;
-//    FOREACH (it, activeNodes)
-//    {
-//        if (oldNodes[i] != *it)
-//        {
-//            ReconfigureQuorum(activeNodes);
-//            return;
-//        }
-//        i++;
-//    }
-//}
-
 void ShardQuorumContext::SetQuorumNodes(SortedList<uint64_t>& activeNodes)
 {
     uint64_t*   it;
 
     quorum.ClearNodes();
     FOREACH (it, activeNodes)
-    {
-//        Log_Debug("New nodes: %U", *it);
         quorum.AddNode(*it);
-    }
 }
 
 void ShardQuorumContext::RestartReplication()
@@ -246,9 +218,10 @@ void ShardQuorumContext::ResetReplicationState()
     replicatedLog.ResetPaxosState();
 }
 
-void ShardQuorumContext::OnMessage(uint64_t /*nodeID*/, ReadBuffer buffer)
+void ShardQuorumContext::OnMessage(ReadBuffer buffer)
 {
-    char proto;
+    char    proto;
+    Buffer* message;
     
     Log_Trace("%R", &buffer);
     
@@ -263,7 +236,17 @@ void ShardQuorumContext::OnMessage(uint64_t /*nodeID*/, ReadBuffer buffer)
         case PAXOS_PROTOCOL_ID:             // 'P':
             if (!isReplicationActive)
                 break;
-            OnPaxosMessage(buffer);
+            if (numPendingPaxos == 0)
+            {
+                numPendingPaxos++;
+                OnPaxosMessage(buffer);
+            }
+            else
+            {
+                message = new Buffer;
+                message->Write(buffer);
+                paxosMessageQueue.Enqueue(message);
+            }
             break;
         case CATCHUP_PROTOCOL_ID:           // 'C'
             OnCatchupMessage(buffer);
@@ -271,6 +254,25 @@ void ShardQuorumContext::OnMessage(uint64_t /*nodeID*/, ReadBuffer buffer)
         default:
             ASSERT_FAIL();
             break;
+    }
+}
+
+void ShardQuorumContext::OnMessageProcessed()
+{
+    ReadBuffer message;
+    Buffer* buffer;
+
+    ASSERT(numPendingPaxos == 1);
+    numPendingPaxos--;
+
+    if (!isReplicationActive)
+        paxosMessageQueue.DeleteQueue(); // drop messages
+    
+    if (paxosMessageQueue.GetLength() > 0)
+    {
+        buffer = paxosMessageQueue.Dequeue();
+        message.Wrap(*buffer);
+        OnMessage(message);
     }
 }
 
@@ -303,23 +305,3 @@ void ShardQuorumContext::OnCatchupMessage(ReadBuffer buffer)
     msg.Read(buffer);
     quorumProcessor->OnCatchupMessage(msg);
 }
-
-//void ShardQuorumContext::ReconfigureQuorum(SortedList<uint64_t>& activeNodes)
-//{
-//    uint64_t*   it;
-//
-//    Log_Debug("Reconfiguring quorum");
-//    
-//    for (unsigned i = 0; i < quorum.GetNumNodes(); i++)
-//        Log_Debug("Old nodes: %U", quorum.GetNodes()[i]);
-//
-//    quorum.ClearNodes();
-//    FOREACH (it, activeNodes)
-//    {
-//        Log_Debug("New nodes: %U", *it);
-//        quorum.AddNode(*it);
-//    }
-//    
-//    if (replicatedLog.IsAppending())
-//        replicatedLog.Restart();
-//}

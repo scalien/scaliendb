@@ -156,5 +156,5 @@ void ContextTransport::OnQuorumMessage(uint64_t nodeID, ReadBuffer& msg)
     quorumContext = GetQuorumContext(quorumID);
     
     if (quorumContext)
-        GetQuorumContext(quorumID)->OnMessage(nodeID, msg);
+        GetQuorumContext(quorumID)->OnMessage(msg);
 }

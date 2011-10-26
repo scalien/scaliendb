@@ -159,23 +159,28 @@ void ReplicatedLog::RegisterPaxosID(uint64_t paxosID, uint64_t nodeID)
 void ReplicatedLog::OnMessage(PaxosMessage& imsg)
 {
     Log_Trace();
+    bool processed;
     
+
     if (imsg.type == PAXOS_PREPARE_REQUEST)
-        OnPrepareRequest(imsg);
+        processed = OnPrepareRequest(imsg);
     else if (imsg.IsPrepareResponse())
-        OnPrepareResponse(imsg);
+        processed = OnPrepareResponse(imsg);
     else if (imsg.type == PAXOS_PROPOSE_REQUEST)
-        OnProposeRequest(imsg);
+        processed = OnProposeRequest(imsg);
     else if (imsg.IsProposeResponse())
-        OnProposeResponse(imsg);
+        processed = OnProposeResponse(imsg);
     else if (imsg.IsLearn())
-        OnLearnChosen(imsg);
+        processed = OnLearnChosen(imsg);
     else if (imsg.type == PAXOS_REQUEST_CHOSEN)
-        OnRequestChosen(imsg);
+        processed = OnRequestChosen(imsg);
     else if (imsg.type == PAXOS_START_CATCHUP)
-        OnStartCatchup(imsg);
+        processed = OnStartCatchup(imsg);
     else
         ASSERT_FAIL();
+
+    if (processed)
+        context->OnMessageProcessed();
 }
 
 void ReplicatedLog::OnCatchupComplete(uint64_t paxosID_)
@@ -218,6 +223,8 @@ void ReplicatedLog::OnAppendComplete()
         context->GetDatabase()->Commit();
     }
 
+    context->OnMessageProcessed();
+
     TryAppendNextValue();
 }
 
@@ -248,18 +255,20 @@ void ReplicatedLog::Append(Buffer& value)
 #endif
 }
 
-void ReplicatedLog::OnPrepareRequest(PaxosMessage& imsg)
+bool ReplicatedLog::OnPrepareRequest(PaxosMessage& imsg)
 {
 #ifdef RLOG_DEBUG_MESSAGES
     Log_Debug("ReplicatedLog::OnPrepareRequest");
 #endif
 
-    acceptor.OnPrepareRequest(imsg);
+    bool processed = acceptor.OnPrepareRequest(imsg);
 
     OnRequest(imsg);
+
+    return processed;
 }
 
-void ReplicatedLog::OnPrepareResponse(PaxosMessage& imsg)
+bool ReplicatedLog::OnPrepareResponse(PaxosMessage& imsg)
 {
 #ifdef RLOG_DEBUG_MESSAGES
     Log_Debug("ReplicatedLog::OnPrepareResponse");
@@ -269,9 +278,11 @@ void ReplicatedLog::OnPrepareResponse(PaxosMessage& imsg)
     
     if (imsg.paxosID == paxosID)
         proposer.OnPrepareResponse(imsg);
+    
+    return true;
 }
 
-void ReplicatedLog::OnProposeRequest(PaxosMessage& imsg)
+bool ReplicatedLog::OnProposeRequest(PaxosMessage& imsg)
 {
 #ifdef RLOG_DEBUG_MESSAGES
     Log_Debug("ReplicatedLog::OnProposeRequest");
@@ -279,12 +290,14 @@ void ReplicatedLog::OnProposeRequest(PaxosMessage& imsg)
 
     Log_Trace();
     
-    acceptor.OnProposeRequest(imsg);
+    bool processed = acceptor.OnProposeRequest(imsg);
     
     OnRequest(imsg);
+
+    return processed;
 }
 
-void ReplicatedLog::OnProposeResponse(PaxosMessage& imsg)
+bool ReplicatedLog::OnProposeResponse(PaxosMessage& imsg)
 {
 #ifdef RLOG_DEBUG_MESSAGES
     Log_Debug("ReplicatedLog::OnProposeResponse");
@@ -294,9 +307,11 @@ void ReplicatedLog::OnProposeResponse(PaxosMessage& imsg)
 
     if (imsg.paxosID == paxosID)
         proposer.OnProposeResponse(imsg);
+
+    return true;
 }
 
-void ReplicatedLog::OnLearnChosen(PaxosMessage& imsg)
+bool ReplicatedLog::OnLearnChosen(PaxosMessage& imsg)
 {
     uint64_t        runID;
 
@@ -309,7 +324,7 @@ void ReplicatedLog::OnLearnChosen(PaxosMessage& imsg)
 #ifdef RLOG_DEBUG_MESSAGES
         Log_Debug("Database is commiting, dropping Paxos message");
 #endif
-        return;
+        return true;
     }
 
     if (waitingOnAppend)
@@ -317,7 +332,7 @@ void ReplicatedLog::OnLearnChosen(PaxosMessage& imsg)
 #ifdef RLOG_DEBUG_MESSAGES
         Log_Debug("Waiting OnAppend, dropping Paxos message");
 #endif
-        return;
+        return true;
     }
 
     Log_Trace();
@@ -325,10 +340,10 @@ void ReplicatedLog::OnLearnChosen(PaxosMessage& imsg)
     if (imsg.paxosID > paxosID)
     {
         RequestChosen(imsg.nodeID); //  I am lagging and need to catch-up
-        return;
+        return true;
     }
     else if (imsg.paxosID < paxosID)
-        return;
+        return true;
     
     if (imsg.type == PAXOS_LEARN_VALUE)
     {
@@ -345,7 +360,7 @@ void ReplicatedLog::OnLearnChosen(PaxosMessage& imsg)
     else
     {
         RequestChosen(imsg.nodeID);
-        return;
+        return true;
     }
         
     ProcessLearnChosen(imsg.nodeID, runID);
@@ -353,9 +368,11 @@ void ReplicatedLog::OnLearnChosen(PaxosMessage& imsg)
 #ifdef RLOG_DEBUG_MESSAGES
     Log_Debug("OnLearnChosen end");
 #endif
+
+    return false;
 }
 
-void ReplicatedLog::OnRequestChosen(PaxosMessage& imsg)
+bool ReplicatedLog::OnRequestChosen(PaxosMessage& imsg)
 {
     Buffer          value;
     PaxosMessage    omsg;
@@ -366,7 +383,7 @@ void ReplicatedLog::OnRequestChosen(PaxosMessage& imsg)
 #endif
 
     if (imsg.paxosID >= GetPaxosID())
-        return;
+        return true;
     
     // the node is lagging and needs to catch-up
     context->GetDatabase()->GetAcceptedValue(imsg.paxosID, value);
@@ -381,9 +398,11 @@ void ReplicatedLog::OnRequestChosen(PaxosMessage& imsg)
         omsg.StartCatchup(paxosID, MY_NODEID);
     }
     context->GetTransport()->SendMessage(imsg.nodeID, omsg);
+
+    return true;
 }
 
-void ReplicatedLog::OnStartCatchup(PaxosMessage& imsg)
+bool ReplicatedLog::OnStartCatchup(PaxosMessage& imsg)
 {
 #ifdef RLOG_DEBUG_MESSAGES
     Log_Debug("ReplicatedLog::OnStartCatchup");
@@ -391,6 +410,8 @@ void ReplicatedLog::OnStartCatchup(PaxosMessage& imsg)
 
     if (imsg.nodeID == context->GetLeaseOwner())
         context->OnStartCatchup();
+
+    return true;
 }
 
 void ReplicatedLog::ProcessLearnChosen(uint64_t nodeID, uint64_t runID)
