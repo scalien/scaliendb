@@ -1290,6 +1290,7 @@ void StorageEnvironment::TryArchiveLogSegments()
     bool                archive;
     uint64_t            logSegmentID;
     uint64_t            minLogSegmentID;
+    uint64_t            maxLogSegmentID;
     StorageLogSegment*  logSegment;
     StorageShard*       shard;
     StorageMemoChunk*   memoChunk;
@@ -1326,7 +1327,8 @@ void StorageEnvironment::TryArchiveLogSegments()
             }
 
             minLogSegmentID = memoChunk->GetMinLogSegmentID();
-            if (memoChunk->GetSize() > 0 && minLogSegmentID > 0 && minLogSegmentID <= logSegmentID)
+            maxLogSegmentID = memoChunk->GetMaxLogSegmentID();
+            if (memoChunk->GetSize() > 0 && minLogSegmentID > 0 && minLogSegmentID <= logSegmentID && logSegmentID <= maxLogSegmentID)
             {
                 archive = false;
                 break;
@@ -1335,7 +1337,8 @@ void StorageEnvironment::TryArchiveLogSegments()
             FOREACH (chunk, shard->GetChunks())
             {
                 minLogSegmentID = (*chunk)->GetMinLogSegmentID();
-                if ((*chunk)->GetChunkState() <= StorageChunk::Unwritten && minLogSegmentID <= logSegmentID)
+                maxLogSegmentID = (*chunk)->GetMaxLogSegmentID();
+                if ((*chunk)->GetChunkState() <= StorageChunk::Unwritten && minLogSegmentID <= logSegmentID && logSegmentID <= maxLogSegmentID)
                 {
                     archive = false;
                     break;
