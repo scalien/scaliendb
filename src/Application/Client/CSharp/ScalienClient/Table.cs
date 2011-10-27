@@ -58,8 +58,11 @@ namespace Scalien
                 return client;
             }
         }
-
-        internal ulong TableID
+        
+        /// <summary>
+        /// The unique ID of the table
+        /// </summary>
+        public ulong TableID
         {
             get
             {
@@ -93,7 +96,14 @@ namespace Scalien
 
         #region Constructors, destructors
 
-        internal Table(Client client, Database database, ulong tableID, string name)
+        /// <summary>
+        /// Table constructor.
+        /// </summary>
+        /// <param name="client">The client object.</param>
+        /// <param name="database">The database this table is in.</param>
+        /// <param name="tableID">The unique ID of the table.</param>
+        /// <param name="name">The name of the table.</param>
+        public Table(Client client, Database database, ulong tableID, string name)
         {
             this.client = client;
             this.database = database;
