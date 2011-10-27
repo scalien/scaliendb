@@ -42,6 +42,20 @@
         internal long count = -1;
         internal bool forwardDirection = true;
 
+        internal ByteRangeParams ToByteRangeParams()
+        {
+            ByteRangeParams ps = new ByteRangeParams();
+
+            ps.prefix = Client.StringToByteArray(prefix);
+            ps.startKey = Client.StringToByteArray(startKey);
+            ps.endKey = Client.StringToByteArray(endKey);
+            ps.count = count;
+            ps.forwardDirection = forwardDirection;
+            
+            return ps;
+        }
+
+
         /// <summary>Specify the prefix parameter for iteration.</summary>
         /// <remarks>Only keys starting with prefix will be returned by the iteration.</remarks>
         /// <param name="prefix">The prefix parameter as a string.</param>
