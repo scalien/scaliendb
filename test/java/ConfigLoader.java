@@ -3,12 +3,14 @@ import java.io.*;
 public class ConfigLoader {
 	private String[] controllers;
 	private String configFile;
+	private String logFile;
 	private boolean trace;
 
 	ConfigLoader(String[] controllers) {
 		this.controllers = controllers;
 		trace = false;
 		configFile = "client.conf";		
+		logFile = null;
 		loadFile();
 	}
 	
@@ -36,6 +38,9 @@ public class ConfigLoader {
 					else if ("log.trace".equals(namepart)) {
 						trace = isBooleanTrueString(valuepart);
 					}
+					else if ("log.file".equals(namepart)) {
+						logFile = valuepart;
+					}
 	            }
 	        }
 			in.close();
@@ -58,5 +63,9 @@ public class ConfigLoader {
 	
 	public boolean isTrace() {
 		return trace;
+	}
+	
+	public String getLogFile() {
+	    return logFile;
 	}
 }
