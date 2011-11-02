@@ -115,6 +115,17 @@ SortedList<uint64_t>& ShardConnection::GetQuorumList()
     return quorums;
 }
 
+void ShardConnection::ReassignSentRequests()
+{
+    Request*    request;
+    
+    FOREACH_LAST (request, sentRequests)
+    {
+        sentRequests.Remove(request);
+        client->AddRequestToQuorum(request, false);
+    }
+}
+
 bool ShardConnection::OnMessage(ReadBuffer& rbuf)
 {
     SDBPResponseMessage msg;
@@ -229,8 +240,6 @@ void ShardConnection::OnClose()
 {
     Log_Debug("Shard connection closing: %s", endpoint.ToString());
     
-    Request*    it;
-    Request*    prev;
     uint64_t*   itQuorum;
     uint64_t*   itNext;
     
@@ -247,12 +256,7 @@ void ShardConnection::OnClose()
     }
     
     // put back requests that have no response to the client's quorum queue
-    for (it = sentRequests.Last(); it != NULL; it = prev)
-    {
-        prev = sentRequests.Prev(it);
-        sentRequests.Remove(it);
-        client->AddRequestToQuorum(it, false);
-    }
+    ReassignSentRequests();
     
     if (EventLoop::Now() - connectTime > connectTimeout.GetDelay())
     {

@@ -46,6 +46,8 @@ public:
     void                    ClearQuorumMemberships();
     SortedList<uint64_t>&   GetQuorumList();
     
+    void                    ReassignSentRequests();
+    
     // MessageConnection interface
     virtual bool            OnMessage(ReadBuffer& msg);
     virtual void            OnWrite();

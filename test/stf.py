@@ -180,6 +180,7 @@ def create_main(file, testname, funcs):
 
 def compile_program(file, funcs = None, run=False):
 	cc = Compiler([SRC_DIR], BUILD_DIR)
+	args = ""
 	if funcs == None:
 		input = SRC_DIR + "/" + TEST_DIR + file + ".cpp"
 		output = BUILD_DIR + "/" + TEST_DIR + file + ".o"
@@ -188,6 +189,7 @@ def compile_program(file, funcs = None, run=False):
 		f = create_main(cpp, file, funcs)
 		input = f.name
 		output = BUILD_DIR + "/" + TEST_DIR + "__TestMain.o"
+		args = " " + " ".join(funcs)
 	#cc.add_cflag("-DTEST_FILE")
 	obj = cc.compile(input, output)
 	ld = Linker(LDPATH, LDLIBS)
@@ -195,7 +197,7 @@ def compile_program(file, funcs = None, run=False):
 	objects.append(BUILD_DIR + "/" + TEST_DIR + "Test.o")
 	objects.append(obj)
 	output = BUILD_DIR + "/" + "TestProgram" #+ str(uuid.uuid1())
-	bin = ld.link(objects, output)
+	bin = ld.link(objects, output) + args
 	trace(bin)
 	ret = None
 	if run:

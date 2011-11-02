@@ -1591,6 +1591,14 @@ void Client::ConfigureShardServers()
     FOREACH (qit, configState.quorums)
     {
         Log_Trace("quorumID: %U, primary: %U", qit->quorumID, qit->hasPrimary ? qit->primaryID : 0);
+        // put back sent requests to quorum requests from inactive connections
+        FOREACH (nit, qit->inactiveNodes)
+        {
+            shardConn = shardConnections.Get(*nit);
+            if (shardConn != NULL)
+                shardConn->ReassignSentRequests();
+        }
+        
         FOREACH (nit, qit->activeNodes)
         {
             Log_Trace("%U", *nit);
