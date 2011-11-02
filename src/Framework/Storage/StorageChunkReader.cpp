@@ -20,7 +20,7 @@ void StorageChunkReader::Open(
 
 void StorageChunkReader::SetEndKey(ReadBuffer endKey_)
 {
-    endKey = endKey;
+    endKey = endKey_;
 }
 
 void StorageChunkReader::SetPrefix(ReadBuffer prefix_)
