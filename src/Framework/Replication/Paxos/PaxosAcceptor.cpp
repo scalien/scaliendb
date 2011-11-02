@@ -40,7 +40,7 @@ void PaxosAcceptor::OnCatchupComplete()
     ResetState();
 }
 
-void PaxosAcceptor::OnPrepareRequest(PaxosMessage& imsg)
+bool PaxosAcceptor::OnPrepareRequest(PaxosMessage& imsg)
 {
     Log_Trace();
     
@@ -63,7 +63,7 @@ void PaxosAcceptor::OnPrepareRequest(PaxosMessage& imsg)
         omsg.PrepareRejected(imsg.paxosID, MY_NODEID,
          imsg.proposalID, state.promisedProposalID);
         context->GetTransport()->SendMessage(senderID, omsg);
-        return;
+        return true;
     }
 
     state.promisedProposalID = imsg.proposalID;
@@ -82,9 +82,11 @@ void PaxosAcceptor::OnPrepareRequest(PaxosMessage& imsg)
     
     WriteState();
     Commit(true);
+
+    return false;
 }
 
-void PaxosAcceptor::OnProposeRequest(PaxosMessage& imsg)
+bool PaxosAcceptor::OnProposeRequest(PaxosMessage& imsg)
 {
     Log_Trace();
     
@@ -100,7 +102,7 @@ void PaxosAcceptor::OnProposeRequest(PaxosMessage& imsg)
     {
         omsg.ProposeRejected(imsg.paxosID, MY_NODEID, imsg.proposalID);
         context->GetTransport()->SendMessage(senderID, omsg);
-        return;
+        return true;
     }
 
     state.accepted = true;
@@ -112,12 +114,16 @@ void PaxosAcceptor::OnProposeRequest(PaxosMessage& imsg)
     
     WriteState();
     Commit(true);
+
+    return false;
 }
 
 void PaxosAcceptor::OnStateWritten()
 {
     Log_Trace();
     
+    context->OnMessageProcessed();
+
     if (!sendReply || writtenPaxosID != context->GetPaxosID())
         return;
     

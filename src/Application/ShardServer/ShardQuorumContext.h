@@ -1,6 +1,7 @@
 #ifndef SHARDQUORUMCONTEXT_H
 #define SHARDQUORUMCONTEXT_H
 
+#include "System/Containers/InQueue.h"
 #include "Framework/Replication/Quorums/QuorumContext.h"
 #include "Framework/Replication/Quorums/TotalQuorum.h"
 #include "Framework/Replication/ReplicatedLog/ReplicatedLog.h"
@@ -25,7 +26,6 @@ public:
                                      ShardQuorumProcessor* quorumProcessor_);
     void                            Shutdown();
     
-//    void                            SetActiveNodes(SortedList<uint64_t>& activeNodes);
     void                            SetQuorumNodes(SortedList<uint64_t>& activeNodes);
     void                            RestartReplication();
     void                            TryReplicationCatchup();
@@ -64,7 +64,8 @@ public:
     virtual void                    OnAppend(uint64_t paxosID, Buffer& value, bool ownAppend);
     virtual bool                    IsPaxosBlocked();
     virtual Buffer&                 GetNextValue();
-    virtual void                    OnMessage(uint64_t nodeID, ReadBuffer msg);
+    virtual void                    OnMessage(ReadBuffer msg);
+    virtual void                    OnMessageProcessed();
     virtual void                    OnStartCatchup();
     virtual void                    OnCatchupComplete(uint64_t paxosID);
 
@@ -77,7 +78,6 @@ public:
 private:
     void                            OnPaxosMessage(ReadBuffer buffer);
     void                            OnCatchupMessage(ReadBuffer buffer);
-//    void                            ReconfigureQuorum(SortedList<uint64_t>& activeNodes);
     
     bool                            isReplicationActive;
     uint64_t                        quorumID;
@@ -88,6 +88,9 @@ private:
     QuorumTransport                 transport;
     ReplicatedLog                   replicatedLog;
     Buffer                          nextValue;
+
+    unsigned                        numPendingPaxos;
+    InQueue<Buffer>                  paxosMessageQueue;
 };
 
 #endif

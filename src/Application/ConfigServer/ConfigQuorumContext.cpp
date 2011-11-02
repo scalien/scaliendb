@@ -169,7 +169,7 @@ void ConfigQuorumContext::OnAppend(uint64_t paxosID, Buffer& value, bool ownAppe
     quorumProcessor->OnAppend(paxosID, message, ownAppend);
 }
 
-void ConfigQuorumContext::OnMessage(uint64_t /*nodeID*/, ReadBuffer buffer)
+void ConfigQuorumContext::OnMessage(ReadBuffer buffer)
 {
     char proto;
     

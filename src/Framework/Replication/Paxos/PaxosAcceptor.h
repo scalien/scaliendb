@@ -36,8 +36,8 @@ public:
     uint64_t                    GetMemoryUsage();
 
 private:
-    void                        OnPrepareRequest(PaxosMessage& msg);
-    void                        OnProposeRequest(PaxosMessage& msg);
+    bool                        OnPrepareRequest(PaxosMessage& msg);
+    bool                        OnProposeRequest(PaxosMessage& msg);
     void                        OnStateWritten();
 
     void                        ReadState();

@@ -58,13 +58,13 @@ public:
 private:
     void                    Append(Buffer& value);
 
-    void                    OnPrepareRequest(PaxosMessage& msg);
-    void                    OnPrepareResponse(PaxosMessage& msg);
-    void                    OnProposeRequest(PaxosMessage& msg);
-    void                    OnProposeResponse(PaxosMessage& msg);
-    void                    OnLearnChosen(PaxosMessage& msg);
-    void                    OnRequestChosen(PaxosMessage& msg);
-    void                    OnStartCatchup(PaxosMessage& msg);
+    bool                    OnPrepareRequest(PaxosMessage& msg);
+    bool                    OnPrepareResponse(PaxosMessage& msg);
+    bool                    OnProposeRequest(PaxosMessage& msg);
+    bool                    OnProposeResponse(PaxosMessage& msg);
+    bool                    OnLearnChosen(PaxosMessage& msg);
+    bool                    OnRequestChosen(PaxosMessage& msg);
+    bool                    OnStartCatchup(PaxosMessage& msg);
 
     void                    ProcessLearnChosen(uint64_t nodeID, uint64_t runID);
 
