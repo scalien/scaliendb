@@ -321,14 +321,11 @@ public class Client
      * @see #getQuorums()
      */
     public Quorum getQuorum(String name) throws SDBPException {
-        List<Quorum> quorums = getQuorums();
-        for (Quorum quorum : quorums)
-        {
-            if (quorum.getName().equals(name))
-                return quorum;
-        }
-        
-        throw new SDBPException(Status.SDBP_BADSCHEMA, "Quorum not found"); 
+        BigInteger bi = scaliendb_client.SDBP_GetQuorumIDByName(cptr, name);
+        long quorumID = bi.longValue();
+        if (quorumID == 0)
+            throw new SDBPException(Status.SDBP_BADSCHEMA, "Database not found: " + name);
+        return new Quorum(this, quorumID, name);
     }
 
     /**
@@ -358,14 +355,11 @@ public class Client
      * @see #createDatabase(String)
      */
     public Database getDatabase(String name) throws SDBPException {
-        List<Database> databases = getDatabases();
-        for (Database database : databases)
-        {
-            if (database.getName().equals(name))
-                return database;
-        }
-        
-        throw new SDBPException(Status.SDBP_BADSCHEMA, "Database not found"); 
+        BigInteger bi = scaliendb_client.SDBP_GetDatabaseIDByName(cptr, name);
+        long databaseID = bi.longValue();
+        if (databaseID == 0)
+            throw new SDBPException(Status.SDBP_BADSCHEMA, "Database not found: " + name);
+        return new Database(this, databaseID, name);
     }
 
     /**

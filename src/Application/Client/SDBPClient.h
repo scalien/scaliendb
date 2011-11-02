@@ -53,6 +53,7 @@ public:
     uint64_t                GetGlobalTimeout();
     uint64_t                GetMasterTimeout();
 
+    ConfigState*            UnprotectedGetConfigState();
     ConfigState*            GetConfigState();
     void                    CloneConfigState(ConfigState& configState);
     void                    WaitConfigState();
@@ -116,6 +117,9 @@ public:
     int                     Begin();
     int                     Submit();
     int                     Cancel();
+
+    void                    Lock();
+    void                    Unlock();
 
     Client*                 next;
     Client*                 prev;
@@ -198,8 +202,6 @@ private:
     Signal                  isShutdown;
     Mutex                   mutex;
     Buffer                  mutexName;
-    void                    Lock();
-    void                    Unlock();
     void                    LockGlobal();
     void                    UnlockGlobal();
     bool                    IsGlobalLocked();

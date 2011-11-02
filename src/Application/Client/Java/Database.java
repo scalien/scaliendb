@@ -53,14 +53,12 @@ public class Database
      * @see Table 
      */
     public Table getTable(String name) throws SDBPException {
-        List<Table> tables = getTables();
-        for (Table table : tables)
-        {
-            if (table.getName().equals(name))
-                return table;
-        }
-
-        throw new SDBPException(Status.SDBP_BADSCHEMA, "Table not found"); 
+        BigInteger biDatabaseID = BigInteger.valueOf(databaseID);
+        BigInteger bi = scaliendb_client.SDBP_GetTableIDByName(client.getPtr(), biDatabaseID, name);
+        long tableID = bi.longValue();
+        if (tableID == 0)
+            throw new SDBPException(Status.SDBP_BADSCHEMA, "Table not found: " + name);
+        return new Table(client, this, tableID, name);
     }
 
     /**

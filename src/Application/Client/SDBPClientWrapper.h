@@ -127,14 +127,17 @@ int             SDBP_TruncateTable(ClientObj client, uint64_t tableID);
 unsigned        SDBP_GetNumQuorums(ClientObj client);
 uint64_t        SDBP_GetQuorumIDAt(ClientObj client, unsigned n);
 std::string     SDBP_GetQuorumNameAt(ClientObj client, unsigned n);
+uint64_t        SDBP_GetQuorumIDByName(ClientObj client, const std::string& name);
 
 unsigned        SDBP_GetNumDatabases(ClientObj client);
 uint64_t        SDBP_GetDatabaseIDAt(ClientObj client, unsigned n);
 std::string     SDBP_GetDatabaseNameAt(ClientObj client, unsigned n);
+uint64_t        SDBP_GetDatabaseIDByName(ClientObj client, const std::string& name);
 
 unsigned        SDBP_GetNumTables(ClientObj client, uint64_t databaseID);
 uint64_t        SDBP_GetTableIDAt(ClientObj client, uint64_t databaseID, unsigned n);
 std::string     SDBP_GetTableNameAt(ClientObj client, uint64_t databaseID, unsigned n);
+uint64_t        SDBP_GetTableIDByName(ClientObj client, uint64_t databaseID, const std::string& name);
 
 /*
 ===============================================================================================
