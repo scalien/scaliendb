@@ -1634,6 +1634,46 @@ SWIGEXPORT jstring JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_
 }
 
 
+SWIGEXPORT jobject JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_1GetQuorumIDByName(JNIEnv *jenv, jclass jcls, jlong jarg1, jstring jarg2) {
+  jobject jresult = 0 ;
+  ClientObj arg1 = (ClientObj) 0 ;
+  std::string *arg2 = 0 ;
+  uint64_t result;
+  
+  (void)jenv;
+  (void)jcls;
+  arg1 = *(ClientObj *)&jarg1; 
+  if(!jarg2) {
+    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "null std::string");
+    return 0;
+  }
+  const char *arg2_pstr = (const char *)jenv->GetStringUTFChars(jarg2, 0); 
+  if (!arg2_pstr) return 0;
+  std::string arg2_str(arg2_pstr);
+  arg2 = &arg2_str;
+  jenv->ReleaseStringUTFChars(jarg2, arg2_pstr); 
+  result = (uint64_t)SDBP_GetQuorumIDByName(arg1,(std::string const &)*arg2);
+  {
+    jbyteArray ba = jenv->NewByteArray(9);
+    jbyte* bae = jenv->GetByteArrayElements(ba, 0);
+    jclass clazz = jenv->FindClass("java/math/BigInteger");
+    jmethodID mid = jenv->GetMethodID(clazz, "<init>", "([B)V");
+    jobject bigint;
+    int i;
+    
+    bae[0] = 0;
+    for(i=1; i<9; i++ ) {
+      bae[i] = (jbyte)(result>>8*(8-i));
+    }
+    
+    jenv->ReleaseByteArrayElements(ba, bae, 0);
+    bigint = jenv->NewObject(clazz, mid, ba);
+    jresult = bigint;
+  }
+  return jresult;
+}
+
+
 SWIGEXPORT jlong JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_1GetNumDatabases(JNIEnv *jenv, jclass jcls, jlong jarg1) {
   jlong jresult = 0 ;
   ClientObj arg1 = (ClientObj) 0 ;
@@ -1692,6 +1732,46 @@ SWIGEXPORT jstring JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_
   arg2 = (unsigned int)jarg2; 
   result = SDBP_GetDatabaseNameAt(arg1,arg2);
   jresult = jenv->NewStringUTF((&result)->c_str()); 
+  return jresult;
+}
+
+
+SWIGEXPORT jobject JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_1GetDatabaseIDByName(JNIEnv *jenv, jclass jcls, jlong jarg1, jstring jarg2) {
+  jobject jresult = 0 ;
+  ClientObj arg1 = (ClientObj) 0 ;
+  std::string *arg2 = 0 ;
+  uint64_t result;
+  
+  (void)jenv;
+  (void)jcls;
+  arg1 = *(ClientObj *)&jarg1; 
+  if(!jarg2) {
+    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "null std::string");
+    return 0;
+  }
+  const char *arg2_pstr = (const char *)jenv->GetStringUTFChars(jarg2, 0); 
+  if (!arg2_pstr) return 0;
+  std::string arg2_str(arg2_pstr);
+  arg2 = &arg2_str;
+  jenv->ReleaseStringUTFChars(jarg2, arg2_pstr); 
+  result = (uint64_t)SDBP_GetDatabaseIDByName(arg1,(std::string const &)*arg2);
+  {
+    jbyteArray ba = jenv->NewByteArray(9);
+    jbyte* bae = jenv->GetByteArrayElements(ba, 0);
+    jclass clazz = jenv->FindClass("java/math/BigInteger");
+    jmethodID mid = jenv->GetMethodID(clazz, "<init>", "([B)V");
+    jobject bigint;
+    int i;
+    
+    bae[0] = 0;
+    for(i=1; i<9; i++ ) {
+      bae[i] = (jbyte)(result>>8*(8-i));
+    }
+    
+    jenv->ReleaseByteArrayElements(ba, bae, 0);
+    bigint = jenv->NewObject(clazz, mid, ba);
+    jresult = bigint;
+  }
   return jresult;
 }
 
@@ -1826,6 +1906,70 @@ SWIGEXPORT jstring JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_
   arg3 = (unsigned int)jarg3; 
   result = SDBP_GetTableNameAt(arg1,arg2,arg3);
   jresult = jenv->NewStringUTF((&result)->c_str()); 
+  return jresult;
+}
+
+
+SWIGEXPORT jobject JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_1GetTableIDByName(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg2, jstring jarg3) {
+  jobject jresult = 0 ;
+  ClientObj arg1 = (ClientObj) 0 ;
+  uint64_t arg2 ;
+  std::string *arg3 = 0 ;
+  uint64_t result;
+  
+  (void)jenv;
+  (void)jcls;
+  arg1 = *(ClientObj *)&jarg1; 
+  {
+    jclass clazz;
+    jmethodID mid;
+    jbyteArray ba;
+    jbyte* bae;
+    jsize sz;
+    int i;
+    
+    if (!jarg2) {
+      SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "BigInteger null");
+      return 0;
+    }
+    clazz = jenv->GetObjectClass(jarg2);
+    mid = jenv->GetMethodID(clazz, "toByteArray", "()[B");
+    ba = (jbyteArray)jenv->CallObjectMethod(jarg2, mid);
+    bae = jenv->GetByteArrayElements(ba, 0);
+    sz = jenv->GetArrayLength(ba);
+    arg2 = 0;
+    for(i=0; i<sz; i++) {
+      arg2 = (arg2 << 8) | (uint64_t)(unsigned char)bae[i];
+    }
+    jenv->ReleaseByteArrayElements(ba, bae, 0);
+  }
+  if(!jarg3) {
+    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "null std::string");
+    return 0;
+  }
+  const char *arg3_pstr = (const char *)jenv->GetStringUTFChars(jarg3, 0); 
+  if (!arg3_pstr) return 0;
+  std::string arg3_str(arg3_pstr);
+  arg3 = &arg3_str;
+  jenv->ReleaseStringUTFChars(jarg3, arg3_pstr); 
+  result = (uint64_t)SDBP_GetTableIDByName(arg1,arg2,(std::string const &)*arg3);
+  {
+    jbyteArray ba = jenv->NewByteArray(9);
+    jbyte* bae = jenv->GetByteArrayElements(ba, 0);
+    jclass clazz = jenv->FindClass("java/math/BigInteger");
+    jmethodID mid = jenv->GetMethodID(clazz, "<init>", "([B)V");
+    jobject bigint;
+    int i;
+    
+    bae[0] = 0;
+    for(i=1; i<9; i++ ) {
+      bae[i] = (jbyte)(result>>8*(8-i));
+    }
+    
+    jenv->ReleaseByteArrayElements(ba, bae, 0);
+    bigint = jenv->NewObject(clazz, mid, ba);
+    jresult = bigint;
+  }
   return jresult;
 }
 

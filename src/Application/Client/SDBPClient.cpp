@@ -386,6 +386,20 @@ uint64_t Client::GetMasterTimeout()
     return masterTimeout.GetDelay();
 }
 
+// this must be called with the client lock locked!
+ConfigState* Client::UnprotectedGetConfigState()
+{
+    if (!configState.hasMaster)
+    {
+        result->Close();
+        Unlock();
+        EventLoop();
+        Lock();
+    }
+
+    return &configState;
+}
+
 ConfigState* Client::GetConfigState()
 {
     Log_Trace();
@@ -402,12 +416,6 @@ ConfigState* Client::GetConfigState()
         EventLoop();
         CLIENT_MUTEX_GUARD_LOCK();
     }
-
-    // TODO: remove if working
-    //if (configStateVersion != configState.paxosID)
-    //{
-    //    controller->GetConfigState(configState, true);
-    //}
 
     return &configState;
 }
@@ -426,12 +434,6 @@ void Client::CloneConfigState(ConfigState& configState_)
         EventLoop();
         CLIENT_MUTEX_GUARD_LOCK();
     }
-
-    // TODO: remove if working
-    //if (configStateVersion != configState.paxosID)
-    //{
-    //    controller->GetConfigState(configState, true);
-    //}
 
     configState_ = configState;
 }

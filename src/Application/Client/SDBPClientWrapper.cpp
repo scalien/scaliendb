@@ -396,9 +396,13 @@ std::string SDBP_GetJSONConfigState(ClientObj client_)
     Buffer              buffer;
     std::string         ret;
     
-    configState = client->GetConfigState();
+    client->Lock();
+    configState = client->UnprotectedGetConfigState();
     if (configState == NULL)
+    {
+        client->Unlock();
         return "{}";    // empty
+    }
     
     jsonWriter.Init(&buffer);
     jsonWriter.Start();
@@ -408,6 +412,8 @@ std::string SDBP_GetJSONConfigState(ClientObj client_)
     jsonConfigState.Write();
 
     jsonWriter.End();
+
+    client->Unlock();
     
     ret.assign(buffer.GetBuffer(), buffer.GetLength());
     return ret;
@@ -581,6 +587,37 @@ std::string SDBP_GetQuorumNameAt(ClientObj client_, unsigned n)
     return ret;
 }
 
+uint64_t SDBP_GetQuorumIDByName(ClientObj client_, const std::string& name_)
+{
+    Client*             client = (Client*) client_;
+    ReadBuffer          name;
+    uint64_t            quorumID;
+    ConfigQuorum*       quorum;
+    ConfigState*        configState;
+    ReadBuffer          quorumName;
+    
+    name.Wrap((char*) name_.c_str(), name_.length());
+    quorumID = 0;
+
+    client->Lock();
+    
+    configState = client->UnprotectedGetConfigState();
+    FOREACH (quorum, configState->quorums)
+    {
+        quorumName.Wrap(quorum->name);
+        if (ReadBuffer::Cmp(quorumName, name) == 0)
+        {
+            quorumID = quorum->quorumID;
+            break;
+        }
+    }
+    
+    client->Unlock();
+    
+    return quorumID;
+    
+}
+
 unsigned SDBP_GetNumDatabases(ClientObj client_)
 {
     Client*             client = (Client*) client_;
@@ -607,6 +644,36 @@ std::string SDBP_GetDatabaseNameAt(ClientObj client_, unsigned n)
     return ret;
 }
 
+uint64_t SDBP_GetDatabaseIDByName(ClientObj client_, const std::string& name_)
+{
+    Client*             client = (Client*) client_;
+    ConfigState*        configState;
+    ConfigDatabase*     database;
+    ReadBuffer          databaseName;
+    ReadBuffer          name;
+    uint64_t            databaseID;
+
+    name.Wrap((char*) name_.c_str(), name_.length());
+    databaseID = 0;
+
+    client->Lock();
+    
+    configState = client->UnprotectedGetConfigState();
+    FOREACH (database, configState->databases)
+    {
+        databaseName.Wrap(database->name);
+        if (ReadBuffer::Cmp(databaseName, name) == 0)
+        {
+            databaseID = database->databaseID;
+            break;
+        }
+    }
+    
+    client->Unlock();
+    
+    return databaseID;
+}
+
 unsigned SDBP_GetNumTables(ClientObj client_, uint64_t databaseID)
 {
     Client*             client = (Client*) client_;
@@ -631,6 +698,36 @@ std::string SDBP_GetTableNameAt(ClientObj client_, uint64_t databaseID, unsigned
     ret.assign(name.GetBuffer(), name.GetLength());
     
     return ret;
+}
+
+uint64_t SDBP_GetTableIDByName(ClientObj client_, uint64_t databaseID, const std::string& name_)
+{
+    Client*             client = (Client*) client_;
+    ConfigState*        configState;
+    ConfigTable*        table;
+    ReadBuffer          tableName;
+    ReadBuffer          name;
+    uint64_t            tableID;
+
+    name.Wrap((char*) name_.c_str(), name_.length());
+    tableID = 0;
+
+    client->Lock();
+    
+    configState = client->UnprotectedGetConfigState();
+    FOREACH (table, configState->tables)
+    {
+        tableName.Wrap(table->name);
+        if (table->databaseID == databaseID && ReadBuffer::Cmp(tableName, name) == 0)
+        {
+            tableID = table->tableID;
+            break;
+        }
+    }
+    
+    client->Unlock();
+    
+    return tableID;    
 }
 
 //unsigned SDBP_GetNumShards(ClientObj client_)

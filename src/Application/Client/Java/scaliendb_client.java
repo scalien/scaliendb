@@ -195,6 +195,10 @@ public class scaliendb_client {
     return scaliendb_clientJNI.SDBP_GetQuorumNameAt(SWIGTYPE_p_void.getCPtr(client), n);
   }
 
+  public static java.math.BigInteger SDBP_GetQuorumIDByName(SWIGTYPE_p_void client, String name) {
+    return scaliendb_clientJNI.SDBP_GetQuorumIDByName(SWIGTYPE_p_void.getCPtr(client), name);
+  }
+
   public static long SDBP_GetNumDatabases(SWIGTYPE_p_void client) {
     return scaliendb_clientJNI.SDBP_GetNumDatabases(SWIGTYPE_p_void.getCPtr(client));
   }
@@ -207,6 +211,10 @@ public class scaliendb_client {
     return scaliendb_clientJNI.SDBP_GetDatabaseNameAt(SWIGTYPE_p_void.getCPtr(client), n);
   }
 
+  public static java.math.BigInteger SDBP_GetDatabaseIDByName(SWIGTYPE_p_void client, String name) {
+    return scaliendb_clientJNI.SDBP_GetDatabaseIDByName(SWIGTYPE_p_void.getCPtr(client), name);
+  }
+
   public static long SDBP_GetNumTables(SWIGTYPE_p_void client, java.math.BigInteger databaseID) {
     return scaliendb_clientJNI.SDBP_GetNumTables(SWIGTYPE_p_void.getCPtr(client), databaseID);
   }
@@ -217,6 +225,10 @@ public class scaliendb_client {
 
   public static String SDBP_GetTableNameAt(SWIGTYPE_p_void client, java.math.BigInteger databaseID, long n) {
     return scaliendb_clientJNI.SDBP_GetTableNameAt(SWIGTYPE_p_void.getCPtr(client), databaseID, n);
+  }
+
+  public static java.math.BigInteger SDBP_GetTableIDByName(SWIGTYPE_p_void client, java.math.BigInteger databaseID, String name) {
+    return scaliendb_clientJNI.SDBP_GetTableIDByName(SWIGTYPE_p_void.getCPtr(client), databaseID, name);
   }
 
   public static int SDBP_Get(SWIGTYPE_p_void client, java.math.BigInteger tableID, String key) {

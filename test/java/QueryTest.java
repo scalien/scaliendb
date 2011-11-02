@@ -20,7 +20,7 @@ public class QueryTest {
 			controllers = configLoader.getControllers();
 
             Client client = new Client(controllers);
-            // client.setTrace(true);
+            client.setTrace(configLoader.isTrace());
 
 			queryTest(client);
             
