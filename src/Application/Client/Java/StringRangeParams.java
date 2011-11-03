@@ -40,6 +40,19 @@ public class StringRangeParams
     public int count = -1;
     public boolean forwardDirection = true;
     
+    ByteRangeParams toByteRangeParams()
+    {
+        ByteRangeParams ps = new ByteRangeParams();
+
+        ps.prefix = Client.stringToByteArray(prefix);
+        ps.startKey = Client.stringToByteArray(startKey);
+        ps.endKey = Client.stringToByteArray(endKey);
+        ps.count = count;
+        ps.forwardDirection = forwardDirection;
+            
+        return ps;
+    }
+
     /**
      * Specify the prefix parameter for iteration.
      * <p>Only keys starting with prefix will be returned by the iteration.
