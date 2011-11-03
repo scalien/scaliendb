@@ -49,12 +49,7 @@ namespace Scalien
     {
         Client client;
         ulong tableID;
-        string stringKey;
-        byte[] byteKey;
-
-        long gran = 1000;
-        long seq = 0;
-        long num = 0;
+        byte[] key;
 
         #region Constructors, destructors
 
@@ -62,38 +57,25 @@ namespace Scalien
         {
             this.client = client;
             this.tableID = tableID;
-            this.stringKey = key;
+            this.key = Client.StringToByteArray(key);
         }
 
         internal Sequence(Client client, ulong tableID, byte[] key)
         {
             this.client = client;
             this.tableID = tableID;
-            this.byteKey = key;
+            this.key = key;
         }
 
         #endregion
-
-        #region Internal and private helpers
-
-        private void AllocateRange()
-        {
-            if (stringKey != null)
-                seq = client.Add(tableID, stringKey, gran) - gran + 1;
-            else
-                seq = client.Add(tableID, byteKey, gran) - gran + 1;
-            num = gran;
-        }
-
-        #endregion
-        
+      
         /// <summary>
         /// Set the gran of the seqeunce increments (default 1000).
         /// </summary>
         /// <param name="gran">The gran of the sequence.</param>
+        [System.Obsolete]
         public void SetGranularity(long gran)
         {
-            this.gran = gran;
         }
 
         /// <summary>
@@ -107,25 +89,31 @@ namespace Scalien
         /// </remarks>
         public void Reset()
         {
-            if (stringKey != null)
-                client.Delete(tableID, stringKey);
-            else
-                client.Delete(tableID, byteKey);
-            num = 0;
+            client.SequenceSet(tableID, key, 1);
+        }
+
+        /// <summary>
+        /// Set the sequence to a given value. The next time <see cref="GetNext"/> is called, value will be returned.
+        /// </summary>
+        /// <remarks>
+        /// This sets:
+        /// <para><c>
+        /// key => value
+        /// </c></para>
+        /// </remarks>
+        public void Set(ulong value)
+        {
+            client.SequenceSet(tableID, key, value);
         }
 
         /// <summary>
         /// Get the next sequence value.
         /// </summary>
-        public long GetNext
+        public ulong GetNext
         {
             get
             {
-                if (num == 0)
-                    AllocateRange();
-                
-                num--;
-                return seq++;
+                return client.SequenceNext(tableID, key);
             }
         }
     }

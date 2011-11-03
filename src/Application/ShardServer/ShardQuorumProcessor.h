@@ -11,10 +11,11 @@
 
 class ShardServer;
 
-#define NORMAL_PRIMARYLEASE_REQUEST_TIMEOUT         500
-#define ACTIVATION_PRIMARYLEASE_REQUEST_TIMEOUT     100
-#define MAX_LEASE_REQUESTS                          50
-#define UNBLOCK_SHARD_TIMEOUT                       3000
+#define NORMAL_PRIMARYLEASE_REQUEST_TIMEOUT         (500)
+#define ACTIVATION_PRIMARYLEASE_REQUEST_TIMEOUT     (100)
+#define MAX_LEASE_REQUESTS                          (50)
+#define UNBLOCK_SHARD_TIMEOUT                       (3000)
+#define SEQUENCE_GRANULARITY                        (1000)
 
 /*
 ===============================================================================================

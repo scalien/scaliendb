@@ -848,6 +848,42 @@ int SDBP_DeleteCStr(ClientObj client_, uint64_t tableID, char* key_, int len)
     return client->Delete(tableID, key);
 }
 
+int SDBP_SequenceSet(ClientObj client_, uint64_t tableID, const std::string& key_, uint64_t number)
+{
+    Client*     client = (Client*) client_;
+    ReadBuffer  key((char*) key_.c_str(), key_.length());
+
+    return client->SequenceSet(tableID, key, number);
+}
+
+int SDBP_SequenceSetCStr(ClientObj client_, uint64_t tableID, char* key_, int len, uint64_t number)
+{
+    Client*     client = (Client*) client_;
+    ReadBuffer  key;
+
+    key.Wrap((char*) key_, len);
+
+    return client->SequenceSet(tableID, key, number);
+}
+
+int SDBP_SequenceNext(ClientObj client_, uint64_t tableID, const std::string& key_)
+{
+    Client*     client = (Client*) client_;
+    ReadBuffer  key((char*) key_.c_str(), key_.length());
+
+    return client->SequenceNext(tableID, key);
+}
+
+int SDBP_SequenceNextCStr(ClientObj client_, uint64_t tableID, char* key_, int len)
+{
+    Client*     client = (Client*) client_;
+    ReadBuffer  key;
+
+    key.Wrap((char*) key_, len);
+
+    return client->SequenceNext(tableID, key);
+}
+
 int SDBP_ListKeys(ClientObj client_, uint64_t tableID, 
  const std::string& key_, const std::string& endKey_, const std::string& prefix_, 
  unsigned count, bool forwardDirection, bool skip)

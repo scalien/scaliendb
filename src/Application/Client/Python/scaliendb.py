@@ -351,28 +351,19 @@ class Client:
         def __init__(self, table, key):
             self._table = table
             self._key = key
-            self._gran = 1000
-            self._seq = 0
-            self._num = 0
         
         def set_granularity(self, gran):
-            self._gran = 1000
+            pass
         
-        def reset():
-            client._delete(self._table._table_id, self._key)
-        
-        def get(self):
-            if self._num == 0:
-                self._allocate_range()    
-            self._num -= 1
-            ret = self._seq
-            self._seq += 1
-            return ret
-        
-        def _allocate_range(self):
-            self._seq = self._table._client._add(self._table._table_id, self._key, self._gran) - self._gran + 1
-            self._num = self._gran
+        def reset(self):
+            self._table._client._sequence_set(self._table._table_id, self._key, 1)
 
+        def set(self, value):
+            self._table._client._sequence_set(self._table._table_id, self._key, value)
+        
+        def next(self):
+            return self._table._client._sequence_next(self._table._table_id, self._key)
+        
     # =============================================================================================
     #
     # Submitter
@@ -503,6 +494,16 @@ class Client:
     def _delete(self, table_id, key):
         key = Client._typemap(key)
         status, ret = self._data_command(SDBP_Delete, table_id, key)
+
+    def _sequence_set(self, table_id, key, num):
+        key = Client._typemap(key)
+        status, ret = self._data_command(SDBP_SequenceSet, table_id, key, num)
+
+    def _sequence_next(self, table_id, key):
+        key = Client._typemap(key)
+        status, ret = self._data_command(SDBP_SequenceNext, table_id, key)
+        if ret:
+            return self._result.number()
 
     def _count(self, table_id, prefix="", start_key="", end_key="", direction="forward"):
         start_key = Client._typemap(start_key)

@@ -9,6 +9,7 @@
 #define SHARDMESSAGE_TEST_AND_DELETE        'i'
 #define SHARDMESSAGE_GET_AND_SET            'g'
 #define SHARDMESSAGE_ADD                    'a'
+#define SHARDMESSAGE_SEQUENCE_ADD           'A'
 #define SHARDMESSAGE_APPEND                 'p'
 #define SHARDMESSAGE_DELETE                 'X'
 #define SHARDMESSAGE_REMOVE                 'x'
@@ -53,17 +54,6 @@ public:
     ShardMessage();
     
     bool            IsClientWrite();
-
-    // Data manipulation
-    void            Set(uint64_t tableID, ReadBuffer& key, ReadBuffer& value);
-    void            SetIfNotExists(uint64_t tableID, ReadBuffer& key, ReadBuffer& value);
-    void            TestAndSet(uint64_t tableID, ReadBuffer& key, ReadBuffer& test, ReadBuffer& value);
-    void            TestAndDelete(uint64_t tableID, ReadBuffer& key, ReadBuffer& test);
-    void            GetAndSet(uint64_t tableID, ReadBuffer& key, ReadBuffer& value);
-    void            Add(uint64_t tableID, ReadBuffer& key, int64_t number);
-    void            Append(uint64_t tableID, ReadBuffer& key, ReadBuffer& value);
-    void            Delete(uint64_t tableID, ReadBuffer& key);
-    void            Remove(uint64_t tableID, ReadBuffer& key);
 
     void            SplitShard(uint64_t shardID, uint64_t newShardID, ReadBuffer& splitKey);
     void            TruncateTable(uint64_t tableID, uint64_t newShardID);

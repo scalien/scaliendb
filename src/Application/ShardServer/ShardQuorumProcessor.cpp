@@ -6,6 +6,7 @@
 
 #define CONFIG_STATE            (shardServer->GetConfigState())
 #define SHARD_MIGRATION_WRITER  (shardServer->GetShardMigrationWriter())
+#define DATABASE_MANAGER        (shardServer->GetDatabaseManager())
 
 static bool LessThan(uint64_t a, uint64_t b)
 {
@@ -347,7 +348,6 @@ void ShardQuorumProcessor::OnLeaseTimeout()
             itMessage->clientRequest = NULL;
         }
         shardMessages.Remove(itMessage);
-//        delete itMessage;
         messageCache.Release(itMessage);
     }
     
@@ -357,9 +357,8 @@ void ShardQuorumProcessor::OnLeaseTimeout()
     migrateNodeID = 0;
     migrateCache = 0;
     blockedShardID = 0;
-    
-    //if (catchupWriter.IsActive())
-    //    catchupWriter.Abort();
+
+    DATABASE_MANAGER->OnLeaseTimeout();
 }
 
 bool ShardQuorumProcessor::IsResumeAppendActive()
@@ -395,13 +394,13 @@ void ShardQuorumProcessor::OnClientRequest(ClientRequest* request)
 
     if (request->type == CLIENTREQUEST_GET)
     {
-        shardServer->GetDatabaseManager()->OnClientReadRequest(request);        
+        DATABASE_MANAGER->OnClientReadRequest(request);        
         return;
     }
     
     if (request->IsList())
     {
-        shardServer->GetDatabaseManager()->OnClientListRequest(request);
+        DATABASE_MANAGER->OnClientListRequest(request);
         return;
     }
         
@@ -413,13 +412,16 @@ void ShardQuorumProcessor::OnClientRequest(ClientRequest* request)
         request->OnComplete();
         return;
     }
+
+    if (request->type == CLIENTREQUEST_SEQUENCE_NEXT)
+    {
+        if (DATABASE_MANAGER->OnClientSequenceNext(request))
+            return; // DATABASE_MANAGER served it from its cache, we're done
+    }
     
-//    message = new ShardMessage;
     message = messageCache.Acquire();
     TransformRequest(request, message);
     
-    //Log_Trace("message.type = %c, message.key = %R", message->type, &message->key);
-
     message->clientRequest = request;
     shardMessages.Append(message);
 
@@ -752,7 +754,20 @@ void ShardQuorumProcessor::TransformRequest(ClientRequest* request, ShardMessage
             message->type = SHARDMESSAGE_REMOVE;
             message->tableID = request->tableID;
             message->key.Wrap(request->key);
-            break;            
+            break;
+        case CLIENTREQUEST_SEQUENCE_SET:
+            message->type = SHARDMESSAGE_SET;
+            message->tableID = request->tableID;
+            message->key.Wrap(request->key);
+            request->value.Writef("%U", request->sequence);
+            message->value.Wrap(request->value);
+            break;
+        case CLIENTREQUEST_SEQUENCE_NEXT:
+            message->type = SHARDMESSAGE_SEQUENCE_ADD;
+            message->tableID = request->tableID;
+            message->key.Wrap(request->key);
+            message->number = SEQUENCE_GRANULARITY;
+            break;
         default:
             ASSERT_FAIL();
     }
@@ -767,7 +782,7 @@ void ShardQuorumProcessor::ExecuteMessage(uint64_t paxosID, uint64_t commandID,
     if (shardMessage->type == SHARDMESSAGE_MIGRATION_BEGIN)
     {
         Log_Message("Disabling database merge for the duration of shard migration");
-        shardServer->GetDatabaseManager()->GetEnvironment()->SetMergeEnabled(false);
+        DATABASE_MANAGER->GetEnvironment()->SetMergeEnabled(false);
     }
 
     if (shardMessage->type == SHARDMESSAGE_MIGRATION_SET && migrateCache > 0)
@@ -781,7 +796,7 @@ void ShardQuorumProcessor::ExecuteMessage(uint64_t paxosID, uint64_t commandID,
     {
         Log_Message("Migration of shard %U complete...", migrateShardID);
         Log_Message("Enabling database merge");
-        shardServer->GetDatabaseManager()->GetEnvironment()->SetMergeEnabled(true);
+        DATABASE_MANAGER->GetEnvironment()->SetMergeEnabled(true);
 
         clusterMessage.ShardMigrationComplete(GetQuorumID(), migrateShardID);
         migrateShardID = 0;
@@ -793,7 +808,7 @@ void ShardQuorumProcessor::ExecuteMessage(uint64_t paxosID, uint64_t commandID,
     }
     else
     {
-        shardID = shardServer->GetDatabaseManager()->ExecuteMessage(GetQuorumID(), paxosID, commandID, *shardMessage);
+        shardID = DATABASE_MANAGER->ExecuteMessage(GetQuorumID(), paxosID, commandID, *shardMessage);
         catchupWriter.OnShardMessage(paxosID, commandID, shardID, *shardMessage);
     }
 
@@ -802,10 +817,12 @@ void ShardQuorumProcessor::ExecuteMessage(uint64_t paxosID, uint64_t commandID,
         
     if (shardMessage->clientRequest)
     {
-        shardMessage->clientRequest->OnComplete(); // request deletes itself
+        if (shardMessage->clientRequest->type == CLIENTREQUEST_SEQUENCE_NEXT)
+            DATABASE_MANAGER->OnClientSequenceNext(shardMessage->clientRequest);
+        else
+            shardMessage->clientRequest->OnComplete(); // request deletes itself
         shardMessage->clientRequest = NULL;
     }
-//    shardMessages.Delete(shardMessage);
     shardMessages.Remove(shardMessage);
     messageCache.Release(shardMessage);
 }
@@ -923,7 +940,7 @@ void ShardQuorumProcessor::LocalExecute()
     
     ASSERT_FAIL();
     
-    if (shardServer->GetDatabaseManager()->GetEnvironment()->IsCommiting(GetQuorumID()))
+    if (DATABASE_MANAGER->GetEnvironment()->IsCommiting(GetQuorumID()))
     {
         EventLoop::Add(&localExecute);
         Log_Debug("ExecuteSingles YIELD because commit is active");
@@ -958,7 +975,7 @@ void ShardQuorumProcessor::LocalExecute()
 
     quorumContext.WriteReplicationState();
     
-    shardServer->GetDatabaseManager()->GetEnvironment()->Commit(GetQuorumID());    
+    DATABASE_MANAGER->GetEnvironment()->Commit(GetQuorumID());    
 }
 
 void ShardQuorumProcessor::BlockShard()

@@ -15,82 +15,10 @@ bool ShardMessage::IsClientWrite()
             type == SHARDMESSAGE_TEST_AND_DELETE ||
             type == SHARDMESSAGE_GET_AND_SET ||
             type == SHARDMESSAGE_ADD ||
+            type == SHARDMESSAGE_SEQUENCE_ADD ||
             type == SHARDMESSAGE_APPEND ||
             type == SHARDMESSAGE_DELETE ||
             type == SHARDMESSAGE_REMOVE);
-}
-
-void ShardMessage::Set(uint64_t tableID_, ReadBuffer& key_, ReadBuffer& value_)
-{
-    type = SHARDMESSAGE_SET;
-    tableID = tableID_;
-    key = key_;
-    value = value_;
-}
-
-void ShardMessage::SetIfNotExists(uint64_t tableID_, ReadBuffer& key_, ReadBuffer& value_)
-{
-    type = SHARDMESSAGE_SET_IF_NOT_EXISTS;
-    tableID = tableID_;
-    key = key_;
-    value = value_;
-}
-
-void ShardMessage::TestAndSet(uint64_t tableID_, ReadBuffer& key_,
- ReadBuffer& test_, ReadBuffer& value_)
-{
-    type = SHARDMESSAGE_TEST_AND_SET;
-    tableID = tableID_;
-    key = key_;
-    test = test_;
-    value = value_;
-}
-
-void ShardMessage::TestAndDelete(uint64_t tableID_, ReadBuffer& key_,
- ReadBuffer& test_)
-{
-    type = SHARDMESSAGE_TEST_AND_DELETE;
-    tableID = tableID_;
-    key = key_;
-    test = test_;
-}
-
-void ShardMessage::GetAndSet(uint64_t tableID_, ReadBuffer& key_, ReadBuffer& value_)
-{
-    type = SHARDMESSAGE_GET_AND_SET;
-    tableID = tableID_;
-    key = key_;
-    value = value_;
-}
-
-void ShardMessage::Add(uint64_t tableID_, ReadBuffer& key_, int64_t number_)
-{
-    type = SHARDMESSAGE_DELETE;
-    tableID = tableID_;
-    key = key_;
-    number = number_;
-}
-
-void ShardMessage::Append(uint64_t tableID_, ReadBuffer& key_, ReadBuffer& value_)
-{
-    type = SHARDMESSAGE_APPEND;
-    tableID = tableID_;
-    key = key_;
-    value = value_;
-}
-
-void ShardMessage::Delete(uint64_t tableID_, ReadBuffer& key_)
-{
-    type = SHARDMESSAGE_DELETE;
-    tableID = tableID_;
-    key = key_;
-}
-
-void ShardMessage::Remove(uint64_t tableID_, ReadBuffer& key_)
-{
-    type = SHARDMESSAGE_REMOVE;
-    tableID = tableID_;
-    key = key_;
 }
 
 void ShardMessage::SplitShard(uint64_t shardID_, uint64_t newShardID_, ReadBuffer& splitKey_)
@@ -170,6 +98,7 @@ int ShardMessage::Read(ReadBuffer& buffer)
              &type, &tableID, &key, &value);
             break;
         case SHARDMESSAGE_ADD:
+        case SHARDMESSAGE_SEQUENCE_ADD:
             read = buffer.Readf("%c:%U:%#R:%I",
              &type, &tableID, &key, &number);
             break;
@@ -244,6 +173,7 @@ bool ShardMessage::Append(Buffer& buffer)
              type, tableID, &key, &value);
             break;
         case SHARDMESSAGE_ADD:
+        case SHARDMESSAGE_SEQUENCE_ADD:
             buffer.Appendf("%c:%U:%#R:%I",
              type, tableID, &key, number);
             break;

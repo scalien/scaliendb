@@ -434,6 +434,18 @@ class scaliendb_clientPINVOKE {
   [DllImport("scaliendb_client", EntryPoint="CSharp_SDBP_DeleteCStr")]
   public static extern int SDBP_DeleteCStr(HandleRef jarg1, ulong jarg2, IntPtr jarg3, int jarg4);
 
+  [DllImport("scaliendb_client", EntryPoint = "CSharp_SDBP_SequenceSet")]
+  public static extern int SDBP_SequenceSet(HandleRef jarg1, ulong jarg2, string jarg3, ulong jarg4);
+
+  [DllImport("scaliendb_client", EntryPoint = "CSharp_SDBP_SequenceSetCStr")]
+  public static extern int SDBP_SequenceSetCStr(HandleRef jarg1, ulong jarg2, IntPtr jarg3, int jarg4, ulong jarg5);
+
+  [DllImport("scaliendb_client", EntryPoint = "CSharp_SDBP_SequenceNext")]
+  public static extern int SDBP_SequenceNext(HandleRef jarg1, ulong jarg2, string jarg3);
+
+  [DllImport("scaliendb_client", EntryPoint = "CSharp_SDBP_SequenceNextCStr")]
+  public static extern int SDBP_SequenceNextCStr(HandleRef jarg1, ulong jarg2, IntPtr jarg3, int jarg4);
+
   [DllImport("scaliendb_client", EntryPoint="CSharp_SDBP_ListKeys")]
   public static extern int SDBP_ListKeys(HandleRef jarg1, ulong jarg2, string jarg3, string jarg4, string jarg5, uint jarg6, bool jarg7, bool jarg8);
 

@@ -179,12 +179,12 @@ public class Database
     }
 
     /**
-     * Sets the sequence granularity.
+     * Resets the sequence number to value.
      * @param tableName The name of the sequence table
      * @param sequenceName The name of the sequence
      * @exception SDBPException
      */
-    public void setSequenceGranularity(String tableName, String sequenceName, long granularity) throws SDBPException {
+    public void setSequenceNumber(String tableName, String sequenceName, long value) throws SDBPException {
         String separator = "/";
         String sequenceID = databaseID + separator + tableName + separator + sequenceName;
 
@@ -198,6 +198,16 @@ public class Database
                 sequences.put(sequenceID, sequence);
             }
         }
-        sequence.setGranularity(granularity);
+        sequence.set(client, value);
+    }
+
+    /**
+     * @deprecated
+     * Sets the sequence granularity.
+     * @param tableName The name of the sequence table
+     * @param sequenceName The name of the sequence
+     * @exception SDBPException
+     */
+    public void setSequenceGranularity(String tableName, String sequenceName, long granularity) throws SDBPException {
     }
 }

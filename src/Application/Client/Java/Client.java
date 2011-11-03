@@ -503,6 +503,54 @@ public class Client
         result = new Result(scaliendb_client.SDBP_GetResult(cptr));
     }
 
+    void sequenceSet(long tableID, String key, long number) throws SDBPException {
+        BigInteger biTableID = BigInteger.valueOf(tableID);
+        BigInteger biNumber = BigInteger.valueOf(number);
+        int status = scaliendb_client.SDBP_SequenceSet(cptr, biTableID, key, biNumber);
+        if (status < 0) {
+            result = new Result(scaliendb_client.SDBP_GetResult(cptr));
+            checkStatus(status);
+        }
+        
+        result = new Result(scaliendb_client.SDBP_GetResult(cptr));
+    }
+
+    void sequenceSet(long tableID, byte[] key, long number) throws SDBPException {
+        BigInteger biTableID = BigInteger.valueOf(tableID);
+        BigInteger biNumber = BigInteger.valueOf(number);
+        int status = scaliendb_client.SDBP_SequenceSetCStr(cptr, biTableID, key, key.length, biNumber);
+        if (status < 0) {
+            result = new Result(scaliendb_client.SDBP_GetResult(cptr));
+            checkStatus(status);
+        }
+        
+        result = new Result(scaliendb_client.SDBP_GetResult(cptr));
+    }
+
+    long sequenceNext(long tableID, String key) throws SDBPException {
+        BigInteger biTableID = BigInteger.valueOf(tableID);
+        int status = scaliendb_client.SDBP_SequenceNext(cptr, biTableID, key);
+        if (status < 0) {
+            result = new Result(scaliendb_client.SDBP_GetResult(cptr));
+            checkStatus(status);
+        }
+                        
+        result = new Result(scaliendb_client.SDBP_GetResult(cptr));
+        return result.getNumber();
+    }
+
+    long sequenceNext(long tableID, byte[] key) throws SDBPException {
+        BigInteger biTableID = BigInteger.valueOf(tableID);
+        int status = scaliendb_client.SDBP_SequenceNextCStr(cptr, biTableID, key, key.length);
+        if (status < 0) {
+            result = new Result(scaliendb_client.SDBP_GetResult(cptr));
+            checkStatus(status);
+        }
+        
+        result = new Result(scaliendb_client.SDBP_GetResult(cptr));
+        return result.getNumber();
+    }
+
     long count(long tableID, StringRangeParams ps) throws SDBPException {
         BigInteger biTableID = BigInteger.valueOf(tableID);
         int status = scaliendb_client.SDBP_Count(
