@@ -164,11 +164,11 @@ namespace Scalien
 
         internal List<string> ListKeys(ulong tableID, string startKey, string endKey, string prefix, uint count, bool forwardDirection, bool skip)
         {
-            int status = scaliendb_client.SDBP_ListKeys(cptr, tableID, startKey, endKey, prefix, count, forwardDirection, skip);
-            CheckResultStatus(status);
-            List<string> keys = result.GetStringKeys();
-            result.Close();
-            return keys;
+            List<byte[]> byteKeys = ListKeys(tableID, StringToByteArray(startKey), StringToByteArray(endKey), StringToByteArray(prefix), count, forwardDirection, skip);
+            List<string> stringKeys = new List<string>();
+            foreach (byte[] byteKey in byteKeys)
+                stringKeys.Add(ByteArrayToString(byteKey));
+            return stringKeys;
         }
 
         internal List<byte[]> ListKeys(ulong tableID, byte[] startKey, byte[] endKey, byte[] prefix, uint count, bool forwardDirection, bool skip)
@@ -193,11 +193,11 @@ namespace Scalien
 
         internal Dictionary<string, string> ListKeyValues(ulong tableID, string startKey, string endKey, string prefix, uint count, bool forwardDirection, bool skip)
         {
-            int status = scaliendb_client.SDBP_ListKeyValues(cptr, tableID, startKey, endKey, prefix, count, forwardDirection, skip);
-            CheckResultStatus(status);
-            Dictionary<string, string> keyValues = result.GetStringKeyValues();
-            result.Close();
-            return keyValues;
+            Dictionary<byte[], byte[]> byteKeyValues = ListKeyValues(tableID, StringToByteArray(startKey), StringToByteArray(endKey), StringToByteArray(prefix), count, forwardDirection, skip);
+            Dictionary<string, string> stringKeyValues = new Dictionary<string, string>();
+            foreach (KeyValuePair<byte[], byte[]> kv in byteKeyValues)
+                stringKeyValues.Add(ByteArrayToString(kv.Key), ByteArrayToString(kv.Value));
+            return stringKeyValues;
         }
 
         internal Dictionary<byte[], byte[]> ListKeyValues(ulong tableID, byte[] startKey, byte[] endKey, byte[] prefix, uint count, bool forwardDirection, bool skip)
@@ -253,8 +253,12 @@ namespace Scalien
 
         internal static byte[] StringToByteArray(string str)
         {
-            System.Text.UTF8Encoding encoding = new System.Text.UTF8Encoding();
-            return encoding.GetBytes(str);
+            return System.Text.Encoding.UTF8.GetBytes(str);
+        }
+
+        internal static string ByteArrayToString(byte[] data)
+        {
+            return System.Text.UTF8Encoding.UTF8.GetString(data);
         }
 
         internal class ByteArrayComparer : IEqualityComparer<byte[]>
@@ -548,20 +552,7 @@ namespace Scalien
 
         internal string Get(ulong tableID, string key)
         {
-            int status = scaliendb_client.SDBP_Get(cptr, tableID, key);
-            if (status < 0)
-            {
-                if (status == Status.SDBP_FAILED)
-                    return null;
-                result = new Result(scaliendb_client.SDBP_GetResult(cptr));
-                CheckStatus(status);
-                return result.GetValue();
-            }
-
-            result = new Result(scaliendb_client.SDBP_GetResult(cptr));
-            string value = result.GetValue();
-            result.Close();
-            return value;
+            return ByteArrayToString(Get(tableID, StringToByteArray(key)));
         }
 
         internal byte[] Get(ulong tableID, byte[] key)
@@ -592,16 +583,7 @@ namespace Scalien
 
         internal void Set(ulong tableID, string key, string value)
         {
-            int status = scaliendb_client.SDBP_Set(cptr, tableID, key, value);
-            result = new Result(scaliendb_client.SDBP_GetResult(cptr));
-            if (status < 0)
-            {
-                if (status == Status.SDBP_BADSCHEMA)
-                    CheckStatus(status, "Batch limit exceeded");
-                else
-                    CheckStatus(status);
-            }
-            result.Close();
+            Set(tableID, StringToByteArray(key), StringToByteArray(value));
         }
 
         internal void Set(ulong tableID, byte[] key, byte[] value)
@@ -629,16 +611,7 @@ namespace Scalien
 
         internal long Add(ulong tableID, string key, long value)
         {
-            int status = scaliendb_client.SDBP_Add(cptr, tableID, key, value);
-            result = new Result(scaliendb_client.SDBP_GetResult(cptr));
-            if (status < 0)
-            {
-                CheckStatus(status);
-            }
-
-            long number = result.GetSignedNumber();
-            result.Close();
-            return number;
+            return Add(tableID, StringToByteArray(key), value);
         }
 
         internal long Add(ulong tableID, byte[] key, long value)
@@ -665,16 +638,7 @@ namespace Scalien
 
         internal void Delete(ulong tableID, string key)
         {
-            int status = scaliendb_client.SDBP_Delete(cptr, tableID, key);
-            result = new Result(scaliendb_client.SDBP_GetResult(cptr));
-            if (status < 0)
-            {
-                if (status == Status.SDBP_BADSCHEMA)
-                    CheckStatus(status, "Batch limit exceeded");
-                else
-                    CheckStatus(status);
-            }
-            result.Close();
+            Delete(tableID, StringToByteArray(key));
         }
 
         internal void Delete(ulong tableID, byte[] key)
@@ -701,11 +665,7 @@ namespace Scalien
 
         internal ulong Count(ulong tableID, StringRangeParams ps)
         {
-            int status = scaliendb_client.SDBP_Count(cptr, tableID, ps.startKey, ps.endKey, ps.prefix, ps.forwardDirection);
-            CheckResultStatus(status);
-            ulong number = result.GetNumber();
-            result.Close();
-            return number;
+            return Count(tableID, ps.ToByteRangeParams());
         }
 
         internal ulong Count(ulong tableID, ByteRangeParams ps)

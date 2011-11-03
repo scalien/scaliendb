@@ -155,10 +155,10 @@ def connect(nodes, database=None, table=None):
     try:
         if database == None:
             return
-        client.use_database(database)
+        globals()["database"] = client.get_database(database)
         if table == None:
             return
-        client.use_table(table)
+        globals()["table"] = client.get_database(database).get_table(table)
     except scaliendb.Error as e:
         print(e)
 

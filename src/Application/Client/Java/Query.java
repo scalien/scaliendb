@@ -27,72 +27,88 @@ public class Query
      * Specify the prefix parameter for iteration.
      * <p>Only keys starting with prefix will be returned by the iteration.
      * @param prefix The prefix parameter as a String.
+     * @return The Query object for chaining.
      */    
-    public void setPrefix(String prefix) {
+    public Query setPrefix(String prefix) {
         this.prefix = prefix.getBytes();
+        return this;
     }
     
     /**
      * Specify the prefix parameter for iteration.
      * <p>Only keys starting with prefix will be returned by the iteration.
      * @param prefix The prefix parameter as a String.
+     * @return The Query object for chaining.
      */    
-    public void setPrefix(byte[] prefix) {
+    public Query setPrefix(byte[] prefix) {
         this.prefix = prefix;
+        return this;
     }
     
     /**
      * Specify the start key parameter for iteration.
      * <p>Iteration will start at start key, or the first key greater than start key.
      * @param startKey The start key parameter as a String.
+     * @return The Query object for chaining.
      */
-    public void setStartKey(String startKey) {
+    public Query setStartKey(String startKey) {
         this.startKey = startKey.getBytes();
+        return this;
     }
     
     /**
      * Specify the start key parameter for iteration.
      * <p>Iteration will start at start key, or the first key greater than start key.
      * @param startKey The start key parameter as a byte[].
+     * @return The Query object for chaining.
      */
-    public void setStartKey(byte[] startKey) {
+    public Query setStartKey(byte[] startKey) {
         this.startKey = startKey;
+        return this;
     }
     
     /**
      * Specify the end key parameter for iteration
      * <p>Iteration will stop at end key, or the first key greater than end key.
      * @param endKey The end key parameter as a String.
+     * @return The Query object for chaining.
      */
-    public void setEndKey(String endKey) {
+    public Query setEndKey(String endKey) {
         this.endKey = endKey.getBytes();
+        return this;
     }
     
     /**
      * Specify the end key parameter for iteration
      * <p>Iteration will stop at end key, or the first key greater than end key.
      * @param endKey The end key parameter as a byte[].
+     * @return The Query object for chaining.
      */
-    public void setEndKey(byte[] endKey) {
+    public Query setEndKey(byte[] endKey) {
         this.endKey = endKey;
+        return this;
     }
     
     /**
      * Specify the count parameter for iteration
      * <p>Iteration will stop after count elements.
      * @param count The count parameter.
+     * @return The Query object for chaining.
      */    
-    public void setCount(int count) {
+    public Query setCount(int count) {
         this.count = count;
+        return this;
     }
     
     /**
      * Specify the direction fo the iteration. If true, the iteration will
      * be reversed.
      * @param reversed If true, the iteration will be reversed.
+     * @return The Query object for chaining.
      */
-    public void setReversed(boolean reversed) {
+    public Query setReversed(boolean reversed) {
         this.reversed = true;
+        return this;
     }
     
     /**
