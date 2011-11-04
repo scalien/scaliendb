@@ -71,7 +71,7 @@ class TimerFunc(Func):
     def __call__(self, *args):
         try:
             ret = timer(self.function, *args)
-            globals()["result"] = client.result
+            globals()["result"] = client._result
             return ret
         except scaliendb.Error as e:
             print(e)    
