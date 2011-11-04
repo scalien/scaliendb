@@ -89,6 +89,8 @@ bool ClientRequest::IsShardServerRequest()
         type == CLIENTREQUEST_APPEND            ||
         type == CLIENTREQUEST_DELETE            ||
         type == CLIENTREQUEST_REMOVE            ||
+        type == CLIENTREQUEST_SEQUENCE_SET      ||
+        type == CLIENTREQUEST_SEQUENCE_NEXT     ||
         type == CLIENTREQUEST_SUBMIT            ||
         type == CLIENTREQUEST_LIST_KEYS         ||
         type == CLIENTREQUEST_LIST_KEYVALUES    ||
@@ -434,6 +436,29 @@ bool ClientRequest::Remove(
  uint64_t commandID_, uint64_t configPaxosID_, uint64_t tableID_, ReadBuffer& key_)
 {
     type = CLIENTREQUEST_REMOVE;
+    commandID = commandID_;
+    configPaxosID = configPaxosID_;
+    tableID = tableID_;
+    key.Write(key_);
+    return true;
+}
+
+bool ClientRequest::SequenceSet(
+ uint64_t commandID_, uint64_t configPaxosID_, uint64_t tableID_, ReadBuffer& key_, uint64_t sequence_)
+{
+    type = CLIENTREQUEST_SEQUENCE_SET;
+    commandID = commandID_;
+    configPaxosID = configPaxosID_;
+    tableID = tableID_;
+    key.Write(key_);
+    sequence = sequence_;
+    return true;
+}
+
+bool ClientRequest::SequenceNext(
+ uint64_t commandID_, uint64_t configPaxosID_, uint64_t tableID_, ReadBuffer& key_)
+{
+    type = CLIENTREQUEST_SEQUENCE_NEXT;
     commandID = commandID_;
     configPaxosID = configPaxosID_;
     tableID = tableID_;

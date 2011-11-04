@@ -66,104 +66,6 @@ Signal                                  ioThreadSignal;
     if (configState == NULL)        \
         return SDBP_API_ERROR;
 
-#define CLIENT_DATA_COMMAND(op, ...)                \
-    Request*    req;                                \
-                                                    \
-    CLIENT_MUTEX_GUARD_DECLARE();                   \
-                                                    \
-    if (!configState.hasMaster)  					\
-		return SDBP_API_ERROR;						\
-													\
-	req = new Request;                              \
-    req->op(NextCommandID(), configState.paxosID,   \
-     tableID, __VA_ARGS__);                         \
-    AppendDataRequest(req);                         \
-                                                    \
-    CLIENT_MUTEX_GUARD_UNLOCK();                    \
-    EventLoop();                                    \
-    return result->GetCommandStatus();              \
-
-
-#define CLIENT_DATA_PROXIED_COMMAND(op, ...)        \
-    int         cmpres;                             \
-    Request*    req;                                \
-    Request*    it;                                 \
-                                                    \
-    CLIENT_MUTEX_GUARD_DECLARE();                   \
-                                                    \
-    if (!configState.hasMaster)     				\
-		return SDBP_API_ERROR;						\
-													\
-    req = new Request;                              \
-    req->op(NextCommandID(), configState.paxosID,   \
-     tableID, __VA_ARGS__);                         \
-                                                    \
-    if (batchMode == SDBP_BATCH_NOAUTOSUBMIT &&     \
-     proxySize + REQUEST_SIZE(req) >= batchLimit)   \
-    {                                               \
-        delete req;                                 \
-        return SDBP_API_ERROR;                      \
-    }                                               \
-                                                    \
-    it = proxiedRequests.Locate(req, cmpres);       \
-    if (cmpres == 0 && it != NULL)                  \
-    {                                               \
-        proxySize -= REQUEST_SIZE(it);              \
-        proxiedRequests.Delete(it);                 \
-        ASSERT(proxySize >= 0);                     \
-    }                                               \
-    proxiedRequests.Insert<const Request*>(req);    \
-    proxySize += REQUEST_SIZE(req);                 \
-                                                    \
-    CLIENT_MUTEX_GUARD_UNLOCK();                    \
-                                                    \
-    if (batchMode == SDBP_BATCH_SINGLE)             \
-        return Submit();                            \
-                                                    \
-    if (batchMode == SDBP_BATCH_DEFAULT &&          \
-     proxySize >= batchLimit)                       \
-        return Submit();                            \
-                                                    \
-    return SDBP_SUCCESS;                            \
-
-
-#define CLIENT_SCHEMA_COMMAND(op, ...)              \
-    Request*    req;                                \
-    int         status;                             \
-                                                    \
-    CLIENT_MUTEX_GUARD_DECLARE();                   \
-    VALIDATE_CONTROLLERS();                         \
-                                                    \
-    if (!configState.hasMaster)                     \
-    {                                               \
-        result->Close();                            \
-        CLIENT_MUTEX_GUARD_UNLOCK();                \
-        EventLoop();                                \
-        CLIENT_MUTEX_GUARD_LOCK();                  \
-    }                                               \
-                                                    \
-    if (!configState.hasMaster)                     \
-        return SDBP_NOSERVICE;                      \
-                                                    \
-    if (proxySize > 0)                              \
-        return SDBP_API_ERROR;                      \
-                                                    \
-    req = new Request;                              \
-    req->op(controller->NextCommandID(), __VA_ARGS__);          \
-    req->client = this;                             \
-                                                    \
-    requests.Append(req);                           \
-    numControllerRequests++;                        \
-                                                    \
-    result->Close();                                \
-    result->AppendRequest(req);                     \
-                                                    \
-    CLIENT_MUTEX_GUARD_UNLOCK();                    \
-    EventLoop();                                    \
-    status = result->GetCommandStatus();            \
-    return status;
-
-
 using namespace SDBPClient;
 
 static inline uint64_t Hash(uint64_t h)
@@ -491,37 +393,72 @@ int Client::GetCommandStatus()
 
 int Client::CreateDatabase(ReadBuffer& name)
 {
-    CLIENT_SCHEMA_COMMAND(CreateDatabase, name);
+    Request* req;
+
+    req = new Request;
+    req->CreateDatabase(controller->NextCommandID(), name);
+
+    return ConfigRequest(req);
 }
 
 int Client::RenameDatabase(uint64_t databaseID, const ReadBuffer& name)
 {
-    CLIENT_SCHEMA_COMMAND(RenameDatabase, databaseID, (ReadBuffer&) name);
+    Request* req;
+
+    req = new Request;
+    req->RenameDatabase(controller->NextCommandID(), databaseID, (ReadBuffer&) name);
+
+    return ConfigRequest(req);
 }
 
 int Client::DeleteDatabase(uint64_t databaseID)
 {
-    CLIENT_SCHEMA_COMMAND(DeleteDatabase, databaseID);
+    Request* req;
+
+    req = new Request;
+    req->DeleteDatabase(controller->NextCommandID(), databaseID);
+
+    return ConfigRequest(req);
 }
 
 int Client::CreateTable(uint64_t databaseID, uint64_t quorumID, ReadBuffer& name)
 {
-    CLIENT_SCHEMA_COMMAND(CreateTable, databaseID, quorumID, name);
+    Request* req;
+
+    req = new Request;
+    req->CreateTable(controller->NextCommandID(), databaseID, quorumID, name);
+
+    return ConfigRequest(req);
 }
 
 int Client::RenameTable(uint64_t tableID, ReadBuffer& name)
 {
-    CLIENT_SCHEMA_COMMAND(RenameTable, tableID, name);
+    Request* req;
+
+    req = new Request;
+    req->RenameTable(controller->NextCommandID(), tableID, name);
+
+    return ConfigRequest(req);
 }
 
 int Client::DeleteTable(uint64_t tableID)
 {
-    CLIENT_SCHEMA_COMMAND(DeleteTable, tableID);
+    Request* req;
+
+    req = new Request;
+    req->DeleteTable(controller->NextCommandID(), tableID);
+
+    return ConfigRequest(req);
 }
 
 int Client::TruncateTable(uint64_t tableID)
 {
-    CLIENT_SCHEMA_COMMAND(TruncateTable, tableID);
+    Request* req;
+
+    req = new Request;
+    req->TruncateTable(controller->NextCommandID(), tableID);
+
+    return ConfigRequest(req);
 }
 
 #define GET_CONFIG_STATE_OR_RETURN(...) \
@@ -725,6 +662,9 @@ int Client::Get(uint64_t tableID, const ReadBuffer& key)
     int         cmpres;
     Request*    req;
     Request*    it;
+
+    if (key.GetLength() == 0)
+		return SDBP_API_ERROR;
     
     VALIDATE_CONTROLLERS();
     CLIENT_MUTEX_GUARD_DECLARE();
@@ -763,11 +703,14 @@ int Client::Get(uint64_t tableID, const ReadBuffer& key)
 
 int Client::Set(uint64_t tableID, const ReadBuffer& key, const ReadBuffer& value)
 {
-//    CLIENT_DATA_PROXIED_COMMAND(Set, (ReadBuffer&) key, (ReadBuffer&) value);
     int         cmpres;                             
     Request*    req;                                
-    Request*    it;                                 
-                                                    
+    Request*    it;
+
+    if (key.GetLength() == 0)
+		return SDBP_API_ERROR;
+
+
     VALIDATE_CONTROLLERS();
     CLIENT_MUTEX_GUARD_DECLARE();                   
     
@@ -810,57 +753,76 @@ int Client::Set(uint64_t tableID, const ReadBuffer& key, const ReadBuffer& value
 int Client::Add(uint64_t tableID, const ReadBuffer& key, int64_t number)
 {
     Request*    req;
-    Request*    itRequest;
-    ReadBuffer  requestKey;
-
-    VALIDATE_CONTROLLERS();
-    CLIENT_MUTEX_GUARD_DECLARE();
-	
-    if (!configState.hasMaster)
-        return SDBP_API_ERROR;
-
-    result->Close();
-    FOREACH(itRequest, proxiedRequests)
-    {
-        if (itRequest->tableID != tableID)
-            continue;
-        
-        requestKey.Wrap(itRequest->key);
-        if (ReadBuffer::Cmp(key, requestKey) != 0)
-            continue;
-            
-        proxiedRequests.Remove(itRequest);
-        requests.Append(itRequest);
-        result->AppendRequest(itRequest);
-        proxySize -= REQUEST_SIZE(itRequest);
-        ASSERT(proxySize >= 0);
-        break;
-    }
 
     req = new Request;
     req->Add(NextCommandID(), configState.paxosID, tableID, (ReadBuffer&) key, number);
-    requests.Append(req);
-    result->AppendRequest(req);
-    CLIENT_MUTEX_GUARD_UNLOCK();
-    EventLoop();
-	CLIENT_MUTEX_GUARD_LOCK();
-    if (result->GetCommandStatus() == SDBP_SUCCESS)
-    {
-        for (itRequest = result->requests.First(); itRequest != NULL; /* advanced in body */)
-        {
-            if (itRequest->commandID != req->commandID)
-                itRequest = result->requests.Remove(itRequest);
-            else
-                itRequest = result->requests.Next(itRequest);
-        }
-    }
-    result->Begin();
-    return result->GetCommandStatus();
+
+    return ShardRequest(req);
 }
 
 int Client::Delete(uint64_t tableID, const ReadBuffer& key)
 {
-    CLIENT_DATA_PROXIED_COMMAND(Delete, (ReadBuffer&) key);
+    int         cmpres;
+    Request*    req;
+    Request*    it;
+
+    if (key.GetLength() == 0)
+		return SDBP_API_ERROR;
+
+    CLIENT_MUTEX_GUARD_DECLARE();
+
+    if (!configState.hasMaster)
+		return SDBP_API_ERROR;
+
+    req = new Request;
+    req->Delete(NextCommandID(), configState.paxosID, tableID, (ReadBuffer&) key);
+
+    if (batchMode == SDBP_BATCH_NOAUTOSUBMIT &&
+     proxySize + REQUEST_SIZE(req) >= batchLimit)
+    {
+        delete req;
+        return SDBP_API_ERROR;
+    }
+
+    it = proxiedRequests.Locate(req, cmpres);
+    if (cmpres == 0 && it != NULL)
+    {
+        proxySize -= REQUEST_SIZE(it);
+        proxiedRequests.Delete(it);
+        ASSERT(proxySize >= 0);
+    }
+    proxiedRequests.Insert<const Request*>(req);
+    proxySize += REQUEST_SIZE(req);
+
+    CLIENT_MUTEX_GUARD_UNLOCK();
+
+    if (batchMode == SDBP_BATCH_SINGLE)
+        return Submit();
+
+    if (batchMode == SDBP_BATCH_DEFAULT && proxySize >= batchLimit)
+        return Submit();
+
+    return SDBP_SUCCESS;
+}
+
+int Client::SequenceSet(uint64_t tableID, const ReadBuffer& key, const uint64_t value)
+{
+    Request*    req;
+
+    req = new Request;
+    req->SequenceSet(NextCommandID(), configState.paxosID, tableID, (ReadBuffer&) key, value);
+
+    return ShardRequest(req);
+}
+
+int Client::SequenceNext(uint64_t tableID, const ReadBuffer& key)
+{
+    Request*    req;
+
+    req = new Request;
+    req->SequenceNext(NextCommandID(), configState.paxosID, tableID, (ReadBuffer&) key);
+
+    return ShardRequest(req);
 }
 
 int Client::ListKeys(
@@ -945,8 +907,21 @@ int Client::Count(
  uint64_t tableID,
  const ReadBuffer& startKey, const ReadBuffer& endKey, const ReadBuffer& prefix, bool forwardDirection)
 {
-    CLIENT_DATA_COMMAND(Count,
-     (ReadBuffer&) startKey, (ReadBuffer&) endKey, (ReadBuffer&) prefix, forwardDirection);
+    Request*    req;
+
+    CLIENT_MUTEX_GUARD_DECLARE();
+
+     if (!configState.hasMaster)
+		return SDBP_API_ERROR;
+
+    req = new Request;
+    req->Count(NextCommandID(), configState.paxosID,
+     tableID, (ReadBuffer&) startKey, (ReadBuffer&) endKey, (ReadBuffer&) prefix, forwardDirection);
+    AppendDataRequest(req);
+
+    CLIENT_MUTEX_GUARD_UNLOCK();
+    EventLoop();
+    return result->GetCommandStatus();
 }
 
 int Client::Begin()
@@ -1020,6 +995,98 @@ int Client::Cancel()
 // Client public interface ends here
 //    
 // =============================================================================================
+
+int Client::ShardRequest(Request* req)
+{
+    Request*    itRequest;
+    ReadBuffer  requestKey;
+
+    VALIDATE_CONTROLLERS();
+    CLIENT_MUTEX_GUARD_DECLARE();
+	
+    if (!configState.hasMaster || req->key.GetLength() == 0)
+    {
+        delete req;
+        return SDBP_API_ERROR;
+    }
+
+    result->Close();
+    FOREACH(itRequest, proxiedRequests)
+    {
+        if (itRequest->tableID != req->tableID)
+            continue;
+        
+        requestKey.Wrap(itRequest->key);
+        if (ReadBuffer::Cmp(req->key, requestKey) != 0)
+            continue;
+            
+        proxiedRequests.Remove(itRequest);
+        requests.Append(itRequest);
+        result->AppendRequest(itRequest);
+        proxySize -= REQUEST_SIZE(itRequest);
+        ASSERT(proxySize >= 0);
+        break;
+    }
+
+    requests.Append(req);
+    result->AppendRequest(req);
+    CLIENT_MUTEX_GUARD_UNLOCK();
+    EventLoop();
+	CLIENT_MUTEX_GUARD_LOCK();
+    if (result->GetCommandStatus() == SDBP_SUCCESS)
+    {
+        for (itRequest = result->requests.First(); itRequest != NULL; /* advanced in body */)
+        {
+            if (itRequest->commandID != req->commandID)
+                itRequest = result->requests.Remove(itRequest);
+            else
+                itRequest = result->requests.Next(itRequest);
+        }
+    }
+    result->Begin();
+    return result->GetCommandStatus();
+}
+
+int Client::ConfigRequest(Request* req)
+{
+    int status;
+
+    CLIENT_MUTEX_GUARD_DECLARE();
+    VALIDATE_CONTROLLERS();
+
+    if (!configState.hasMaster)
+    {
+        result->Close();
+        CLIENT_MUTEX_GUARD_UNLOCK();
+        EventLoop();
+        CLIENT_MUTEX_GUARD_LOCK();
+    }
+
+    if (!configState.hasMaster)
+    {
+        delete req;
+        return SDBP_NOSERVICE;
+    }
+
+    if (proxySize > 0)
+    {
+        delete req;
+        return SDBP_API_ERROR;
+    }
+
+    req->client = this;
+
+    requests.Append(req);
+    numControllerRequests++;
+
+    result->Close();
+    result->AppendRequest(req);
+
+    CLIENT_MUTEX_GUARD_UNLOCK();
+    EventLoop();
+    status = result->GetCommandStatus();
+    return status;
+}
 
 void Client::ClearRequests()
 {

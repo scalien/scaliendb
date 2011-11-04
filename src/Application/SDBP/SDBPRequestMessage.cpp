@@ -168,6 +168,17 @@ bool SDBPRequestMessage::Read(ReadBuffer& buffer)
              &request->tableID, &request->key);
             break;
 
+        case CLIENTREQUEST_SEQUENCE_SET:
+            read = buffer.Readf("%c:%U:%U:%U:%#B:%U",
+             &request->type, &request->commandID, &request->configPaxosID,
+             &request->tableID, &request->key, &request->sequence);
+            break;
+        case CLIENTREQUEST_SEQUENCE_NEXT:
+            read = buffer.Readf("%c:%U:%U:%U:%#B",
+             &request->type, &request->commandID, &request->configPaxosID,
+             &request->tableID, &request->key);
+            break;
+
         case CLIENTREQUEST_LIST_KEYS:
         case CLIENTREQUEST_LIST_KEYVALUES:
             read = buffer.Readf("%c:%U:%U:%#B:%#B:%#B:%U:%b",
@@ -342,6 +353,17 @@ bool SDBPRequestMessage::Write(Buffer& buffer)
             buffer.Appendf("%c:%U:%U:%U:%#B:%#B",
              request->type, request->commandID, request->configPaxosID,
              request->tableID, &request->key, &request->test);
+            return true;
+
+        case CLIENTREQUEST_SEQUENCE_SET:
+            buffer.Appendf("%c:%U:%U:%U:%#B:%U",
+             request->type, request->commandID, request->configPaxosID,
+             request->tableID, &request->key, request->sequence);
+            return true;
+        case CLIENTREQUEST_SEQUENCE_NEXT:
+            buffer.Appendf("%c:%U:%U:%U:%#B",
+             request->type, request->commandID, request->configPaxosID,
+             request->tableID, &request->key);
             return true;
 
         case CLIENTREQUEST_LIST_KEYS:

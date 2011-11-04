@@ -47,10 +47,6 @@ public class Sequence
     private byte[] name;
     private long tableID;
 
-    private long gran = 1000;
-    private long seq = 0;
-    private long num = 0;
-
     Sequence(long tableID, String name) {
         this.tableID = tableID;
         this.name = name.getBytes();
@@ -62,11 +58,11 @@ public class Sequence
     }
     
     /**
+     * @deprecated
      * Set the gran of the seqeunce increments (default 1000).
      * @param gran The gran of the sequence.
      */
     public synchronized void setGranularity(long gran) {
-        this.gran = gran;
     }
 
     /**
@@ -79,23 +75,26 @@ public class Sequence
      * </pre>
      */
     public synchronized void reset(Client client) throws SDBPException {
-        client.delete(tableID, name);
-        num = 0;
+        client.sequenceSet(tableID, name, 1);
+    }
+
+    /**
+     * Reset the sequence to value. The next time getNext() is called, value will be returned.
+     * <p>
+     * This sets:
+     * <p>
+     * <pre>
+     * key => value
+     * </pre>
+     */
+    public synchronized void set(Client client, long value) throws SDBPException {
+        client.sequenceSet(tableID, name, value);
     }
 
     /**
      * Get the next sequence value.
      */
     public synchronized long get(Client client) throws SDBPException {
-        if (num == 0)
-            allocateRange(client);
-        
-        num--;
-        return seq++;
-    }
-
-    private void allocateRange(Client client) throws SDBPException {
-        seq = client.add(tableID, name, gran) - gran + 1;
-        num = gran;
+        return client.sequenceNext(tableID, name);
     }
 }

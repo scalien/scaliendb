@@ -1445,6 +1445,88 @@ SWIGEXPORT int SWIGSTDCALL CSharp_SDBP_DeleteCStr(void * jarg1, unsigned long lo
 }
 
 
+SWIGEXPORT int SWIGSTDCALL CSharp_SDBP_SequenceSet(void * jarg1, unsigned long long jarg2, char * jarg3, unsigned long long jarg4) {
+  int jresult ;
+  ClientObj arg1 = (ClientObj) 0 ;
+  uint64_t arg2 ;
+  std::string *arg3 = 0 ;
+  uint64_t arg4 ;
+  int result;
+  
+  arg1 = (ClientObj)jarg1; 
+  arg2 = (uint64_t)jarg2; 
+  if (!jarg3) {
+    SWIG_CSharpSetPendingExceptionArgument(SWIG_CSharpArgumentNullException, "null string", 0);
+    return 0;
+  }
+  std::string arg3_str(jarg3);
+  arg3 = &arg3_str; 
+  arg4 = (uint64_t)jarg4; 
+  result = (int)SDBP_SequenceSet(arg1,arg2,(std::string const &)*arg3,arg4);
+  jresult = result; 
+  return jresult;
+}
+
+
+SWIGEXPORT int SWIGSTDCALL CSharp_SDBP_SequenceSetCStr(void * jarg1, unsigned long long jarg2, char * jarg3, int jarg4, unsigned long long jarg5) {
+  int jresult ;
+  ClientObj arg1 = (ClientObj) 0 ;
+  uint64_t arg2 ;
+  char *arg3 = (char *) 0 ;
+  int arg4 ;
+  uint64_t arg5 ;
+  int result;
+  
+  arg1 = (ClientObj)jarg1; 
+  arg2 = (uint64_t)jarg2; 
+  arg3 = (char *)jarg3; 
+  arg4 = (int)jarg4; 
+  arg5 = (uint64_t)jarg5; 
+  result = (int)SDBP_SequenceSetCStr(arg1,arg2,arg3,arg4,arg5);
+  jresult = result; 
+  return jresult;
+}
+
+
+SWIGEXPORT int SWIGSTDCALL CSharp_SDBP_SequenceNext(void * jarg1, unsigned long long jarg2, char * jarg3) {
+  int jresult ;
+  ClientObj arg1 = (ClientObj) 0 ;
+  uint64_t arg2 ;
+  std::string *arg3 = 0 ;
+  int result;
+  
+  arg1 = (ClientObj)jarg1; 
+  arg2 = (uint64_t)jarg2; 
+  if (!jarg3) {
+    SWIG_CSharpSetPendingExceptionArgument(SWIG_CSharpArgumentNullException, "null string", 0);
+    return 0;
+  }
+  std::string arg3_str(jarg3);
+  arg3 = &arg3_str; 
+  result = (int)SDBP_SequenceNext(arg1,arg2,(std::string const &)*arg3);
+  jresult = result; 
+  return jresult;
+}
+
+
+SWIGEXPORT int SWIGSTDCALL CSharp_SDBP_SequenceNextCStr(void * jarg1, unsigned long long jarg2, char * jarg3, int jarg4) {
+  int jresult ;
+  ClientObj arg1 = (ClientObj) 0 ;
+  uint64_t arg2 ;
+  char *arg3 = (char *) 0 ;
+  int arg4 ;
+  int result;
+  
+  arg1 = (ClientObj)jarg1; 
+  arg2 = (uint64_t)jarg2; 
+  arg3 = (char *)jarg3; 
+  arg4 = (int)jarg4; 
+  result = (int)SDBP_SequenceNextCStr(arg1,arg2,arg3,arg4);
+  jresult = result; 
+  return jresult;
+}
+
+
 SWIGEXPORT int SWIGSTDCALL CSharp_SDBP_ListKeys(void * jarg1, unsigned long long jarg2, char * jarg3, char * jarg4, char * jarg5, unsigned int jarg6, unsigned int jarg7, unsigned int jarg8) {
   int jresult ;
   ClientObj arg1 = (ClientObj) 0 ;

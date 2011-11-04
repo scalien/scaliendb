@@ -37,6 +37,8 @@
 #define CLIENTREQUEST_APPEND                            'p'
 #define CLIENTREQUEST_DELETE                            'X'
 #define CLIENTREQUEST_REMOVE                            'x'
+#define CLIENTREQUEST_SEQUENCE_SET                      'y'
+#define CLIENTREQUEST_SEQUENCE_NEXT                     'Y'
 #define CLIENTREQUEST_LIST_KEYS                         'L'
 #define CLIENTREQUEST_LIST_KEYVALUES                    'l'
 #define CLIENTREQUEST_COUNT                             'O'
@@ -156,6 +158,12 @@ public:
     bool            Remove(
                      uint64_t commandID, uint64_t configPaxosID,
                      uint64_t tableID, ReadBuffer& key);
+    bool            SequenceSet(
+                     uint64_t commandID, uint64_t configPaxosID,
+                     uint64_t tableID, ReadBuffer& key, uint64_t sequence);
+    bool            SequenceNext(
+                     uint64_t commandID, uint64_t configPaxosID,
+                     uint64_t tableID, ReadBuffer& key);
     bool            ListKeys(
                      uint64_t commandID, uint64_t configPaxosID,
                      uint64_t tableID, 
@@ -195,6 +203,7 @@ public:
     uint64_t        configPaxosID;
     uint64_t        priority;
     int64_t         number;
+    uint64_t        sequence;
     uint64_t        count;
     Buffer          name;
     Buffer          key;

@@ -663,6 +663,58 @@ namespace Scalien
             result.Close();
         }
 
+        internal void SequenceSet(ulong tableID, string key, ulong value)
+        {
+            SequenceSet(tableID, StringToByteArray(key), value);
+        }
+
+        internal void SequenceSet(ulong tableID, byte[] key, ulong value)
+        {
+            int status;
+            unsafe
+            {
+                fixed (byte* pKey = key)
+                {
+                    IntPtr ipKey = new IntPtr(pKey);
+                    status = scaliendb_client.SDBP_SequenceSetCStr(cptr, tableID, ipKey, key.Length, value);
+                }
+            }
+            result = new Result(scaliendb_client.SDBP_GetResult(cptr));
+            if (status < 0)
+            {
+                CheckStatus(status);
+            }
+
+            result.Close();
+        }
+
+        internal ulong SequenceNext(ulong tableID, string key)
+        {
+            return SequenceNext(tableID, StringToByteArray(key));
+        }
+
+        internal ulong SequenceNext(ulong tableID, byte[] key)
+        {
+            int status;
+            unsafe
+            {
+                fixed (byte* pKey = key)
+                {
+                    IntPtr ipKey = new IntPtr(pKey);
+                    status = scaliendb_client.SDBP_SequenceNextCStr(cptr, tableID, ipKey, key.Length);
+                }
+            }
+            result = new Result(scaliendb_client.SDBP_GetResult(cptr));
+            if (status < 0)
+            {
+                CheckStatus(status);
+            }
+
+            ulong number = result.GetNumber();
+            result.Close();
+            return number;
+        }
+
         internal ulong Count(ulong tableID, StringRangeParams ps)
         {
             return Count(tableID, ps.ToByteRangeParams());

@@ -396,17 +396,7 @@ public class Client
     }
     
     String get(long tableID, String key) throws SDBPException {
-        BigInteger biTableID = BigInteger.valueOf(tableID);
-        int status = scaliendb_client.SDBP_Get(cptr, biTableID, key);
-        if (status < 0) {
-            if (status == Status.SDBP_FAILED)
-                return null;
-            result = new Result(scaliendb_client.SDBP_GetResult(cptr));
-            checkStatus(status);
-        }
-                        
-        result = new Result(scaliendb_client.SDBP_GetResult(cptr));
-        return result.getValue();
+        return byteArrayToString(get(tableID, stringToByteArray(key)));
     }
 
     byte[] get(long tableID, byte[] key) throws SDBPException {
@@ -424,17 +414,7 @@ public class Client
     }
     
     void set(long tableID, String key, String value) throws SDBPException {
-        BigInteger biTableID = BigInteger.valueOf(tableID);
-        int status = scaliendb_client.SDBP_Set(cptr, biTableID, key, value);
-        if (status < 0) {
-            result = new Result(scaliendb_client.SDBP_GetResult(cptr));
-            if (status == Status.SDBP_API_ERROR)
-                checkStatus(status, "Batch limit exceeded");
-            else
-                checkStatus(status);
-        }
-        
-        result = new Result(scaliendb_client.SDBP_GetResult(cptr));
+        set(tableID, stringToByteArray(key), stringToByteArray(value));
     }
 
     void set(long tableID, byte[] key, byte[] value) throws SDBPException {
@@ -452,15 +432,7 @@ public class Client
     }
 
     long add(long tableID, String key, long number) throws SDBPException {
-        BigInteger biTableID = BigInteger.valueOf(tableID);
-        int status = scaliendb_client.SDBP_Add(cptr, biTableID, key, number);
-        if (status < 0) {
-            result = new Result(scaliendb_client.SDBP_GetResult(cptr));
-            checkStatus(status);
-        }
-        
-        result = new Result(scaliendb_client.SDBP_GetResult(cptr));
-        return result.getSignedNumber();
+        return add(tableID, stringToByteArray(key), number);
     }
 
     long add(long tableID, byte[] key, long number) throws SDBPException {
@@ -476,17 +448,7 @@ public class Client
     }
         
     void delete(long tableID, String key) throws SDBPException {
-        BigInteger biTableID = BigInteger.valueOf(tableID);
-        int status = scaliendb_client.SDBP_Delete(cptr, biTableID, key);
-        if (status < 0) {
-            result = new Result(scaliendb_client.SDBP_GetResult(cptr));
-            if (status == Status.SDBP_API_ERROR)
-                checkStatus(status, "Batch limit exceeded");
-            else
-                checkStatus(status);
-        }
-        
-        result = new Result(scaliendb_client.SDBP_GetResult(cptr));
+        delete(tableID, stringToByteArray(key));
     }
 
     void delete(long tableID, byte[] key) throws SDBPException {
@@ -503,12 +465,40 @@ public class Client
         result = new Result(scaliendb_client.SDBP_GetResult(cptr));
     }
 
-    long count(long tableID, StringRangeParams ps) throws SDBPException {
+    void sequenceSet(long tableID, String key, long number) throws SDBPException {
+        sequenceSet(tableID, stringToByteArray(key), number);
+    }
+
+    void sequenceSet(long tableID, byte[] key, long number) throws SDBPException {
         BigInteger biTableID = BigInteger.valueOf(tableID);
-        int status = scaliendb_client.SDBP_Count(
-         cptr, biTableID, ps.startKey, ps.endKey, ps.prefix, ps.forwardDirection);
-        checkResultStatus(status);        
+        BigInteger biNumber = BigInteger.valueOf(number);
+        int status = scaliendb_client.SDBP_SequenceSetCStr(cptr, biTableID, key, key.length, biNumber);
+        if (status < 0) {
+            result = new Result(scaliendb_client.SDBP_GetResult(cptr));
+            checkStatus(status);
+        }
+        
+        result = new Result(scaliendb_client.SDBP_GetResult(cptr));
+    }
+
+    long sequenceNext(long tableID, String key) throws SDBPException {
+        return sequenceNext(tableID, stringToByteArray(key));
+    }
+
+    long sequenceNext(long tableID, byte[] key) throws SDBPException {
+        BigInteger biTableID = BigInteger.valueOf(tableID);
+        int status = scaliendb_client.SDBP_SequenceNextCStr(cptr, biTableID, key, key.length);
+        if (status < 0) {
+            result = new Result(scaliendb_client.SDBP_GetResult(cptr));
+            checkStatus(status);
+        }
+        
+        result = new Result(scaliendb_client.SDBP_GetResult(cptr));
         return result.getNumber();
+    }
+
+    long count(long tableID, StringRangeParams ps) throws SDBPException {
+        return count(tableID, ps.toByteRangeParams());
     }
     
     long count(long tableID, ByteRangeParams ps) throws SDBPException {
@@ -522,16 +512,11 @@ public class Client
     
     protected List<String> listKeys(long tableID, String startKey, String endKey, String prefix, int count, boolean forwardDirection, boolean skip)
     throws SDBPException {
-        BigInteger biTableID = BigInteger.valueOf(tableID);
-        int status = scaliendb_client.SDBP_ListKeys(
-         cptr, biTableID, startKey, endKey, prefix, count, forwardDirection, skip);
-        checkResultStatus(status);
-
-        ArrayList<String> keys = new ArrayList<String>();
-        for (result.begin(); !result.isEnd(); result.next())
-            keys.add(result.getKey());
-
-        return keys;
+        List<byte[]> byteKeys = listKeys(tableID, stringToByteArray(startKey), stringToByteArray(endKey), stringToByteArray(prefix), count, forwardDirection, skip);
+        ArrayList<String> stringKeys = new ArrayList<String>();
+        for (byte[] key : byteKeys)
+            stringKeys.add(byteArrayToString(key));
+        return stringKeys;
     }
 
     protected List<byte[]> listKeys(long tableID, byte[] startKey, byte[] endKey, byte[] prefix, int count, boolean forwardDirection, boolean skip)
@@ -551,16 +536,11 @@ public class Client
 
     protected Map<String, String> listKeyValues(long tableID, String startKey, String endKey, String prefix, int count, boolean forwardDirection, boolean skip)
     throws SDBPException {
-        BigInteger biTableID = BigInteger.valueOf(tableID);
-        int status = scaliendb_client.SDBP_ListKeyValues(
-         cptr, biTableID, startKey, endKey, prefix, count, forwardDirection, skip);
-        checkResultStatus(status);
-            
-        TreeMap<String, String> keyValues = new TreeMap<String, String>();
-        for (result.begin(); !result.isEnd(); result.next())
-            keyValues.put(result.getKey(), result.getValue());
-        
-        return keyValues;
+        Map<byte[], byte[]> byteKeyValues = listKeyValues(tableID, stringToByteArray(startKey), stringToByteArray(endKey), stringToByteArray(prefix), count, forwardDirection, skip);
+        TreeMap<String, String> stringKeyValues = new TreeMap<String, String>();
+        for (Map.Entry<byte[], byte[]> kv : byteKeyValues.entrySet())
+            stringKeyValues.put(byteArrayToString(kv.getKey()), byteArrayToString(kv.getValue()));
+        return stringKeyValues;
     }
 
     protected Map<byte[], byte[]> listKeyValues(long tableID, byte[] startKey, byte[] endKey, byte[] prefix, int count, boolean forwardDirection, boolean skip) throws SDBPException {
@@ -593,5 +573,15 @@ public class Client
     public void rollback() throws SDBPException {
         int status = scaliendb_client.SDBP_Cancel(cptr);
         checkStatus(status);        
+    }
+
+    static byte[] stringToByteArray(String s) throws SDBPException { 
+        try { return s.getBytes("UTF8"); }
+	catch(Exception e) { throw new SDBPException(Status.SDBP_API_ERROR, "Cannot convert string to byte[] using UTF-8"); }
+    }
+
+    static String byteArrayToString(byte[] b) throws SDBPException {
+        try { return new String(b, "UTF8"); }
+	catch(Exception e) { throw new SDBPException(Status.SDBP_API_ERROR, "Cannot convert byte[] to String using UTF-8"); }
     }
 }

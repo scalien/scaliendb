@@ -31,6 +31,36 @@ static size_t Hash(uint64_t h)
 /*
 ===============================================================================================
 
+ ShardDatabaseSequence
+
+===============================================================================================
+*/
+
+static inline const ShardDatabaseSequence* Key(const ShardDatabaseSequence* seq)
+{
+    return seq;
+}
+
+static inline int KeyCmp(const ShardDatabaseSequence* a, const ShardDatabaseSequence* b)
+{
+    if (a->tableID < b->tableID)
+        return -1;
+    if (a->tableID > b->tableID)
+        return 1;
+    
+    return Buffer::Cmp(a->key, b->key);
+}
+
+ShardDatabaseSequence::ShardDatabaseSequence()
+{
+    tableID = 0;
+    nextValue = 0;
+    remaining = 0;
+}
+
+/*
+===============================================================================================
+
  ShardDatabaseAsyncGet
 
 ===============================================================================================
@@ -458,6 +488,34 @@ void ShardDatabaseManager::OnClientListRequest(ClientRequest* request)
         EventLoop::Add(&executeLists);
 }
 
+bool ShardDatabaseManager::OnClientSequenceNext(ClientRequest* request)
+{
+    int                     cmpres;
+    ShardDatabaseSequence   query;
+    ShardDatabaseSequence*  it;
+
+    query.tableID = request->tableID;
+    query.key.Write(request->key);
+    it = sequences.Locate(&query, cmpres);
+    if (cmpres == 0 && it != NULL)
+    {
+        ASSERT(it->remaining > 0);
+        
+        request->response.Number(it->nextValue);
+        request->OnComplete();
+
+        it->nextValue++;
+        it->remaining--;
+
+        if (it->remaining == 0)
+            sequences.Delete(it);
+
+        return true;
+    }
+
+    return false;
+}
+
 uint64_t ShardDatabaseManager::ExecuteMessage(uint64_t quorumID, uint64_t paxosID, uint64_t commandID,
  ShardMessage& message)
 {
@@ -498,6 +556,7 @@ uint64_t ShardDatabaseManager::ExecuteMessage(uint64_t quorumID, uint64_t paxosI
     Buffer          numberBuffer;
     Buffer          tmpBuffer;
     ConfigShard*    configShard;
+    ShardDatabaseSequence* sequence;
     StorageEnvironment::ShardIDList     shards;
     
     contextID = QUORUM_DATABASE_DATA_CONTEXT;
@@ -599,6 +658,7 @@ uint64_t ShardDatabaseManager::ExecuteMessage(uint64_t quorumID, uint64_t paxosI
         //        RESPONSE_FAIL();
         //    break;
         case SHARDMESSAGE_ADD:
+        case SHARDMESSAGE_SEQUENCE_ADD:
             shardID = environment.GetShardID(contextID, message.tableID, message.key);
             CHECK_SHARDID();
             if (environment.Get(contextID, shardID, message.key, readBuffer))
@@ -613,7 +673,10 @@ uint64_t ShardDatabaseManager::ExecuteMessage(uint64_t quorumID, uint64_t paxosI
             else
             {
                 // GET failed, key does not exist; assume value is 0
-                number = 0;
+                if (message.type == SHARDMESSAGE_ADD)
+                    number = 0;
+                else // SHARDMESSAGE_SEQUENCE_ADD
+                    number = 1;
             }
             number += message.number;
             numberBuffer.Writef("%I", number);
@@ -621,7 +684,21 @@ uint64_t ShardDatabaseManager::ExecuteMessage(uint64_t quorumID, uint64_t paxosI
             if (!environment.Set(contextID, shardID, message.key, buffer))
                 RESPONSE_FAIL();
             if (message.clientRequest)
-                message.clientRequest->response.SignedNumber(number);
+            {
+                if (message.type == SHARDMESSAGE_ADD)
+                {
+                    message.clientRequest->response.SignedNumber(number);
+                }
+                else // SHARDMESSAGE_SEQUENCE_ADD
+                {
+                    sequence = new ShardDatabaseSequence;
+                    sequence->tableID = message.tableID;
+                    sequence->key.Write(message.key);
+                    sequence->nextValue = number - message.number;
+                    sequence->remaining = message.number;
+                    sequences.Insert<const ShardDatabaseSequence*>(sequence);
+                }
+            }
             break;
         //case SHARDMESSAGE_APPEND:
         //    shardID = environment.GetShardID(contextID, message.tableID, message.key);
@@ -705,6 +782,11 @@ uint64_t ShardDatabaseManager::ExecuteMessage(uint64_t quorumID, uint64_t paxosI
 #undef CHECK_CMD
 #undef RESPONSE_FAIL
 #undef CHECK_SHARDID
+}
+
+void ShardDatabaseManager::OnLeaseTimeout()
+{
+    sequences.DeleteTree();
 }
 
 void ShardDatabaseManager::OnYieldStorageThreadsTimer()

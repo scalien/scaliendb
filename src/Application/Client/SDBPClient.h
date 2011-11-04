@@ -102,6 +102,8 @@ public:
     int                     Set(uint64_t tableID, const ReadBuffer& key, const ReadBuffer& value);
     int                     Add(uint64_t tableID, const ReadBuffer& key, int64_t number);
     int                     Delete(uint64_t tableID, const ReadBuffer& key);
+    int                     SequenceSet(uint64_t tableID, const ReadBuffer& key, const uint64_t value);
+    int                     SequenceNext(uint64_t tableID, const ReadBuffer& key);
 
     int                     ListKeys(uint64_t tableID, const ReadBuffer& startKey, const ReadBuffer& endKey,
                              const ReadBuffer& prefix, unsigned count, bool forwardDirection, bool skip);
@@ -134,6 +136,9 @@ private:
     friend class            ShardConnection;
     friend class            Table;
     
+    int                     ShardRequest(Request* req);
+    int                     ConfigRequest(Request* req);
+
     void                    ClearRequests();
     void                    EventLoop();
     bool                    IsDone();

@@ -3,6 +3,7 @@
 
 #include "System/Containers/HashMap.h"
 #include "System/Containers/InSortedList.h"
+#include "System/Containers/InTreeMap.h"
 #include "Framework/Storage/StorageEnvironment.h"
 #include "Framework/Storage/StorageShardProxy.h"
 #include "Framework/Storage/StorageAsyncGet.h"
@@ -16,6 +17,31 @@
 
 class ShardServer;              // forward
 class ShardDatabaseManager;     // forward
+
+
+/*
+===============================================================================================
+
+ ShardDatabaseSequenceKey
+
+===============================================================================================
+*/
+
+class ShardDatabaseSequence
+{
+    typedef InTreeNode<ShardDatabaseSequence> TreeNode;
+
+public:
+    ShardDatabaseSequence();
+
+    uint64_t    tableID;
+    Buffer      key;
+    uint64_t    nextValue;
+    uint64_t    remaining;
+
+    TreeNode    treeNode;
+};
+
 
 /*
 ===============================================================================================
@@ -69,6 +95,7 @@ class ShardDatabaseManager
 {
     typedef HashMap<uint64_t, StorageShardProxy*>   ShardMap;
     typedef InList<ClientRequest>                   ClientRequestList;
+    typedef InTreeMap<ShardDatabaseSequence>        Sequences;
 
     friend class ShardDatabaseAsyncGet;
     friend class ShardDatabaseAsyncList;
@@ -94,7 +121,10 @@ public:
     
     void                    OnClientReadRequest(ClientRequest* request);
     void                    OnClientListRequest(ClientRequest* request);
+    bool                    OnClientSequenceNext(ClientRequest* request);
     uint64_t                ExecuteMessage(uint64_t quorumID, uint64_t paxosID, uint64_t commandID, ShardMessage& message);
+
+    void                    OnLeaseTimeout();
         
 private:
     void                    OnYieldStorageThreadsTimer();
@@ -115,6 +145,7 @@ private:
     ShardDatabaseAsyncGet   asyncGet;
     YieldTimer              executeLists;
     ShardDatabaseAsyncList  asyncList;
+    Sequences               sequences;
 };
 
 #endif

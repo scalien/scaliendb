@@ -504,7 +504,6 @@ void StorageFileChunk::LoadIndexPage()
         for (unsigned i = 0; i < numDataPages; i++)
             newDataPages[i] = NULL;
         
-        free(dataPages);
         dataPages = newDataPages;
         dataPagesSize = numDataPages;
     }

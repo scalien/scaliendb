@@ -155,6 +155,10 @@ int             SDBP_Add(ClientObj client, uint64_t tableID, const std::string& 
 int             SDBP_AddCStr(ClientObj client_, uint64_t tableID, char* key, int len, int64_t number);
 int             SDBP_Delete(ClientObj client, uint64_t tableID, const std::string& key);
 int             SDBP_DeleteCStr(ClientObj client_, uint64_t tableID, char* key, int len);
+int             SDBP_SequenceSet(ClientObj client, uint64_t tableID, const std::string& key, uint64_t number);
+int             SDBP_SequenceSetCStr(ClientObj client_, uint64_t tableID, char* key, int len, uint64_t number);
+int             SDBP_SequenceNext(ClientObj client, uint64_t tableID, const std::string& key);
+int             SDBP_SequenceNextCStr(ClientObj client, uint64_t tableID, char* key, int len);
 int             SDBP_ListKeys(
                  ClientObj client, uint64_t tableID,
                  const std::string& startKey, const std::string& endKey, const std::string& prefix,

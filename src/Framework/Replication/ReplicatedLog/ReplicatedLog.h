@@ -41,7 +41,6 @@ public:
     void                    SetPaxosID(uint64_t paxosID);
     uint64_t                GetPaxosID();
     void                    NewPaxosRound();
-    void                    ResetPaxosState();
     
     void                    RegisterPaxosID(uint64_t paxosID, uint64_t nodeID);
     
