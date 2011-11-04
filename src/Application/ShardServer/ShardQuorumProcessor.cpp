@@ -417,6 +417,14 @@ void ShardQuorumProcessor::OnClientRequest(ClientRequest* request)
         if (DATABASE_MANAGER->OnClientSequenceNext(request))
             return; // DATABASE_MANAGER served it from its cache, we're done
     }
+
+    if (request->key.GetLength() == 0)
+    {
+        // it's not a LIST, so it has to have a key
+        request->response.Failed();
+        request->OnComplete();
+        return;
+    }
     
     message = messageCache.Acquire();
     TransformRequest(request, message);

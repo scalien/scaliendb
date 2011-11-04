@@ -512,6 +512,8 @@ bool StorageEnvironment::Delete(uint16_t contextID, uint64_t shardID, ReadBuffer
     StorageMemoChunk*   memoChunk;
     StorageLogSegment*  logSegment;
 
+    ASSERT(key.GetLength() > 0);
+
     shard = GetShard(contextID, shardID);
     if (shard == NULL)
         return false;
