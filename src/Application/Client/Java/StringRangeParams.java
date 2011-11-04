@@ -40,7 +40,7 @@ public class StringRangeParams
     public int count = -1;
     public boolean forwardDirection = true;
     
-    ByteRangeParams toByteRangeParams()
+    ByteRangeParams toByteRangeParams() throws SDBPException
     {
         ByteRangeParams ps = new ByteRangeParams();
 
