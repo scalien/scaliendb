@@ -122,11 +122,11 @@ void PaxosAcceptor::OnStateWritten()
 {
     Log_Trace();
     
-    context->OnMessageProcessed();
-
     if (!sendReply || writtenPaxosID != context->GetPaxosID())
         return;
-    
+
+    context->OnMessageProcessed();
+
     context->GetTransport()->SendMessage(senderID, omsg);
 }
 
