@@ -611,7 +611,6 @@ void ShardQuorumProcessor::OnShardMigrationClusterMessage(uint64_t nodeID, Clust
         return;
     }
 
-//    shardMessage = new ShardMessage;
     shardMessage = messageCache.Acquire();
     shardMessage->clientRequest = NULL;
 

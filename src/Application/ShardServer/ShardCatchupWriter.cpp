@@ -1,6 +1,5 @@
 #include "ShardCatchupWriter.h"
 #include "System/Events/EventLoop.h"
-#include "Application/Common/ContextTransport.h"
 #include "ShardQuorumProcessor.h"
 #include "ShardServer.h"
 #include "Framework/Replication/ReplicationConfig.h"
@@ -10,6 +9,7 @@ ShardCatchupWriter::ShardCatchupWriter()
     onTimeout.SetCallable(MFUNC(ShardCatchupWriter, OnTimeout));
     onTimeout.SetDelay(SHARD_CATCHUP_WRITER_DELAY);
     onTryCommit.SetCallable(MFUNC(ShardCatchupWriter, OnTryCommit));
+    writeReadyness.SetCallable(MFUNC(ShardCatchupWriter, OnWriteReadyness));
     Reset();
 }
 
@@ -85,6 +85,7 @@ void ShardCatchupWriter::Begin(CatchupMessage& request)
 
     isActive = true;
     nodeID = request.nodeID;
+    writeReadyness.nodeID = request.nodeID;
     quorumID = request.quorumID;
     
     EventLoop::Add(&onTimeout);
@@ -97,7 +98,7 @@ void ShardCatchupWriter::Begin(CatchupMessage& request)
         SendFirst();
     
     if (isActive)
-        CONTEXT_TRANSPORT->RegisterWriteReadyness(nodeID, MFUNC(ShardCatchupWriter, OnWriteReadyness));
+        CONTEXT_TRANSPORT->RegisterWriteReadyness(&writeReadyness);
 }
 
 void ShardCatchupWriter::Abort()
@@ -117,7 +118,7 @@ void ShardCatchupWriter::Abort()
         cursor = NULL;
     }
     
-    CONTEXT_TRANSPORT->UnregisterWriteReadyness(nodeID, MFUNC(ShardCatchupWriter, OnWriteReadyness));
+    CONTEXT_TRANSPORT->UnregisterWriteReadyness(&writeReadyness);
 
     Reset();
 }
@@ -173,7 +174,7 @@ void ShardCatchupWriter::SendCommit()
         cursor = NULL;
     }
 
-    CONTEXT_TRANSPORT->UnregisterWriteReadyness(nodeID, MFUNC(ShardCatchupWriter, OnWriteReadyness));
+    CONTEXT_TRANSPORT->UnregisterWriteReadyness(&writeReadyness);
 
     Log_Debug("Enabling database merge");
     environment->SetMergeEnabled(true);

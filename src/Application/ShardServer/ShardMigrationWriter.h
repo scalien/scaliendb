@@ -5,6 +5,7 @@
 #include "Framework/Storage/StorageBulkCursor.h"
 #include "Framework/Storage/StorageAsyncBulkCursor.h"
 #include "Application/Common/ClusterMessage.h"
+#include "Application/Common/ContextTransport.h"
 
 class ShardServer;
 class ShardQuorumProcessor;
@@ -70,6 +71,7 @@ private:
     StorageBulkCursor*      cursor;
     StorageKeyValue*        kv;
     Countdown               onTimeout;
+    WriteReadyness          writeReadyness;
 };
 
 #endif
