@@ -628,13 +628,13 @@ void ShardQuorumProcessor::OnShardMigrationClusterMessage(uint64_t nodeID, Clust
             ASSERT(migrateShardID == clusterMessage.shardID);
             shardMessage->ShardMigrationSet(clusterMessage.shardID, clusterMessage.key, clusterMessage.value);
             migrateCache += clusterMessage.key.GetLength() + clusterMessage.value.GetLength();
-            Log_Debug("migrateCache = %s", HUMAN_BYTES(migrateCache));
+            //Log_Debug("migrateCache = %s", HUMAN_BYTES(migrateCache));
             break;
         case CLUSTERMESSAGE_SHARDMIGRATION_DELETE:
             ASSERT(migrateShardID == clusterMessage.shardID);
             shardMessage->ShardMigrationDelete(clusterMessage.shardID, clusterMessage.key);
             migrateCache += clusterMessage.key.GetLength();
-            Log_Debug("ShardMigration DELETE");
+            //Log_Debug("ShardMigration DELETE");
             break;
         case CLUSTERMESSAGE_SHARDMIGRATION_COMMIT:
             ASSERT(migrateShardID == clusterMessage.shardID);
