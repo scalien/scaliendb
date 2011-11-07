@@ -598,6 +598,7 @@ uint64_t ShardQuorumProcessor::GetCatchupThroughput()
 
 void ShardQuorumProcessor::OnShardMigrationClusterMessage(uint64_t nodeID, ClusterMessage& clusterMessage)
 {
+    uint64_t        prevMigrateCache;
     ShardMessage*   shardMessage;
     ConfigQuorum*   configQuorum;
     ClusterMessage  pauseMessage;
@@ -613,6 +614,8 @@ void ShardQuorumProcessor::OnShardMigrationClusterMessage(uint64_t nodeID, Clust
 
     shardMessage = messageCache.Acquire();
     shardMessage->clientRequest = NULL;
+
+    prevMigrateCache = migrateCache;
 
     switch (clusterMessage.type)
     {
@@ -647,7 +650,7 @@ void ShardQuorumProcessor::OnShardMigrationClusterMessage(uint64_t nodeID, Clust
 
     shardMessages.Append(shardMessage);
     
-    if (migrateCache > DATABASE_REPLICATION_SIZE)
+    if (prevMigrateCache < DATABASE_REPLICATION_SIZE && migrateCache >= DATABASE_REPLICATION_SIZE)
     {
         Log_Debug("Pausing reads from node %U", migrateNodeID);
         pauseMessage.ShardMigrationPause();
@@ -919,8 +922,9 @@ void ShardQuorumProcessor::OnResumeAppend()
     
     appendState.Reset();
 
-    if (migrateCache <= DATABASE_REPLICATION_SIZE &&
-     prevMigrateCache != migrateCache && migrateNodeID > 0)
+    if (prevMigrateCache > DATABASE_REPLICATION_SIZE &&
+      migrateCache <= DATABASE_REPLICATION_SIZE &&
+      migrateNodeID > 0)
     {
         clusterMessage.ShardMigrationResume();
         CONTEXT_TRANSPORT->SendClusterMessage(migrateNodeID, clusterMessage);
