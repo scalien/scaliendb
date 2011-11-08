@@ -1,5 +1,4 @@
 #include "ShardMigrationWriter.h"
-#include "Application/Common/ContextTransport.h"
 #include "ShardServer.h"
 #include "ShardQuorumProcessor.h"
 
@@ -7,6 +6,7 @@ ShardMigrationWriter::ShardMigrationWriter()
 {
     onTimeout.SetCallable(MFUNC(ShardMigrationWriter, OnTimeout));
     onTimeout.SetDelay(SHARD_MIGRATION_WRITER_DELAY);
+    writeReadyness.SetCallable(MFUNC(ShardMigrationWriter, OnWriteReadyness));
     Reset();
 }
 
@@ -39,12 +39,12 @@ void ShardMigrationWriter::Reset()
 
 void ShardMigrationWriter::Pause()
 {
-    CONTEXT_TRANSPORT->UnregisterWriteReadyness(nodeID, MFUNC(ShardMigrationWriter, OnWriteReadyness));
+    CONTEXT_TRANSPORT->UnregisterWriteReadyness(&writeReadyness);
 }
 
 void ShardMigrationWriter::Resume()
 {
-    CONTEXT_TRANSPORT->RegisterWriteReadyness(nodeID, MFUNC(ShardMigrationWriter, OnWriteReadyness));
+    CONTEXT_TRANSPORT->RegisterWriteReadyness(&writeReadyness);
 }
 
 bool ShardMigrationWriter::IsActive()
@@ -109,6 +109,7 @@ void ShardMigrationWriter::Begin(ClusterMessage& request)
     
     isActive = true;
     nodeID = request.nodeID;
+    writeReadyness.nodeID = request.nodeID;
     quorumID = request.quorumID;
     srcShardID = request.srcShardID;
     dstShardID = request.dstShardID;
@@ -128,14 +129,14 @@ void ShardMigrationWriter::Begin(ClusterMessage& request)
 
     sendFirst = true;
     EventLoop::Add(&onTimeout);
-    CONTEXT_TRANSPORT->RegisterWriteReadyness(nodeID, MFUNC(ShardMigrationWriter, OnWriteReadyness));
+    CONTEXT_TRANSPORT->RegisterWriteReadyness(&writeReadyness);
 }
 
 void ShardMigrationWriter::Abort()
 {
     Log_Message("Aborting shard migration...");
     
-    CONTEXT_TRANSPORT->UnregisterWriteReadyness(nodeID, MFUNC(ShardMigrationWriter, OnWriteReadyness));
+    CONTEXT_TRANSPORT->UnregisterWriteReadyness(&writeReadyness);
     Reset();
 
     if (cursor != NULL)
@@ -193,7 +194,7 @@ void ShardMigrationWriter::SendCommit()
         cursor = NULL;
     }
 
-    CONTEXT_TRANSPORT->UnregisterWriteReadyness(nodeID, MFUNC(ShardMigrationWriter, OnWriteReadyness));
+    CONTEXT_TRANSPORT->UnregisterWriteReadyness(&writeReadyness);
 
     Reset();
 }
@@ -223,6 +224,7 @@ void ShardMigrationWriter::OnWriteReadyness()
     uint64_t bytesBegin;
     
     ASSERT(quorumProcessor != NULL);
+
     if (!quorumProcessor->IsPrimary()
      || !shardServer->GetConfigState()->isMigrating
      || (shardServer->GetConfigState()->isMigrating &&

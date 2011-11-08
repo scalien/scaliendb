@@ -217,40 +217,30 @@ bool ClusterTransport::GetNextWaiting(Endpoint& endpoint)
     return false;
 }
 
-void ClusterTransport::RegisterWriteReadyness(uint64_t nodeID, Callable callable)
+void ClusterTransport::RegisterWriteReadyness(WriteReadyness* wr)
 {
-    WriteReadyness*     wr;
     ClusterConnection*  itConnection;
-   
-    wr = new WriteReadyness();
-    wr->nodeID = nodeID;
-    wr->callable = callable;
-    
-    writeReadynessList.Append(wr);
+
+    // if not in list, append
+    if (wr->next == wr)
+        writeReadynessList.Append(wr);
     
     FOREACH (itConnection, conns)
     {
-        if (itConnection->GetNodeID() == nodeID &&
+        if (itConnection->GetNodeID() == wr->nodeID &&
          itConnection->GetProgress() == ClusterConnection::READY)
         {
-            Call(callable);
+            Call(wr->callable);
             return;
         }
     }
 }
 
-void ClusterTransport::UnregisterWriteReadyness(uint64_t nodeID, Callable callable)
+void ClusterTransport::UnregisterWriteReadyness(WriteReadyness* wr)
 {
-    WriteReadyness* it;
-    
-    FOREACH (it, writeReadynessList)
-    {
-        if (it->nodeID == nodeID && it->callable == callable)
-        {
-            writeReadynessList.Delete(it);
-            return;
-        }
-    }
+    // if in list, remove
+    if (wr->next != wr)
+        writeReadynessList.Remove(wr);
 }
 
 void ClusterTransport::AddConnection(ClusterConnection* conn)

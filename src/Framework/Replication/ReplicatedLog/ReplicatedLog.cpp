@@ -140,11 +140,6 @@ void ReplicatedLog::NewPaxosRound()
     lastRequestChosenTime = 0;
 }
 
-void ReplicatedLog::ResetPaxosState()
-{
-    acceptor.ResetState();
-}
-
 void ReplicatedLog::RegisterPaxosID(uint64_t paxosID, uint64_t nodeID)
 {
     Log_Trace();
@@ -160,7 +155,6 @@ void ReplicatedLog::OnMessage(PaxosMessage& imsg)
 {
     Log_Trace();
     bool processed;
-    
 
     if (imsg.type == PAXOS_PREPARE_REQUEST)
         processed = OnPrepareRequest(imsg);

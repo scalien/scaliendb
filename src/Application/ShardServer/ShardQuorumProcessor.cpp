@@ -243,7 +243,6 @@ void ShardQuorumProcessor::OnStartCatchup()
         return;
     
     quorumContext.StopReplication();
-    quorumContext.ResetReplicationState();
     
     msg.CatchupRequest(MY_NODEID, quorumContext.GetQuorumID());
     
@@ -418,6 +417,14 @@ void ShardQuorumProcessor::OnClientRequest(ClientRequest* request)
         if (DATABASE_MANAGER->OnClientSequenceNext(request))
             return; // DATABASE_MANAGER served it from its cache, we're done
     }
+
+    if (request->key.GetLength() == 0)
+    {
+        // it's not a LIST, so it has to have a key
+        request->response.Failed();
+        request->OnComplete();
+        return;
+    }
     
     message = messageCache.Acquire();
     TransformRequest(request, message);
@@ -591,6 +598,7 @@ uint64_t ShardQuorumProcessor::GetCatchupThroughput()
 
 void ShardQuorumProcessor::OnShardMigrationClusterMessage(uint64_t nodeID, ClusterMessage& clusterMessage)
 {
+    uint64_t        prevMigrateCache;
     ShardMessage*   shardMessage;
     ConfigQuorum*   configQuorum;
     ClusterMessage  pauseMessage;
@@ -604,9 +612,10 @@ void ShardQuorumProcessor::OnShardMigrationClusterMessage(uint64_t nodeID, Clust
         return;
     }
 
-//    shardMessage = new ShardMessage;
     shardMessage = messageCache.Acquire();
     shardMessage->clientRequest = NULL;
+
+    prevMigrateCache = migrateCache;
 
     switch (clusterMessage.type)
     {
@@ -622,13 +631,13 @@ void ShardQuorumProcessor::OnShardMigrationClusterMessage(uint64_t nodeID, Clust
             ASSERT(migrateShardID == clusterMessage.shardID);
             shardMessage->ShardMigrationSet(clusterMessage.shardID, clusterMessage.key, clusterMessage.value);
             migrateCache += clusterMessage.key.GetLength() + clusterMessage.value.GetLength();
-            Log_Debug("migrateCache = %s", HUMAN_BYTES(migrateCache));
+            //Log_Debug("migrateCache = %s", HUMAN_BYTES(migrateCache));
             break;
         case CLUSTERMESSAGE_SHARDMIGRATION_DELETE:
             ASSERT(migrateShardID == clusterMessage.shardID);
             shardMessage->ShardMigrationDelete(clusterMessage.shardID, clusterMessage.key);
             migrateCache += clusterMessage.key.GetLength();
-            Log_Debug("ShardMigration DELETE");
+            //Log_Debug("ShardMigration DELETE");
             break;
         case CLUSTERMESSAGE_SHARDMIGRATION_COMMIT:
             ASSERT(migrateShardID == clusterMessage.shardID);
@@ -641,7 +650,7 @@ void ShardQuorumProcessor::OnShardMigrationClusterMessage(uint64_t nodeID, Clust
 
     shardMessages.Append(shardMessage);
     
-    if (migrateCache > DATABASE_REPLICATION_SIZE)
+    if (prevMigrateCache < DATABASE_REPLICATION_SIZE && migrateCache >= DATABASE_REPLICATION_SIZE)
     {
         Log_Debug("Pausing reads from node %U", migrateNodeID);
         pauseMessage.ShardMigrationPause();
@@ -913,8 +922,9 @@ void ShardQuorumProcessor::OnResumeAppend()
     
     appendState.Reset();
 
-    if (migrateCache <= DATABASE_REPLICATION_SIZE &&
-     prevMigrateCache != migrateCache && migrateNodeID > 0)
+    if (prevMigrateCache > DATABASE_REPLICATION_SIZE &&
+      migrateCache <= DATABASE_REPLICATION_SIZE &&
+      migrateNodeID > 0)
     {
         clusterMessage.ShardMigrationResume();
         CONTEXT_TRANSPORT->SendClusterMessage(migrateNodeID, clusterMessage);

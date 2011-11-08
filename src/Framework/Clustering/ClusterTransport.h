@@ -53,8 +53,8 @@ public:
 
     bool                        GetNextWaiting(Endpoint& endpoint);
     
-    void                        RegisterWriteReadyness(uint64_t nodeID, Callable callable);
-    void                        UnregisterWriteReadyness(uint64_t nodeID, Callable callable);
+    void                        RegisterWriteReadyness(WriteReadyness* wr);
+    void                        UnregisterWriteReadyness(WriteReadyness* wr);
 
 private:
     // for ClusterConnection:
@@ -91,6 +91,11 @@ public:
     WriteReadyness()
     {
         prev = next = this;
+    }
+
+    void SetCallable(Callable callable_)
+    {
+        callable = callable_;
     }
 
     uint64_t            nodeID;

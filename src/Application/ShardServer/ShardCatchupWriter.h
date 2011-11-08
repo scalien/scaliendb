@@ -5,6 +5,8 @@
 #include "System/Events/Countdown.h"
 #include "Framework/Storage/StorageBulkCursor.h"
 #include "Application/Common/CatchupMessage.h"
+#include "Application/Common/ContextTransport.h"
+
 
 class ShardQuorumProcessor; // forward
 class ShardMessage;         // forward
@@ -65,6 +67,7 @@ private:
     StorageKeyValue*        kv;
     Countdown               onTimeout;
     YieldTimer              onTryCommit;
+    WriteReadyness          writeReadyness;
 };
 
 #endif

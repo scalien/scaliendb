@@ -66,43 +66,6 @@ Signal                                  ioThreadSignal;
     if (configState == NULL)        \
         return SDBP_API_ERROR;
 
-#define CLIENT_SCHEMA_COMMAND(op, ...)              \
-    Request*    req;                                \
-    int         status;                             \
-                                                    \
-    CLIENT_MUTEX_GUARD_DECLARE();                   \
-    VALIDATE_CONTROLLERS();                         \
-                                                    \
-    if (!configState.hasMaster)                     \
-    {                                               \
-        result->Close();                            \
-        CLIENT_MUTEX_GUARD_UNLOCK();                \
-        EventLoop();                                \
-        CLIENT_MUTEX_GUARD_LOCK();                  \
-    }                                               \
-                                                    \
-    if (!configState.hasMaster)                     \
-        return SDBP_NOSERVICE;                      \
-                                                    \
-    if (proxySize > 0)                              \
-        return SDBP_API_ERROR;                      \
-                                                    \
-    req = new Request;                              \
-    req->op(controller->NextCommandID(), __VA_ARGS__);          \
-    req->client = this;                             \
-                                                    \
-    requests.Append(req);                           \
-    numControllerRequests++;                        \
-                                                    \
-    result->Close();                                \
-    result->AppendRequest(req);                     \
-                                                    \
-    CLIENT_MUTEX_GUARD_UNLOCK();                    \
-    EventLoop();                                    \
-    status = result->GetCommandStatus();            \
-    return status;
-
-
 using namespace SDBPClient;
 
 static inline uint64_t Hash(uint64_t h)
@@ -699,6 +662,9 @@ int Client::Get(uint64_t tableID, const ReadBuffer& key)
     int         cmpres;
     Request*    req;
     Request*    it;
+
+    if (key.GetLength() == 0)
+		return SDBP_API_ERROR;
     
     VALIDATE_CONTROLLERS();
     CLIENT_MUTEX_GUARD_DECLARE();
@@ -739,8 +705,12 @@ int Client::Set(uint64_t tableID, const ReadBuffer& key, const ReadBuffer& value
 {
     int         cmpres;                             
     Request*    req;                                
-    Request*    it;                                 
-                                                    
+    Request*    it;
+
+    if (key.GetLength() == 0)
+		return SDBP_API_ERROR;
+
+
     VALIDATE_CONTROLLERS();
     CLIENT_MUTEX_GUARD_DECLARE();                   
     
@@ -795,6 +765,9 @@ int Client::Delete(uint64_t tableID, const ReadBuffer& key)
     int         cmpres;
     Request*    req;
     Request*    it;
+
+    if (key.GetLength() == 0)
+		return SDBP_API_ERROR;
 
     CLIENT_MUTEX_GUARD_DECLARE();
 
@@ -1031,7 +1004,7 @@ int Client::ShardRequest(Request* req)
     VALIDATE_CONTROLLERS();
     CLIENT_MUTEX_GUARD_DECLARE();
 	
-    if (!configState.hasMaster)
+    if (!configState.hasMaster || req->key.GetLength() == 0)
     {
         delete req;
         return SDBP_API_ERROR;

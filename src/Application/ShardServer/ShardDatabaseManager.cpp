@@ -762,7 +762,7 @@ uint64_t ShardDatabaseManager::ExecuteMessage(uint64_t quorumID, uint64_t paxosI
             }
             break;
          case SHARDMESSAGE_MIGRATION_SET:
-            Log_Debug("shardMigration SET shardID = %U", message.shardID);
+            //Log_Debug("shardMigration SET shardID = %U", message.shardID);
             environment.Set(contextID, message.shardID, message.key, message.value);
             break;
          case SHARDMESSAGE_MIGRATION_DELETE:
