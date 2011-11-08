@@ -340,6 +340,7 @@ void ShardHTTPClientSession::ProcessDebugCommand()
 {
 #ifdef DEBUG
     ReadBuffer  param;
+    bool        boolValue;
 
     if (HTTP_GET_OPT_PARAM(params, "crash", param))
     {
@@ -357,6 +358,13 @@ void ShardHTTPClientSession::ProcessDebugCommand()
         session.Print("Start sleeping");
         MSleep(sleep * 1000);
         session.Print("Sleep finished");
+    }
+
+    if (HTTP_GET_OPT_PARAM(params, "log", param))
+    {
+        boolValue = PARAM_BOOL_VALUE(param);
+        Log_SetDebug(boolValue);
+        session.PrintPair("Debug", boolValue ? "on" : "off");
     }
 
     session.Flush();

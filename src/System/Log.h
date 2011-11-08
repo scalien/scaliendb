@@ -12,6 +12,7 @@
 #define LOG_TYPE_ERRNO      0
 #define LOG_TYPE_MSG        1
 #define LOG_TYPE_TRACE      2
+#define LOG_TYPE_DEBUG      3
 
 #define LOG_TARGET_NOWHERE  0
 #define LOG_TARGET_STDOUT   1
@@ -44,7 +45,8 @@
     Log(__FILE__, __LINE__, __func__, LOG_TYPE_TRACE, __VA_ARGS__)
 
 #ifdef DEBUG
-#define Log_Debug Log_Message
+#define Log_Debug(...) \
+    Log(__FILE__, __LINE__, __func__, LOG_TYPE_DEBUG, __VA_ARGS__)
 #else
 #define Log_Debug Log_Trace
 #endif
@@ -65,6 +67,7 @@ extern "C" {
 void Log(const char* file, int line, const char* func,
  int type, const char* fmt, ...);
 bool Log_SetTrace(bool trace);
+bool Log_SetDebug(bool debug);
 void Log_SetTimestamping(bool ts);
 void Log_SetThreadedOutput(bool to);
 void Log_SetMaxLine(int maxLine);

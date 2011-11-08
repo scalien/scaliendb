@@ -26,6 +26,11 @@ typedef unsigned __int64    uint64_t;
 static bool     timestamping = false;
 static bool     threadedOutput = false;
 static bool     trace = false;
+#ifdef DEBUG
+static bool     debug = true;
+#else
+static bool     debug = false;
+#endif
 static int      maxLine = LOG_MSG_SIZE;
 static int      target = LOG_TARGET_NOWHERE;
 static FILE*    logfile = NULL;
@@ -133,6 +138,14 @@ bool Log_SetTrace(bool trace_)
     return prev;
 }
 
+bool Log_SetDebug(bool debug_)
+{
+    bool prev = debug;
+
+    debug = debug_;
+    return prev;
+}
+
 void Log_SetMaxLine(int maxLine_)
 {
     maxLine = maxLine_ > LOG_MSG_SIZE ? LOG_MSG_SIZE : maxLine_;
@@ -213,6 +226,8 @@ void Log(const char* file, int line, const char* func, int type, const char* fmt
     // In debug mode enable ERRNO type messages
 #ifdef DEBUG
     if (type == LOG_TYPE_TRACE && !trace)
+        return;
+    if (type == LOG_TYPE_DEBUG && !debug)
         return;
 #else
     if ((type == LOG_TYPE_TRACE || type == LOG_TYPE_ERRNO) && !trace)
