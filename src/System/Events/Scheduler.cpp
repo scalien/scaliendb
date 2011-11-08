@@ -52,6 +52,8 @@ void Scheduler::UnprotectedAdd(Timer* timer)
     timer->OnAdd();
     timer->active = true;
 
+    timers.Add(timer);
+
 #ifdef EVENTLOOP_MULTITHREADED
     if (timers.GetLength() > 0 && timer->expireTime < timers.First()->expireTime)
     {
@@ -61,8 +63,6 @@ void Scheduler::UnprotectedAdd(Timer* timer)
         IOProcessor::Complete(&empty);
     }
 #endif
-
-    timers.Add(timer);
 }
 
 void Scheduler::UnprotectedRemove(Timer* timer)
