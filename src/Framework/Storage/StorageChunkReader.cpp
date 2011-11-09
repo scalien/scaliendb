@@ -107,7 +107,10 @@ StorageFileKeyValue* StorageChunkReader::First(ReadBuffer& firstKey_)
         return NULL;
 
     if (fileChunk.dataPages == NULL)
+    {
+        fileChunk.numDataPages = numDataPages;
         fileChunk.AllocateDataPageArray();
+    }
 
     PreloadDataPages();
 
