@@ -21,8 +21,6 @@ public:
     void                    Init(StorageMemoChunk* chunk, ReadBuffer& firstKey, ReadBuffer& endKey, ReadBuffer& prefix,
                              unsigned count, bool keysOnly, bool forwardDirection);
 
-    void                    Load();
-    
     void                    SetDirection(bool forwardDirection);
     StorageFileKeyValue*    First(ReadBuffer& firstKey);
     StorageFileKeyValue*    Next(StorageFileKeyValue*);
