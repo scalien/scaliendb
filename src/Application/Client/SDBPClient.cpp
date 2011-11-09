@@ -235,6 +235,7 @@ void Client::OnClientShutdown()
 
     ClearQuorumRequests();
     quorumRequests.Clear();
+    numControllerRequests = 0;
 
     isShutdown.Wake();
 }
