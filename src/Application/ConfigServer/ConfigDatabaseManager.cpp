@@ -13,6 +13,7 @@ void ConfigDatabaseManager::Init()
     
     envpath.Writef("%s", configFile.GetValue("database.dir", "db"));
     environment.Open(envpath);
+    environment.config.numLogSegmentFileChunks = 0;
 
     environment.CreateShard(1, QUORUM_DATABASE_SYSTEM_CONTEXT, 1, 0, "", "", true, STORAGE_SHARD_TYPE_STANDARD);
     environment.CreateShard(1, QUORUM_DATABASE_QUORUM_PAXOS_CONTEXT, 1, 0, "", "", true, STORAGE_SHARD_TYPE_DUMP);

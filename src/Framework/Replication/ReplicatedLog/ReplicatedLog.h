@@ -26,6 +26,7 @@ public:
     bool                    GetCommitChaining();
     void                    SetAsyncCommit(bool asyncCommit);
     bool                    GetAsyncCommit();
+    void                    SetAlwaysUseDatabaseCatchup(bool alwaysUseDatabaseCatchup);
 
     void                    Stop();
     void                    Continue();
@@ -79,6 +80,7 @@ private:
     bool                    waitingOnAppend;
     bool                    useProposeTimeouts;
     bool                    commitChaining;
+    bool                    alwaysUseDatabaseCatchup;
     uint64_t                lastRequestChosenTime;
 };
 #endif

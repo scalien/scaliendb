@@ -25,6 +25,7 @@ void ConfigQuorumContext::Init(ConfigQuorumProcessor* quorumProcessor_, unsigned
     replicatedLog.SetUseProposeTimeouts(true);
     replicatedLog.SetCommitChaining(false);
     replicatedLog.SetAsyncCommit(false);
+    replicatedLog.SetAlwaysUseDatabaseCatchup(true);
     paxosLease.Init(this);
     transport.SetQuorumID(quorumID);
     highestPaxosID = 0; 
