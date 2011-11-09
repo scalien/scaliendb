@@ -1,5 +1,6 @@
 #include "StorageChunkReader.h"
 #include "System/Time.h"
+#include "System/IO/IOProcessor.h"
 
 void StorageChunkReader::Open(
  ReadBuffer filename, uint64_t preloadThreshold_,
@@ -16,6 +17,29 @@ void StorageChunkReader::Open(
     fileChunk.SetFilename(filename);
     fileChunk.ReadHeaderPage();
     fileChunk.LoadIndexPage();
+
+    indexPage = fileChunk.indexPage;
+    numDataPages = fileChunk.numDataPages;
+}
+
+void StorageChunkReader::OpenWithFileChunk(
+ StorageFileChunk* fileChunk_, uint64_t preloadThreshold_,
+ bool keysOnly_, bool forwardDirection_)
+{
+    count = 0;
+    numRead = 0;
+
+    forwardDirection = forwardDirection_;
+    preloadThreshold = preloadThreshold_;
+    keysOnly = keysOnly_;
+
+    indexPage = fileChunk_->indexPage;
+    numDataPages = fileChunk_->numDataPages;
+
+    fileChunk.useCache = false;
+    fileChunk.SetFilename(fileChunk_->GetFilename());
+    // TODO: this is safe to copy, only owner points to bad fileChunk but it is never used
+    fileChunk.headerPage = fileChunk_->headerPage;
 }
 
 void StorageChunkReader::SetEndKey(ReadBuffer endKey_)
@@ -33,39 +57,57 @@ void StorageChunkReader::SetCount(unsigned count_)
     count = count_;
 }
 
-StorageFileKeyValue* StorageChunkReader::First(ReadBuffer& firstKey)
+StorageFileKeyValue* StorageChunkReader::First(ReadBuffer& firstKey_)
 {
-    bool                    ret;
     int                     cmpres;
+    bool                    ret;
     StorageFileKeyValue*    it;
+    Callable                onLocateIndexAndOffset;
     
-    prevIndex = 0;
+    index = 0;
+    offset = 0;
 
-    if (forwardDirection && ReadBuffer::Cmp(firstKey, fileChunk.indexPage->GetFirstKey()) < 0)
+    prevIndex = 0;
+    firstKey = firstKey_;
+
+    // TODO: 
+    // if (index page is loaded)
+    //      go back to main thread
+    //      try to determine value of index member variable
+    //      if (success)
+    //        return to listing thread with index value set with success flag
+    //      else
+    //          return to listing thread with failure flag
+    //          load index page
+    //          locate index and offset value
+    // else // index page is not loaded
+    //      load index page
+    //      locate index and offset value
+    if (indexPage && fileChunk.indexPage == NULL)
     {
-        index = 0;
-        offset = fileChunk.indexPage->GetFirstDatapageOffset();
-    }
-    else if (!forwardDirection && firstKey.GetLength() > 0 && ReadBuffer::Cmp(firstKey, fileChunk.indexPage->GetFirstKey()) < 0)
-    {
-        // firstKey is set and smaller that the first key in this chunk
-        return NULL;
-    }
-    else if (!forwardDirection && firstKey.GetLength() > 0 && ReadBuffer::Cmp(firstKey, fileChunk.indexPage->GetLastKey()) > 0)
-    {
-        index = fileChunk.numDataPages - 1;
-        offset = fileChunk.indexPage->GetLastDatapageOffset();
-    }
-    else if (!forwardDirection && firstKey.GetLength() == 0)
-    {
-        index = fileChunk.numDataPages - 1;
-        offset = fileChunk.indexPage->GetLastDatapageOffset();
+        onLocateIndexAndOffset = MFUNC(StorageChunkReader, OnLocateIndexAndOffset);
+        signal.SetWaiting(true);
+        IOProcessor::Complete(&onLocateIndexAndOffset);
+        signal.Wait();
+
+        // the indexPage was evicted from cache on the main thread
+        if (indexPage == NULL)
+        {
+            // this also loads indexPage
+            fileChunk.ReadHeaderPage();
+            ret = LocateIndexAndOffset(fileChunk.indexPage, fileChunk.numDataPages, firstKey);
+        }
     }
     else
     {
-        ret = fileChunk.indexPage->Locate(firstKey, index, offset);
-        ASSERT(ret);
+        ret = LocateIndexAndOffset(fileChunk.indexPage, fileChunk.numDataPages, firstKey);
     }
+
+    if (offset == 0)
+        return NULL;
+
+    if (fileChunk.dataPages == NULL)
+        fileChunk.AllocateDataPageArray();
 
     PreloadDataPages();
 
@@ -222,4 +264,52 @@ void StorageChunkReader::PreloadDataPages()
         offset = origOffset;
 
     Log_Debug("PreloadDataPages finished");
+}
+
+bool StorageChunkReader::LocateIndexAndOffset(StorageIndexPage* indexPage, uint32_t numDataPages, ReadBuffer& firstKey)
+{
+    bool    ret;
+
+    if (forwardDirection && ReadBuffer::Cmp(firstKey, indexPage->GetFirstKey()) < 0)
+    {
+        index = 0;
+        offset = indexPage->GetFirstDatapageOffset();
+    }
+    else if (!forwardDirection && firstKey.GetLength() > 0 && ReadBuffer::Cmp(firstKey, indexPage->GetFirstKey()) < 0)
+    {
+        // firstKey is set and smaller that the first key in this chunk
+        return false;
+    }
+    else if (!forwardDirection && firstKey.GetLength() > 0 && ReadBuffer::Cmp(firstKey, indexPage->GetLastKey()) > 0)
+    {
+        index = numDataPages - 1;
+        offset = indexPage->GetLastDatapageOffset();
+    }
+    else if (!forwardDirection && firstKey.GetLength() == 0)
+    {
+        index = numDataPages - 1;
+        offset = indexPage->GetLastDatapageOffset();
+    }
+    else
+    {
+        ret = indexPage->Locate(firstKey, index, offset);
+        ASSERT(ret);
+    }
+
+    return true;
+}
+
+void StorageChunkReader::OnLocateIndexAndOffset()
+{
+    // TODO: indexPage may be evicted
+    if (indexPage == NULL)
+    {
+        // indexPage is already evicted
+        indexPage = NULL;
+        signal.Wake();
+        return;
+    }
+
+    LocateIndexAndOffset(indexPage, numDataPages, firstKey);
+    signal.Wake();
 }

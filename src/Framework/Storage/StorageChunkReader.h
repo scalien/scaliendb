@@ -1,12 +1,16 @@
 #ifndef STORAGECHUNKREADER_H
 #define STORAGECHUNKREADER_H
 
+#include "System/Threading/Signal.h"
 #include "StorageFileChunk.h"
 
 class StorageChunkReader
 {
 public:
     void                    Open(ReadBuffer filename, uint64_t preloadThreshold,
+                             bool keysOnly = false, bool forwardDirection = true);
+
+    void                    OpenWithFileChunk(StorageFileChunk* fileChunk, uint64_t preloadThreshold,
                              bool keysOnly = false, bool forwardDirection = true);
 
     void                    SetEndKey(ReadBuffer endKey);
@@ -26,6 +30,8 @@ public:
 
 private:
     void                    PreloadDataPages();
+    bool                    LocateIndexAndOffset(StorageIndexPage* indexPage, uint32_t numDataPages, ReadBuffer& firstKey);
+    void                    OnLocateIndexAndOffset();
 
     bool                    keysOnly;
     bool                    forwardDirection;
@@ -35,10 +41,14 @@ private:
     uint32_t                preloadIndex;
     uint64_t                preloadThreshold;
     StorageFileChunk        fileChunk;
+    ReadBuffer              firstKey;
     ReadBuffer              endKey;
     ReadBuffer              prefix;
     unsigned                count;
     unsigned                numRead;
+    Signal                  signal;
+    StorageIndexPage*       indexPage;
+    uint32_t                numDataPages;
 };
 
 #endif

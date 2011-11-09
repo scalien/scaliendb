@@ -71,26 +71,30 @@ public:
 
     bool                RangeContains(ReadBuffer key);
 
+    void                AppendDataPage(StorageDataPage* dataPage);
+    void                AllocateDataPageArray();
+
     StorageFileChunk*   prev;
     StorageFileChunk*   next;
 
-    void                AppendDataPage(StorageDataPage* dataPage);
-    void                AllocateDataPageArray();
-    void                ExtendDataPageArray();
-    bool                ReadPage(uint64_t offset, Buffer& buffer, bool keysOnly = false);
-
+    // TODO: change these to private
     bool                written;
+    bool                useCache;
     StorageHeaderPage   headerPage;
     StorageIndexPage*   indexPage;
     StorageBloomPage*   bloomPage;
     uint32_t            numDataPages;
     uint32_t            dataPagesSize;
     StorageDataPage**   dataPages;
-    uint64_t            fileSize;
-    Buffer              filename;
-    bool                useCache;
     bool                isBloomPageLoading;
     bool                isIndexPageLoading;
+    uint64_t            fileSize;
+
+private:
+    void                ExtendDataPageArray();
+    bool                ReadPage(uint64_t offset, Buffer& buffer, bool keysOnly = false);
+
+    Buffer              filename;
     FD                  fd;
 };
 

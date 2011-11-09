@@ -493,19 +493,10 @@ void StorageFileChunk::LoadIndexPage()
     if (useCache)
         StoragePageCache::AddPage(indexPage);
     
-    // TODO: HACK
     if (numDataPages == 0)
     {
         numDataPages = indexPage->GetNumDataPages();
-        StorageDataPage** newDataPages;
-        free(dataPages);
-        newDataPages = (StorageDataPage**) malloc(sizeof(StorageDataPage*) * numDataPages);
-        
-        for (unsigned i = 0; i < numDataPages; i++)
-            newDataPages[i] = NULL;
-        
-        dataPages = newDataPages;
-        dataPagesSize = numDataPages;
+        AllocateDataPageArray();
     }
 }
 
@@ -708,7 +699,6 @@ void StorageFileChunk::AppendDataPage(StorageDataPage* dataPage)
 
 void StorageFileChunk::AllocateDataPageArray()
 {
-    numDataPages = indexPage->GetNumDataPages();
     StorageDataPage** newDataPages;
     newDataPages = (StorageDataPage**) malloc(sizeof(StorageDataPage*) * numDataPages);
     

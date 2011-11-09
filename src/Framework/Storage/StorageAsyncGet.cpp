@@ -37,7 +37,10 @@ void StorageAsyncGet::ExecuteAsyncGet()
             ASSERT(fileChunk->indexPage == NULL);
             fileChunk->indexPage = (StorageIndexPage*) lastLoadedPage;
             if (fileChunk->dataPages == NULL)
+            {
+                fileChunk->numDataPages = fileChunk->indexPage->GetNumDataPages();
                 fileChunk->AllocateDataPageArray();
+            }
             fileChunk->isIndexPageLoading = false;
         }
     }
