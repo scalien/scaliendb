@@ -19,7 +19,7 @@ public class Query
         prefix = new byte[0];
         startKey = new byte[0];
         endKey = new byte[0];
-        count = 0;
+        count = -1;
         reversed = false;
     }
     
