@@ -5,11 +5,7 @@
 
 void ConfigDatabaseManager::Init()
 {
-    unsigned            num;
-    uint64_t            nodeID;
-    Buffer              envpath;
-    ReadBuffer          rb;
-    ConfigController*   controller;
+    Buffer envpath;
     
     envpath.Writef("%s", configFile.GetValue("database.dir", "db"));
     environment.Open(envpath);
@@ -27,16 +23,7 @@ void ConfigDatabaseManager::Init()
     configState.Init();
     Read();
     
-    num = configFile.GetListNum("controllers");
-    for (nodeID = 0; nodeID < num; nodeID++)
-    {
-        controller = new ConfigController;
-        controller->nodeID = nodeID;
-        rb = configFile.GetListValue("controllers", nodeID, "");
-        controller->endpoint.Set(rb, true);
-        configState.controllers.Append(controller);
-    }
-
+    SetControllers();
 }
 
 void ConfigDatabaseManager::Shutdown()
@@ -119,4 +106,24 @@ void ConfigDatabaseManager::Write()
     writeBuffer.Writef("%U:", paxosID);
     configState.Write(writeBuffer);
     systemConfigShard.Set(ReadBuffer("state"), ReadBuffer(writeBuffer));
+}
+
+void ConfigDatabaseManager::SetControllers()
+{
+    unsigned            num;
+    uint64_t            nodeID;
+    ReadBuffer          rb;
+    ConfigController*   controller;
+
+    configState.controllers.DeleteList();
+
+    num = configFile.GetListNum("controllers");
+    for (nodeID = 0; nodeID < num; nodeID++)
+    {
+        controller = new ConfigController;
+        controller->nodeID = nodeID;
+        rb = configFile.GetListValue("controllers", nodeID, "");
+        controller->endpoint.Set(rb, true);
+        configState.controllers.Append(controller);
+    }
 }
