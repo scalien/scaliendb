@@ -93,13 +93,20 @@ StorageFileKeyValue* StorageChunkReader::First(ReadBuffer& firstKey_)
         // the indexPage was evicted from cache on the main thread
         if (indexPage == NULL)
         {
-            // this also loads indexPage
+            Log_Message("indexPage was evicted in main thread");
             fileChunk.ReadHeaderPage();
+            fileChunk.LoadIndexPage();
             ret = LocateIndexAndOffset(fileChunk.indexPage, fileChunk.numDataPages, firstKey);
         }
     }
     else
     {
+        if (fileChunk.indexPage == NULL)
+        {
+            Log_Message("indexPage was not loaded");
+            fileChunk.ReadHeaderPage();
+            fileChunk.LoadIndexPage();
+        }
         ret = LocateIndexAndOffset(fileChunk.indexPage, fileChunk.numDataPages, firstKey);
     }
 

@@ -95,7 +95,7 @@ bool StorageEnvironment::Open(Buffer& envPath_)
     archiveLogJobs.Start();
     deleteChunkJobs.Start();
 
-    asyncThread = ThreadPool::Create(1);
+    asyncThread = ThreadPool::Create(configFile.GetIntValue("database.numAsyncThreads", 10));
     asyncThread->Start();
 
     asyncGetThread = ThreadPool::Create(1);
