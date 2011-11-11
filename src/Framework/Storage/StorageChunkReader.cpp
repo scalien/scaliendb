@@ -8,6 +8,7 @@ void StorageChunkReader::Open(
 {
     count = 0;
     numRead = 0;
+    isLocated = false;
 
     forwardDirection = forwardDirection_;
     preloadThreshold = preloadThreshold_;
@@ -20,17 +21,23 @@ void StorageChunkReader::Open(
 
     indexPage = fileChunk.indexPage;
     numDataPages = fileChunk.numDataPages;
+
+    index = 0;
+    offset = 0;
 }
 
 void StorageChunkReader::OpenWithFileChunk(
- StorageFileChunk* fileChunk_, uint64_t preloadThreshold_,
+ StorageFileChunk* fileChunk_, ReadBuffer& firstKey_, uint64_t preloadThreshold_,
  bool keysOnly_, bool forwardDirection_)
 {
     count = 0;
     numRead = 0;
+    isLocated = false;
 
     forwardDirection = forwardDirection_;
     preloadThreshold = preloadThreshold_;
+    if (forwardDirection == false)
+        preloadThreshold = 0;   // don't preload when iterating backwards
     keysOnly = keysOnly_;
 
     indexPage = fileChunk_->indexPage;
@@ -38,8 +45,18 @@ void StorageChunkReader::OpenWithFileChunk(
 
     fileChunk.useCache = false;
     fileChunk.SetFilename(fileChunk_->GetFilename());
-    // TODO: this is safe to copy, only owner points to bad fileChunk but it is never used
+    // TODO: it is safe to shallow copy headerPage, only StorageHeaderPage::owner points to bad fileChunk,
+    // but it is never used anyhow
     fileChunk.headerPage = fileChunk_->headerPage;
+
+    index = 0;
+    offset = 0;
+
+    if (indexPage != NULL)
+    {
+        isLocated = true;
+        LocateIndexAndOffset(indexPage, numDataPages, firstKey_);
+    }
 }
 
 void StorageChunkReader::SetEndKey(ReadBuffer endKey_)
@@ -57,50 +74,18 @@ void StorageChunkReader::SetCount(unsigned count_)
     count = count_;
 }
 
-StorageFileKeyValue* StorageChunkReader::First(ReadBuffer& firstKey_)
+StorageFileKeyValue* StorageChunkReader::First(ReadBuffer& firstKey)
 {
     int                     cmpres;
     bool                    ret;
     StorageFileKeyValue*    it;
-    Callable                onLocateIndexAndOffset;
     
-    index = 0;
-    offset = 0;
+    if (isLocated && offset == 0)
+        return NULL;
 
-    prevIndex = 0;
-    firstKey = firstKey_;
-
-    // TODO: 
-    // if (index page is loaded)
-    //      go back to main thread
-    //      try to determine value of index member variable
-    //      if (success)
-    //        return to listing thread with index value set with success flag
-    //      else
-    //          return to listing thread with failure flag
-    //          load index page
-    //          locate index and offset value
-    // else // index page is not loaded
-    //      load index page
-    //      locate index and offset value
-    if (indexPage && fileChunk.indexPage == NULL)
+    if (!isLocated)
     {
-        onLocateIndexAndOffset = MFUNC(StorageChunkReader, OnLocateIndexAndOffset);
-        signal.SetWaiting(true);
-        IOProcessor::Complete(&onLocateIndexAndOffset);
-        signal.Wait();
-
-        // the indexPage was evicted from cache on the main thread
-        if (indexPage == NULL)
-        {
-            Log_Message("indexPage was evicted in main thread");
-            fileChunk.ReadHeaderPage();
-            fileChunk.LoadIndexPage();
-            ret = LocateIndexAndOffset(fileChunk.indexPage, fileChunk.numDataPages, firstKey);
-        }
-    }
-    else
-    {
+        isLocated = true;
         if (fileChunk.indexPage == NULL)
         {
             Log_Message("indexPage was not loaded");
@@ -108,10 +93,9 @@ StorageFileKeyValue* StorageChunkReader::First(ReadBuffer& firstKey_)
             fileChunk.LoadIndexPage();
         }
         ret = LocateIndexAndOffset(fileChunk.indexPage, fileChunk.numDataPages, firstKey);
+        if (ret == false)
+            return NULL;
     }
-
-    if (offset == 0)
-        return NULL;
 
     if (fileChunk.dataPages == NULL)
     {
@@ -119,6 +103,7 @@ StorageFileKeyValue* StorageChunkReader::First(ReadBuffer& firstKey_)
         fileChunk.AllocateDataPageArray();
     }
 
+    prevIndex = 0;
     PreloadDataPages();
 
     if (!forwardDirection && firstKey.GetLength() == 0)
@@ -134,6 +119,9 @@ StorageFileKeyValue* StorageChunkReader::First(ReadBuffer& firstKey_)
             it = Next(it);
         else if (!forwardDirection && cmpres < 0)
             it = Next(it);
+
+        if (it != NULL && prefix.GetLength() > 0 && !it->GetKey().BeginsWith(prefix))
+            it = NULL;
     }
 
     return it;
@@ -147,7 +135,11 @@ StorageFileKeyValue* StorageChunkReader::Next(StorageFileKeyValue* it)
     {
         next = fileChunk.dataPages[index]->Next(it);
         if (next != NULL)
+        {
+            if (prefix.GetLength() > 0 && !next->GetKey().BeginsWith(prefix))
+                next = NULL;
             return next;
+        }
         if (index > prevIndex && fileChunk.dataPages[prevIndex] != NULL)
         {
             delete fileChunk.dataPages[prevIndex];
@@ -159,7 +151,11 @@ StorageFileKeyValue* StorageChunkReader::Next(StorageFileKeyValue* it)
             return NULL;
         if (index > preloadIndex)
             PreloadDataPages();
-        return fileChunk.dataPages[index]->First();
+        
+        next = fileChunk.dataPages[index]->First();
+        if (prefix.GetLength() > 0 && !next->GetKey().BeginsWith(prefix))
+            next = NULL;
+        return next;
     }
     else
     {
@@ -242,7 +238,7 @@ void StorageChunkReader::PreloadDataPages()
     Log_Debug("PreloadDataPages started");
 
     totalSize = 0;
-    origOffset = 0; // to make the compiler happy
+    origOffset = offset; // to make the compiler happy
 
     if (forwardDirection)
         i = index;
@@ -252,8 +248,22 @@ void StorageChunkReader::PreloadDataPages()
             offset -= preloadThreshold;
         else
             offset = 0;
-        preloadIndex = i = fileChunk.indexPage->GetOffsetIndex(offset);
-        origOffset = offset;
+
+        if (origOffset != offset)
+        {
+            if (fileChunk.indexPage == NULL)
+            {
+                fileChunk.ReadHeaderPage();
+                fileChunk.LoadIndexPage();
+            }
+
+            preloadIndex = i = fileChunk.indexPage->GetOffsetIndex(offset);
+            origOffset = offset;
+        }
+        else
+        {
+            preloadIndex = i = index;
+        }
     }
 
     do
@@ -307,19 +317,4 @@ bool StorageChunkReader::LocateIndexAndOffset(StorageIndexPage* indexPage, uint3
     }
 
     return true;
-}
-
-void StorageChunkReader::OnLocateIndexAndOffset()
-{
-    // TODO: indexPage may be evicted
-    if (indexPage == NULL)
-    {
-        // indexPage is already evicted
-        indexPage = NULL;
-        signal.Wake();
-        return;
-    }
-
-    LocateIndexAndOffset(indexPage, numDataPages, firstKey);
-    signal.Wake();
 }

@@ -9,7 +9,7 @@ void StorageFileChunkLister::Init(
     endKey = endKey_;
     prefix = prefix_;
     count = count_;
-    reader.OpenWithFileChunk(fileChunk_, preloadBufferSize_, keysOnly_, forwardDirection_);
+    reader.OpenWithFileChunk(fileChunk_, firstKey_, preloadBufferSize_, keysOnly_, forwardDirection_);
     reader.SetPrefix(prefix);
     reader.SetEndKey(endKey);
     reader.SetCount(count);

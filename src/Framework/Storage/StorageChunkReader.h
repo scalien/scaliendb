@@ -10,8 +10,8 @@ public:
     void                    Open(ReadBuffer filename, uint64_t preloadThreshold,
                              bool keysOnly = false, bool forwardDirection = true);
 
-    void                    OpenWithFileChunk(StorageFileChunk* fileChunk, uint64_t preloadThreshold,
-                             bool keysOnly = false, bool forwardDirection = true);
+    void                    OpenWithFileChunk(StorageFileChunk* fileChunk, ReadBuffer& firstKey, 
+                             uint64_t preloadThreshold, bool keysOnly = false, bool forwardDirection = true);
 
     void                    SetEndKey(ReadBuffer endKey);
     void                    SetPrefix(ReadBuffer prefix);
@@ -31,17 +31,16 @@ public:
 private:
     void                    PreloadDataPages();
     bool                    LocateIndexAndOffset(StorageIndexPage* indexPage, uint32_t numDataPages, ReadBuffer& firstKey);
-    void                    OnLocateIndexAndOffset();
 
     bool                    keysOnly;
     bool                    forwardDirection;
+    bool                    isLocated;
     uint64_t                offset;
     uint32_t                index;
     uint32_t                prevIndex;
     uint32_t                preloadIndex;
     uint64_t                preloadThreshold;
     StorageFileChunk        fileChunk;
-    ReadBuffer              firstKey;
     ReadBuffer              endKey;
     ReadBuffer              prefix;
     unsigned                count;
