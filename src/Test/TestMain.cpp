@@ -54,6 +54,8 @@ TEST_ADD(TestJSONReaderBasic6);
 TEST_ADD(TestJSONReaderBasic7);
 TEST_ADD(TestJSONBasic);
 TEST_ADD(TestJSONAdvanced);
+TEST_ADD(TestLogRotate);
+TEST_ADD(TestLogRotateMultiThreaded);
 TEST_ADD(TestManualBasic);
 TEST_ADD(TestMemoryOutOfMemoryError);
 TEST_ADD(TestShardExtensionBasic);

@@ -1,5 +1,6 @@
 #include "Log.h"
 #include "Formatting.h"
+#include "System/Threading/Mutex.h"
 #define _XOPEN_SOURCE 600
 #include <string.h>
 #include <errno.h>
@@ -13,6 +14,7 @@
 #define strdup _strdup
 #define strerror_r(errno, buf, buflen) strerror_s(buf, buflen, errno)
 typedef unsigned __int64    uint64_t;
+typedef __int64             int64_t;
 #define GetThreadID() (uint64_t)(GetCurrentThreadId())
 #else
 #include <sys/time.h>
@@ -22,6 +24,7 @@ typedef unsigned __int64    uint64_t;
 #endif
 
 #define LOG_MSG_SIZE    1024
+#define LOG_OLD_EXT     ".old"
 
 static bool     timestamping = false;
 static bool     threadedOutput = false;
@@ -35,6 +38,9 @@ static int      maxLine = LOG_MSG_SIZE;
 static int      target = LOG_TARGET_NOWHERE;
 static FILE*    logfile = NULL;
 static char*    logfilename = NULL;
+static uint64_t maxFileSize = 0;
+static uint64_t logFileSize = 0;
+static Mutex    logFileMutex;
 
 #ifdef _WIN32
 typedef char log_timestamp_t[24];
@@ -81,6 +87,81 @@ static const char* GetFullTimestamp(log_timestamp_t ts)
     return ts;
 }
 
+// These functions are duplicates of the functions in FileSystem, but here they don't use logging obviously
+#ifdef _WIN32
+static bool Log_RenameFile(const char* src, const char* dst)
+{
+    BOOL    ret;
+    
+    ret = MoveFileEx(src, dst, MOVEFILE_WRITE_THROUGH);
+    if (!ret)
+        return false;
+    
+    return true;
+}
+
+static bool Log_DeleteFile(const char* filename)
+{
+    BOOL    ret;
+    
+    ret = DeleteFile(filename);
+    if (!ret)
+        return false;
+    
+    return true;
+}
+
+static int64_t Log_FileSize(const char* path)
+{
+    WIN32_FILE_ATTRIBUTE_DATA   attrData;
+    BOOL                        ret;
+
+    ret = GetFileAttributesEx(path, GetFileExInfoStandard, &attrData);
+    if (!ret)
+        return -1;
+    
+    return ((int64_t) attrData.nFileSizeHigh) << 32 | attrData.nFileSizeLow;
+}
+
+#else
+
+static bool Log_RenameFile(const char* src, const char* dst)
+{
+    int     ret;
+    
+    ret = rename(src, dst);
+    if (ret < 0)
+        return false;
+    
+    return true;
+}
+
+static bool Log_DeleteFile(const char* filename)
+{
+    int ret;
+    
+    ret = unlink(filename);
+    if (ret < 0)
+        return false;
+    
+    return true;
+}
+
+int64_t FS_FileSize(const char* path)
+{
+    int64_t     ret;
+    struct stat buf;
+    
+    ret = stat(path, &buf);
+    if (ret < 0)
+        return ret;
+    
+    return buf.st_size;
+}
+
+#endif
+
+
 static void Log_Append(char*& p, int& remaining, const char* s, int len)
 {
     if (len > remaining)
@@ -93,7 +174,64 @@ static void Log_Append(char*& p, int& remaining, const char* s, int len)
     remaining -= len;
 }
 
-static void Log_Write(const char* buf, int /*size*/, int flush)
+static void Log_Rotate()
+{
+    char*   filenameCopy;
+    char*   oldFilename;
+    size_t  oldFilenameSize;
+    char*   oldOldFilename;
+    size_t  oldOldFilenameSize;
+    size_t  filenameLen;
+    size_t  extLen;
+
+    filenameCopy = strdup(logfilename);
+
+    filenameLen = strlen(logfilename);
+    extLen = sizeof(LOG_OLD_EXT) - 1;
+    
+    oldFilenameSize = filenameLen + extLen + 1;
+    oldFilename = new char[oldFilenameSize]; 
+    snprintf(oldFilename, oldFilenameSize, "%s" LOG_OLD_EXT, logfilename); 
+    
+    oldOldFilenameSize = filenameLen + extLen + extLen + 1;
+    oldOldFilename = new char[oldOldFilenameSize];
+    snprintf(oldOldFilename, oldOldFilenameSize, "%s" LOG_OLD_EXT LOG_OLD_EXT, logfilename);
+
+    // delete any previously created temporary file
+    Log_DeleteFile(oldOldFilename);
+
+    // rename the old version to a temporary name
+    if (!Log_RenameFile(oldFilename, oldOldFilename))
+    {
+        Log_DeleteFile(oldFilename);
+    }
+
+    // close the current file
+    if (logfile)
+    {
+        fclose(logfile);
+        logfile = NULL;
+    }
+
+    // rename the current to old
+    if (!Log_RenameFile(logfilename, oldFilename))
+    {
+        // TODO:
+    }
+
+    // create a new file
+    Log_SetOutputFile(filenameCopy, true);
+
+    // delete any previously created temporary file
+    Log_DeleteFile(oldOldFilename);
+
+    // cleanup
+    free(filenameCopy);
+    delete[] oldFilename;
+    delete[] oldOldFilename;
+}
+
+static void Log_Write(const char* buf, int size, int flush)
 {
     if ((target & LOG_TARGET_STDOUT) == LOG_TARGET_STDOUT)
     {
@@ -113,10 +251,29 @@ static void Log_Write(const char* buf, int /*size*/, int flush)
     
     if ((target & LOG_TARGET_FILE) == LOG_TARGET_FILE && logfile)
     {
+        logFileMutex.Lock();
+
         if (buf)
             fputs(buf, logfile);
 		if (flush)
 			fflush(logfile);
+        
+        if (maxFileSize > 0)
+        {
+            
+            // we keep the previous logfile, hence the division by two
+            if (logFileSize + size > maxFileSize / 2)
+            {
+                // rotate the logfile
+                Log_Rotate();
+            }
+            else
+            {
+                logFileSize += size;
+            }
+        }
+
+        logFileMutex.Unlock();
     }
 }
 
@@ -182,9 +339,15 @@ bool Log_SetOutputFile(const char* filename, bool truncate)
         target &= ~LOG_TARGET_FILE;
         return false;
     }
-    
+
     logfilename = strdup(filename);
+    logFileSize = Log_FileSize(filename);
     return true;
+}
+
+void Log_SetMaxFileSize(unsigned maxFileSizeMB)
+{
+    maxFileSize = ((uint64_t)maxFileSizeMB) * 1000 * 1000;
 }
 
 void Log_Flush()
@@ -352,5 +515,6 @@ void Log(const char* file, int line, const char* func, int type, const char* fmt
     }
 
     Log_Append(p, remaining, "\n", 2);
-    Log_Write(buf, maxLine - remaining, type != LOG_TYPE_TRACE);
+    //Log_Write(buf, maxLine - remaining, type != LOG_TYPE_TRACE);
+    Log_Write(buf, maxLine - remaining, false);
 }

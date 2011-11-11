@@ -986,6 +986,9 @@
       <Filter>System</Filter>
     </ClInclude>
     <ClInclude Include="ScalienDB.resource.h" />
+    <ClInclude Include="..\src\System\Threading\Atomic.h">
+      <Filter>System\Threading</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="ScalienDB.rc" />

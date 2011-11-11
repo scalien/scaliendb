@@ -74,6 +74,7 @@ void Log_SetMaxLine(int maxLine);
 void Log_SetTarget(int target);
 int  Log_GetTarget();
 bool Log_SetOutputFile(const char* file, bool truncate);
+void Log_SetMaxFileSize(unsigned maxFileSizeMB);    // in MegaBytes
 void Log_Flush();
 void Log_Shutdown();
 
