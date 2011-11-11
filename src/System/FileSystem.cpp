@@ -914,7 +914,7 @@ int64_t FS_FileSize(const char* path)
     if (!ret)
         return -1;
     
-    return (int64_t) attrData.nFileSizeHigh << 32 | attrData.nFileSizeLow;
+    return ((int64_t) attrData.nFileSizeHigh) << 32 | attrData.nFileSizeLow;
 }
 
 bool FS_Rename(const char* src, const char* dst)

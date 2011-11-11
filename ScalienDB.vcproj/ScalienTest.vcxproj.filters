@@ -561,6 +561,9 @@
     <ClCompile Include="..\src\Application\HTTP\JSONReader.cpp">
       <Filter>Application\HTTP</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\Test\LogTest.cpp">
+      <Filter>Test</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\Application\Client\SDBPClient.h">

@@ -106,7 +106,6 @@ inline MutexGuard::MutexGuard(Mutex& mutex_) : mutex(mutex_)
 { 
     mutex.Lock(); 
     locked = true;
-    //Log_Debug("Mutex %s (%p) locked by %U", mutex.name, &mutex, mutex.threadID);
 }
 
 inline MutexGuard::~MutexGuard()
@@ -121,12 +120,10 @@ inline void MutexGuard::Lock()
         mutex.Lock();
         locked = true; 
     }
-    //Log_Debug("Mutex %s (%p) locked by %U", mutex.name, &mutex, mutex.threadID);
 }
 
 inline void MutexGuard::Unlock()
 {
-    //Log_Debug("Mutex %s (%p) unlocked by %U", mutex.name, &mutex, mutex.threadID);
     if (locked)
     {
         mutex.Unlock();

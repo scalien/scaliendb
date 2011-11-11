@@ -300,6 +300,7 @@
     <ClCompile Include="..\src\Test\FormattingTest.cpp" />
     <ClCompile Include="..\src\Test\InTreeMapTest.cpp" />
     <ClCompile Include="..\src\Test\JSONReaderTest.cpp" />
+    <ClCompile Include="..\src\Test\LogTest.cpp" />
     <ClCompile Include="..\src\Test\ManualTest.cpp" />
     <ClCompile Include="..\src\Test\MemoryTest.cpp" />
     <ClCompile Include="..\src\Test\ShardExtensionTest.cpp" />
