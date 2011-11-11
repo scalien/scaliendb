@@ -1,6 +1,3 @@
-#include "Log.h"
-#include "Formatting.h"
-#include "System/Threading/Mutex.h"
 #define _XOPEN_SOURCE 600
 #include <string.h>
 #include <errno.h>
@@ -11,17 +8,21 @@
 #ifdef _WIN32
 #include <windows.h>
 #define snprintf _snprintf
-#define strdup _strdup
+//#define strdup _strdup
 #define strerror_r(errno, buf, buflen) strerror_s(buf, buflen, errno)
 typedef unsigned __int64    uint64_t;
 typedef __int64             int64_t;
-#define GetThreadID() (uint64_t)(GetCurrentThreadId())
+#define Log_GetThreadID() (uint64_t)(GetCurrentThreadId())
 #else
 #include <sys/time.h>
 #include <pthread.h>
 #include <stdint.h>
-#define GetThreadID() ((uint64_t)(pthread_self()))
+#define Log_GetThreadID() ((uint64_t)(pthread_self()))
 #endif
+
+#include "Log.h"
+#include "Formatting.h"
+#include "System/Threading/Mutex.h"
 
 #define LOG_MSG_SIZE    1024
 #define LOG_OLD_EXT     ".old"
@@ -38,9 +39,10 @@ static int      maxLine = LOG_MSG_SIZE;
 static int      target = LOG_TARGET_NOWHERE;
 static FILE*    logfile = NULL;
 static char*    logfilename = NULL;
-static uint64_t maxFileSize = 0;
+static uint64_t maxSize = 0;
 static uint64_t logFileSize = 0;
 static Mutex    logFileMutex;
+static bool     autoFlush = true;
 
 #ifdef _WIN32
 typedef char log_timestamp_t[24];
@@ -184,6 +186,8 @@ static void Log_Rotate()
     size_t  filenameLen;
     size_t  extLen;
 
+    fprintf(stderr, "Rotating...\n");
+
     filenameCopy = strdup(logfilename);
 
     filenameLen = strlen(logfilename);
@@ -258,11 +262,11 @@ static void Log_Write(const char* buf, int size, int flush)
 		if (flush)
 			fflush(logfile);
         
-        if (maxFileSize > 0)
+        if (maxSize > 0)
         {
             
             // we keep the previous logfile, hence the division by two
-            if (logFileSize + size > maxFileSize / 2)
+            if (logFileSize + size > maxSize / 2)
             {
                 // rotate the logfile
                 Log_Rotate();
@@ -300,6 +304,14 @@ bool Log_SetDebug(bool debug_)
     bool prev = debug;
 
     debug = debug_;
+    return prev;
+}
+
+bool Log_SetAutoFlush(bool autoFlush_)
+{
+    bool prev = autoFlush;
+
+    autoFlush = autoFlush_;
     return prev;
 }
 
@@ -345,9 +357,9 @@ bool Log_SetOutputFile(const char* filename, bool truncate)
     return true;
 }
 
-void Log_SetMaxFileSize(unsigned maxFileSizeMB)
+void Log_SetMaxSize(unsigned maxSizeMB)
 {
-    maxFileSize = ((uint64_t)maxFileSizeMB) * 1000 * 1000;
+    maxSize = ((uint64_t)maxSizeMB) * 1000 * 1000;
 }
 
 void Log_Flush()
@@ -387,15 +399,8 @@ void Log(const char* file, int line, const char* func, int type, const char* fmt
     uint64_t    threadID;
 
     // In debug mode enable ERRNO type messages
-#ifdef DEBUG
-    if (type == LOG_TYPE_TRACE && !trace)
-        return;
-    if (type == LOG_TYPE_DEBUG && !debug)
-        return;
-#else
     if ((type == LOG_TYPE_TRACE || type == LOG_TYPE_ERRNO) && !trace)
         return;
-#endif
 
     buf[maxLine - 1] = 0;
     p = buf;
@@ -413,7 +418,7 @@ void Log(const char* file, int line, const char* func, int type, const char* fmt
     // print threadID
     if (threadedOutput)
     {
-        threadID = GetThreadID();
+        threadID = Log_GetThreadID();
         ret = Writef(p, remaining, "[%U]: ", threadID);
         if (ret < 0 || ret > remaining)
             ret = remaining;
@@ -515,6 +520,8 @@ void Log(const char* file, int line, const char* func, int type, const char* fmt
     }
 
     Log_Append(p, remaining, "\n", 2);
-    //Log_Write(buf, maxLine - remaining, type != LOG_TYPE_TRACE);
-    Log_Write(buf, maxLine - remaining, false);
+    if (autoFlush)
+        Log_Write(buf, maxLine - remaining, type != LOG_TYPE_TRACE && type != LOG_TYPE_DEBUG);
+    else
+        Log_Write(buf, maxLine - remaining, false);
 }

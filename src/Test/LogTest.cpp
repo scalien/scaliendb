@@ -15,9 +15,9 @@ static void LogFiller()
 
 TEST_DEFINE(TestLogRotate)
 {
-    Log_SetOutputFile("test.log", true);
+    Log_SetOutputFile("test.log", false);
     Log_SetTarget(LOG_TARGET_STDOUT | LOG_TARGET_FILE);
-    Log_SetMaxFileSize(100);
+    Log_SetMaxSize(100);
     
     LogFiller();    // never returns
 
@@ -29,9 +29,10 @@ TEST_DEFINE(TestLogRotateMultiThreaded)
     ThreadPool*     threadPool;
     unsigned        num = 100;
 
-    Log_SetOutputFile("test.log", true);
+    Log_SetOutputFile("test.log", false);
+    Log_SetAutoFlush(false);
     Log_SetTarget(LOG_TARGET_FILE);
-    Log_SetMaxFileSize(100);
+    Log_SetMaxSize(1000);
 
     threadPool = ThreadPool::Create(num);
     for (unsigned i = 0; i < num; i++)

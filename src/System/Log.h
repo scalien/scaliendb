@@ -44,12 +44,8 @@
 #define Log_Trace_(...) \
     Log(__FILE__, __LINE__, __func__, LOG_TYPE_TRACE, __VA_ARGS__)
 
-#ifdef DEBUG
 #define Log_Debug(...) \
     Log(__FILE__, __LINE__, __func__, LOG_TYPE_DEBUG, __VA_ARGS__)
-#else
-#define Log_Debug Log_Trace
-#endif
 
 #endif // end LOGGING
 
@@ -68,13 +64,14 @@ void Log(const char* file, int line, const char* func,
  int type, const char* fmt, ...);
 bool Log_SetTrace(bool trace);
 bool Log_SetDebug(bool debug);
+bool Log_SetAutoFlush(bool autoFlush);
 void Log_SetTimestamping(bool ts);
 void Log_SetThreadedOutput(bool to);
 void Log_SetMaxLine(int maxLine);
 void Log_SetTarget(int target);
 int  Log_GetTarget();
 bool Log_SetOutputFile(const char* file, bool truncate);
-void Log_SetMaxFileSize(unsigned maxFileSizeMB);    // in MegaBytes
+void Log_SetMaxSize(unsigned maxSizeMB);    // in MegaBytes
 void Log_Flush();
 void Log_Shutdown();
 
