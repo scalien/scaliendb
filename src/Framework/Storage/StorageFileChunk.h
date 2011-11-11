@@ -80,6 +80,7 @@ public:
     bool                ReadPage(uint64_t offset, Buffer& buffer, bool keysOnly = false);
 
     bool                written;
+    bool                writeError;
     StorageHeaderPage   headerPage;
     StorageIndexPage*   indexPage;
     StorageBloomPage*   bloomPage;

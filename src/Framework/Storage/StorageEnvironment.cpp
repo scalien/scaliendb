@@ -124,8 +124,7 @@ bool StorageEnvironment::Open(Buffer& envPath_)
         if (!FS_CreateDir(tmp.GetBuffer()))
         {
             Log_Message("Unable to create environment directory: %s", tmp.GetBuffer());
-            Log_Message("Exiting...");
-            ASSERT_FAIL();
+            STOP_FAIL(1);
         }
     }
     
@@ -136,8 +135,7 @@ bool StorageEnvironment::Open(Buffer& envPath_)
         if (!FS_CreateDir(tmp.GetBuffer()))
         {
             Log_Message("Unable to create chunk directory: %s", tmp.GetBuffer());
-            Log_Message("Exiting...");
-            ASSERT_FAIL();
+            STOP_FAIL(1);
         }
     }
 
@@ -148,8 +146,7 @@ bool StorageEnvironment::Open(Buffer& envPath_)
         if (!FS_CreateDir(tmp.GetBuffer()))
         {
             Log_Message("Unable to create log directory: %s", tmp.GetBuffer());
-            Log_Message("Exiting...");
-            ASSERT_FAIL();
+            STOP_FAIL(1);
         }
     }
 
@@ -160,8 +157,7 @@ bool StorageEnvironment::Open(Buffer& envPath_)
         if (!FS_CreateDir(tmp.GetBuffer()))
         {
             Log_Message("Unable to create archive directory: %s", tmp.GetBuffer());
-            Log_Message("Exiting...");
-            ASSERT_FAIL();
+            STOP_FAIL(1);
         }
     }
     
@@ -941,9 +937,7 @@ bool StorageEnvironment::CreateShard(uint64_t trackID,
         nextLogSegmentID = logSegmentID + 1;
         logSegmentIDMap.Set(trackID, nextLogSegmentID);
         logSegment = new StorageLogSegment();
-        ret = logSegment->Open(logPath, trackID, logSegmentID, config.syncGranularity);
-        if (!ret)
-            STOP_FAIL(1, "Cannot open database log file: %Blog.%020U.%020U", &logPath, trackID, logSegmentID);
+        logSegment->Open(logPath, trackID, logSegmentID, config.syncGranularity);
         logSegmentMap.Set(trackID, logSegment);
     }
 
@@ -1411,6 +1405,9 @@ void StorageEnvironment::OnChunkSerialize(StorageSerializeChunkJob* job)
 
 void StorageEnvironment::OnChunkWrite(StorageWriteChunkJob* job)
 {
+    if (shuttingDown)
+        return;
+
     if (!job->writeChunk->deleted)
     {
         job->writeChunk->written = true;    
@@ -1432,6 +1429,9 @@ void StorageEnvironment::OnChunkMerge(StorageMergeChunkJob* job)
     StorageFileChunk**  itInputChunk;
     StorageFileChunk*   inputChunk;
     
+    if (shuttingDown)
+        return;
+
     shard = GetShard(job->contextID, job->shardID);
 
     if (shard != NULL && job->mergeChunk->written)
@@ -1506,7 +1506,15 @@ void StorageEnvironment::WriteTOC()
     Log_Debug("WriteTOC started");
 
     writingTOC = true;
-    writer.Write(this);
+    if (!writer.Write(this))
+    {
+        envPath.NullTerminate();
+        Log_Message("Unable to write table of contents file to disk.");
+        Log_Message("Free disk space: %s", HUMAN_BYTES(FS_FreeDiskSpace(envPath.GetBuffer())));
+        Log_Message("This should not happen.");
+        Log_Message("Possible causes: not enough disk space, software bug...");
+        STOP_FAIL(1);
+    }
     writingTOC = false;
     
     Log_Debug("WriteTOC finished");

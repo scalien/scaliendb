@@ -27,7 +27,7 @@ StorageLogSegment::StorageLogSegment()
         sw.Reset();             \
     } while (0)
 
-bool StorageLogSegment::Open(Buffer& logPath, uint64_t trackID_, uint64_t logSegmentID_, uint64_t syncGranularity_)
+void StorageLogSegment::Open(Buffer& logPath, uint64_t trackID_, uint64_t logSegmentID_, uint64_t syncGranularity_)
 {
     unsigned    length;
     Stopwatch   sw;
@@ -38,16 +38,21 @@ bool StorageLogSegment::Open(Buffer& logPath, uint64_t trackID_, uint64_t logSeg
     offset = 0;
     lastSyncOffset = 0;
     
-    sw.Start();
     
     filename.Write(logPath);
     filename.Appendf("log.%020U.%020U", trackID, logSegmentID);
     filename.NullTerminate();
+    sw.Start();
     fd = FS_Open(filename.GetBuffer(), FS_CREATE | FS_WRITEONLY | FS_APPEND);
-    if (fd == INVALID_FD)
-        return false;
-
     sw.Stop();
+    if (fd == INVALID_FD)
+    {
+        Log_Message("Unable to open log segment file %U to disk.", logSegmentID);
+        Log_Message("Free disk space: %s", HUMAN_BYTES(FS_FreeDiskSpace(filename.GetBuffer())));
+        Log_Message("This should not happen.");
+        Log_Message("Possible causes: not enough disk space, software bug...");
+        STOP_FAIL(1);
+    }
     
     Log_DebugLong(sw, "log segment Open() took %U msec", (uint64_t) sw.Elapsed());
 
@@ -58,9 +63,11 @@ bool StorageLogSegment::Open(Buffer& logPath, uint64_t trackID_, uint64_t logSeg
     
     if (FS_FileWrite(fd, writeBuffer.GetBuffer(), length) != (ssize_t) length)
     {
-        FS_FileClose(fd);
-        fd = INVALID_FD;
-        return false;
+        Log_Message("Unable to open log segment file %U to disk.", logSegmentID);
+        Log_Message("Free disk space: %s", HUMAN_BYTES(FS_FreeDiskSpace(filename.GetBuffer())));
+        Log_Message("This should not happen.");
+        Log_Message("Possible causes: not enough disk space, software bug...");
+        STOP_FAIL(1);
     }
     offset += length;
 
@@ -77,8 +84,6 @@ bool StorageLogSegment::Open(Buffer& logPath, uint64_t trackID_, uint64_t logSeg
     NewRound();
     
     Log_Debug("Opening log segment %U", logSegmentID);
-        
-    return true;
 }
 
 void StorageLogSegment::Close()
@@ -212,10 +217,11 @@ void StorageLogSegment::Commit()
         ret = FS_FileWrite(fd, writeBuffer.GetBuffer() + writeOffset, writeSize);
         if (ret < 0 || (uint64_t) ret != writeSize)
         {
-            FS_FileClose(fd);
-            fd = INVALID_FD;
-            commitStatus = false;
-            return;
+            Log_Message("Unable to write log segment file %U to disk.", logSegmentID);
+            Log_Message("Free disk space: %s", HUMAN_BYTES(FS_FreeDiskSpace(filename.GetBuffer())));
+            Log_Message("This should not happen.");
+            Log_Message("Possible causes: not enough disk space, software bug...");
+            STOP_FAIL(1);
         }
         
         if (syncGranularity > 0 && writeOffset - lastSyncOffset > syncGranularity)

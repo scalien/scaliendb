@@ -31,7 +31,7 @@ class StorageLogSegment
 public:
     StorageLogSegment();
     
-    bool                Open(Buffer& logPath, uint64_t trackID, uint64_t logSegmentID, uint64_t syncGranularity);
+    void                Open(Buffer& logPath, uint64_t trackID, uint64_t logSegmentID, uint64_t syncGranularity);
     void                Close();
     void                DeleteFile();
 

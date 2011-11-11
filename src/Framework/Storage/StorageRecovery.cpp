@@ -56,8 +56,7 @@ bool StorageRecovery::TryRecovery(StorageEnvironment* env_)
     if (dir == FS_INVALID_DIR)
     {
         Log_Message("Unable to open log directory: %s", tmp.GetBuffer());
-        Log_Message("Exiting...");
-        ASSERT_FAIL();
+        STOP_FAIL(1);
     }
     
     while ((entry = FS_ReadDir(dir)) != FS_INVALID_DIR_ENTRY)
@@ -284,8 +283,7 @@ void StorageRecovery::ReplayLogSegments(uint64_t trackID)
     if (dir == FS_INVALID_DIR)
     {
         Log_Message("Unable to open log directory: %s", tmp.GetBuffer());
-        Log_Message("Exiting...");
-        ASSERT_FAIL();
+        STOP_FAIL(1);
     }
 
     prefix.Writef("log.%020U", trackID);
@@ -377,8 +375,7 @@ ReadBuffer StorageRecovery::ReadFromFileBuffer(FD fd, uint64_t len)
 //    if (fd.Open(filename.GetBuffer(), FS_READONLY) == INVALID_FD)
 //    {
 //        Log_Message("Unable to open log file: %s", filename.GetBuffer());
-//        Log_Message("Exiting...");
-//        ASSERT_FAIL();
+//        STOP_FAIL(1);
 //    }
 //    
 //    fileBuffer.Allocate(STORAGE_RECOVERY_PRELOAD_SIZE);
@@ -529,8 +526,7 @@ bool StorageRecovery::ReplayLogSegment(uint64_t trackID, Buffer& filename)
     if (fd.Open(filename.GetBuffer(), FS_READONLY) == INVALID_FD)
     {
         Log_Message("Unable to open log file: %s", filename.GetBuffer());
-        Log_Message("Exiting...");
-        ASSERT_FAIL();
+        STOP_FAIL(1);
     }
     
     size = 4 + 8;
@@ -690,8 +686,7 @@ void StorageRecovery::DeleteOrphanedChunks()
     if (dir == FS_INVALID_DIR)
     {
         Log_Message("Unable to open chunk directory: %s", tmp.GetBuffer());
-        Log_Message("Exiting...");
-        ASSERT_FAIL();
+        STOP_FAIL(1);
     }
     
     while ((entry = FS_ReadDir(dir)) != FS_INVALID_DIR_ENTRY)
@@ -858,8 +853,18 @@ void StorageRecovery::TryWriteChunks()
             Log_Debug("Writing chunk %U to file...", fileChunk->GetChunkID());
             sw.Start();
             ret = writer.Write(env, fileChunk);
-            ASSERT(ret);
             sw.Stop();
+
+            if (fileChunk->writeError)
+            {
+                // write failed
+                Log_Message("Unable to write chunk file %U to disk.", fileChunk->GetChunkID());
+                Log_Message("Free disk space: %s", HUMAN_BYTES(FS_FreeDiskSpace(fileChunk->GetFilename().GetBuffer())));
+                Log_Message("This should not happen.");
+                Log_Message("Possible causes: not enough disk space, software bug...");
+                STOP_FAIL(1);
+            }
+
             Log_Debug("Chunk %U written, elapsed: %U, size: %s, bps: %sB/s",
              fileChunk->GetChunkID(),
              (uint64_t) sw.Elapsed(), HUMAN_BYTES(fileChunk->GetSize()), 
