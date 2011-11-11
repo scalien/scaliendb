@@ -402,6 +402,9 @@ void Log(const char* file, int line, const char* func, int type, const char* fmt
     if ((type == LOG_TYPE_TRACE || type == LOG_TYPE_ERRNO) && !trace)
         return;
 
+    if ((type == LOG_TYPE_DEBUG) && !debug)
+        return;
+
     buf[maxLine - 1] = 0;
     p = buf;
     remaining = maxLine - 1;
