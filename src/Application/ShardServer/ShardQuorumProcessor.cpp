@@ -652,7 +652,6 @@ void ShardQuorumProcessor::OnShardMigrationClusterMessage(uint64_t nodeID, Clust
     
     if (prevMigrateCache < DATABASE_REPLICATION_SIZE && migrateCache >= DATABASE_REPLICATION_SIZE)
     {
-        Log_Debug("Pausing reads from node %U", migrateNodeID);
         pauseMessage.ShardMigrationPause();
         CONTEXT_TRANSPORT->SendClusterMessage(migrateNodeID, pauseMessage);
     }
@@ -891,8 +890,6 @@ void ShardQuorumProcessor::OnResumeAppend()
     ShardMessage    shardMessage;
     ClusterMessage  clusterMessage;
     
-    prevMigrateCache = migrateCache;
-    
     start = NowClock();
     while (appendState.value.GetLength() > 0)
     {
@@ -910,8 +907,18 @@ void ShardQuorumProcessor::OnResumeAppend()
             ASSERT(itShardMessage != NULL);
         }
 
+        prevMigrateCache = migrateCache;
+        
         ExecuteMessage(appendState.paxosID, appendState.commandID,
          (appendState.currentAppend ? itShardMessage : &shardMessage), appendState.currentAppend);
+
+        if (prevMigrateCache > DATABASE_REPLICATION_SIZE &&
+          migrateCache <= DATABASE_REPLICATION_SIZE &&
+          migrateNodeID > 0)
+        {
+            clusterMessage.ShardMigrationResume();
+            CONTEXT_TRANSPORT->SendClusterMessage(migrateNodeID, clusterMessage);
+        }
 
         appendState.commandID++;
 
@@ -921,14 +928,6 @@ void ShardQuorumProcessor::OnResumeAppend()
     Log_Debug("numOps: %U", appendState.commandID);
     
     appendState.Reset();
-
-    if (prevMigrateCache > DATABASE_REPLICATION_SIZE &&
-      migrateCache <= DATABASE_REPLICATION_SIZE &&
-      migrateNodeID > 0)
-    {
-        clusterMessage.ShardMigrationResume();
-        CONTEXT_TRANSPORT->SendClusterMessage(migrateNodeID, clusterMessage);
-    }
     
     if (!tryAppend.IsActive() && shardMessages.GetLength() > 0)
         EventLoop::Add(&tryAppend);
