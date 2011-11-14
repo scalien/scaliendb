@@ -9,6 +9,7 @@ StorageFileChunk::StorageFileChunk() : headerPage(this)
 {
     prev = next = this;
     written = false;
+    writeError = false;
     dataPagesSize = 0;
     dataPages = NULL;
     indexPage = NULL;
@@ -68,7 +69,6 @@ void StorageFileChunk::ReadHeaderPage()
         Log_Message("Unable to read header page from %s at offset %U", filename.GetBuffer(), offset);
         Log_Message("This should not happen.");
         Log_Message("Possible causes: software bug, damaged file, corrupted file...");
-        Log_Message("Exiting...");
         STOP_FAIL(1);
     }
     
@@ -78,7 +78,6 @@ void StorageFileChunk::ReadHeaderPage()
          filename.GetBuffer(), offset, buffer.GetLength());
         Log_Message("This should not happen.");
         Log_Message("Possible causes: software bug, damaged file, corrupted file...");
-        Log_Message("Exiting...");
         STOP_FAIL(1);
     }
     
@@ -435,7 +434,6 @@ void StorageFileChunk::LoadBloomPage()
         Log_Message("Unable to read bloom page from %s at offset %U", filename.GetBuffer(), offset);
         Log_Message("This should not happen.");
         Log_Message("Possible causes: software bug, damaged file, corrupted file...");
-        Log_Message("Exiting...");
         STOP_FAIL(1);
     }
     if (!bloomPage->Read(buffer))
@@ -444,7 +442,6 @@ void StorageFileChunk::LoadBloomPage()
          filename.GetBuffer(), offset, buffer.GetLength());
         Log_Message("This should not happen.");
         Log_Message("Possible causes: software bug, damaged file, corrupted file...");
-        Log_Message("Exiting...");
         STOP_FAIL(1);
     }
     
@@ -477,7 +474,6 @@ void StorageFileChunk::LoadIndexPage()
         Log_Message("Unable to read index page from %s at offset %U", filename.GetBuffer(), offset);
         Log_Message("This should not happen.");
         Log_Message("Possible causes: software bug, damaged file, corrupted file...");
-        Log_Message("Exiting...");
         STOP_FAIL(1);
     }
     if (!indexPage->Read(buffer))
@@ -486,7 +482,6 @@ void StorageFileChunk::LoadIndexPage()
          filename.GetBuffer(), offset, buffer.GetLength());
         Log_Message("This should not happen.");
         Log_Message("Possible causes: software bug, damaged file, corrupted file...");
-        Log_Message("Exiting...");
         STOP_FAIL(1);
     }
     
@@ -523,7 +518,6 @@ void StorageFileChunk::LoadDataPage(uint32_t index, uint64_t offset, bool bulk, 
         Log_Message("Unable to read data page from %s at offset %U", filename.GetBuffer(), offset);
         Log_Message("This should not happen.");
         Log_Message("Possible causes: software bug, damaged file, corrupted file...");
-        Log_Message("Exiting...");
         STOP_FAIL(1);
     }
     if (!dataPages[index]->Read(buffer, keysOnly))
@@ -532,7 +526,6 @@ void StorageFileChunk::LoadDataPage(uint32_t index, uint64_t offset, bool bulk, 
          filename.GetBuffer(), offset, buffer.GetLength());
         Log_Message("This should not happen.");
         Log_Message("Possible causes: software bug, damaged file, corrupted file...");
-        Log_Message("Exiting...");
         STOP_FAIL(1);
     }
 
@@ -567,7 +560,6 @@ StoragePage* StorageFileChunk::AsyncLoadBloomPage()
         Log_Message("Unable to read bloom page from %s at offset %U", filename.GetBuffer(), offset);
         Log_Message("This should not happen.");
         Log_Message("Possible causes: software bug, damaged file, corrupted file...");
-        Log_Message("Exiting...");
         STOP_FAIL(1);
     }
     if (!page->Read(buffer))
@@ -576,7 +568,6 @@ StoragePage* StorageFileChunk::AsyncLoadBloomPage()
          filename.GetBuffer(), offset, buffer.GetLength());
         Log_Message("This should not happen.");
         Log_Message("Possible causes: software bug, damaged file, corrupted file...");
-        Log_Message("Exiting...");
         STOP_FAIL(1);
     }
     
@@ -608,7 +599,6 @@ StoragePage* StorageFileChunk::AsyncLoadIndexPage()
         Log_Message("Unable to read index page from %s at offset %U", filename.GetBuffer(), offset);
         Log_Message("This should not happen.");
         Log_Message("Possible causes: software bug, damaged file, corrupted file...");
-        Log_Message("Exiting...");
         STOP_FAIL(1);
     }
     if (!page->Read(buffer))
@@ -617,7 +607,6 @@ StoragePage* StorageFileChunk::AsyncLoadIndexPage()
          filename.GetBuffer(), offset, buffer.GetLength());
         Log_Message("This should not happen.");
         Log_Message("Possible causes: software bug, damaged file, corrupted file...");
-        Log_Message("Exiting...");
         STOP_FAIL(1);
     }
 
@@ -646,7 +635,6 @@ StoragePage* StorageFileChunk::AsyncLoadDataPage(uint32_t index, uint64_t offset
         Log_Message("Unable to read data page from %s at offset %U", filename.GetBuffer(), offset);
         Log_Message("This should not happen.");
         Log_Message("Possible causes: software bug, damaged file, corrupted file...");
-        Log_Message("Exiting...");
         STOP_FAIL(1);
     }
     if (!page->Read(buffer))
@@ -655,7 +643,6 @@ StoragePage* StorageFileChunk::AsyncLoadDataPage(uint32_t index, uint64_t offset
          filename.GetBuffer(), offset, buffer.GetLength());
         Log_Message("This should not happen.");
         Log_Message("Possible causes: software bug, damaged file, corrupted file...");
-        Log_Message("Exiting...");
         STOP_FAIL(1);
     }
 

@@ -10,8 +10,8 @@
 class ShardServer;
 class ShardQuorumProcessor;
 
-#define SHARD_MIGRATION_WRITER_DELAY  10*1000 // msec
-#define SHARD_MIGRATION_WRITER_GRAN   1*MiB
+#define SHARD_MIGRATION_WRITER_DELAY  (10*1000) // msec
+#define SHARD_MIGRATION_WRITER_GRAN   (10*KiB)
 
 /*
 ===============================================================================================

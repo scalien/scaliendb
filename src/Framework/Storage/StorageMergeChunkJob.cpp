@@ -50,6 +50,17 @@ void StorageMergeChunkJob::Execute()
     sw.Start();
     ret = merger.Merge(env, filenames, mergeChunk, firstKey, lastKey);
     sw.Stop();
+
+    if (mergeChunk->writeError)
+    {
+        // write failed
+        Log_Message("Unable to write chunk file %U to disk.", mergeChunk->GetChunkID());
+        Log_Message("Free disk space: %s", HUMAN_BYTES(FS_FreeDiskSpace(mergeChunk->GetFilename().GetBuffer())));
+        Log_Message("This should not happen.");
+        Log_Message("Possible causes: not enough disk space, software bug...");
+        STOP_FAIL(1);
+    }
+
     if (ret)
     {
         Log_Debug("Done merging chunk %U, elapsed: %U, size: %s, bps: %sB/s",
@@ -59,7 +70,7 @@ void StorageMergeChunkJob::Execute()
     }
     else
     {
-        Log_Debug("Merge failed, chunk %U, elapsed: %U, size: %s, bps: %sB/s, free disk space: %s",
+        Log_Debug("Merge aborted, chunk %U, elapsed: %U, size: %s, bps: %sB/s, free disk space: %s",
          mergeChunk->GetChunkID(),
          (uint64_t) sw.Elapsed(), HUMAN_BYTES(mergeChunk->GetSize()),
          HUMAN_BYTES((uint64_t)(mergeChunk->GetSize() / (sw.Elapsed() / 1000.0))),

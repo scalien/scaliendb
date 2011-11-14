@@ -99,6 +99,13 @@ void RunApplication()
 void InitLog()
 {
     int logTargets;
+    bool debug;
+
+#ifdef DEBUG
+    debug = true;
+#else
+    debug = false;
+#endif
 
     logTargets = 0;
     if (configFile.GetListNum("log.targets") == 0)
@@ -120,7 +127,10 @@ void InitLog()
     Log_SetTarget(logTargets);
 
     Log_SetTrace(configFile.GetBoolValue("log.trace", false));
+    Log_SetDebug(configFile.GetBoolValue("log.debug", debug));
     Log_SetTimestamping(configFile.GetBoolValue("log.timestamping", false));
+    Log_SetAutoFlush(configFile.GetBoolValue("log.autoFlush", true));
+    Log_SetMaxSize(configFile.GetIntValue("log.maxSize", 100*1000*1000) / (1000 * 1000));
 }
 
 void ParseArgs(int argc, char** argv)

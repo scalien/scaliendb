@@ -383,12 +383,25 @@ bool ShardHTTPClientSession::ProcessSettings()
         Log_Flush();
         session.PrintPair("Trace", boolValue ? "on" : "off");
     }
-    
+
+    if (HTTP_GET_OPT_PARAM(params, "debug", param))
+    {
+        boolValue = PARAM_BOOL_VALUE(param);
+        Log_SetDebug(boolValue);
+        Log_Flush();
+        session.PrintPair("Debug", boolValue ? "on" : "off");
+    }
+
     if (HTTP_GET_OPT_PARAM(params, "merge", param))
     {
         boolValue = PARAM_BOOL_VALUE(param);
         shardServer->GetDatabaseManager()->GetEnvironment()->SetMergeEnabled(boolValue);
         session.PrintPair("Merge", boolValue ? "on" : "off");
+    }
+
+    if (HTTP_GET_OPT_PARAM(params, "assert", param))
+    {
+        ASSERT(false);
     }
     
     session.Flush();

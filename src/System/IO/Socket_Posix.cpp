@@ -130,6 +130,7 @@ bool Socket::Bind(int port)
     }
     
     memset(&sa, 0, sizeof(sa));
+    sa.sin_family = AF_INET;
     sa.sin_port = htons((uint16_t)port);
     sa.sin_addr.s_addr = htonl(INADDR_ANY);
     

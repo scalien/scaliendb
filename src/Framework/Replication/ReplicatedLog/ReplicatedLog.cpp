@@ -20,6 +20,7 @@ void ReplicatedLog::Init(QuorumContext* context_)
 
     lastRequestChosenTime = 0;
     commitChaining = false;
+    alwaysUseDatabaseCatchup = false;
     
     dummy.Write("dummy");
 }
@@ -52,6 +53,11 @@ void ReplicatedLog::SetAsyncCommit(bool asyncCommit)
 bool ReplicatedLog::GetAsyncCommit()
 {
     return acceptor.GetAsyncCommit();
+}
+
+void ReplicatedLog::SetAlwaysUseDatabaseCatchup(bool alwaysUseDatabaseCatchup_)
+{
+    alwaysUseDatabaseCatchup = alwaysUseDatabaseCatchup_;
 }
 
 void ReplicatedLog::Stop()
@@ -380,16 +386,24 @@ bool ReplicatedLog::OnRequestChosen(PaxosMessage& imsg)
         return true;
     
     // the node is lagging and needs to catch-up
-    context->GetDatabase()->GetAcceptedValue(imsg.paxosID, value);
-    if (value.GetLength() > 0)
+
+    if (alwaysUseDatabaseCatchup && imsg.paxosID < GetPaxosID())
     {
-        Log_Trace("Sending paxosID %d to node %d", imsg.paxosID, imsg.nodeID);
-        omsg.LearnValue(imsg.paxosID, MY_NODEID, 0, value);
+        omsg.StartCatchup(paxosID, MY_NODEID);
     }
     else
     {
-        Log_Trace("Node requested a paxosID I no longer have");
-        omsg.StartCatchup(paxosID, MY_NODEID);
+        context->GetDatabase()->GetAcceptedValue(imsg.paxosID, value);
+        if (value.GetLength() > 0)
+        {
+            Log_Trace("Sending paxosID %d to node %d", imsg.paxosID, imsg.nodeID);
+            omsg.LearnValue(imsg.paxosID, MY_NODEID, 0, value);
+        }
+        else
+        {
+            Log_Trace("Node requested a paxosID I no longer have");
+            omsg.StartCatchup(paxosID, MY_NODEID);
+        }
     }
     context->GetTransport()->SendMessage(imsg.nodeID, omsg);
 

@@ -2,6 +2,7 @@
 #define MACROS_H
 
 #include <assert.h>
+#include <stdlib.h>
 
 /*
 ===============================================================================================
@@ -41,6 +42,7 @@
 ===============================================================================================
  */
 
+#ifdef DEBUG
 #define ASSERT(expr)            \
     do {                        \
         if (!(expr))            \
@@ -49,6 +51,19 @@
             assert(expr);       \
         }                       \
     } while (0)
+#else
+#define ASSERT(expr)                        \
+    do {                                    \
+        if (!(expr))                        \
+        {                                   \
+            PrintStackTrace();              \
+            Log_SetTrace(true);             \
+            Log_Trace("Failed: " #expr);    \
+            Log_Flush();                    \
+            _exit(1);                       \
+        }                                   \
+    } while (0)
+#endif
 
 #define ASSERT_FAIL()               ASSERT(false)
 
@@ -61,7 +76,6 @@ do {                                                                            
     Log_SetTarget(LOG_TARGET_STDERR|LOG_TARGET_FILE);                           \
     const char* msg = StaticPrint("" __VA_ARGS__);                              \
     Log_Message("Exiting (%d)%s%s", code, msg ? ": " : "...", msg ? msg : "");  \
-    IFDEBUG(ASSERT_FAIL());                                                     \
     _exit(code);                                                                \
 } while (0)
 

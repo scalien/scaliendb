@@ -33,6 +33,8 @@ public:
     void                    Read();
     void                    Write();
 
+    void                    SetControllers();
+
 private:
     uint64_t                paxosID;
     ConfigState             configState;

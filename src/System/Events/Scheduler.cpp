@@ -48,20 +48,25 @@ unsigned Scheduler::GetNumTimers()
 
 void Scheduler::UnprotectedAdd(Timer* timer)
 {
+    bool        complete;
+    Callable    empty;
+    
     ASSERT(timer->next == timer->prev && timer->next == timer);
     timer->OnAdd();
     timer->active = true;
+    complete = false;
+
+#ifdef EVENTLOOP_MULTITHREADED
+    if (timers.GetLength() > 0 && timer->expireTime < timers.First()->expireTime)
+        complete = true;
+#endif
 
     timers.Add(timer);
 
 #ifdef EVENTLOOP_MULTITHREADED
-    if (timers.GetLength() > 0 && timer->expireTime < timers.First()->expireTime)
-    {
-        Callable    empty;
-
-        // wake up the IOProcessor
+    // wake up the IOProcessor because the current timer has earlier expire time
+    if (complete)
         IOProcessor::Complete(&empty);
-    }
 #endif
 }
 

@@ -9,6 +9,8 @@ bool StorageChunkWriter::Write(StorageEnvironment* env_, StorageFileChunk* file_
     env = env_;
     file = file_;
 
+    file->writeError = true;
+
     if (fd.Open(file->GetFilename().GetBuffer(), FS_CREATE | FS_WRITEONLY | FS_APPEND) == INVALID_FD)
         return false;
     
@@ -32,6 +34,8 @@ bool StorageChunkWriter::Write(StorageEnvironment* env_, StorageFileChunk* file_
     StorageEnvironment::Sync(fd.GetFD());
 
     fd.Close();
+
+    file->writeError = false;
 
     return true;
 }
@@ -67,8 +71,11 @@ bool StorageChunkWriter::WriteDataPages()
     for (i = 0; i < file->numDataPages; i++)
     {
         if (env->shuttingDown)
+        {
+            file->writeError = false;
             return false;
-        
+        }
+
         // rate control while reading or listing
         //while (env->yieldThreads)
         //{

@@ -80,6 +80,7 @@ public:
     // TODO: change these to private
     bool                written;
     bool                useCache;
+    bool                writeError;
     StorageHeaderPage   headerPage;
     StorageIndexPage*   indexPage;
     StorageBloomPage*   bloomPage;

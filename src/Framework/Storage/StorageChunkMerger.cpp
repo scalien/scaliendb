@@ -20,7 +20,8 @@ bool StorageChunkMerger::Merge(
     
     env = env_;
     mergeChunk = mergeChunk_;
-    
+    mergeChunk->writeError = true;
+
     minLogSegmentID = 0;
     maxLogSegmentID = 0;
     maxLogCommandID = 0;
@@ -105,6 +106,8 @@ bool StorageChunkMerger::Merge(
     readers = NULL;
     delete[] iterators;
     iterators = NULL;
+
+    mergeChunk->writeError = false;
 
     return true;
 }
@@ -232,6 +235,7 @@ bool StorageChunkMerger::WriteDataPages(ReadBuffer /*firstKey*/, ReadBuffer last
         if (env->shuttingDown || mergeChunk->deleted || !env->mergeEnabled)
         {
             Log_Debug("Aborting merge");
+            mergeChunk->writeError = false;
             return false;
         }
         

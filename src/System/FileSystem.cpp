@@ -1,5 +1,6 @@
 #include "FileSystem.h"
 #include "Log.h"
+#include "Buffers/Buffer.h"
 
 #include <string.h>
 
@@ -872,8 +873,25 @@ bool FS_Exists(const char* path)
 int64_t FS_FreeDiskSpace(const char* path)
 {
     ULARGE_INTEGER  bytes;
+    unsigned        len;
+    char*           last;
+    Buffer          buf;
+
+    // find last / or \ character
+    last = (char*)strrchr (path, '\\');
+    if (!last)
+        last = (char*)strrchr (path, '/');
     
-    if (!GetDiskFreeSpaceEx(path, &bytes, NULL, NULL))
+    // find length of prefix, or use entire string if not found
+    if (last)
+        len = last - path;
+    if (!last || len == 0)
+        len = strlen(path);
+
+    buf.Write(path, len);
+    buf.NullTerminate();
+    
+    if (!GetDiskFreeSpaceEx(buf.GetBuffer(), &bytes, NULL, NULL))
         return -1;
     return bytes.QuadPart;
 }
@@ -896,7 +914,7 @@ int64_t FS_FileSize(const char* path)
     if (!ret)
         return -1;
     
-    return (int64_t) attrData.nFileSizeHigh << 32 | attrData.nFileSizeLow;
+    return ((int64_t) attrData.nFileSizeHigh) << 32 | attrData.nFileSizeLow;
 }
 
 bool FS_Rename(const char* src, const char* dst)
