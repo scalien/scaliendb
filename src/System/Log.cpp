@@ -15,6 +15,7 @@ typedef __int64             int64_t;
 #define Log_GetThreadID() (uint64_t)(GetCurrentThreadId())
 #else
 #include <sys/time.h>
+#include <sys/stat.h>
 #include <pthread.h>
 #include <stdint.h>
 #define Log_GetThreadID() ((uint64_t)(pthread_self()))
@@ -149,7 +150,7 @@ static bool Log_DeleteFile(const char* filename)
     return true;
 }
 
-int64_t FS_FileSize(const char* path)
+static int64_t Log_FileSize(const char* path)
 {
     int64_t     ret;
     struct stat buf;
