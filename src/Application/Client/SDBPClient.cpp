@@ -1126,6 +1126,7 @@ void Client::EventLoop()
     timeoutStatus = SDBP_SUCCESS;
     if (!IsDone())
     {
+        Log_Trace("Not IsDone");
         EventLoop::Reset(&globalTimeout);
         if (master == -1)
             EventLoop::Reset(&masterTimeout);
