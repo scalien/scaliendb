@@ -59,6 +59,7 @@
             PrintStackTrace();              \
             Log_SetTrace(true);             \
             Log_Trace("Failed: " #expr);    \
+            Log_Flush();                    \
             _exit(1);                       \
         }                                   \
     } while (0)
