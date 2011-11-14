@@ -219,7 +219,7 @@ namespace ScalienClientUnitTesting
             Database db = client.CreateDatabase(dbName);
             Table tbl = db.CreateTable(tableName);
 
-            for(int i = 0; i < 1000; i++)
+            for(ulong i = 0; i < 1000; i++)
                 tbl.Set(Utils.Id(i), "test");
 
             var cnt1 = tbl.Count(new ByteRangeParams());
@@ -251,7 +251,7 @@ namespace ScalienClientUnitTesting
             Database db = client.CreateDatabase(dbName);
             Table tbl = db.CreateTable(tableName);
 
-            for (int i = 0; i < 1000; i++)
+            for (ulong i = 0; i < 1000; i++)
                 tbl.Set(Utils.Id(i), "test");
 
             client.Submit();
@@ -287,7 +287,7 @@ namespace ScalienClientUnitTesting
 
             var value = Utils.RandomString(length);
 
-            for (int i = 0; i < num; i++)
+            for (ulong i = 0; i < num; i++)
                 tbl.Set(Utils.Id(i), value);
 
             // Submit, no proxied values left
@@ -316,7 +316,7 @@ namespace ScalienClientUnitTesting
 
             var value = Utils.RandomString(length);
 
-            for (int i = 0; i < num; i++)
+            for (ulong i = 0; i < num; i++)
                 tbl.Set(Utils.Id(i), value);
 
             // don't Submit, proxied values

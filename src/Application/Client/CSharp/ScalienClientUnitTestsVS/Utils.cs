@@ -106,7 +106,7 @@ namespace Scalien
             return t;
         }
 
-        public static string Id(Int64 num)
+        public static string Id(UInt64 num)
         {
             return String.Format("{0:0000000000000}", num);
         }
