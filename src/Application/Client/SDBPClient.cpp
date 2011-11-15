@@ -269,6 +269,8 @@ void Client::SetGlobalTimeout(uint64_t timeout)
 
 void Client::SetMasterTimeout(uint64_t timeout)
 {
+    Log_Trace("timeout: %U", timeout);
+
     if (masterTimeout.IsActive())
     {
         EventLoop::Remove(&masterTimeout);
