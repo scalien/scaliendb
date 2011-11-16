@@ -235,8 +235,6 @@ void StorageChunkReader::PreloadDataPages()
     uint64_t    totalSize;
     uint64_t    origOffset;
     
-    Log_Debug("PreloadDataPages started");
-
     totalSize = 0;
     origOffset = offset; // to make the compiler happy
 
@@ -282,8 +280,6 @@ void StorageChunkReader::PreloadDataPages()
         preloadIndex = i-1;
     else
         offset = origOffset;
-
-    Log_Debug("PreloadDataPages finished");
 }
 
 bool StorageChunkReader::LocateIndexAndOffset(StorageIndexPage* indexPage, uint32_t numDataPages, ReadBuffer& firstKey)
