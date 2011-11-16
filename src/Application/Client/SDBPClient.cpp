@@ -269,6 +269,8 @@ void Client::SetGlobalTimeout(uint64_t timeout)
 
 void Client::SetMasterTimeout(uint64_t timeout)
 {
+    Log_Trace("timeout: %U", timeout);
+
     if (masterTimeout.IsActive())
     {
         EventLoop::Remove(&masterTimeout);
@@ -1126,6 +1128,7 @@ void Client::EventLoop()
     timeoutStatus = SDBP_SUCCESS;
     if (!IsDone())
     {
+        Log_Trace("Not IsDone");
         EventLoop::Reset(&globalTimeout);
         if (master == -1)
             EventLoop::Reset(&masterTimeout);

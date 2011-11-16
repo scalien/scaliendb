@@ -1010,6 +1010,7 @@ void SDBP_SetTrace(bool trace)
 	if (trace)
 	{
 		Log_SetTrace(true);
+        Log_SetDebug(true);
         Log_SetTimestamping(true);
         Log_SetThreadedOutput(true);
 		Log_SetTarget(LOG_TARGET_STDERR);
@@ -1017,6 +1018,7 @@ void SDBP_SetTrace(bool trace)
 	else
 	{
 		Log_SetTrace(false);
+        Log_SetDebug(false);
 		Log_SetTarget(LOG_TARGET_NOWHERE);
 	}
 }
