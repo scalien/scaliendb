@@ -76,11 +76,6 @@ void StorageUnwrittenChunkLister::Init(StorageFileChunk& fileChunk, ReadBuffer& 
     dataPage.Finalize();
 }
 
-void StorageUnwrittenChunkLister::Load()
-{
-    // do nothing
-}
-
 void StorageUnwrittenChunkLister::SetDirection(bool forwardDirection_)
 {
     ASSERT(forwardDirection == forwardDirection_);

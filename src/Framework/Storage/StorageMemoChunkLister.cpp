@@ -46,11 +46,6 @@ void StorageMemoChunkLister::Init(
     dataPage.Finalize();
 }
 
-void StorageMemoChunkLister::Load()
-{
-    // do nothing
-}
-
 void StorageMemoChunkLister::SetDirection(bool forwardDirection_)
 {
     forwardDirection = forwardDirection_;

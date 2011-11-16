@@ -104,6 +104,25 @@ void ShardDatabaseAsyncGet::OnRequestComplete()
 ===============================================================================================
 */
 
+ShardDatabaseAsyncList::ShardDatabaseAsyncList(ShardDatabaseManager* manager_)
+{
+    manager = manager_;
+    request = NULL;
+    total = 0;
+
+    next = prev = this;
+}
+
+void ShardDatabaseAsyncList::SetRequest(ClientRequest* request_)
+{
+    request = request_;
+}
+
+void ShardDatabaseAsyncList::SetTotal(uint64_t total_)
+{
+    total = total_;
+}
+
 void ShardDatabaseAsyncList::OnShardComplete()
 {
     uint64_t                paxosID;
@@ -192,12 +211,16 @@ void ShardDatabaseAsyncList::OnRequestComplete()
             
         request->OnComplete();
         request = NULL;
+        manager->inactiveAsyncLists.Append(this);
         return;
     }
     
     // already disconnected
     if (!request)
+    {
+        manager->inactiveAsyncLists.Append(this);
         goto ActivateExecuteList;
+    }
     
     // handle disconnected
     if (!request->IsActive())
@@ -206,6 +229,7 @@ void ShardDatabaseAsyncList::OnRequestComplete()
         request->response.NoResponse();
         request->OnComplete();
         request = NULL;
+        manager->inactiveAsyncLists.Append(this);
         goto ActivateExecuteList;        
     }
 
@@ -221,6 +245,7 @@ void ShardDatabaseAsyncList::OnRequestComplete()
         request->response.OK();
         request->OnComplete(true);
         request = NULL;
+        manager->inactiveAsyncLists.Append(this);
     }
 
 ActivateExecuteList:
@@ -268,6 +293,7 @@ void ShardDatabaseAsyncList::TryNextShard()
     
     // reschedule request
     manager->OnClientListRequest(request);
+    manager->inactiveAsyncLists.Append(this);
     request = NULL;
 }
 
@@ -316,9 +342,14 @@ void ShardDatabaseManager::Init(ShardServer* shardServer_)
     asyncGet.manager = this;
 
     // Initialize async LIST
-    asyncList.manager = this;
-    asyncList.request = NULL;
-    asyncList.total = 0;
+    //asyncList.manager = this;
+    //asyncList.request = NULL;
+    //asyncList.total = 0;
+    for (int i = 0; i < configFile.GetIntValue("database.numAsyncThreads", 10); i++)
+    {
+        ShardDatabaseAsyncList* asyncList = new ShardDatabaseAsyncList(this);
+        inactiveAsyncLists.Append(asyncList);
+    }
 }
 
 void ShardDatabaseManager::Shutdown()
@@ -330,7 +361,8 @@ void ShardDatabaseManager::Shutdown()
     FOREACH (node, quorumLogShards)
         delete node->Value();
     
-    asyncList.Clear();
+    // TODO: delete async list ops
+    //asyncList.Clear();
     readRequests.DeleteList();
     environment.Close();
     StoragePageCache::Shutdown();
@@ -896,9 +928,7 @@ void ShardDatabaseManager::OnExecuteLists()
     ClientRequest*  itRequest;
     ConfigShard*    configShard;
 
-    Log_Debug("OnExecuteLists, active: %b", asyncList.IsActive());
-
-    if (asyncList.IsActive())
+    if (inactiveAsyncLists.GetLength() == 0)
         return;
     
     start = NowClock();
@@ -944,6 +974,7 @@ void ShardDatabaseManager::OnExecuteLists()
             continue;
         }
 
+        ShardDatabaseAsyncList& asyncList = *inactiveAsyncLists.Pop();
         asyncList.Clear();
         if (itRequest->type == CLIENTREQUEST_LIST_KEYS)
             asyncList.type = StorageAsyncList::KEY;
@@ -954,9 +985,9 @@ void ShardDatabaseManager::OnExecuteLists()
         else
             ASSERT_FAIL();
 
-        asyncList.total = 0;
+        asyncList.SetTotal(0);
         asyncList.num = 0;
-        asyncList.request = itRequest;
+        asyncList.SetRequest(itRequest);
         asyncList.endKey = endKey;
         asyncList.prefix = itRequest->prefix;
         asyncList.count = itRequest->count;
@@ -966,64 +997,13 @@ void ShardDatabaseManager::OnExecuteLists()
         asyncList.onComplete = MFunc<ShardDatabaseAsyncList, &ShardDatabaseAsyncList::OnShardComplete>(&asyncList);
         Log_Debug("Listing shard: shardFirstKey: %B, shardLastKey: %B", &asyncList.shardFirstKey, &asyncList.shardLastKey);
         environment.AsyncList(contextID, shardID, &asyncList);
-        if (asyncList.IsActive())
+        //if (asyncList.IsActive())
+        //    return;
+
+        if (!asyncList.IsActive())
+            inactiveAsyncLists.Append(&asyncList);
+
+        if (inactiveAsyncLists.GetLength() == 0)
             return;
     }
-}
-
-uint64_t ShardDatabaseManager::FindNextShard(uint64_t tableID, ReadBuffer firstKey)
-{
-    ConfigTable*    configTable;
-    ConfigShard*    configShard;
-    uint64_t*       itShard;
-    uint64_t        nextShardID;
-    ReadBuffer      minKey;
-
-    Log_Debug("FindNextShard: firstKey: %R", &firstKey);
-
-    configTable = GetConfigState()->GetTable(tableID);
-    ASSERT(configTable != NULL);
-    
-    nextShardID = 0;
-    FOREACH (itShard, configTable->shards)
-    {
-        configShard = GetConfigState()->GetShard(*itShard);
-//        if (!shardServer->GetQuorumProcessor(configShard->quorumID))
-//            continue; // not local shard
-
-        if (!shardServer->GetQuorumProcessor(configShard->quorumID))
-            break; // not local shard
-        
-        Log_Debug("FindNextShard: shardID: %U, firstKey: %B, lastKey: %B, minKey: %R", configShard->shardID, &configShard->firstKey, &configShard->lastKey, &minKey);
-        
-        // TODO: fix this mess
-        if ((STORAGE_KEY_LESS_THAN(configShard->firstKey, firstKey) ||
-         ReadBuffer::Cmp(configShard->firstKey, firstKey) == 0)
-         &&
-         (configShard->lastKey.GetLength() == 0 ||
-         (STORAGE_KEY_GREATER_THAN(configShard->lastKey, firstKey) && 
-         ReadBuffer::Cmp(configShard->lastKey, firstKey) != 0)))
-        {
-            nextShardID = configShard->shardID;
-            break;
-        }
-        
-        if (minKey.GetLength() == 0)
-            minKey = configShard->firstKey;
-        
-        // if there is no shard, that has shardFirstKey in its range
-        // then find the first shard, that has the smallest firstKey
-        // which is greater than shardFirstKey
-        if (STORAGE_KEY_GREATER_THAN(configShard->firstKey, firstKey) &&
-         STORAGE_KEY_LESS_THAN(configShard->firstKey, minKey) &&
-         STORAGE_KEY_GREATER_THAN(minKey, firstKey))
-        {
-            minKey = configShard->firstKey;
-            nextShardID = configShard->shardID;
-        }
-    }
-    
-    Log_Debug("FindNextShard: nextShardID: %U", nextShardID);
-    
-    return nextShardID;
 }

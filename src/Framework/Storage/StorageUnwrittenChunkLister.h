@@ -20,8 +20,6 @@ public:
     void                    Init(StorageFileChunk& fileChunk, ReadBuffer& startKey, 
                              unsigned count, bool forwardDirection);
 
-    void                    Load();
-
     void                    SetDirection(bool forwardDirection);
     StorageFileKeyValue*    First(ReadBuffer& firstKey);
     StorageFileKeyValue*    Next(StorageFileKeyValue*);
