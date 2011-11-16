@@ -2007,6 +2007,7 @@ void Client::IOThreadFunc()
     Log_Debug("IOThreadFunc started: %U", ThreadPool::GetThreadID());
 
     EventLoop::Start();
+    EventLoop::UpdateTime();
     ioThreadSignal.Wake();
 
     while (EventLoop::IsRunning())
