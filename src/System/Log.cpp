@@ -177,6 +177,32 @@ static void Log_Append(char*& p, int& remaining, const char* s, int len)
     remaining -= len;
 }
 
+static void Log_WriteRotated()
+{
+    char        buf[LOG_MSG_SIZE];
+    int         remaining;
+    char*       p;
+    const char  rotated[] = "Log rotated.";
+
+    buf[maxLine - 1] = 0;
+    p = buf;
+    remaining = maxLine - 1;
+
+    // print timestamp
+    if (timestamping)
+    {
+        GetFullTimestamp(p);
+        p += sizeof(log_timestamp_t) - 1;
+        remaining -= sizeof(log_timestamp_t) - 1;
+        Log_Append(p, remaining, ": ", 2);
+    }
+
+    Log_Append(p, remaining, rotated, sizeof(rotated) - 1);
+    Log_Append(p, remaining, "\n", 2);
+
+    fputs(buf, logfile);
+}
+
 static void Log_Rotate()
 {
     char*   filenameCopy;
@@ -186,8 +212,6 @@ static void Log_Rotate()
     size_t  oldOldFilenameSize;
     size_t  filenameLen;
     size_t  extLen;
-
-    fprintf(stderr, "Rotating...\n");
 
     filenameCopy = strdup(logfilename);
 
@@ -226,6 +250,7 @@ static void Log_Rotate()
 
     // create a new file
     Log_SetOutputFile(filenameCopy, true);
+    Log_WriteRotated();
 
     // delete any previously created temporary file
     Log_DeleteFile(oldOldFilename);
