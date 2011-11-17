@@ -85,11 +85,9 @@ void StorageAsyncList::ExecuteAsyncList()
     unsigned                        numChunks;
     uint64_t                        preloadBufferSize;
     StorageChunk**                  itChunk;
-    StorageFileChunk*               fileChunk;
     StorageFileChunkLister*         fileLister;
     StorageMemoChunkLister*         memoLister;
     StorageUnwrittenChunkLister*    unwrittenLister;
-    Buffer*                         filename;
     StorageChunk::ChunkState        chunkState;
     ReadBuffer                      firstKey;
     ReadBuffer                      endKey;
@@ -134,10 +132,8 @@ void StorageAsyncList::ExecuteAsyncList()
             }
             else if (chunkState == StorageChunk::Written)
             {
-                fileChunk = (StorageFileChunk*) *itChunk;
-                filename = &fileChunk->GetFilename();
                 fileLister = new StorageFileChunkLister;
-                fileLister->Init(fileChunk->GetFilename(), firstKey, endKey, prefix, count, 
+                fileLister->Init((StorageFileChunk*) *itChunk, firstKey, endKey, prefix, count, 
                  keysOnly, preloadBufferSize, forwardDirection);
                 listers[numListers] = fileLister;
                 numListers++;
@@ -192,8 +188,6 @@ void StorageAsyncList::AsyncLoadChunks()
 
     for (i = 0; i < numListers; i++)
     {
-        Log_Debug("AsyncLoadChunks: Loading %d", i);
-        listers[i]->Load();
         Log_Debug("AsyncLoadChunks: Setting iterator to firstKey %R", &firstKey);
         iterators[i] = listers[i]->First(firstKey);
     }

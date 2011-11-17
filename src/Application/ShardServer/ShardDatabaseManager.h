@@ -73,14 +73,23 @@ public:
 class ShardDatabaseAsyncList : public StorageAsyncList
 {
 public:
-    ClientRequest*          request;
-    ShardDatabaseManager*   manager;
-    uint64_t                total;
+    ShardDatabaseAsyncList* next;
+    ShardDatabaseAsyncList* prev;
     
+    ShardDatabaseAsyncList(ShardDatabaseManager* manager);
+
+    void                    SetRequest(ClientRequest* request);
+    void                    SetTotal(uint64_t total);
+
     void                    OnShardComplete();
     void                    OnRequestComplete();
     void                    TryNextShard();
     bool                    IsActive();
+
+private:
+    ShardDatabaseManager*   manager;
+    ClientRequest*          request;
+    uint64_t                total;
 };
 
 /*
@@ -96,6 +105,7 @@ class ShardDatabaseManager
     typedef HashMap<uint64_t, StorageShardProxy*>   ShardMap;
     typedef InList<ClientRequest>                   ClientRequestList;
     typedef InTreeMap<ShardDatabaseSequence>        Sequences;
+    typedef InList<ShardDatabaseAsyncList>          ShardDatabaseAsyncListList;
 
     friend class ShardDatabaseAsyncGet;
     friend class ShardDatabaseAsyncList;
@@ -144,7 +154,8 @@ private:
     YieldTimer              executeReads;
     ShardDatabaseAsyncGet   asyncGet;
     YieldTimer              executeLists;
-    ShardDatabaseAsyncList  asyncList;
+    //ShardDatabaseAsyncList  asyncList;
+    ShardDatabaseAsyncListList inactiveAsyncLists;
     Sequences               sequences;
 };
 

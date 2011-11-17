@@ -3,7 +3,7 @@
 
 #define VERSION_MAJOR       "2"
 #define VERSION_MINOR       "1"
-#define VERSION_RELEASE     "2"
+#define VERSION_RELEASE     "3"
 #define VERSION_STRING      VERSION_MAJOR "." VERSION_MINOR "." VERSION_RELEASE
 
 #endif

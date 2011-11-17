@@ -206,7 +206,7 @@ StorageKeyValue* StorageFileChunk::Get(ReadBuffer& key)
         if (bloomPage == NULL)
             LoadBloomPage(); // evicted, load back
         if (bloomPage->IsCached())
-            StoragePageCache::RegisterHit(bloomPage);
+            StoragePageCache::RegisterMetaHit(bloomPage);
         if (!bloomPage->Check(key))
             return NULL;
     }
@@ -214,7 +214,7 @@ StorageKeyValue* StorageFileChunk::Get(ReadBuffer& key)
     if (indexPage == NULL)
         LoadIndexPage(); // evicted, load back
     if (indexPage->IsCached())
-        StoragePageCache::RegisterHit(indexPage);
+        StoragePageCache::RegisterMetaHit(indexPage);
     if (!indexPage->Locate(key, index, offset))
         return NULL;
     
@@ -222,7 +222,7 @@ StorageKeyValue* StorageFileChunk::Get(ReadBuffer& key)
         LoadDataPage(index, offset); // evicted, load back
 
     if (dataPages[index]->IsCached())
-        StoragePageCache::RegisterHit(dataPages[index]);
+        StoragePageCache::RegisterDataHit(dataPages[index]);
     return dataPages[index]->Get(key);
 }
 
@@ -245,7 +245,7 @@ void StorageFileChunk::AsyncGet(StorageAsyncGet* asyncGet)
             return;
         }
         if (bloomPage->IsCached())
-            StoragePageCache::RegisterHit(bloomPage);
+            StoragePageCache::RegisterMetaHit(bloomPage);
         if (!bloomPage->Check(asyncGet->key))
         {
             asyncGet->completed = true;
@@ -261,7 +261,7 @@ void StorageFileChunk::AsyncGet(StorageAsyncGet* asyncGet)
         return;
     }
     if (indexPage->IsCached())
-        StoragePageCache::RegisterHit(indexPage);
+        StoragePageCache::RegisterMetaHit(indexPage);
     if (!indexPage->Locate(asyncGet->key, index, offset))
     {
         asyncGet->completed = true;
@@ -279,7 +279,7 @@ void StorageFileChunk::AsyncGet(StorageAsyncGet* asyncGet)
     }
 
     if (dataPages[index]->IsCached())
-        StoragePageCache::RegisterHit(dataPages[index]);
+        StoragePageCache::RegisterDataHit(dataPages[index]);
 
     kv = dataPages[index]->Get(asyncGet->key);
     if (kv == NULL || kv->GetType() == STORAGE_KEYVALUE_TYPE_DELETE)
@@ -359,14 +359,14 @@ void StorageFileChunk::AddPagesToCache()
     for (i = 0; i < numDataPages; i++)
     {
         if (dataPages[i] != NULL)
-            StoragePageCache::AddPage(dataPages[i], true);
+            StoragePageCache::AddDataPage(dataPages[i], true);
     }
 
     if (UseBloomFilter() && bloomPage != NULL)
-        StoragePageCache::AddPage(bloomPage);
+        StoragePageCache::AddMetaPage(bloomPage);
 
     if (indexPage != NULL)
-        StoragePageCache::AddPage(indexPage);
+        StoragePageCache::AddMetaPage(indexPage);
 }
 
 void StorageFileChunk::RemovePagesFromCache()
@@ -376,15 +376,15 @@ void StorageFileChunk::RemovePagesFromCache()
 //    Log_Debug("Removing chunk %U from cache", GetChunkID());
     
     if (UseBloomFilter() && bloomPage != NULL && bloomPage->IsCached())
-        StoragePageCache::RemovePage(bloomPage);
+        StoragePageCache::RemoveMetaPage(bloomPage);
 
     if (indexPage != NULL && indexPage->IsCached())
-        StoragePageCache::RemovePage(indexPage);
+        StoragePageCache::RemoveMetaPage(indexPage);
 
     for (i = 0; i < numDataPages; i++)
     {
         if (dataPages[i] != NULL && dataPages[i]->IsCached())
-            StoragePageCache::RemovePage(dataPages[i]);
+            StoragePageCache::RemoveDataPage(dataPages[i]);
     }
 }
 
@@ -421,7 +421,7 @@ void StorageFileChunk::LoadBloomPage()
     {
         // already loaded
         if (useCache && !bloomPage->IsCached())
-            StoragePageCache::AddPage(bloomPage);
+            StoragePageCache::AddMetaPage(bloomPage);
             
         return;
     }
@@ -446,7 +446,7 @@ void StorageFileChunk::LoadBloomPage()
     }
     
     if (useCache)
-        StoragePageCache::AddPage(bloomPage);
+        StoragePageCache::AddMetaPage(bloomPage);
 }
 
 void StorageFileChunk::LoadIndexPage()
@@ -461,7 +461,7 @@ void StorageFileChunk::LoadIndexPage()
     {
         // already loaded
         if (useCache && !indexPage->IsCached())
-            StoragePageCache::AddPage(indexPage);
+            StoragePageCache::AddMetaPage(indexPage);
             
         return;
     }
@@ -486,21 +486,12 @@ void StorageFileChunk::LoadIndexPage()
     }
     
     if (useCache)
-        StoragePageCache::AddPage(indexPage);
+        StoragePageCache::AddMetaPage(indexPage);
     
-    // TODO: HACK
     if (numDataPages == 0)
     {
         numDataPages = indexPage->GetNumDataPages();
-        StorageDataPage** newDataPages;
-        free(dataPages);
-        newDataPages = (StorageDataPage**) malloc(sizeof(StorageDataPage*) * numDataPages);
-        
-        for (unsigned i = 0; i < numDataPages; i++)
-            newDataPages[i] = NULL;
-        
-        dataPages = newDataPages;
-        dataPagesSize = numDataPages;
+        AllocateDataPageArray();
     }
 }
 
@@ -515,7 +506,7 @@ void StorageFileChunk::LoadDataPage(uint32_t index, uint64_t offset, bool bulk, 
     {
         // already loaded
         if (useCache && !dataPages[index]->IsCached())
-            StoragePageCache::AddPage(dataPages[index]);
+            StoragePageCache::AddDataPage(dataPages[index]);
             
         return;
     }
@@ -541,7 +532,7 @@ void StorageFileChunk::LoadDataPage(uint32_t index, uint64_t offset, bool bulk, 
     ASSERT(dataPages[index] != NULL);
     
     if (useCache)
-        StoragePageCache::AddPage(dataPages[index], bulk);
+        StoragePageCache::AddDataPage(dataPages[index], bulk);
     
     ASSERT(dataPages[index] != NULL);
 }
@@ -695,7 +686,6 @@ void StorageFileChunk::AppendDataPage(StorageDataPage* dataPage)
 
 void StorageFileChunk::AllocateDataPageArray()
 {
-    numDataPages = indexPage->GetNumDataPages();
     StorageDataPage** newDataPages;
     newDataPages = (StorageDataPage**) malloc(sizeof(StorageDataPage*) * numDataPages);
     

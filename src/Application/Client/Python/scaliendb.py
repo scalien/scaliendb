@@ -396,8 +396,10 @@ class Client:
             SDBP_Init(self._cptr, node_params)
             node_params.Close()
         elif isinstance(nodes, str):
-            node_params = SDBP_NodeParams(1)
-            node_params.AddNode(nodes)
+            nodes = nodes.split(",")
+            node_params = SDBP_NodeParams(len(nodes))
+            for node in nodes:
+                node_params.AddNode(node)
             SDBP_Init(self._cptr, node_params)
             node_params.Close()
         else:

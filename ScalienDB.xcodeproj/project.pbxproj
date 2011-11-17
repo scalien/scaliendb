@@ -173,6 +173,7 @@
 		9AABB05A123E55DE003626AC /* Stopwatch.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 546E269811EF712900867EE1 /* Stopwatch.cpp */; };
 		9AABB05C123E55DE003626AC /* Time.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B7F96011BE85950076BC62 /* Time.cpp */; };
 		9AABB05D123E55DE003626AC /* FileSystem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9ACF203E122E942900247703 /* FileSystem.cpp */; };
+		9ABFE522147124ED0085B06B /* Signal_Posix.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54D53AD713F323E000311381 /* Signal_Posix.cpp */; };
 		9ABFE55614715AFA0085B06B /* LogTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9ABFE55514715AFA0085B06B /* LogTest.cpp */; };
 		9ACBF1BD141A4C9E00297EE1 /* SDBPController.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9ACBF1BB141A4C9E00297EE1 /* SDBPController.cpp */; };
 		9ACBF22B141E60EB00297EE1 /* MemoryTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9ACBF22A141E60EB00297EE1 /* MemoryTest.cpp */; };
@@ -1644,6 +1645,7 @@
 				54A6AB4913B5D76F00DDB15B /* ConfigController.cpp in Sources */,
 				9AE5437F1431CF260002D500 /* Service_Posix.cpp in Sources */,
 				9AE543801431CF260002D500 /* Service_Windows.cpp in Sources */,
+				9ABFE522147124ED0085B06B /* Signal_Posix.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

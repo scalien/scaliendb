@@ -57,9 +57,10 @@
         if (!(expr))                        \
         {                                   \
             PrintStackTrace();              \
-            Log_SetTrace(true);             \
+            bool prev = Log_SetTrace(true); \
             Log_Trace("Failed: " #expr);    \
             Log_Flush();                    \
+            if (prev) Log_SetTrace(false);  \
             _exit(1);                       \
         }                                   \
     } while (0)

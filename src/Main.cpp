@@ -75,12 +75,12 @@ void RunApplication()
     else
         app = new ShardServerApp;
     
+    Service::SetStatus(SERVICE_STATUS_RUNNING);
     app->Init();
     
     IOProcessor::BlockSignals(IOPROCESSOR_BLOCK_ALL);
     EventLoop::Init();
     
-    Service::SetStatus(SERVICE_STATUS_RUNNING);
     EventLoop::Run();
     
     Service::SetStatus(SERVICE_STATUS_STOP_PENDING);
