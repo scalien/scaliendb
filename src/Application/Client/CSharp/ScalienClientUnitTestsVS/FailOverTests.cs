@@ -112,7 +112,7 @@ namespace ScalienClientUnitTesting
 
                         vix = cstate.quorums[0].activeNodes[Utils.RandomNumber.Next(cstate.quorums[0].activeNodes.Count)];
 
-                        foreach(ShardServer shardsrv in cstate.shardServers)
+                        foreach (ConfigState.ShardServer shardsrv in cstate.shardServers)
                             if (shardsrv.nodeID == vix)
                             {
                                 victim = shardsrv.endpoint;
@@ -132,7 +132,7 @@ namespace ScalienClientUnitTesting
                         {
                             vix = cstate.quorums[0].primaryID;
 
-                            foreach (ShardServer shardsrv in cstate.shardServers)
+                            foreach (ConfigState.ShardServer shardsrv in cstate.shardServers)
                                 if (shardsrv.nodeID == vix)
                                 {
                                     victim = shardsrv.endpoint;
@@ -150,7 +150,7 @@ namespace ScalienClientUnitTesting
 
                         vix = cstate.quorums[0].activeNodes[Utils.RandomNumber.Next(cstate.quorums[0].activeNodes.Count)];
 
-                        foreach(ShardServer shardsrv in cstate.shardServers)
+                        foreach (ConfigState.ShardServer shardsrv in cstate.shardServers)
                             if (shardsrv.nodeID == vix)
                             {
                                 victim = shardsrv.endpoint;
@@ -171,7 +171,7 @@ namespace ScalienClientUnitTesting
                             // choose the only victim and kill always him
                             vix = cstate.quorums[0].activeNodes[Utils.RandomNumber.Next(cstate.quorums[0].activeNodes.Count)];
 
-                            foreach (ShardServer shardsrv in cstate.shardServers)
+                            foreach (ConfigState.ShardServer shardsrv in cstate.shardServers)
                                 if (shardsrv.nodeID == vix)
                                 {
                                     victim = shardsrv.endpoint;

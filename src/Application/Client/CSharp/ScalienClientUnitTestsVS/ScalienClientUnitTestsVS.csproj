@@ -49,6 +49,7 @@
   <ItemGroup>
     <Compile Include="Config.cs" />
     <Compile Include="ConfigState.cs" />
+    <Compile Include="ConsistencyTests.cs" />
     <Compile Include="FailOverTests.cs" />
     <Compile Include="KeyValueTests.cs" />
     <Compile Include="MultiClusterTests.cs" />
