@@ -149,7 +149,6 @@ int Client::Init(int nodec, const char* nodev[])
     globalTimeout.SetDelay(SDBP_DEFAULT_TIMEOUT);
 
     // set defaults
-    master = -1;
     commandID = 0;
     result = NULL;
     batchMode = SDBP_BATCH_DEFAULT;
@@ -672,9 +671,6 @@ int Client::Get(uint64_t tableID, const ReadBuffer& key)
     VALIDATE_CONTROLLERS();
     CLIENT_MUTEX_GUARD_DECLARE();
     
-    if (!configState.hasMaster)
-        return SDBP_API_ERROR;
-    
     req = new Request;
     req->Get(NextCommandID(), configState.paxosID, tableID, (ReadBuffer&) key);
 
@@ -713,13 +709,9 @@ int Client::Set(uint64_t tableID, const ReadBuffer& key, const ReadBuffer& value
     if (key.GetLength() == 0)
 		return SDBP_API_ERROR;
 
-
     VALIDATE_CONTROLLERS();
     CLIENT_MUTEX_GUARD_DECLARE();                   
     
-    if (!configState.hasMaster)
-		return SDBP_API_ERROR;
-
     req = new Request;                              
     req->Set(NextCommandID(), configState.paxosID,  
      tableID, (ReadBuffer&) key, (ReadBuffer&) value);                         
@@ -773,9 +765,6 @@ int Client::Delete(uint64_t tableID, const ReadBuffer& key)
 		return SDBP_API_ERROR;
 
     CLIENT_MUTEX_GUARD_DECLARE();
-
-    if (!configState.hasMaster)
-		return SDBP_API_ERROR;
 
     req = new Request;
     req->Delete(NextCommandID(), configState.paxosID, tableID, (ReadBuffer&) key);
@@ -838,9 +827,6 @@ int Client::ListKeys(
     VALIDATE_CONTROLLERS();
     CLIENT_MUTEX_GUARD_DECLARE();
 
-    if (!configState.hasMaster)
-		return SDBP_API_ERROR;
-
     req = new Request;
     req->userCount = count;
     req->skip = skip;
@@ -877,9 +863,6 @@ int Client::ListKeyValues(
     VALIDATE_CONTROLLERS();
     CLIENT_MUTEX_GUARD_DECLARE();
 
-    if (!configState.hasMaster)
-		return SDBP_API_ERROR;
-
     req = new Request;
     req->userCount = count;
     req->skip = skip;
@@ -913,9 +896,6 @@ int Client::Count(
     Request*    req;
 
     CLIENT_MUTEX_GUARD_DECLARE();
-
-     if (!configState.hasMaster)
-		return SDBP_API_ERROR;
 
     req = new Request;
     req->Count(NextCommandID(), configState.paxosID,
@@ -1007,7 +987,7 @@ int Client::ShardRequest(Request* req)
     VALIDATE_CONTROLLERS();
     CLIENT_MUTEX_GUARD_DECLARE();
 	
-    if (!configState.hasMaster || req->key.GetLength() == 0)
+    if (req->key.GetLength() == 0)
     {
         delete req;
         return SDBP_API_ERROR;
@@ -1063,12 +1043,6 @@ int Client::ConfigRequest(Request* req)
         CLIENT_MUTEX_GUARD_UNLOCK();
         EventLoop();
         CLIENT_MUTEX_GUARD_LOCK();
-    }
-
-    if (!configState.hasMaster)
-    {
-        delete req;
-        return SDBP_NOSERVICE;
     }
 
     if (proxySize > 0)
@@ -1130,7 +1104,7 @@ void Client::EventLoop()
     {
         Log_Trace("Not IsDone");
         EventLoop::Reset(&globalTimeout);
-        if (master == -1)
+        if (!configState.hasMaster)
             EventLoop::Reset(&masterTimeout);
     
         CLIENT_MUTEX_GUARD_UNLOCK();
@@ -1197,19 +1171,16 @@ int64_t Client::GetMaster()
 
 void Client::SetMaster(int64_t master_)
 {
-    Log_Trace("known master: %I, set master: %I", master, master_);
-    
-    if (master != master_)
+    if (configState.hasMaster)
     {
-        master = master_;
         connectivityStatus = SDBP_SUCCESS;
         EventLoop::Remove(&masterTimeout);
     }
-    else if (master_ < 0 && master >= 0)
+    else
     {
-        master = -1;
         connectivityStatus = SDBP_NOMASTER;
-        EventLoop::Reset(&masterTimeout);
+        if (!masterTimeout.IsActive())
+            EventLoop::Add(&masterTimeout);
     }
 }
 
