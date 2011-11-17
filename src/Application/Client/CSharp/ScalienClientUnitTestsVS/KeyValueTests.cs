@@ -15,6 +15,62 @@ namespace ScalienClientUnitTesting
     public class KeyValueTests
     {
         [TestMethod]
+        public void EmptyByteArrayKey()
+        {
+            string dbName = "random_key_values_db";
+            string tableName = "random_key_values_tbl";
+
+            Client client = new Client(Config.GetNodes());
+            Utils.DeleteDBs(client);
+
+            Database db = client.CreateDatabase(dbName);
+            Table tbl = db.CreateTable(tableName);
+
+            byte[] key = new byte[0];
+            tbl.Set(key, key);
+
+            client.Submit();
+        }
+
+        [TestMethod]
+        public void EmptyStringKey()
+        {
+            string dbName = "random_key_values_db";
+            string tableName = "random_key_values_tbl";
+
+            Client client = new Client(Config.GetNodes());
+            Utils.DeleteDBs(client);
+
+            Database db = client.CreateDatabase(dbName);
+            Table tbl = db.CreateTable(tableName);
+
+            tbl.Set("", "");
+
+            client.Submit();
+        }
+
+        [TestMethod]
+        public void EmptyStringValue()
+        {
+            string dbName = "random_key_values_db";
+            string tableName = "random_key_values_tbl";
+
+            Client client = new Client(Config.GetNodes());
+            Utils.DeleteDBs(client);
+
+            Database db = client.CreateDatabase(dbName);
+            Table tbl = db.CreateTable(tableName);
+
+            tbl.Set("empty", "");
+
+            client.Submit();
+
+            String value = tbl.Get("empty");
+            Assert.IsTrue(value == "");
+        }
+
+
+        [TestMethod]
         public void RandomKey_Values_CheckUsingGetByKey()
         {
             string dbName = "random_key_values_db";

@@ -74,7 +74,23 @@ namespace ScalienClientUnitTesting
 
         static void Main(string[] args)
         {
-            new TestUtility().RunTests();
+            var tests = new List<string>();
+            if (args.Length > 0)
+            {
+                var filename = args[0];
+                using (var file = new System.IO.StreamReader(filename))
+                {
+                    string line;
+                    while ((line = file.ReadLine()) != null)
+                    {
+                        line = line.Trim();
+                        if (line.Length > 0)
+                            tests.Add(line);
+                    }
+                }
+            }
+
+            new TestUtility().RunTests(tests);
         }
 
         public void WriteLine(string msg)
@@ -84,7 +100,7 @@ namespace ScalienClientUnitTesting
             sw.Flush();
         }
 
-        public void RunTests()
+        public void RunTests(List<string> tests)
         {
             try
             {
@@ -106,7 +122,11 @@ namespace ScalienClientUnitTesting
                 {
                     if (cls.GetCustomAttributes(typeof(TestClassAttribute), false).GetLength(0) > 0)
                     {
-                        WriteLine("\n -- Loading unit tests from TestClass: " + cls.Name.ToString() + " -- \n");
+                        var query = from test in tests where test.StartsWith(cls.Name + ".") select test;
+                        if (!query.Any())
+                            continue;
+
+                        WriteLine("\n -- Loading unit tests from TestClass: " + cls.Name + " -- \n");
                         var testClass = new TestClass();
                         testClass.type = cls;
                         //testClass.instance = Activator.CreateInstance(cls);
@@ -135,8 +155,10 @@ namespace ScalienClientUnitTesting
                     {
                         if (method.GetCustomAttributes(typeof(TestMethodAttribute), false).GetLength(0) > 0)
                         {
-                            //if (method.Name != "UnlockTransaction_RecordUpdated")
-                            //    continue;
+                            var testName = testClass.type.Name + "." + method.Name;
+                            var query = from test in tests where test.StartsWith(testName) select test;
+                            if (!query.Any())
+                                continue;
 
                             numTests += 1;
                             // call test method

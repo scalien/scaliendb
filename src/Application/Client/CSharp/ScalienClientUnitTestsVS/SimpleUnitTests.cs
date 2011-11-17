@@ -268,6 +268,25 @@ namespace ScalienClientUnitTesting
         }
 
         [TestMethod]
+        public void TestListTable()
+        {
+            var dbName = "Benchmark";
+            var tableName = "fileContentLockStartDateIndex";
+            Client client = new Client(Config.GetNodes());
+
+            Database db = client.GetDatabase(dbName);
+            Table tbl = db.GetTable(tableName);
+
+            var counter = 0;
+            foreach (var kv in tbl.GetKeyValueIterator(new ByteRangeParams()))
+            {
+                counter++;
+            }
+
+            client.Close();
+        }
+
+        [TestMethod]
         public void ListTestsWithoutProxies()
         {
             var dbName = "test_db";
