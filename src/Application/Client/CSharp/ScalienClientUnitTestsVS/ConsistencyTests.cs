@@ -34,7 +34,15 @@ namespace ScalienClientUnitTesting
             var result = Utils.HTTP_GET(url, COUNT_TIMEOUT);
             try
             {
-                return Convert.ToInt64(result);
+                if (result.StartsWith("NEXT"))
+                {
+                    string[] nextResult = result.Split(new char[] {' '});
+                    if (nextResult.Length != 4)
+                        return -1;
+                    return Convert.ToInt64(nextResult[3].Trim());
+                }
+                else
+                    return Convert.ToInt64(result);
             }
             catch (Exception)
             {
