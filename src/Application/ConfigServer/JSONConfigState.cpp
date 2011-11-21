@@ -313,6 +313,11 @@ void JSONConfigState::WriteShardServer(ConfigShardServer* server)
     json->PrintColon();
     json->PrintString(server->endpoint.ToReadBuffer());
     json->PrintComma();
+    
+    JSON_NUMBER(server, httpPort);
+    json->PrintComma();
+    JSON_NUMBER(server, sdbpPort);
+    json->PrintComma();
 
     if (heartbeats)
     {

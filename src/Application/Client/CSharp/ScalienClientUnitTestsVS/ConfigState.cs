@@ -57,6 +57,8 @@ namespace ScalienClientUnitTesting
             public Int64 nodeID;
             public string endpoint;
             public bool hasHeartbeat;
+            public uint httpPort;
+            public uint sdbpPort;
             // quorum infos
             public List<QuorumShardInfo> quorumShardInfos;
         }
