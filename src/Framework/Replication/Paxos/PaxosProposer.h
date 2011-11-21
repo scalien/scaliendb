@@ -10,7 +10,8 @@
 
 class ReplicatedLog; // forward
 
-#define PAXOS_TIMEOUT       5*1000
+#define PAXOS_ROUND_TIMEOUT     (5*1000)
+#define PAXOS_RESTART_TIMEOUT   (100)
 
 /*
 ===============================================================================================
@@ -33,6 +34,7 @@ public:
     void                        OnMessage(PaxosMessage& msg);
     void                        OnPrepareTimeout();
     void                        OnProposeTimeout();
+    void                        OnRestartTimeout();
     
     void                        Propose(Buffer& value);
     void                        Restart();
@@ -59,6 +61,7 @@ private:
     PaxosProposerState          state;
     Countdown                   prepareTimeout;
     Countdown                   proposeTimeout;
+    Countdown                   restartTimeout;
     
     friend class ReplicatedLog;
 };
