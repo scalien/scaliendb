@@ -221,7 +221,7 @@ namespace ScalienClientUnitTesting
 
         public static string GetShardServerURL(ConfigState.ShardServer shardServer)
         {
-            return "http://" + GetEndpointWithPort(shardServer.endpoint, SHARDSERVER_HTTP_PORT) + "/";
+            return "http://" + GetEndpointWithPort(shardServer.endpoint, shardServer.httpPort) + "/";
         }
     }
 }
