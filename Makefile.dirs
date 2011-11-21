@@ -5,9 +5,11 @@ BUILD_DIRS = \
 		$(BUILD_DIR)/Application/Client/CSharp/ScalienClient \
 		$(BUILD_DIR)/Application/Client/CSharp/ScalienClient/Properties \
 		$(BUILD_DIR)/Application/Client/CSharp/ScalienClientTest \
-		$(BUILD_DIR)/Application/Client/CSharp/ScalienClientUnitTest \
-		$(BUILD_DIR)/Application/Client/CSharp/ScalienClientUnitTest/Properties \
-		$(BUILD_DIR)/Application/Client/CSharp/ScalienClientUnitTest/TestingFramework \
+		$(BUILD_DIR)/Application/Client/CSharp/ScalienClientUnitTesting \
+		$(BUILD_DIR)/Application/Client/CSharp/ScalienClientUnitTesting/Properties \
+		$(BUILD_DIR)/Application/Client/CSharp/ScalienClientUnitTesting/TestingFramework \
+		$(BUILD_DIR)/Application/Client/CSharp/ScalienClientUnitTestsVS \
+		$(BUILD_DIR)/Application/Client/CSharp/ScalienClientUnitTestsVS/Properties \
 		$(BUILD_DIR)/Application/Client/Java \
 		$(BUILD_DIR)/Application/Client/PHP \
 		$(BUILD_DIR)/Application/Client/Python \

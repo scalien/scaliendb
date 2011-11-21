@@ -25,14 +25,19 @@ public:
 
     static uint64_t             GetSize();
     static unsigned             GetNumPages();
-    static void                 AddPage(StoragePage* page, bool bulk = false);
-    static void                 RemovePage(StoragePage* page);
-    static void                 RegisterHit(StoragePage* page);
+    
+    static void                 AddMetaPage(StoragePage* page);
+    static void                 AddDataPage(StoragePage* page, bool bulk = false);
+    static void                 RemoveMetaPage(StoragePage* page);
+    static void                 RemoveDataPage(StoragePage* page);
+    static void                 RegisterMetaHit(StoragePage* page);
+    static void                 RegisterDataHit(StoragePage* page);
 
 private:
     static uint64_t             size;
     static uint64_t             maxSize;
-    static PageList             pages;
+    static PageList             metaPages;
+    static PageList             dataPages;
 };
 
 #endif

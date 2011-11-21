@@ -70,7 +70,7 @@ namespace Scalien
         #endregion
       
         /// <summary>
-        /// Set the gran of the seqeunce increments (default 1000).
+        /// Set the gran of the sequence increments (default 1000).
         /// </summary>
         /// <param name="gran">The gran of the sequence.</param>
         [System.Obsolete]

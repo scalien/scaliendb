@@ -258,6 +258,8 @@ namespace Scalien
 
         internal static string ByteArrayToString(byte[] data)
         {
+            if (data == null)
+                return null;
             return System.Text.UTF8Encoding.UTF8.GetString(data);
         }
 

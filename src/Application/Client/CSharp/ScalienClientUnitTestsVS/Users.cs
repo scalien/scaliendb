@@ -29,7 +29,7 @@ namespace Scalien
 
         public TestUser() { }
 
-        public TestUser(long newid)
+        public TestUser(ulong newid)
         {
             info = new TestUserInfo();
             info.id = Utils.Id(newid);
@@ -335,7 +335,7 @@ namespace Scalien
         {
             // uses count for ids, call reset_tables before using this
             long count = CountUsers();
-            long from = Utils.RandomNumber.Next((int)count - userNum);
+            ulong from = (ulong) Utils.RandomNumber.Next((int)count - userNum);
             TestUser user;
 
             foreach (string key in table.GetKeyIterator(new StringRangeParams().StartKey(Utils.Id(from)).Count((uint)userNum)))
@@ -390,7 +390,7 @@ namespace Scalien
         {
             int operation = Utils.RandomNumber.Next(15);
             long count = CountUsers(); // we hope counts are the same
-            long from = Utils.RandomNumber.Next((int)count - 1);
+            ulong from = (ulong) Utils.RandomNumber.Next((int)count - 1);
             TestUser user;
             
             while (IterateClients())

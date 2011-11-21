@@ -181,7 +181,6 @@ private:
     bool                    IsShuttingDown();
     void                    IOThreadFunc();
     
-    int64_t                 master;
     uint64_t                commandID;
     int                     connectivityStatus;
     int                     timeoutStatus;

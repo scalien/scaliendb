@@ -499,7 +499,15 @@ void ConfigHTTPClientSession::ProcessSettings()
         Log_Flush();
         session.PrintPair("Trace", boolValue ? "on" : "off");
     }
-    
+
+    if (HTTP_GET_OPT_PARAM(params, "debug", param))
+    {
+        boolValue = PARAM_BOOL_VALUE(param);
+        Log_SetDebug(boolValue);
+        Log_Flush();
+        session.PrintPair("Debug", boolValue ? "on" : "off");
+    }
+
     session.Flush();
 }
 

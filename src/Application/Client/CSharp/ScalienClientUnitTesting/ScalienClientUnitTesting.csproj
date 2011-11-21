@@ -81,6 +81,9 @@
     <Compile Include="..\ScalienClientUnitTestsVS\ConfigState.cs">
       <Link>ConfigState.cs</Link>
     </Compile>
+    <Compile Include="..\ScalienClientUnitTestsVS\ConsistencyTests.cs">
+      <Link>ConsistencyTests.cs</Link>
+    </Compile>
     <Compile Include="..\ScalienClientUnitTestsVS\FailOverTests.cs">
       <Link>FailOverTests.cs</Link>
     </Compile>

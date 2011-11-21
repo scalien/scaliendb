@@ -219,7 +219,7 @@ namespace ScalienClientUnitTesting
             Database db = client.CreateDatabase(dbName);
             Table tbl = db.CreateTable(tableName);
 
-            for(int i = 0; i < 1000; i++)
+            for(ulong i = 0; i < 1000; i++)
                 tbl.Set(Utils.Id(i), "test");
 
             var cnt1 = tbl.Count(new ByteRangeParams());
@@ -251,7 +251,7 @@ namespace ScalienClientUnitTesting
             Database db = client.CreateDatabase(dbName);
             Table tbl = db.CreateTable(tableName);
 
-            for (int i = 0; i < 1000; i++)
+            for (ulong i = 0; i < 1000; i++)
                 tbl.Set(Utils.Id(i), "test");
 
             client.Submit();
@@ -264,6 +264,25 @@ namespace ScalienClientUnitTesting
             foreach (string key in tbl.GetKeyIterator(new StringRangeParams()))
                 Console.Write(key);
             
+            client.Close();
+        }
+
+        [TestMethod]
+        public void TestListTable()
+        {
+            var dbName = "Benchmark";
+            var tableName = "fileContentLockStartDateIndex";
+            Client client = new Client(Config.GetNodes());
+
+            Database db = client.GetDatabase(dbName);
+            Table tbl = db.GetTable(tableName);
+
+            var counter = 0;
+            foreach (var kv in tbl.GetKeyValueIterator(new ByteRangeParams()))
+            {
+                counter++;
+            }
+
             client.Close();
         }
 
@@ -287,7 +306,7 @@ namespace ScalienClientUnitTesting
 
             var value = Utils.RandomString(length);
 
-            for (int i = 0; i < num; i++)
+            for (ulong i = 0; i < num; i++)
                 tbl.Set(Utils.Id(i), value);
 
             // Submit, no proxied values left
@@ -316,7 +335,7 @@ namespace ScalienClientUnitTesting
 
             var value = Utils.RandomString(length);
 
-            for (int i = 0; i < num; i++)
+            for (ulong i = 0; i < num; i++)
                 tbl.Set(Utils.Id(i), value);
 
             // don't Submit, proxied values

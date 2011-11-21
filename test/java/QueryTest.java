@@ -19,8 +19,8 @@ public class QueryTest {
 			ConfigLoader configLoader = new ConfigLoader(controllers);
 			controllers = configLoader.getControllers();
 
+            Client.setTrace(configLoader.isTrace());
             Client client = new Client(controllers);
-            client.setTrace(configLoader.isTrace());
 
 			queryTest(client);
             

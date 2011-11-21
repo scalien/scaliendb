@@ -28,6 +28,7 @@ void StorageAsyncGet::ExecuteAsyncGet()
             ASSERT(fileChunk->bloomPage == NULL);
             fileChunk->bloomPage = (StorageBloomPage*) lastLoadedPage;
             fileChunk->isBloomPageLoading = false;
+            StoragePageCache::AddMetaPage(lastLoadedPage);
         }
     }
     else if (stage == INDEX_PAGE)
@@ -37,8 +38,12 @@ void StorageAsyncGet::ExecuteAsyncGet()
             ASSERT(fileChunk->indexPage == NULL);
             fileChunk->indexPage = (StorageIndexPage*) lastLoadedPage;
             if (fileChunk->dataPages == NULL)
+            {
+                fileChunk->numDataPages = fileChunk->indexPage->GetNumDataPages();
                 fileChunk->AllocateDataPageArray();
+            }
             fileChunk->isIndexPageLoading = false;
+            StoragePageCache::AddMetaPage(lastLoadedPage);
         }
     }
     else if (stage == DATA_PAGE)
@@ -50,7 +55,7 @@ void StorageAsyncGet::ExecuteAsyncGet()
             if (fileChunk->dataPages[index] == NULL)
             {
                 fileChunk->dataPages[index] = (StorageDataPage*) lastLoadedPage;
-                StoragePageCache::AddPage(lastLoadedPage);
+                StoragePageCache::AddDataPage(lastLoadedPage);
                 lastLoadedPage = NULL;
             }
             else
@@ -61,12 +66,6 @@ void StorageAsyncGet::ExecuteAsyncGet()
         }
     }
 
-    if (lastLoadedPage)
-    {
-        StoragePageCache::AddPage(lastLoadedPage);
-        lastLoadedPage = NULL;
-    }
-    
     stage = START;
     while (itChunk != NULL)
     {

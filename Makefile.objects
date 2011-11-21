@@ -132,6 +132,7 @@ ALL_OBJECTS = \
 	$(BUILD_DIR)/System/Threading/JobProcessor.o \
 	$(BUILD_DIR)/System/Threading/Mutex_Posix.o \
 	$(BUILD_DIR)/System/Threading/Mutex_Windows.o \
+	$(BUILD_DIR)/System/Threading/Signal_Posix.o \
 	$(BUILD_DIR)/System/Threading/ThreadPool_Posix.o \
 	$(BUILD_DIR)/System/Threading/ThreadPool_Windows.o \
 	$(BUILD_DIR)/System/Time.o \
