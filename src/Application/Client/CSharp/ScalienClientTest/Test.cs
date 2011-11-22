@@ -19,43 +19,59 @@ namespace Scalien
             return System.Text.UTF8Encoding.UTF8.GetString(data);
         }
 
-        // test entry point
         public static void Main(string[] args)
+        {
+            Stopwatch stopwatch = new Stopwatch();
+            stopwatch.Start();
+
+            List<Thread> threads = new List<Thread>();
+            for (var i = 0; i < 1; i++)
+            {
+                Thread thread = new Thread(new ThreadStart(ThreadFunc));
+                thread.Start();
+                threads.Add(thread);
+            }
+
+            foreach (var thread in threads)
+            {
+                thread.Join();
+            }
+
+            stopwatch.Stop();
+
+            Console.WriteLine("Time elapsed: {0}", stopwatch.Elapsed);
+
+            System.Console.ReadLine();
+        }
+
+        public static void ThreadFunc()
         {
             //Client.SetTrace(true);
             //Client.SetLogFile("d:/out.txt");
 
-            string[] controllers = { "127.0.0.1:7080" };
+            //string[] controllers = { "127.0.0.1:7080" };
+            string[] controllers = { "192.168.137.100:7080", "192.168.137.101:7080", "192.168.137.102:7080" };
             Client client = new Client(controllers);
 
             Database db = client.GetDatabase("test");
             Table table = db.GetTable("test");
 
-            Sequence seq = table.GetSequence("newseq");
-            seq.Set(13);
+            System.Console.WriteLine("Thread.CurrentThread.ManagedThreadId = {0}", Thread.CurrentThread.ManagedThreadId);
 
-            //var sw = new Stopwatch();
-            //sw.Start();
-            //for (var i = 0; i < 10*1000; i++)
-            //{
-            //    var s = seq.GetNext;
-            //}
-            //sw.Stop();
-            //Console.WriteLine("Elapsed time: {0}", sw.Elapsed); // TimeSpan
+            System.Random random = new System.Random(Thread.CurrentThread.ManagedThreadId);
+            var value = "";
+            while (value.Length < 10 * 1000)
+                value += "" + random.Next();
 
-            //System.Random random = new System.Random();
-            //var value = "";
-            //while (value.Length < 10 * 1000)
-            //    value += "" + random.Next();
-
-            //using (client.Begin())
-            //{
-            //    for (var i = 0; i < 1000 * 1000; i++)
-            //    {
-            //        var key = i.ToString("D9");
-            //        table.Set(key, value);
-            //    }
-            //}
+            using (client.Begin())
+            {
+                for (var i = 0; i < 300 * 1000; i++)
+                {
+                    var key = "" + random.Next(2);
+                    key += random.Next();
+                    table.Set(key, value);
+                }
+            }
         }
     }
 }
