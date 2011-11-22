@@ -5,7 +5,8 @@
 #include "Framework/Replication/Paxos/PaxosProposer.h"
 #include "Framework/Replication/Paxos/PaxosAcceptor.h"
 
-#define REQUEST_CHOSEN_TIMEOUT  1000
+#define REQUEST_CHOSEN_TIMEOUT      (1000)
+#define PAXOS_CATCHUP_GRANULARITY   (100*KiB)
 
 /*
 ===============================================================================================

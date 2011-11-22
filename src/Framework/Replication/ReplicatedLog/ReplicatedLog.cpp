@@ -478,19 +478,30 @@ void ReplicatedLog::ProcessLearnChosen(uint64_t nodeID, uint64_t runID)
 
 void ReplicatedLog::OnRequest(PaxosMessage& imsg)
 {
-    Log_Trace();
-    
+    uint64_t        sendPaxosID;
+    uint64_t        total;
     Buffer          value;
     PaxosMessage    omsg;
+
+    Log_Trace();
 
     if (imsg.paxosID < GetPaxosID())
     {
         // the node is lagging and needs to catch-up
-        context->GetDatabase()->GetAcceptedValue(imsg.paxosID, value);
-        if (value.GetLength() == 0)
-            return;
-        omsg.LearnValue(imsg.paxosID, MY_NODEID, 0, value);
-        context->GetTransport()->SendMessage(imsg.nodeID, omsg);
+        // send more than one round for better thruput
+        total = 0;
+        for (sendPaxosID = imsg.paxosID; sendPaxosID <= GetPaxosID(); sendPaxosID++)
+        {
+            // TODO: use async get here
+            context->GetDatabase()->GetAcceptedValue(sendPaxosID, value);
+            if (value.GetLength() == 0)
+                return;
+            omsg.LearnValue(sendPaxosID, MY_NODEID, 0, value);
+            context->GetTransport()->SendMessage(imsg.nodeID, omsg);
+            total += value.GetLength();
+            if (total >= PAXOS_CATCHUP_GRANULARITY)
+                break;
+        }
     }
     else if (GetPaxosID() < imsg.paxosID)
     {
