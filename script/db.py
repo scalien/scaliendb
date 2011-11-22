@@ -9,6 +9,18 @@ class StoragePage:
 		self.offset = 0
 		self.size = 0
 		
+	def read_data(self, fmt, data):
+		size = struct.calcsize(fmt)
+		struct_buf = data[:size]
+		data = data[size:]
+		ret = [data]
+		t = struct.unpack(fmt, struct_buf)
+		ret.extend(list(t))
+		return tuple(ret)
+	
+	def extract_data(self, length, data):
+		return data[length:], data[:length]
+		
 class StorageHeaderPage(StoragePage):
 	def __init__(self):
 		self.chunk_id = 0
@@ -29,38 +41,27 @@ class StorageHeaderPage(StoragePage):
 		data = file.read(4096)
 		if len(data) != 4096:
 			return False
-		pos = 12
-		size, checksum, version = struct.unpack("<III", data[:pos])
-		data = data[pos:]
+		data, size, checksum, version = self.read_data("<III", data)
 		# skip text
 		text = data[:64]
 		data = data[64:]
-		self.chunk_id, self.min_log_segment_id, self.max_log_segment_id, self.max_log_command_id = \
-			struct.unpack("<QQQI", data[:28])
-		data = data[28:]
+		data, self.chunk_id, self.min_log_segment_id, self.max_log_segment_id, self.max_log_command_id = \
+			self.read_data("<QQQI", data)
 		if data[0] == 'T':
 			self.use_bloomfilter = True
 		data = data[1:]
-		self.num_keys, self.index_page_offset, self.index_page_size = struct.unpack("<QQI", data[:20])
-		data = data[20:]
+		data, self.num_keys, self.index_page_offset, self.index_page_size = self.read_data("<QQI", data)
 		if self.use_bloomfilter:
-			self.bloom_page_offset, self.bloom_page_size = struct.unpack("<QI", data[:12])
-			data = data[12:]
+			data, self.bloom_page_offset, self.bloom_page_size = self.read_data("<QI", data)
 		
-		length, = struct.unpack("<I", data[:4])
-		data = data[4:]
-		self.first_key = data[:length]
-		data = data[length:]
+		data, length, = self.read_data("<I", data)
+		data, self.first_key, = self.extract_data(length, data)
 
-		length, = struct.unpack("<I", data[:4])
-		data = data[4:]
-		self.last_key = data[:length]
-		data = data[length:]
+		data, length, = self.read_data("<I", data)
+		data, self.last_key, = self.extract_data(length, data)
 
-		length, = struct.unpack("<I", data[:4])
-		data = data[4:]
-		self.mid_point = data[:length]
-		data = data[length:]
+		data, length, = self.read_data("<I", data)
+		data, self.mid_point, = self.extract_data(length, data)
 
 class StorageDataPage(StoragePage):
 	def __init__(self, index):
@@ -122,12 +123,15 @@ class StorageIndexPage(StoragePage):
 			data += file.read(self.size - 4096)
 		data = data[12:]
 		i = 0
+		print("Index num_keys: %d, data length: %d" % (self.num_keys, len(data)))
 		while i < self.num_keys:
-			key_offset, keylen = struct.unpack("<IH", data[:6])
-			data = data[6:]
+			# key_offset, keylen = struct.unpack("<QH", data[:10])
+			# data = data[10:]
+			data, key_offset, keylen = self.read_data("<QH", data)
 			key = data[:keylen]
 			data = data[keylen:]
 			i += 1
+			# print("Index keylen: %d" % (keylen))
 			# print("Index key: %s" % (key))
 
 class StorageBloomPage(StoragePage):	
