@@ -49,8 +49,51 @@ namespace ScalienClientUnitTesting
                 return -1;
             }
         }
-
     }
+
+    public class ListerThreadState
+    {
+        private static int COUNT_TIMEOUT = 120 * 1000;
+
+        public Thread thread;
+        public ConfigState.ShardServer shardServer;
+        public string url;
+        public string[] keys;
+        public TimeSpan elapsed;
+
+        public void ListerThreadFunc()
+        {
+            DateTime start = DateTime.Now;
+            keys = GetTableKeysHTTP(url);
+            elapsed = DateTime.Now.Subtract(start);
+        }
+
+        public static string[] GetTableKeysHTTP(string url)
+        {
+            var result = Utils.HTTP_GET(url, COUNT_TIMEOUT);
+            try
+            {
+                string[] keys = result.Split(new char[] { '\n' });
+                if (keys.Length < 2)
+                    return null;
+                // last line should be empty line and the one before last should be OK or NEXT
+                string lastKey = keys[keys.Length - 1];
+                if (lastKey.Length != 0)
+                    return null;
+                lastKey = keys[keys.Length - 2];
+                if (!lastKey.StartsWith("OK") && !lastKey.StartsWith("NEXT"))
+                    return null;
+                string[] ret = new string[keys.Length - 2];
+                Array.Copy(keys, ret, ret.Length);
+                return ret;
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }
+    }
+
 
     [TestClass]
     public class ConsistencyTests
@@ -77,24 +120,126 @@ namespace ScalienClientUnitTesting
                     var quorum = GetQuorum(configState, shard.quorumID);
                     var shardServers = GetQuorumActiveShardServers(configState, quorum);
 
-                    //Int64 prevCount = -1;
-                    //foreach (var shardServer in shardServers)
-                    //{
-                    //    var url = GetShardServerURL(shardServer) + "count?tableID=" + tableID + "&startKey=" + startKey + "&endKey=" + endKey; ;
-                    //    System.Console.WriteLine("  Getting count on nodeID: " + shardServer.nodeID + ", tableID: " + tableID);
-
-                    //    DateTime start = DateTime.Now;
-                    //    var count = GetTableCountHTTP(url);
-                    //    TimeSpan elapsed = DateTime.Now.Subtract(start);
-
-                    //    Assert.IsTrue(count != -1 && (prevCount < 0 || count == prevCount));
-                    //    System.Console.WriteLine("  Result: " + count + ", elapsed: " + elapsed.Seconds + "s, cps: " + (Int64)(count / elapsed.TotalMilliseconds) * 1000);
-                    //    prevCount = count;
-                    //}
                     ParallelTableCountHTTP(shardServers, tableID, startKey, endKey);
 
                     System.Console.WriteLine("Shard " + shard.shardID + " is consistent.\n");
                 }
+            }
+        }
+
+        [TestMethod]
+        public void CheckClusterConsistencyByKeys()
+        {
+            var client = new Client(Config.GetNodes());
+            var jsonConfigState = client.GetJSONConfigState();
+            var configState = Utils.JsonDeserialize<ConfigState>(System.Text.Encoding.UTF8.GetBytes(jsonConfigState));
+            foreach (var table in configState.tables)
+            {
+                var shards = GetTableShards(table, configState.shards);
+                foreach (var shard in shards)
+                {
+                    System.Console.WriteLine("\nComparing shard keys on shard " + shard.shardID);
+
+                    var tableID = shard.tableID;
+                    var startKey = shard.firstKey;
+                    var endKey = shard.lastKey;
+                    var quorum = GetQuorum(configState, shard.quorumID);
+                    var shardServers = GetQuorumActiveShardServers(configState, quorum);
+
+                    CompareTableKeysHTTP(shardServers, tableID, startKey, endKey);
+                    
+                    System.Console.WriteLine("Shard " + shard.shardID + " is consistent.\n");
+                }
+            }
+        }
+
+        public static string[][] ParallelFetchTableKeysHTTP(List<ConfigState.ShardServer> shardServers, Int64 tableID, string startKey, string endKey)
+        {
+            var threads = new ListerThreadState[shardServers.Count];
+            var serverKeys = new string[shardServers.Count][];
+            var listGranularity = 100 * 1000;
+
+            var i = 0;
+            foreach (var shardServer in shardServers)
+            {
+                var url = GetShardServerURL(shardServer) + "listkeys?tableID=" + tableID + "&startKey=" + startKey + "&endKey=" + endKey + "&count=" + listGranularity;
+
+                threads[i] = new ListerThreadState();
+                threads[i].thread = new Thread(new ThreadStart(threads[i].ListerThreadFunc));
+                threads[i].shardServer = shardServer;
+                threads[i].url = url;
+                threads[i].thread.Start();
+
+                i += 1;
+            }
+
+            i = 0;
+            foreach (var thread in threads)
+            {
+                thread.thread.Join();
+                serverKeys[i] = thread.keys;
+
+                i += 1;
+            }
+
+            return serverKeys;
+        }
+
+
+        public static void CompareTableKeysHTTP(List<ConfigState.ShardServer> shardServers, Int64 tableID, string startKey, string endKey)
+        {
+            if (shardServers.Count <= 1)
+                return;
+
+            var serverKeys = new string[shardServers.Count][];
+            var i = 0;
+            while (true)
+            {
+                serverKeys = ParallelFetchTableKeysHTTP(shardServers, tableID, startKey, endKey);
+
+                for (i = 1; i < serverKeys.Length; i++)
+                {
+                    if (!serverKeys[i].SequenceEqual(serverKeys[0]))
+                    {
+                        for (var j = 0; j < Math.Max(serverKeys[i].Length, serverKeys[0].Length); j++)
+                        {
+                            var a = serverKeys[i][j];
+                            var b = serverKeys[0][j];
+                            Assert.IsTrue(a == b);
+                        }
+                    }
+                }
+
+                if (serverKeys[0].Length <= 1)
+                    break;
+                
+                startKey = serverKeys[0][serverKeys[0].Length - 1];
+                System.Console.WriteLine("StartKey: " + startKey);
+            }
+        }
+
+        public static string[] GetTableKeysHTTP(string url)
+        {
+            var result = Utils.HTTP_GET(url, COUNT_TIMEOUT);
+            try
+            {
+                string[] keys = result.Split(new char[] {'\n'});
+                if (keys.Length < 2)
+                    return null;
+                // last line should be empty line and the one before last should be OK or NEXT
+                string lastKey = keys[keys.Length - 1];
+                if (lastKey.Length != 0)
+                    return null;
+                lastKey = keys[keys.Length - 2];
+                if (!lastKey.StartsWith("OK") && !lastKey.StartsWith("NEXT"))
+                    return null;
+                string[] ret = new string[keys.Length - 2];
+                Array.Copy(keys, ret, ret.Length);
+                return ret;
+            }
+            catch (Exception)
+            {
+                return null;
             }
         }
 
@@ -105,7 +250,7 @@ namespace ScalienClientUnitTesting
             var i = 0;
             foreach (var shardServer in shardServers)
             {
-                var url = GetShardServerURL(shardServer) + "count?tableID=" + tableID + "&startKey=" + startKey + "&endKey=" + endKey; ;
+                var url = GetShardServerURL(shardServer) + "count?tableID=" + tableID + "&startKey=" + startKey + "&endKey=" + endKey;
                 System.Console.WriteLine("  Getting count on nodeID: " + shardServer.nodeID + ", tableID: " + tableID);
 
                 threads[i] = new CounterThreadState();
