@@ -233,6 +233,7 @@ void ShardCatchupWriter::SendNext()
     delete cursor;
     cursor = NULL;
     
+    forwardShardIDs.Add(shardID);
     itShardID = NextShard();
     
     if (!itShardID)
