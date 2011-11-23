@@ -915,6 +915,19 @@ StorageShard* StorageEnvironment::GetShard(uint16_t contextID, uint64_t shardID)
     return NULL;
 }
 
+StorageShard* StorageEnvironment::GetShardByKey(uint16_t contextID, uint64_t tableID, ReadBuffer& key)
+{
+    StorageShard* it;
+
+    FOREACH (it, shards)
+    {
+        if (it->GetContextID() == contextID && it->GetTableID() == tableID && it->RangeContains(key))
+            return it;
+    }
+
+    return NULL;
+}
+
 bool StorageEnvironment::CreateShard(uint64_t trackID,
  uint16_t contextID, uint64_t shardID, uint64_t tableID,
  ReadBuffer firstKey, ReadBuffer lastKey, bool useBloomFilter, char storageType)

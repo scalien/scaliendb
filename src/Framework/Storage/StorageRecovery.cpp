@@ -738,15 +738,20 @@ void StorageRecovery::ExecuteSet(
     shard  = env->GetShard(contextID, shardID);
     if (shard == NULL)
         return; // shard was deleted
+
+    // shard was split and key now belongs to another shard
+    if (!shard->RangeContains(key))
+    {
+        shard = env->GetShardByKey(contextID, shard->tableID, key);
+        if (shard == NULL)
+            return;
+    }
     
-    //if (shard->IsLogStorage())
-    //    goto Execute;
-    
-    if (shard->logSegmentID > logSegmentID)
-        return; // shard was deleted and re-created
-    
-    if (shard->logSegmentID == logSegmentID && shard->logCommandID > logCommandID)
-        return; // shard was deleted and re-created 
+    //if (shard->logSegmentID > logSegmentID)
+    //    return; // shard was deleted and re-created
+    //
+    //if (shard->logSegmentID == logSegmentID && shard->logCommandID > logCommandID)
+    //    return; // shard was deleted and re-created 
 
     if (shard->recoveryLogSegmentID > logSegmentID)
         return; // this command is already present in a file chunk
@@ -754,7 +759,6 @@ void StorageRecovery::ExecuteSet(
     if (shard->recoveryLogSegmentID == logSegmentID && shard->recoveryLogCommandID >= logCommandID)
         return; // this command is already present in a file chunk
 
-//Execute:
     memoChunk = shard->GetMemoChunk();
     ASSERT(memoChunk != NULL);
     if (!memoChunk->Set(key, value))
@@ -782,14 +786,22 @@ void StorageRecovery::ExecuteDelete(
     if (shard == NULL)
         return; // shard was deleted
 
+    // shard was split and key now belongs to another shard
+    if (!shard->RangeContains(key))
+    {
+        shard = env->GetShardByKey(contextID, shard->tableID, key);
+        if (shard == NULL)
+            return;
+    }
+
     if (shard->GetStorageType() == STORAGE_SHARD_TYPE_LOG)
         ASSERT_FAIL();
     
-    if (shard->logSegmentID > logSegmentID)
-        return; // shard was deleted and re-created
-    
-    if (shard->logSegmentID == logSegmentID && shard->logCommandID > logCommandID)
-        return; // shard was deleted and re-created 
+    //if (shard->logSegmentID > logSegmentID)
+    //    return; // shard was deleted and re-created
+    //
+    //if (shard->logSegmentID == logSegmentID && shard->logCommandID > logCommandID)
+    //    return; // shard was deleted and re-created 
 
     if (shard->recoveryLogSegmentID > logSegmentID)
         return; // this command is already present in a file chunk

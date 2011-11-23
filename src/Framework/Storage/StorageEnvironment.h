@@ -122,6 +122,7 @@ public:
     void                    OnLogArchive(StorageArchiveLogSegmentJob* job);
     void                    OnBackgroundTimer();
     StorageShard*           GetShard(uint16_t contextID, uint64_t shardID);
+    StorageShard*           GetShardByKey(uint16_t contextID, uint64_t tableID, ReadBuffer& key);
     void                    WriteTOC();
     StorageFileChunk*       GetFileChunk(uint64_t chunkID);
     void                    EnqueueAsyncGet(StorageAsyncGet* asyncGet);
