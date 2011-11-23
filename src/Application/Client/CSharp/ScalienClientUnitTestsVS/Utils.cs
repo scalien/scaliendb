@@ -30,11 +30,19 @@ namespace Scalien
             request.KeepAlive = false;
             request.Method = "GET";
             request.Timeout = Timeout;
+            request.Proxy = null;
             try
             {
                 HttpWebResponse response = (HttpWebResponse)request.GetResponse();
-                StreamReader sr = new StreamReader(response.GetResponseStream());
-                return sr.ReadToEnd();
+                using (BufferedStream buffer = new BufferedStream(response.GetResponseStream()))
+                {
+                    using (StreamReader reader = new StreamReader(buffer))
+                    {
+                        return reader.ReadToEnd();
+                    }
+                }
+                //StreamReader sr = new StreamReader(response.GetResponseStream());
+                //return sr.ReadToEnd();
             }
             catch (Exception e)
             {
