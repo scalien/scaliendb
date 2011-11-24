@@ -64,6 +64,13 @@ bool Socket::Create()
         return false;
     }
 
+    ret = setsockopt(iod->acceptFd.handle, SOL_SOCKET, SO_REUSEADDR, (char *)&trueval, sizeof(BOOL));
+    if (ret == SOCKET_ERROR)
+    {
+        Log_Errno();
+        Close();
+        return false;
+    }
 
     // set FD index too
     IOProcessorRegisterSocket(fd);
