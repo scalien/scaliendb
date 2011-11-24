@@ -145,8 +145,7 @@ namespace Scalien
         /// </summary>
         ~Client()
         {
-            if (cptr != null)
-                scaliendb_client.SDBP_Destroy(cptr);
+            Close();
         }
 
         /// <summary>
@@ -154,8 +153,11 @@ namespace Scalien
         /// </summary>
         public void Close()
         {
-            scaliendb_client.SDBP_Destroy(cptr);
-            cptr = null;
+            if (cptr != null)
+            {
+                scaliendb_client.SDBP_Destroy(cptr);
+                cptr = null;
+            }
         }
 
         #endregion
