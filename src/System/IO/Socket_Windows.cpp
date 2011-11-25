@@ -32,7 +32,6 @@ Socket::Socket()
 
 bool Socket::Create()
 {
-    int     ret;
     BOOL    trueval = TRUE;
 
     if (fd.handle != INVALID_SOCKET)
@@ -50,20 +49,17 @@ bool Socket::Create()
 
     if (setsockopt(fd.handle, SOL_SOCKET, SO_EXCLUSIVEADDRUSE, (char *)&trueval, sizeof(BOOL)))
     {
-        ret = WSAGetLastError();
-        Log_Trace("error = %d", ret);
+        Log_Errno();
         Close();
         return false;
     }
 
     if (setsockopt(fd.handle, SOL_SOCKET, SO_SNDBUF, (char *) &SEND_BUFFER_SIZE, sizeof(SEND_BUFFER_SIZE)))
     {
-        ret = WSAGetLastError();
-        Log_Trace("error = %d", ret);
+        Log_Errno();
         Close();
         return false;
     }
-
 
     // set FD index too
     IOProcessorRegisterSocket(fd);
