@@ -40,7 +40,6 @@ private:
     Timer                       leaseTimeout;
     Callable                    onLearnLeaseCallback;
     Callable                    onLeaseTimeoutCallback;
-    Callable                    onAcquireLeaseCallback;
 };
 
 #endif

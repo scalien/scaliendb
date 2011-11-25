@@ -19,6 +19,9 @@ void ConfigQuorumProcessor::Init(ConfigServer* configServer_, unsigned numConfig
     CONTEXT_TRANSPORT->AddQuorumContext(&quorumContext);
 
     onListenRequestTimeout.SetCallable(MFUNC(ConfigQuorumProcessor, OnListenRequestTimeout));
+
+    leaseKnown = false;
+    leaseOwner = 0;
 }
 
 void ConfigQuorumProcessor::Shutdown()
@@ -213,7 +216,6 @@ void ConfigQuorumProcessor::OnClientRequest(ClientRequest* request)
             return; 
         }
     }
-
     
     if (request->type == CLIENTREQUEST_ACTIVATE_SHARDSERVER)
     {
@@ -513,12 +515,23 @@ void ConfigQuorumProcessor::UpdateListeners(bool force)
 
 void ConfigQuorumProcessor::OnLearnLease()
 {
+    if (!leaseKnown)
+    {
+        leaseKnown = true;
+        leaseOwner = quorumContext.GetLeaseOwner();
+        Log_Message("Node %U became the master", leaseOwner);
+    }
 }
 
 void ConfigQuorumProcessor::OnLeaseTimeout()
 {
     ClientRequest*  itRequest;
  
+    Log_Message("Node %U is no longer the master", leaseOwner);
+
+    leaseKnown = false;
+    leaseOwner = 0;
+
     // clear config messages   
     configMessages.DeleteList();
 
