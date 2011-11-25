@@ -543,16 +543,7 @@ void ConfigQuorumProcessor::OnLeaseTimeout()
         itRequest->OnComplete();
     }
     ASSERT(requests.GetLength() == 0);
-
-    // clear listen requests
-    FOREACH_FIRST (itRequest, listenRequests)
-    {
-        listenRequests.Remove(itRequest);
-        itRequest->response.NoService();
-        itRequest->OnComplete();
-    }
-    ASSERT(listenRequests.GetLength() == 0);
-    
+  
     CONFIG_STATE->hasMaster = false;
     CONFIG_STATE->masterID = 0;
     CONFIG_STATE->paxosID = 0;
