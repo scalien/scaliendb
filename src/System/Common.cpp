@@ -354,6 +354,17 @@ const char* StaticPrint(const char* format, ...)
     return buffer;
 }
 
+const char* InlinePrintf(char* buffer, size_t size, const char* format, ...)
+{
+    va_list     ap;
+
+    va_start(ap, format);
+    vsnprintf(buffer, size, format, ap);
+    va_end(ap);
+    
+    return buffer;
+}
+
 uint64_t GenerateGUID()
 {
     const uint64_t WIDTH_M = 16; // machine TODO

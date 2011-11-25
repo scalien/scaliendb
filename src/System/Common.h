@@ -58,6 +58,8 @@ void            ReplaceInCString(char* s, char src, char dst);
 bool            RangeContains(ReadBuffer firstKey, ReadBuffer lastKey, ReadBuffer key);
 
 const char*     StaticPrint(const char* format, ...);
+const char*     InlinePrintf(char* buffer, size_t size, const char* format, ...);
+#define         INLINE_PRINTF(fmt, size, ...) InlinePrintf((char*) alloca(size), size, fmt, __VA_ARGS__)
 
 uint64_t        GenerateGUID();
 void            SeedRandom();
