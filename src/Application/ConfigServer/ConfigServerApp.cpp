@@ -49,7 +49,6 @@ void ConfigServerApp::Shutdown()
     configServer.Shutdown();
 }
 
-
 void ConfigServerApp::SetLogStatTimeout(uint64_t timeout)
 {
     EventLoop::Remove(&logStatTimer);
