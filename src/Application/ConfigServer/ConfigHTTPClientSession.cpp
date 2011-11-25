@@ -491,6 +491,7 @@ void ConfigHTTPClientSession::ProcessSettings()
 {
     ReadBuffer  param;
     bool        boolValue;
+    uint64_t    logStatTime;
     
     if (HTTP_GET_OPT_PARAM(params, "trace", param))
     {
@@ -506,6 +507,15 @@ void ConfigHTTPClientSession::ProcessSettings()
         Log_SetDebug(boolValue);
         Log_Flush();
         session.PrintPair("Debug", boolValue ? "on" : "off");
+    }
+
+    if (HTTP_GET_OPT_PARAM(params, "logStatTime", param))
+    {
+        // initialize variable, because conversion may fail
+        logStatTime = 0;
+        HTTP_GET_OPT_U64_PARAM(params, "logStatTime", logStatTime);
+        configServer->SetLogStatTimeout(logStatTime * 1000);
+        session.PrintPair("LogStatTime", INLINE_PRINTF("%u", 100, (unsigned) logStatTime));
     }
 
     session.Flush();

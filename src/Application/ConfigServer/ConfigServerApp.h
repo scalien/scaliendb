@@ -25,7 +25,8 @@ public:
     void                    Init();
     void                    Shutdown();
 
-    void                    OnStatTimer();
+    void                    SetLogStatTimeout(uint64_t timeout);
+    void                    OnLogStatTimer();
     unsigned                GetNumSDBPClients();
 
 private:
@@ -37,7 +38,7 @@ private:
 
     SDBPServer              sdbpServer;
 
-    Countdown               statTimer;
+    Countdown               logStatTimer;
 };
 
 #endif

@@ -59,6 +59,7 @@ public:
     bool                        GetControllerHTTPEndpoint(uint64_t nodeID, Endpoint& endpoint);
     void                        GetHTTPEndpoint(Endpoint& endpoint);
     unsigned                    GetNumSDBPClients();
+    void                        SetLogStatTimeout(uint64_t timeout);
 
 private:
     void                        OnBroadcastHTTPEndpoint();

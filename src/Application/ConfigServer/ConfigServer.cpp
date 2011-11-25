@@ -295,6 +295,11 @@ unsigned ConfigServer::GetNumSDBPClients()
     return configServerApp->GetNumSDBPClients();
 }
 
+void ConfigServer::SetLogStatTimeout(uint64_t timeout)
+{
+    configServerApp->SetLogStatTimeout(timeout);
+}
+
 void ConfigServer::OnBroadcastHTTPEndpoint()
 {
     uint64_t*       itNodeID;

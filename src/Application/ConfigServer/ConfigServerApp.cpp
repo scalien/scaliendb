@@ -36,23 +36,30 @@ void ConfigServerApp::Init()
     Log_Message("Web admin is started at http://%s%R", httpEndpoint.ToString(), &prefix);
     Log_Message("Waiting for connections on port %d", sdbpPort);
     
-    statTimer.SetDelay(configFile.GetIntValue("controller.logStatTime", 0));
-    if (statTimer.GetDelay() != 0)
-    {
-        statTimer.SetCallable(MFUNC(ConfigServerApp, OnStatTimer));
-        EventLoop::Add(&statTimer);
-    }
+    logStatTimer.SetCallable(MFUNC(ConfigServerApp, OnLogStatTimer));
+    // logStatTime is in seconds in the config file, default is 10min
+    SetLogStatTimeout(configFile.GetIntValue("controller.logStatTime", 0) * 1000);
 }
 
 void ConfigServerApp::Shutdown()
 {
-    EventLoop::Remove(&statTimer);
+    EventLoop::Remove(&logStatTimer);
     sdbpServer.Shutdown();
     httpServer.Shutdown();
     configServer.Shutdown();
 }
 
-void ConfigServerApp::OnStatTimer()
+
+void ConfigServerApp::SetLogStatTimeout(uint64_t timeout)
+{
+    EventLoop::Remove(&logStatTimer);
+    logStatTimer.SetDelay(timeout);
+
+    if (logStatTimer.GetDelay() != 0)
+        EventLoop::Add(&logStatTimer);
+}
+
+void ConfigServerApp::OnLogStatTimer()
 {
     Log_Debug("=== ConfigServer stats ===");
     Log_Debug("SDBP active: %u, inactive: %u", sdbpServer.GetNumActiveConns(), sdbpServer.GetNumInactiveConns());
@@ -66,7 +73,7 @@ void ConfigServerApp::OnStatTimer()
     Log_Debug("Timers: %u", EventLoop::GetNumTimers());
     Log_Debug("Page cache size: %s, num. pages: %u", HUMAN_BYTES(StoragePageCache::GetSize()), StoragePageCache::GetNumPages());
     Log_Debug("Request cache free list size: %u", REQUEST_CACHE->GetNumFreeRequests());
-    EventLoop::Add(&statTimer);
+    EventLoop::Add(&logStatTimer);
 }
 
 unsigned ConfigServerApp::GetNumSDBPClients()
