@@ -42,7 +42,6 @@ void ConfigQuorumContext::Init(ConfigQuorumProcessor* quorumProcessor_, unsigned
         quorumProcessor->OnLearnLease();
         quorumProcessor->OnIsLeader();
     }
-
 }
 
 void ConfigQuorumContext::Append(ConfigMessage* message)

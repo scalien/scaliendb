@@ -79,6 +79,8 @@ private:
     ConfigQuorumContext     quorumContext;
     ConfigServer*           configServer;
     
+    bool                    leaseKnown;
+    uint64_t                leaseOwner;
     MessageList             configMessages;
     RequestList             requests;
     RequestList             listenRequests;
