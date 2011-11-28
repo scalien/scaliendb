@@ -239,6 +239,12 @@ public class scaliendb_client {
     return ret;
   }
 
+  public unsafe static ulong SDBP_GetQuorumIDByName(SWIGTYPE_p_void client, string name) {
+    ulong ret = scaliendb_clientPINVOKE.SDBP_GetQuorumIDByName(SWIGTYPE_p_void.getCPtr(client), name);
+    if (scaliendb_clientPINVOKE.SWIGPendingException.Pending) throw scaliendb_clientPINVOKE.SWIGPendingException.Retrieve();
+    return ret;
+  }
+
   public unsafe static uint SDBP_GetNumDatabases(SWIGTYPE_p_void client) {
     uint ret = scaliendb_clientPINVOKE.SDBP_GetNumDatabases(SWIGTYPE_p_void.getCPtr(client));
     return ret;
@@ -254,6 +260,12 @@ public class scaliendb_client {
     return ret;
   }
 
+  public unsafe static ulong SDBP_GetDatabaseIDByName(SWIGTYPE_p_void client, string name) {
+    ulong ret = scaliendb_clientPINVOKE.SDBP_GetDatabaseIDByName(SWIGTYPE_p_void.getCPtr(client), name);
+    if (scaliendb_clientPINVOKE.SWIGPendingException.Pending) throw scaliendb_clientPINVOKE.SWIGPendingException.Retrieve();
+    return ret;
+  }
+
   public unsafe static uint SDBP_GetNumTables(SWIGTYPE_p_void client, ulong databaseID) {
     uint ret = scaliendb_clientPINVOKE.SDBP_GetNumTables(SWIGTYPE_p_void.getCPtr(client), databaseID);
     return ret;
@@ -266,6 +278,12 @@ public class scaliendb_client {
 
   public unsafe static string SDBP_GetTableNameAt(SWIGTYPE_p_void client, ulong databaseID, uint n) {
     string ret = scaliendb_clientPINVOKE.SDBP_GetTableNameAt(SWIGTYPE_p_void.getCPtr(client), databaseID, n);
+    return ret;
+  }
+
+  public unsafe static ulong SDBP_GetTableIDByName(SWIGTYPE_p_void client, ulong databaseID, string name) {
+    ulong ret = scaliendb_clientPINVOKE.SDBP_GetTableIDByName(SWIGTYPE_p_void.getCPtr(client), databaseID, name);
+    if (scaliendb_clientPINVOKE.SWIGPendingException.Pending) throw scaliendb_clientPINVOKE.SWIGPendingException.Retrieve();
     return ret;
   }
 
@@ -313,30 +331,26 @@ public class scaliendb_client {
     return ret;
   }
 
-  public unsafe static int SDBP_SequenceSet(SWIGTYPE_p_void client, ulong tableID, string key, ulong number)
-  {
-      int ret = scaliendb_clientPINVOKE.SDBP_SequenceSet(SWIGTYPE_p_void.getCPtr(client), tableID, key, number);
-      if (scaliendb_clientPINVOKE.SWIGPendingException.Pending) throw scaliendb_clientPINVOKE.SWIGPendingException.Retrieve();
-      return ret;
+  public unsafe static int SDBP_SequenceSet(SWIGTYPE_p_void client, ulong tableID, string key, ulong number) {
+    int ret = scaliendb_clientPINVOKE.SDBP_SequenceSet(SWIGTYPE_p_void.getCPtr(client), tableID, key, number);
+    if (scaliendb_clientPINVOKE.SWIGPendingException.Pending) throw scaliendb_clientPINVOKE.SWIGPendingException.Retrieve();
+    return ret;
   }
 
-  public unsafe static int SDBP_SequenceSetCStr(SWIGTYPE_p_void client_, ulong tableID, IntPtr key, int len, ulong number)
-  {
-      int ret = scaliendb_clientPINVOKE.SDBP_SequenceSetCStr(SWIGTYPE_p_void.getCPtr(client_), tableID, key, len, number);
-      return ret;
+  public unsafe static int SDBP_SequenceSetCStr(SWIGTYPE_p_void client_, ulong tableID, IntPtr key, int len, ulong number) {
+    int ret = scaliendb_clientPINVOKE.SDBP_SequenceSetCStr(SWIGTYPE_p_void.getCPtr(client_), tableID, key, len, number);
+    return ret;
   }
 
-  public unsafe static int SDBP_SequenceNext(SWIGTYPE_p_void client, ulong tableID, string key)
-  {
-      int ret = scaliendb_clientPINVOKE.SDBP_SequenceNext(SWIGTYPE_p_void.getCPtr(client), tableID, key);
-      if (scaliendb_clientPINVOKE.SWIGPendingException.Pending) throw scaliendb_clientPINVOKE.SWIGPendingException.Retrieve();
-      return ret;
+  public unsafe static int SDBP_SequenceNext(SWIGTYPE_p_void client, ulong tableID, string key) {
+    int ret = scaliendb_clientPINVOKE.SDBP_SequenceNext(SWIGTYPE_p_void.getCPtr(client), tableID, key);
+    if (scaliendb_clientPINVOKE.SWIGPendingException.Pending) throw scaliendb_clientPINVOKE.SWIGPendingException.Retrieve();
+    return ret;
   }
 
-  public unsafe static int SDBP_SequenceNextCStr(SWIGTYPE_p_void client_, ulong tableID, IntPtr key, int len)
-  {
-      int ret = scaliendb_clientPINVOKE.SDBP_SequenceNextCStr(SWIGTYPE_p_void.getCPtr(client_), tableID, key, len);
-      return ret;
+  public unsafe static int SDBP_SequenceNextCStr(SWIGTYPE_p_void client, ulong tableID, IntPtr key, int len) {
+    int ret = scaliendb_clientPINVOKE.SDBP_SequenceNextCStr(SWIGTYPE_p_void.getCPtr(client), tableID, key, len);
+    return ret;
   }
 
   public unsafe static int SDBP_ListKeys(SWIGTYPE_p_void client, ulong tableID, string startKey, string endKey, string prefix, uint count, bool forwardDirection, bool skip) {
@@ -409,6 +423,10 @@ public class scaliendb_client {
   public unsafe static void SDBP_LogTrace(string msg) {
     scaliendb_clientPINVOKE.SDBP_LogTrace(msg);
     if (scaliendb_clientPINVOKE.SWIGPendingException.Pending) throw scaliendb_clientPINVOKE.SWIGPendingException.Retrieve();
+  }
+
+  public unsafe static void SDBP_SetShardPoolSize(uint shardPoolSize) {
+    scaliendb_clientPINVOKE.SDBP_SetShardPoolSize(shardPoolSize);
   }
 
 }

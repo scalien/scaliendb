@@ -392,6 +392,9 @@ class scaliendb_clientPINVOKE {
   [DllImport("scaliendb_client", EntryPoint="CSharp_SDBP_GetQuorumNameAt")]
   public static extern string SDBP_GetQuorumNameAt(HandleRef jarg1, uint jarg2);
 
+  [DllImport("scaliendb_client", EntryPoint="CSharp_SDBP_GetQuorumIDByName")]
+  public static extern ulong SDBP_GetQuorumIDByName(HandleRef jarg1, string jarg2);
+
   [DllImport("scaliendb_client", EntryPoint="CSharp_SDBP_GetNumDatabases")]
   public static extern uint SDBP_GetNumDatabases(HandleRef jarg1);
 
@@ -401,6 +404,9 @@ class scaliendb_clientPINVOKE {
   [DllImport("scaliendb_client", EntryPoint="CSharp_SDBP_GetDatabaseNameAt")]
   public static extern string SDBP_GetDatabaseNameAt(HandleRef jarg1, uint jarg2);
 
+  [DllImport("scaliendb_client", EntryPoint="CSharp_SDBP_GetDatabaseIDByName")]
+  public static extern ulong SDBP_GetDatabaseIDByName(HandleRef jarg1, string jarg2);
+
   [DllImport("scaliendb_client", EntryPoint="CSharp_SDBP_GetNumTables")]
   public static extern uint SDBP_GetNumTables(HandleRef jarg1, ulong jarg2);
 
@@ -409,6 +415,9 @@ class scaliendb_clientPINVOKE {
 
   [DllImport("scaliendb_client", EntryPoint="CSharp_SDBP_GetTableNameAt")]
   public static extern string SDBP_GetTableNameAt(HandleRef jarg1, ulong jarg2, uint jarg3);
+
+  [DllImport("scaliendb_client", EntryPoint="CSharp_SDBP_GetTableIDByName")]
+  public static extern ulong SDBP_GetTableIDByName(HandleRef jarg1, ulong jarg2, string jarg3);
 
   [DllImport("scaliendb_client", EntryPoint="CSharp_SDBP_Get")]
   public static extern int SDBP_Get(HandleRef jarg1, ulong jarg2, string jarg3);
@@ -434,16 +443,16 @@ class scaliendb_clientPINVOKE {
   [DllImport("scaliendb_client", EntryPoint="CSharp_SDBP_DeleteCStr")]
   public static extern int SDBP_DeleteCStr(HandleRef jarg1, ulong jarg2, IntPtr jarg3, int jarg4);
 
-  [DllImport("scaliendb_client", EntryPoint = "CSharp_SDBP_SequenceSet")]
+  [DllImport("scaliendb_client", EntryPoint="CSharp_SDBP_SequenceSet")]
   public static extern int SDBP_SequenceSet(HandleRef jarg1, ulong jarg2, string jarg3, ulong jarg4);
 
-  [DllImport("scaliendb_client", EntryPoint = "CSharp_SDBP_SequenceSetCStr")]
+  [DllImport("scaliendb_client", EntryPoint="CSharp_SDBP_SequenceSetCStr")]
   public static extern int SDBP_SequenceSetCStr(HandleRef jarg1, ulong jarg2, IntPtr jarg3, int jarg4, ulong jarg5);
 
-  [DllImport("scaliendb_client", EntryPoint = "CSharp_SDBP_SequenceNext")]
+  [DllImport("scaliendb_client", EntryPoint="CSharp_SDBP_SequenceNext")]
   public static extern int SDBP_SequenceNext(HandleRef jarg1, ulong jarg2, string jarg3);
 
-  [DllImport("scaliendb_client", EntryPoint = "CSharp_SDBP_SequenceNextCStr")]
+  [DllImport("scaliendb_client", EntryPoint="CSharp_SDBP_SequenceNextCStr")]
   public static extern int SDBP_SequenceNextCStr(HandleRef jarg1, ulong jarg2, IntPtr jarg3, int jarg4);
 
   [DllImport("scaliendb_client", EntryPoint="CSharp_SDBP_ListKeys")]
@@ -487,6 +496,9 @@ class scaliendb_clientPINVOKE {
 
   [DllImport("scaliendb_client", EntryPoint="CSharp_SDBP_LogTrace")]
   public static extern void SDBP_LogTrace(string jarg1);
+
+  [DllImport("scaliendb_client", EntryPoint="CSharp_SDBP_SetShardPoolSize")]
+  public static extern void SDBP_SetShardPoolSize(uint jarg1);
 }
 
 }

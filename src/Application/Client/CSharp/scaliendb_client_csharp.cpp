@@ -1188,6 +1188,25 @@ SWIGEXPORT char * SWIGSTDCALL CSharp_SDBP_GetQuorumNameAt(void * jarg1, unsigned
 }
 
 
+SWIGEXPORT unsigned long long SWIGSTDCALL CSharp_SDBP_GetQuorumIDByName(void * jarg1, char * jarg2) {
+  unsigned long long jresult ;
+  ClientObj arg1 = (ClientObj) 0 ;
+  std::string *arg2 = 0 ;
+  uint64_t result;
+  
+  arg1 = (ClientObj)jarg1; 
+  if (!jarg2) {
+    SWIG_CSharpSetPendingExceptionArgument(SWIG_CSharpArgumentNullException, "null string", 0);
+    return 0;
+  }
+  std::string arg2_str(jarg2);
+  arg2 = &arg2_str; 
+  result = (uint64_t)SDBP_GetQuorumIDByName(arg1,(std::string const &)*arg2);
+  jresult = result; 
+  return jresult;
+}
+
+
 SWIGEXPORT unsigned int SWIGSTDCALL CSharp_SDBP_GetNumDatabases(void * jarg1) {
   unsigned int jresult ;
   ClientObj arg1 = (ClientObj) 0 ;
@@ -1224,6 +1243,25 @@ SWIGEXPORT char * SWIGSTDCALL CSharp_SDBP_GetDatabaseNameAt(void * jarg1, unsign
   arg2 = (unsigned int)jarg2; 
   result = SDBP_GetDatabaseNameAt(arg1,arg2);
   jresult = SWIG_csharp_string_callback((&result)->c_str()); 
+  return jresult;
+}
+
+
+SWIGEXPORT unsigned long long SWIGSTDCALL CSharp_SDBP_GetDatabaseIDByName(void * jarg1, char * jarg2) {
+  unsigned long long jresult ;
+  ClientObj arg1 = (ClientObj) 0 ;
+  std::string *arg2 = 0 ;
+  uint64_t result;
+  
+  arg1 = (ClientObj)jarg1; 
+  if (!jarg2) {
+    SWIG_CSharpSetPendingExceptionArgument(SWIG_CSharpArgumentNullException, "null string", 0);
+    return 0;
+  }
+  std::string arg2_str(jarg2);
+  arg2 = &arg2_str; 
+  result = (uint64_t)SDBP_GetDatabaseIDByName(arg1,(std::string const &)*arg2);
+  jresult = result; 
   return jresult;
 }
 
@@ -1270,6 +1308,27 @@ SWIGEXPORT char * SWIGSTDCALL CSharp_SDBP_GetTableNameAt(void * jarg1, unsigned 
   arg3 = (unsigned int)jarg3; 
   result = SDBP_GetTableNameAt(arg1,arg2,arg3);
   jresult = SWIG_csharp_string_callback((&result)->c_str()); 
+  return jresult;
+}
+
+
+SWIGEXPORT unsigned long long SWIGSTDCALL CSharp_SDBP_GetTableIDByName(void * jarg1, unsigned long long jarg2, char * jarg3) {
+  unsigned long long jresult ;
+  ClientObj arg1 = (ClientObj) 0 ;
+  uint64_t arg2 ;
+  std::string *arg3 = 0 ;
+  uint64_t result;
+  
+  arg1 = (ClientObj)jarg1; 
+  arg2 = (uint64_t)jarg2; 
+  if (!jarg3) {
+    SWIG_CSharpSetPendingExceptionArgument(SWIG_CSharpArgumentNullException, "null string", 0);
+    return 0;
+  }
+  std::string arg3_str(jarg3);
+  arg3 = &arg3_str; 
+  result = (uint64_t)SDBP_GetTableIDByName(arg1,arg2,(std::string const &)*arg3);
+  jresult = result; 
   return jresult;
 }
 
@@ -1825,6 +1884,14 @@ SWIGEXPORT void SWIGSTDCALL CSharp_SDBP_LogTrace(char * jarg1) {
   std::string arg1_str(jarg1);
   arg1 = &arg1_str; 
   SDBP_LogTrace((std::string const &)*arg1);
+}
+
+
+SWIGEXPORT void SWIGSTDCALL CSharp_SDBP_SetShardPoolSize(unsigned int jarg1) {
+  unsigned int arg1 ;
+  
+  arg1 = (unsigned int)jarg1; 
+  SDBP_SetShardPoolSize(arg1);
 }
 
 
