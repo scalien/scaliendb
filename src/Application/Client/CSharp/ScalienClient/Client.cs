@@ -4,6 +4,7 @@ using System.Text;
 using System.Collections;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Threading;
 
 namespace Scalien
 {
@@ -153,10 +154,10 @@ namespace Scalien
         /// </summary>
         public void Close()
         {
-            if (cptr != null)
+            var oldPtr = Interlocked.Exchange(ref cptr, null);
+            if (oldPtr != null)
             {
-                scaliendb_client.SDBP_Destroy(cptr);
-                cptr = null;
+                scaliendb_client.SDBP_Destroy(oldPtr);
             }
         }
 
