@@ -216,17 +216,12 @@ void InitContextTransport()
 
 void LogPrintVersion(bool isController)
 {
-    const char*     debugInfo = "";
-    const char*     buildDate = BUILD_DATE;
-    Buffer          debugBuffer;
-    
-    debugBuffer.Appendf("\nDEBUG %s\nPid: %U", buildDate, GetProcessID());
-    debugBuffer.Appendf("\nBranch: %s\nSource control version: %s", SOURCE_CONTROL_BRANCH, SOURCE_CONTROL_VERSION);
-    debugBuffer.NullTerminate();
-#ifdef DEBUG
-    debugInfo = debugBuffer.GetBuffer();
-#endif
-    
-    Log_Message("%s started as %s%s", PRODUCT_STRING,
-     isController ? "CONTROLLER" : "SHARD SERVER", debugInfo);
+    Log_Message("%s started as %s", PRODUCT_STRING,
+     isController ? "CONTROLLER" : "SHARD SERVER");
+
+    Log_Debug("Pid: %U", GetProcessID());
+    Log_Debug("%s", BUILD_DATE);
+    Log_Debug("Branch: %s", SOURCE_CONTROL_BRANCH);
+    Log_Debug("Source control version: %s", SOURCE_CONTROL_VERSION);
+    Log_Debug("================================================================");
 }
