@@ -234,6 +234,9 @@
     <ClCompile Include="..\src\Application\Client\SDBPController.cpp">
       <Filter>Application\Client</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\Application\Client\SDBPPooledShardConnection.cpp">
+      <Filter>Application\Client</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\Application\Client\SDBPClient.h">
@@ -481,6 +484,9 @@
       <Filter>System\Threading</Filter>
     </ClInclude>
     <ClInclude Include="..\src\Application\Client\SDBPController.h">
+      <Filter>Application\Client</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Application\Client\SDBPPooledShardConnection.h">
       <Filter>Application\Client</Filter>
     </ClInclude>
   </ItemGroup>

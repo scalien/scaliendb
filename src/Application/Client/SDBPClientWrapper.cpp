@@ -4,6 +4,7 @@
 
 #include "Application/ConfigServer/JSONConfigState.h"
 #include "Version.h"
+#include "SourceControl.h"
 
 using namespace SDBPClient;
 
@@ -1056,7 +1057,7 @@ std::string SDBP_GetVersion()
 
 std::string SDBP_GetDebugString()
 {
-    return "Build date: " __DATE__ " " __TIME__;
+    return "Build date: " __DATE__ " " __TIME__ "\nBranch: " SOURCE_CONTROL_BRANCH "\nSource control version: " SOURCE_CONTROL_VERSION;
 }
 
 void SDBP_LogTrace(const std::string& msg)

@@ -989,6 +989,7 @@
     <ClInclude Include="..\src\System\Threading\Atomic.h">
       <Filter>System\Threading</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\SourceControl.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="ScalienDB.rc" />

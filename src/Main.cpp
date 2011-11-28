@@ -1,4 +1,5 @@
 #include "Version.h"
+#include "SourceControl.h"
 #include "System/Config.h"
 #include "System/Events/EventLoop.h"
 #include "System/IO/IOProcessor.h"
@@ -219,7 +220,8 @@ void LogPrintVersion(bool isController)
     const char*     buildDate = BUILD_DATE;
     Buffer          debugBuffer;
     
-    debugBuffer.Appendf(" -- DEBUG %s, Pid: %U", buildDate, GetProcessID());
+    debugBuffer.Appendf("\nDEBUG %s\nPid: %U", buildDate, GetProcessID());
+    debugBuffer.Appendf("\nBranch: %s\nSource control version: %s", SOURCE_CONTROL_BRANCH, SOURCE_CONTROL_VERSION);
     debugBuffer.NullTerminate();
 #ifdef DEBUG
     debugInfo = debugBuffer.GetBuffer();

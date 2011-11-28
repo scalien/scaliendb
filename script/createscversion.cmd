@@ -17,11 +17,14 @@ FOR /F "tokens=1" %%a IN (
 SET COMMIT_ID=%%a
 ) 
 
-ECHO. > %OUTPUT%
+FOR /f "tokens=1,2,3 delims=/" %%a IN ("%HEADREF%") DO SET REFDIR=%%a&SET REF=%%b&SET BRANCH=%%c
+
+ECHO // Auto-generated file > %OUTPUT%
 ECHO #ifndef SOURCE_CONTROL_H >> %OUTPUT%
 ECHO #define SOURCE_CONTROL_H >> %OUTPUT%
 ECHO. >> %OUTPUT%
 ECHO #define SOURCE_CONTROL_VERSION "%COMMIT_ID%" >> %OUTPUT%
+ECHO #define SOURCE_CONTROL_BRANCH "%BRANCH%" >> %OUTPUT%
 ECHO. >> %OUTPUT%
 ECHO #endif >> %OUTPUT%
 ECHO. >> %OUTPUT%
