@@ -45,3 +45,20 @@ TEST_DEFINE(TestLogRotateMultiThreaded)
 
     return TEST_SUCCESS;    
 }
+
+TEST_DEFINE(TestLogTraceBuffer)
+{
+    int     i;
+
+    Log_SetTrace(false);
+    Log_SetTraceBufferSize(65536);
+    
+    for (i = 0; i < 11231; i++)
+    {
+        Log_Trace("%d", i);
+    }
+
+    Log_SetTrace(true);
+
+    return TEST_SUCCESS;
+}

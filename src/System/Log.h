@@ -4,7 +4,7 @@
 /*
 ===============================================================================================
 
- Log: our own logging subsystem, uses Formatting.h
+ Log: logging subsystem, uses Formatting.h
 
 ===============================================================================================
 */
@@ -22,9 +22,10 @@
 
 #ifdef NO_LOGGING // start NO_LOGGING
 
-#define Log_Errno()
+#define Log_Errno(...)
 #define Log_Message(...)
 #define Log_Trace(...)
+#define Log_Debug(...)
 
 #else // end NO_LOGGING, start LOGGING
 
@@ -45,29 +46,22 @@
     Log(__FILE__, __LINE__, __func__, LOG_TYPE_TRACE, __VA_ARGS__)
 
 #define Log_Debug(...) \
-    Log(__FILE__, __LINE__, __func__, LOG_TYPE_DEBUG, __VA_ARGS__)
+    Log(__FILE__, __LINE__, __func__, LOG_TYPE_DEBUG, "" __VA_ARGS__)
 
 #endif // end LOGGING
-
-#ifdef GCC
-#define ATTRIBUTE_FORMAT_PRINTF(fmt, ellipsis) \
-    __attribute__ ((format (printf, fmt, ellipsis)));
-#else
-#define ATTRIBUTE_FORMAT_PRINTF(fmt, ellipsis)
-#endif
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-void Log(const char* file, int line, const char* func,
- int type, const char* fmt, ...);
+void Log(const char* file, int line, const char* func, int type, const char* fmt, ...);
 bool Log_SetTrace(bool trace);
 bool Log_SetDebug(bool debug);
 bool Log_SetAutoFlush(bool autoFlush);
 void Log_SetTimestamping(bool ts);
 void Log_SetThreadedOutput(bool to);
 void Log_SetMaxLine(int maxLine);
+void Log_SetTraceBufferSize(unsigned traceBufferSize);
 void Log_SetTarget(int target);
 int  Log_GetTarget();
 bool Log_SetOutputFile(const char* file, bool truncate);
