@@ -5,7 +5,6 @@
 #include "System/Containers/SortedList.h"
 #include "System/Containers/InList.h"
 #include "System/IO/Endpoint.h"
-#include "Framework/Messaging/MessageConnection.h"
 #include "Application/Common/ClientResponse.h"
 #include "SDBPClientRequest.h"
 
@@ -13,6 +12,7 @@ namespace SDBPClient
 {
 
 class Client;   // forward
+class PooledShardConnection;
 
 /*
 ===============================================================================================
@@ -22,23 +22,22 @@ class Client;   // forward
 ===============================================================================================
 */
 
-class ShardConnection : public MessageConnection
+class ShardConnection
 {
 public:
     typedef InTreeNode<ShardConnection> TreeNode;
 
     ShardConnection(Client* client, uint64_t nodeID, Endpoint& endpoint);
     
-    void                    Connect();
     void                    ClearRequests();
     bool                    SendRequest(Request* request);
-    void                    SendSubmit(uint64_t quorumID);
     void                    Flush();
-    bool                    HasRequestBuffered();
+    void                    ReleaseConnection();
 
     uint64_t                GetNodeID() const;
     Endpoint&               GetEndpoint();
     bool                    IsWritePending();
+    bool                    IsConnected();
     unsigned                GetNumSentRequests();
 
     void                    SetQuorumMembership(uint64_t quorumID);
@@ -49,10 +48,10 @@ public:
     void                    ReassignSentRequests();
     
     // MessageConnection interface
-    virtual bool            OnMessage(ReadBuffer& msg);
-    virtual void            OnWrite();
-    virtual void            OnConnect();
-    virtual void            OnClose();
+    bool                    OnMessage(ReadBuffer& msg);
+    void                    OnWrite();
+    void                    OnConnect();
+    void                    OnClose();
 
     TreeNode                treeNode;
 
@@ -61,6 +60,7 @@ private:
     void                    SendQuorumRequests();
 
     Client*                 client;
+    PooledShardConnection*  conn;
     uint64_t                nodeID;
     Endpoint                endpoint;
     SortedList<uint64_t>    quorums;

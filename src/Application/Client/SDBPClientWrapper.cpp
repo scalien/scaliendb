@@ -1,5 +1,6 @@
 #include "SDBPClientWrapper.h"
 #include "SDBPClient.h"
+#include "SDBPPooledShardConnection.h"
 
 #include "Application/ConfigServer/JSONConfigState.h"
 #include "Version.h"
@@ -1041,6 +1042,11 @@ void SDBP_SetLogFile(const std::string& filename)
         Log_SetOutputFile("", false);
         Log_SetTarget(target);
     }
+}
+
+void SDBP_SetShardPoolSize(unsigned shardPoolSize)
+{
+    PooledShardConnection::SetPoolSize(shardPoolSize);
 }
 
 std::string SDBP_GetVersion()

@@ -2,6 +2,7 @@
 #include "Application/Client/SDBPClient.h"
 #include "Application/Client/SDBPClientWrapper.h"
 #include "System/Common.h"
+#include "System/Config.h"
 #include "System/Threading/ThreadPool.h"
 #include "System/Threading/Atomic.h"
 
@@ -48,14 +49,34 @@ static uint64_t     defaultDatabaseID;
 static bool         stopOnTestFailure = true;
 static uint32_t     failCount;
 
-static int SetupDefaultClient(Client& client)
+static int SetupDefaultControllerNodes(Client& client)
 {
+    uint64_t        nodeID;
+    unsigned        numControllers;
+
     // XXX: Warning! Don't use localhost on Windows, because if IPv6 is installed
     // resolution of localhost is at least 1 second. Instead use 127.0.0.1
-//    const char*     nodes[] = {"192.168.137.50:7080"};
-    const char*     nodes[] = {"127.0.0.1:7080"};
-//    const char*     nodes[] = {"192.168.137.52:7080"};
-//    const char*     nodes[] = {"192.168.1.5:7080"};
+    const char*     defaultNodes[] = {"127.0.0.1:7080"};
+ 
+    // connect to the controller nodes
+    numControllers = (unsigned) configFile.GetListNum("controllers");
+    if (numControllers == 0)
+    {
+        // no controllers given in config, use default
+        return client.Init(SIZE(defaultNodes), defaultNodes);
+    }
+    
+    const char* nodes[numControllers];
+    for (nodeID = 0; nodeID < numControllers; nodeID++)
+    {
+        nodes[nodeID] = configFile.GetListValue("controllers", (int) nodeID, "");
+    }
+
+    return client.Init(SIZE(nodes), nodes);
+}
+
+static int SetupDefaultClient(Client& client)
+{
     std::string     databaseName = "test";
     std::string     tableName = "test";
     uint64_t        databaseID;
@@ -63,12 +84,15 @@ static int SetupDefaultClient(Client& client)
     int             ret;
     ClientObj       clientObj;
 
-    ret = client.Init(SIZE(nodes), nodes);
+    configFile.Shutdown();
+    configFile.Init("test/client/client.conf");
+
+    ret = SetupDefaultControllerNodes(client);
     if (ret != SDBP_SUCCESS)
         TEST_CLIENT_FAIL();
-   
-    //client.SetMasterTimeout(10*1000);
-    //client.SetGlobalTimeout(30*1000);
+    
+    client.SetMasterTimeout((uint64_t)configFile.GetInt64Value("masterTimeout", 10*1000));
+    client.SetGlobalTimeout((uint64_t)configFile.GetInt64Value("globalTimeout", 30*1000));
     //client.SetConsistencyMode(SDBP_CONSISTENCY_RYW);
 
     clientObj = (ClientObj) &client;
@@ -789,6 +813,37 @@ TEST_DEFINE(TestClientSetFailover)
     return TEST_SUCCESS;
 }
 
+TEST_DEFINE(TestClientGetFailover)
+{
+    Client          client;
+    ReadBuffer      value;
+    unsigned        i;
+    uint64_t        start;
+    uint64_t        end;
+    Buffer          tmp;
+    
+//    Log_SetTrace(true);
+    
+    TEST(SetupDefaultClient(client));
+//    SDBP_SetShardPoolSize(100);
+    client.SetConsistencyMode(SDBP_CONSISTENCY_ANY);
+
+    i = 0;
+    while (true)
+    {
+        i++;
+        tmp.Writef("%d", i);
+        start = Now();
+        TEST(client.Get(defaultTableID, "index"));
+        end = Now();
+        TEST_LOG("%i: diff = %u", i, (unsigned) (end - start));
+        
+        MSleep(500);
+    }
+    client.Shutdown();
+    
+    return TEST_SUCCESS;
+}
 
 TEST_DEFINE(TestClientListKeyValues)
 {

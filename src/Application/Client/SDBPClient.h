@@ -159,6 +159,7 @@ private:
     void                    SendQuorumRequest(ShardConnection* conn, uint64_t quorumID);
     void                    SendQuorumRequests();
     void                    ClearQuorumRequests();
+    void                    DeleteQuorumRequests();
     void                    InvalidateQuorum(uint64_t quorumID, uint64_t nodeID);
     void                    InvalidateQuorumRequests(uint64_t quorumID);
     void                    ActivateQuorumMembership(ShardConnection* conn);
@@ -166,7 +167,7 @@ private:
                              ReadBuffer prefix, uint64_t count);
 
     void                    ConfigureShardServers();
-    ShardConnection*        GetShardConnection(uint64_t nodeID);
+    void                    ReleaseShardConnections();
 
     void                    OnControllerConnected(ControllerConnection* conn);
     void                    OnControllerDisconnected(ControllerConnection* conn);
