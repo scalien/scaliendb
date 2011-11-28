@@ -85,10 +85,11 @@ void ReplicatedLog::TryAppendDummy()
 {
     Log_Trace();
     
+    proposer.SetUseTimeouts(true);
+
     if (proposer.IsActive())
         return;
-
-    proposer.SetUseTimeouts(true);
+    
     Append(dummy);
 #ifdef RLOG_DEBUG_MESSAGES
     Log_Debug("Appending DUMMY!");
