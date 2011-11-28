@@ -138,6 +138,7 @@ void ReplicatedLog::NewPaxosRound()
 {
     EventLoop::Remove(&(proposer.prepareTimeout));
     EventLoop::Remove(&(proposer.proposeTimeout));
+    EventLoop::Remove(&(proposer.restartTimeout));
 
     paxosID++;
     proposer.state.OnNewPaxosRound();
