@@ -18,7 +18,9 @@ void StorageDeleteFileChunkJob::Execute()
     
     filename.Write(chunk->GetFilename());
     delete chunk;
-    FS_Delete(filename.GetBuffer());
+
+    // EXPERIMENTAL: remove from production!
+    //FS_Delete(filename.GetBuffer());
 
     sw.Stop();
     Log_Debug("Deleted, elapsed: %U", (uint64_t) sw.Elapsed());
