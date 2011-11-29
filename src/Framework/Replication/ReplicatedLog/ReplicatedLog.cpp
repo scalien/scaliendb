@@ -178,6 +178,7 @@ void ReplicatedLog::OnMessage(PaxosMessage& imsg)
     Log_Trace();
     bool processed;
 
+    processed = false;
     if (imsg.type == PAXOS_PREPARE_REQUEST)
         processed = OnPrepareRequest(imsg);
     else if (imsg.IsPrepareResponse())
