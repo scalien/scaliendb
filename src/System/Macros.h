@@ -58,7 +58,7 @@
         {                                                                       \
             PrintStackTrace();                                                  \
             bool prev = Log_SetTrace(true);                                     \
-            Log_Trace("Fail: " #expr);                                          \ 
+            Log_Trace("Fail: " #expr);                                          \
             Log_SetTrace(prev);                                                 \
             Log_Flush();                                                        \
             Error();                                                            \
