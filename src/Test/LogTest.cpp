@@ -1,5 +1,6 @@
 #include "Test.h"
 #include "System/Log.h"
+#include "System/Time.h"
 #include "System/Threading/ThreadPool.h"
 #include "System/Events/Callable.h"
 
@@ -50,10 +51,12 @@ TEST_DEFINE(TestLogTraceBuffer)
 {
     int     i;
 
+    // the running clock may interfere with log messages
+    StopClock();
     Log_SetTrace(false);
-    Log_SetTraceBufferSize(65536);
+    Log_SetTraceBufferSize(1024*1024);
     
-    for (i = 0; i < 11231; i++)
+    for (i = 0; i < 1234567; i++)
     {
         Log_Trace("%d", i);
     }
