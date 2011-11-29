@@ -31,6 +31,9 @@ class ReadBuffer;
 extern "C" {
 #endif
 
+void            Error();
+void            SetExitOnError(bool exitOnError);
+
 unsigned        NumDigits(int n);
 unsigned        NumDigits64(uint64_t n);
 

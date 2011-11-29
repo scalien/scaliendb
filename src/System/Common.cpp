@@ -28,6 +28,19 @@
 #include "Buffers/Buffer.h"
 #include "Buffers/ReadBuffer.h"
 
+static bool exitOnError = false;
+
+void Error()
+{
+    if (exitOnError)
+        _exit(1);   // exit immediately
+}
+
+void SetExitOnError(bool exitOnError_)
+{
+    exitOnError = exitOnError_;
+}
+
 unsigned NumDigits(int n)
 {
     return n == 0 ? 1 : (unsigned) floor(log10((float)n) + 1);
