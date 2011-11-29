@@ -126,6 +126,11 @@ uint64_t ConfigQuorumContext::GetHighestPaxosID()
     return highestPaxosID;
 }
 
+uint64_t ConfigQuorumContext::GetLastLearnChosenTime()
+{
+    return replicatedLog.GetLastLearnChosenTime();
+}
+
 Quorum* ConfigQuorumContext::GetQuorum()
 {
     return &quorum;

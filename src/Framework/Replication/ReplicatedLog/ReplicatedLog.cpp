@@ -6,6 +6,12 @@
 
 static Buffer dummy;
 
+ReplicatedLog::ReplicatedLog()
+{
+    canaryTimer.SetCallable(MFUNC(ReplicatedLog, OnCanaryTimeout));
+    canaryTimer.SetDelay(CANARY_TIMEOUT);
+}
+
 void ReplicatedLog::Init(QuorumContext* context_)
 {
     Log_Trace();
@@ -19,8 +25,11 @@ void ReplicatedLog::Init(QuorumContext* context_)
     acceptor.Init(context);
 
     lastRequestChosenTime = 0;
+    lastLearnChosenTime = 0;
     commitChaining = false;
     alwaysUseDatabaseCatchup = false;
+
+    EventLoop::Add(&canaryTimer);
     
     dummy.Write("dummy");
 }
@@ -53,6 +62,11 @@ void ReplicatedLog::SetAsyncCommit(bool asyncCommit)
 bool ReplicatedLog::GetAsyncCommit()
 {
     return acceptor.GetAsyncCommit();
+}
+
+uint64_t ReplicatedLog::GetLastLearnChosenTime()
+{
+    return lastLearnChosenTime;
 }
 
 void ReplicatedLog::SetAlwaysUseDatabaseCatchup(bool alwaysUseDatabaseCatchup_)
@@ -364,7 +378,8 @@ bool ReplicatedLog::OnLearnChosen(PaxosMessage& imsg)
         RequestChosen(imsg.nodeID);
         return true;
     }
-        
+    
+    lastLearnChosenTime = EventLoop::Now();
     ProcessLearnChosen(imsg.nodeID, runID);
 
 #ifdef RLOG_DEBUG_MESSAGES
@@ -422,6 +437,14 @@ bool ReplicatedLog::OnStartCatchup(PaxosMessage& imsg)
         context->OnStartCatchup();
 
     return true;
+}
+
+void ReplicatedLog::OnCanaryTimeout()
+{
+    if (context->IsLeaseOwner() && !IsAppending())
+        TryAppendDummy();
+
+    EventLoop::Add(&canaryTimer);
 }
 
 void ReplicatedLog::ProcessLearnChosen(uint64_t nodeID, uint64_t runID)

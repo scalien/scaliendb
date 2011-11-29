@@ -103,6 +103,7 @@ void ConfigHTTPClientSession::PrintStatus()
     char            hexbuf[64 + 1];
     unsigned        num;
     uint64_t        nodeID;
+    uint64_t        elapsed;
 
     session.PrintPair("ScalienDB", "Controller");
     session.PrintPair("Version", VERSION_STRING);
@@ -125,6 +126,11 @@ void ConfigHTTPClientSession::PrintStatus()
     buf.Writef("%d", (int) configServer->GetQuorumProcessor()->GetPaxosID());
     buf.NullTerminate();
     session.PrintPair("Round", buf.GetBuffer());
+
+    elapsed = (EventLoop::Now() - configServer->GetQuorumProcessor()->GetLastLearnChosenTime()) / 1000.0;
+    buf.Writef("%U", elapsed);
+    buf.NullTerminate();
+    session.PrintPair("Seconds since last replication", buf.GetBuffer());
 
     buf.Writef("%u", configServer->GetNumSDBPClients());
     buf.NullTerminate();

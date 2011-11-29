@@ -6,6 +6,7 @@
 #include "Framework/Replication/Paxos/PaxosAcceptor.h"
 
 #define REQUEST_CHOSEN_TIMEOUT      (1000)
+#define CANARY_TIMEOUT              (60*1000) // 1 minute
 #define PAXOS_CATCHUP_GRANULARITY   (100*KiB)
 
 /*
@@ -19,6 +20,8 @@
 class ReplicatedLog
 {
 public:
+    ReplicatedLog();
+
     void                    Init(QuorumContext* context);
     void                    Shutdown();
 
@@ -27,6 +30,7 @@ public:
     bool                    GetCommitChaining();
     void                    SetAsyncCommit(bool asyncCommit);
     bool                    GetAsyncCommit();
+    uint64_t                GetLastLearnChosenTime();
     void                    SetAlwaysUseDatabaseCatchup(bool alwaysUseDatabaseCatchup);
 
     void                    Stop();
@@ -66,6 +70,7 @@ private:
     bool                    OnLearnChosen(PaxosMessage& msg);
     bool                    OnRequestChosen(PaxosMessage& msg);
     bool                    OnStartCatchup(PaxosMessage& msg);
+    void                    OnCanaryTimeout();
 
     void                    ProcessLearnChosen(uint64_t nodeID, uint64_t runID);
 
@@ -83,5 +88,7 @@ private:
     bool                    commitChaining;
     bool                    alwaysUseDatabaseCatchup;
     uint64_t                lastRequestChosenTime;
+    uint64_t                lastLearnChosenTime;
+    Countdown               canaryTimer;
 };
 #endif

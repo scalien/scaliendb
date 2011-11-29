@@ -55,6 +55,11 @@ uint64_t ConfigQuorumProcessor::GetPaxosID()
     return quorumContext.GetPaxosID();
 }
 
+uint64_t ConfigQuorumProcessor::GetLastLearnChosenTime()
+{
+    return quorumContext.GetLastLearnChosenTime();
+}
+
 unsigned ConfigQuorumProcessor::GetNumConfigMessages()
 {
     return configMessages.GetLength();

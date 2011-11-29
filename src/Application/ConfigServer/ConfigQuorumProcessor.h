@@ -30,6 +30,7 @@ public:
     int64_t                 GetMaster();
     uint64_t                GetQuorumID();
     uint64_t                GetPaxosID();
+    uint64_t                GetLastLearnChosenTime();
 
     unsigned                GetNumConfigMessages();
     unsigned                GetNumRequests();
