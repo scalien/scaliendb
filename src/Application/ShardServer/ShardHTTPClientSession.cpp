@@ -369,6 +369,12 @@ void ShardHTTPClientSession::ProcessDebugCommand()
         session.PrintPair("Debug", boolValue ? "on" : "off");
     }
 
+    if (HTTP_GET_OPT_PARAM(params, "assert", param))
+    {
+        ASSERT_FAIL();
+        // program terminates here
+    }
+
     session.Flush();
 #endif
 }
