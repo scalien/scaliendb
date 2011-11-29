@@ -26,6 +26,8 @@ class ConfigHeartbeatManager
 public:
     void                Init(ConfigServer* configServer);
     void                Shutdown();
+
+    void                SetShardSplitSize(uint64_t shardSplitSize);
     
     void                OnHeartbeatMessage(ClusterMessage& message);
     void                OnHeartbeatTimeout();
