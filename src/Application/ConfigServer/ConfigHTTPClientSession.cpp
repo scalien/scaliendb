@@ -498,6 +498,7 @@ void ConfigHTTPClientSession::ProcessSettings()
     ReadBuffer  param;
     bool        boolValue;
     uint64_t    logStatTime;
+    uint64_t    shardSplitSize;
     
     if (HTTP_GET_OPT_PARAM(params, "trace", param))
     {
@@ -520,8 +521,19 @@ void ConfigHTTPClientSession::ProcessSettings()
         // initialize variable, because conversion may fail
         logStatTime = 0;
         HTTP_GET_OPT_U64_PARAM(params, "logStatTime", logStatTime);
+        // we expect logStatTime is in seconds
         configServer->SetLogStatTimeout(logStatTime * 1000);
         session.PrintPair("LogStatTime", INLINE_PRINTF("%u", 100, (unsigned) logStatTime));
+    }
+
+    if (HTTP_GET_OPT_PARAM(params, "shardSplitSize", param))
+    {
+        // initialize variable, because conversion may fail
+        shardSplitSize = 0;
+        HTTP_GET_OPT_U64_PARAM(params, "shardSplitSize", shardSplitSize);
+        // we expect shardSplitSize is in MegaBytes 
+        configServer->GetHeartbeatManager()->SetShardSplitSize(shardSplitSize * 1000 * 1000);
+        session.PrintPair("ShardSplitSize", INLINE_PRINTF("%u", 100, (unsigned) shardSplitSize));
     }
 
     session.Flush();
