@@ -80,7 +80,7 @@ void ContextTransport::SendQuorumMessage(uint64_t nodeID, uint64_t quorumID, Mes
 void ContextTransport::OnConnectionReady(uint64_t nodeID, Endpoint endpoint)
 {
     if (clusterContext)
-        clusterContext->OnIncomingConnectionReady(nodeID, endpoint);
+        clusterContext->OnConnectionReady(nodeID, endpoint);
 }
 
 void ContextTransport::OnConnectionEnd(uint64_t nodeID, Endpoint endpoint)

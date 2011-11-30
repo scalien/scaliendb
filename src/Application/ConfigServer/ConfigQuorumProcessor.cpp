@@ -706,25 +706,38 @@ void ConfigQuorumProcessor::OnCatchupMessage(CatchupMessage& imsg)
 {
     bool            hasMaster;
     uint64_t        masterID;
+    uint64_t        clusterID;
     Buffer          buffer;
-    ReadBuffer      key;
+    ReadBuffer      keyConfigState;
+    ReadBuffer      keyClusterID;
     ReadBuffer      value;
     CatchupMessage  omsg;
     
+    keyConfigState.Wrap("ConfigState");
+    keyClusterID.Wrap("ClusterID");
+
     switch (imsg.type)
     {
         case CATCHUPMESSAGE_REQUEST:
             if (!quorumContext.IsLeaseOwner())
                 return;
             ASSERT(imsg.quorumID == quorumContext.GetQuorumID());
-            // send configState
-            key.Wrap("state");
+
+            // send ConfigState => <ConfigState>
             CONFIG_STATE->Write(buffer);
             value.Wrap(buffer);
-            omsg.Set(0, key, value); // shardID is unused here
+            omsg.Set(0, keyConfigState, value); // shardID is unused here
             CONTEXT_TRANSPORT->SendQuorumMessage(imsg.nodeID, quorumContext.GetQuorumID(), omsg);
+            
+            // send ClusterID => <ClusterID>
+            ASSERT(REPLICATION_CONFIG->GetClusterID() > 0);
+            buffer.Writef("%U", REPLICATION_CONFIG->GetClusterID());
+            value.Wrap(buffer);
+            omsg.Set(0, keyClusterID, value); // shardID is unused here
+            CONTEXT_TRANSPORT->SendQuorumMessage(imsg.nodeID, quorumContext.GetQuorumID(), omsg);
+            
+            // send COMMIT with the paxosID whose value is in the db
             omsg.Commit(quorumContext.GetPaxosID() - 1);
-            // send the paxosID whose value is in the db
             CONTEXT_TRANSPORT->SendQuorumMessage(imsg.nodeID, quorumContext.GetQuorumID(), omsg);
             break;
         case CATCHUPMESSAGE_BEGIN_SHARD:
@@ -733,12 +746,26 @@ void ConfigQuorumProcessor::OnCatchupMessage(CatchupMessage& imsg)
         case CATCHUPMESSAGE_SET:
             if (!isCatchingUp)
                 return;
-            hasMaster = CONFIG_STATE->hasMaster;
-            masterID = CONFIG_STATE->masterID;
-            if (!CONFIG_STATE->Read(imsg.value))
-                ASSERT_FAIL();
-            CONFIG_STATE->hasMaster = hasMaster;
-            CONFIG_STATE->masterID = masterID;
+            // receive ConfigState => <ConfigState>
+            if (ReadBuffer::Cmp(imsg.key, keyConfigState) == 0)
+            {
+                hasMaster = CONFIG_STATE->hasMaster;
+                masterID = CONFIG_STATE->masterID;
+            
+                if (!CONFIG_STATE->Read(imsg.value))
+                    ASSERT_FAIL();
+                CONFIG_STATE->hasMaster = hasMaster;
+                CONFIG_STATE->masterID = masterID;
+            }
+            // received ClusterID => <ClusterID>
+            else if (ReadBuffer::Cmp(imsg.key, keyClusterID) == 0)
+            {
+                imsg.value.Readf("%U", &clusterID);
+                ASSERT(clusterID > 0);
+                CONTEXT_TRANSPORT->SetClusterID(clusterID);
+                REPLICATION_CONFIG->SetClusterID(clusterID);
+                REPLICATION_CONFIG->Commit();
+            }
             break;
         case CATCHUPMESSAGE_COMMIT:
             if (!isCatchingUp)

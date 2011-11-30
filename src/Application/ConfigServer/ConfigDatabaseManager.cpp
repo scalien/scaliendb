@@ -1,4 +1,5 @@
 #include "ConfigDatabaseManager.h"
+#include "Application/Common/ContextTransport.h"
 #include "Framework/Replication/Quorums/QuorumDatabase.h"
 #include "Framework/Storage/StoragePageCache.h"
 #include "System/Config.h"
@@ -124,6 +125,7 @@ void ConfigDatabaseManager::SetControllers()
         controller->nodeID = nodeID;
         rb = configFile.GetListValue("controllers", nodeID, "");
         controller->endpoint.Set(rb, true);
+        controller->isConnected = CONTEXT_TRANSPORT->IsConnected(controller->nodeID);
         configState.controllers.Append(controller);
     }
 }
