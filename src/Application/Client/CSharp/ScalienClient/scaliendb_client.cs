@@ -410,14 +410,8 @@ public class scaliendb_client {
     if (scaliendb_clientPINVOKE.SWIGPendingException.Pending) throw scaliendb_clientPINVOKE.SWIGPendingException.Retrieve();
   }
 
-  public unsafe static string SDBP_GetVersion() {
-    string ret = scaliendb_clientPINVOKE.SDBP_GetVersion();
-    return ret;
-  }
-
-  public unsafe static string SDBP_GetDebugString() {
-    string ret = scaliendb_clientPINVOKE.SDBP_GetDebugString();
-    return ret;
+  public unsafe static void SDBP_SetTraceBufferSize(uint traceBufferSize) {
+    scaliendb_clientPINVOKE.SDBP_SetTraceBufferSize(traceBufferSize);
   }
 
   public unsafe static void SDBP_LogTrace(string msg) {
@@ -427,6 +421,16 @@ public class scaliendb_client {
 
   public unsafe static void SDBP_SetShardPoolSize(uint shardPoolSize) {
     scaliendb_clientPINVOKE.SDBP_SetShardPoolSize(shardPoolSize);
+  }
+
+  public unsafe static string SDBP_GetVersion() {
+    string ret = scaliendb_clientPINVOKE.SDBP_GetVersion();
+    return ret;
+  }
+
+  public unsafe static string SDBP_GetDebugString() {
+    string ret = scaliendb_clientPINVOKE.SDBP_GetDebugString();
+    return ret;
   }
 
 }

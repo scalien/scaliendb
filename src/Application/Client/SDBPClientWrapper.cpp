@@ -1027,7 +1027,7 @@ void SDBP_SetTrace(bool trace)
 
 void SDBP_SetTraceBufferSize(unsigned traceBufferSize)
 {
-    Log_Set
+    Log_SetTraceBufferSize(traceBufferSize);
 }
 
 void SDBP_SetLogFile(const std::string& filename)

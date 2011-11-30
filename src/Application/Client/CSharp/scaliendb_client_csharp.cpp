@@ -1854,23 +1854,11 @@ SWIGEXPORT void SWIGSTDCALL CSharp_SDBP_SetLogFile(char * jarg1) {
 }
 
 
-SWIGEXPORT char * SWIGSTDCALL CSharp_SDBP_GetVersion() {
-  char * jresult ;
-  std::string result;
+SWIGEXPORT void SWIGSTDCALL CSharp_SDBP_SetTraceBufferSize(unsigned int jarg1) {
+  unsigned int arg1 ;
   
-  result = SDBP_GetVersion();
-  jresult = SWIG_csharp_string_callback((&result)->c_str()); 
-  return jresult;
-}
-
-
-SWIGEXPORT char * SWIGSTDCALL CSharp_SDBP_GetDebugString() {
-  char * jresult ;
-  std::string result;
-  
-  result = SDBP_GetDebugString();
-  jresult = SWIG_csharp_string_callback((&result)->c_str()); 
-  return jresult;
+  arg1 = (unsigned int)jarg1; 
+  SDBP_SetTraceBufferSize(arg1);
 }
 
 
@@ -1892,6 +1880,26 @@ SWIGEXPORT void SWIGSTDCALL CSharp_SDBP_SetShardPoolSize(unsigned int jarg1) {
   
   arg1 = (unsigned int)jarg1; 
   SDBP_SetShardPoolSize(arg1);
+}
+
+
+SWIGEXPORT char * SWIGSTDCALL CSharp_SDBP_GetVersion() {
+  char * jresult ;
+  std::string result;
+  
+  result = SDBP_GetVersion();
+  jresult = SWIG_csharp_string_callback((&result)->c_str()); 
+  return jresult;
+}
+
+
+SWIGEXPORT char * SWIGSTDCALL CSharp_SDBP_GetDebugString() {
+  char * jresult ;
+  std::string result;
+  
+  result = SDBP_GetDebugString();
+  jresult = SWIG_csharp_string_callback((&result)->c_str()); 
+  return jresult;
 }
 
 

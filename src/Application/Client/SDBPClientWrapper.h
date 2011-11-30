@@ -206,6 +206,7 @@ int             SDBP_Cancel(ClientObj client);
 
 void            SDBP_SetTrace(bool trace);
 void            SDBP_SetLogFile(const std::string& filename);
+void            SDBP_SetTraceBufferSize(unsigned traceBufferSize);
 void            SDBP_LogTrace(const std::string& msg);
 void            SDBP_SetShardPoolSize(unsigned shardPoolSize);
 std::string     SDBP_GetVersion();
