@@ -60,7 +60,7 @@ void ConfigServerApp::SetLogStatTimeout(uint64_t timeout)
 
 void ConfigServerApp::OnLogStatTimer()
 {
-    Log_Debug("=== ConfigServer stats ===");
+    Log_Debug("=== ConfigServer stats ==>");
     Log_Debug("SDBP active: %u, inactive: %u", sdbpServer.GetNumActiveConns(), sdbpServer.GetNumInactiveConns());
     Log_Debug("HTTP active: %u, inactive: %u", httpServer.GetNumActiveConns(), httpServer.GetNumInactiveConns());
     Log_Debug("Cluster active: %u, write readyness: %u", CONTEXT_TRANSPORT->GetNumConns(), CONTEXT_TRANSPORT->GetNumWriteReadyness());
@@ -72,6 +72,7 @@ void ConfigServerApp::OnLogStatTimer()
     Log_Debug("Timers: %u", EventLoop::GetNumTimers());
     Log_Debug("Page cache size: %s, num. pages: %u", HUMAN_BYTES(StoragePageCache::GetSize()), StoragePageCache::GetNumPages());
     Log_Debug("Request cache free list size: %u", REQUEST_CACHE->GetNumFreeRequests());
+    Log_Debug("=== ConfigServer stats <==");
     EventLoop::Add(&logStatTimer);
 }
 
