@@ -257,7 +257,7 @@ void StorageRecovery::ComputeShardRecovery()
             }
             else if (fileChunk->GetMaxLogSegmentID() == itShard->recoveryLogSegmentID)
             {
-                if (fileChunk->GetMaxLogCommandID() > itShard->GetLogCommandID())
+                if (fileChunk->GetMaxLogCommandID() > itShard->recoveryLogCommandID)
                     itShard->recoveryLogCommandID = fileChunk->GetMaxLogCommandID();
             }
         }

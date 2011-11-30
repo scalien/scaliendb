@@ -38,12 +38,16 @@ bool StorageChunkMerger::Merge(
         numKeys += readers[i].GetNumKeys();
         
         // set up segment and command IDs
-        if (readers[i].GetMinLogSegmentID() < minLogSegmentID)
+        if (minLogSegmentID == 0 || readers[i].GetMinLogSegmentID() < minLogSegmentID)
             minLogSegmentID = readers[i].GetMinLogSegmentID();
         
-        if (readers[i].GetMaxLogSegmentID() >= maxLogSegmentID)
+        if (readers[i].GetMaxLogSegmentID() > maxLogSegmentID)
         {
             maxLogSegmentID = readers[i].GetMaxLogSegmentID();
+            maxLogCommandID = readers[i].GetMaxLogCommandID();
+        }
+        else if (readers[i].GetMaxLogSegmentID() == maxLogSegmentID)
+        {
             if (readers[i].GetMaxLogCommandID() > maxLogCommandID)
                 maxLogCommandID = readers[i].GetMaxLogCommandID();
         }
