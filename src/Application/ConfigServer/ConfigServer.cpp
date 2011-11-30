@@ -175,7 +175,7 @@ void ConfigServer::OnClusterMessage(uint64_t /*nodeID*/, ClusterMessage& message
     }
 }
 
-void ConfigServer::OnIncomingConnectionReady(uint64_t nodeID, Endpoint endpoint)
+void ConfigServer::OnConnectionReady(uint64_t nodeID, Endpoint endpoint)
 {
     ClusterMessage      clusterMessage;
     ConfigShardServer*  shardServer;

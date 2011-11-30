@@ -217,7 +217,7 @@ bool ClusterConnection::OnMessage(ReadBuffer& msg)
                 // the other side has a clusterID, I don't, so set mine
                 // if I'm a config server:
                 //   the clusterID also needs to be set in REPLICATON_CONFIG,
-                //   this is set in ConfigServer::OnIncomingConnectionReady()
+                //   this is set in ConfigServer::OnConnectionReady()
                 // if I'm a shard server:
                 //   the controllers will send a SetNodeID message, which
                 //   contains the clusterID, so I'll be fine

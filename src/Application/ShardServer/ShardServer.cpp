@@ -259,7 +259,7 @@ void ShardServer::OnClusterMessage(uint64_t nodeID, ClusterMessage& message)
     }
 }
 
-void ShardServer::OnIncomingConnectionReady(uint64_t /*nodeID*/, Endpoint /*endpoint*/)
+void ShardServer::OnConnectionReady(uint64_t /*nodeID*/, Endpoint /*endpoint*/)
 {
     // nothing
 }
