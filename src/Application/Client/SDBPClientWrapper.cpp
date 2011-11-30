@@ -1025,6 +1025,11 @@ void SDBP_SetTrace(bool trace)
 	}
 }
 
+void SDBP_SetTraceBufferSize(unsigned traceBufferSize)
+{
+    Log_Set
+}
+
 void SDBP_SetLogFile(const std::string& filename)
 {
     int     target;
@@ -1045,6 +1050,11 @@ void SDBP_SetLogFile(const std::string& filename)
     }
 }
 
+void SDBP_LogTrace(const std::string& msg)
+{
+    Log_Trace("Client app: %s", msg.c_str());
+}
+
 void SDBP_SetShardPoolSize(unsigned shardPoolSize)
 {
     PooledShardConnection::SetPoolSize(shardPoolSize);
@@ -1058,9 +1068,4 @@ std::string SDBP_GetVersion()
 std::string SDBP_GetDebugString()
 {
     return "Build date: " __DATE__ " " __TIME__ "\nBranch: " SOURCE_CONTROL_BRANCH "\nSource control version: " SOURCE_CONTROL_VERSION;
-}
-
-void SDBP_LogTrace(const std::string& msg)
-{
-    Log_Trace("Client app: %s", msg.c_str());
 }
