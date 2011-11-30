@@ -4,6 +4,7 @@ using System.Text;
 using System.Collections;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Threading;
 
 namespace Scalien
 {
@@ -145,8 +146,7 @@ namespace Scalien
         /// </summary>
         ~Client()
         {
-            if (cptr != null)
-                scaliendb_client.SDBP_Destroy(cptr);
+            Close();
         }
 
         /// <summary>
@@ -154,8 +154,11 @@ namespace Scalien
         /// </summary>
         public void Close()
         {
-            scaliendb_client.SDBP_Destroy(cptr);
-            cptr = null;
+            var oldPtr = Interlocked.Exchange(ref cptr, null);
+            if (oldPtr != null)
+            {
+                scaliendb_client.SDBP_Destroy(oldPtr);
+            }
         }
 
         #endregion

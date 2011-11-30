@@ -52,17 +52,17 @@
         }                       \
     } while (0)
 #else
-#define ASSERT(expr)                        \
-    do {                                    \
-        if (!(expr))                        \
-        {                                   \
-            PrintStackTrace();              \
-            bool prev = Log_SetTrace(true); \
-            Log_Trace("Failed: " #expr);    \
-            Log_Flush();                    \
-            if (prev) Log_SetTrace(false);  \
-            _exit(1);                       \
-        }                                   \
+#define ASSERT(expr)                                                            \
+    do {                                                                        \
+        if (!(expr))                                                            \
+        {                                                                       \
+            PrintStackTrace();                                                  \
+            bool prev = Log_SetTrace(true);                                     \
+            Log_Trace("Fail: " #expr);                                          \
+            Log_SetTrace(prev);                                                 \
+            Log_Flush();                                                        \
+            Error();                                                            \
+        }                                                                       \
     } while (0)
 #endif
 

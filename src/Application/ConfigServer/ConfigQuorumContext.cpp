@@ -42,7 +42,6 @@ void ConfigQuorumContext::Init(ConfigQuorumProcessor* quorumProcessor_, unsigned
         quorumProcessor->OnLearnLease();
         quorumProcessor->OnIsLeader();
     }
-
 }
 
 void ConfigQuorumContext::Append(ConfigMessage* message)
@@ -125,6 +124,11 @@ uint64_t ConfigQuorumContext::GetPaxosID()
 uint64_t ConfigQuorumContext::GetHighestPaxosID()
 {
     return highestPaxosID;
+}
+
+uint64_t ConfigQuorumContext::GetLastLearnChosenTime()
+{
+    return replicatedLog.GetLastLearnChosenTime();
 }
 
 Quorum* ConfigQuorumContext::GetQuorum()

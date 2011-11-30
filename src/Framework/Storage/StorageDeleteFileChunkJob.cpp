@@ -18,6 +18,7 @@ void StorageDeleteFileChunkJob::Execute()
     
     filename.Write(chunk->GetFilename());
     delete chunk;
+
     FS_Delete(filename.GetBuffer());
 
     sw.Stop();

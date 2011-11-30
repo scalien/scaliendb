@@ -45,6 +45,7 @@ public:
     virtual void                    SetPaxosID(uint64_t paxosID);
     virtual uint64_t                GetPaxosID();
     virtual uint64_t                GetHighestPaxosID();
+    virtual uint64_t                GetLastLearnChosenTime();
     
     virtual Quorum*                 GetQuorum();
     virtual QuorumDatabase*         GetDatabase();

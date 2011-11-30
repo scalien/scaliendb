@@ -30,6 +30,7 @@ public:
     int64_t                 GetMaster();
     uint64_t                GetQuorumID();
     uint64_t                GetPaxosID();
+    uint64_t                GetLastLearnChosenTime();
 
     unsigned                GetNumConfigMessages();
     unsigned                GetNumRequests();
@@ -79,6 +80,8 @@ private:
     ConfigQuorumContext     quorumContext;
     ConfigServer*           configServer;
     
+    bool                    leaseKnown;
+    uint64_t                leaseOwner;
     MessageList             configMessages;
     RequestList             requests;
     RequestList             listenRequests;

@@ -182,6 +182,9 @@ void ConfigureSystemSettings()
         // setting the base dir may affect the location of the log file
         InitLog();
     }
+
+    // set exit on error: this is how ASSERTs are handled in release build
+    SetExitOnError(true);
 }
 
 bool IsController()

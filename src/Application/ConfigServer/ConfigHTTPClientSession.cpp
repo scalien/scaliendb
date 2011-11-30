@@ -103,6 +103,7 @@ void ConfigHTTPClientSession::PrintStatus()
     char            hexbuf[64 + 1];
     unsigned        num;
     uint64_t        nodeID;
+    uint64_t        elapsed;
 
     session.PrintPair("ScalienDB", "Controller");
     session.PrintPair("Version", VERSION_STRING);
@@ -125,6 +126,11 @@ void ConfigHTTPClientSession::PrintStatus()
     buf.Writef("%d", (int) configServer->GetQuorumProcessor()->GetPaxosID());
     buf.NullTerminate();
     session.PrintPair("Round", buf.GetBuffer());
+
+    elapsed = (EventLoop::Now() - configServer->GetQuorumProcessor()->GetLastLearnChosenTime()) / 1000.0;
+    buf.Writef("%U", elapsed);
+    buf.NullTerminate();
+    session.PrintPair("Seconds since last replication", buf.GetBuffer());
 
     buf.Writef("%u", configServer->GetNumSDBPClients());
     buf.NullTerminate();
@@ -491,6 +497,8 @@ void ConfigHTTPClientSession::ProcessSettings()
 {
     ReadBuffer  param;
     bool        boolValue;
+    uint64_t    logStatTime;
+    uint64_t    shardSplitSize;
     
     if (HTTP_GET_OPT_PARAM(params, "trace", param))
     {
@@ -506,6 +514,26 @@ void ConfigHTTPClientSession::ProcessSettings()
         Log_SetDebug(boolValue);
         Log_Flush();
         session.PrintPair("Debug", boolValue ? "on" : "off");
+    }
+
+    if (HTTP_GET_OPT_PARAM(params, "logStatTime", param))
+    {
+        // initialize variable, because conversion may fail
+        logStatTime = 0;
+        HTTP_GET_OPT_U64_PARAM(params, "logStatTime", logStatTime);
+        // we expect logStatTime is in seconds
+        configServer->SetLogStatTimeout(logStatTime * 1000);
+        session.PrintPair("LogStatTime", INLINE_PRINTF("%u", 100, (unsigned) logStatTime));
+    }
+
+    if (HTTP_GET_OPT_PARAM(params, "shardSplitSize", param))
+    {
+        // initialize variable, because conversion may fail
+        shardSplitSize = 0;
+        HTTP_GET_OPT_U64_PARAM(params, "shardSplitSize", shardSplitSize);
+        // we expect shardSplitSize is in MegaBytes 
+        configServer->GetHeartbeatManager()->SetShardSplitSize(shardSplitSize * 1000 * 1000);
+        session.PrintPair("ShardSplitSize", INLINE_PRINTF("%u", 100, (unsigned) shardSplitSize));
     }
 
     session.Flush();

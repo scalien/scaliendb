@@ -154,6 +154,11 @@ uint64_t ShardQuorumContext::GetHighestPaxosID()
     return highestPaxosID;
 }
 
+uint64_t ShardQuorumContext::GetLastLearnChosenTime()
+{
+    return replicatedLog.GetLastLearnChosenTime();
+}
+
 Quorum* ShardQuorumContext::GetQuorum()
 {
     return &quorum;

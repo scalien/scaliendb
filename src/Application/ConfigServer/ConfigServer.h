@@ -51,7 +51,7 @@ public:
     // ClusterContext interface:
     //
     void                        OnClusterMessage(uint64_t nodeID, ClusterMessage& msg);
-    void                        OnIncomingConnectionReady(uint64_t nodeID, Endpoint endpoint);
+    void                        OnConnectionReady(uint64_t nodeID, Endpoint endpoint);
     void                        OnConnectionEnd(uint64_t nodeID, Endpoint endpoint);
     bool                        OnAwaitingNodeID(Endpoint endpoint);
     // ========================================================================================
@@ -59,6 +59,7 @@ public:
     bool                        GetControllerHTTPEndpoint(uint64_t nodeID, Endpoint& endpoint);
     void                        GetHTTPEndpoint(Endpoint& endpoint);
     unsigned                    GetNumSDBPClients();
+    void                        SetLogStatTimeout(uint64_t timeout);
 
 private:
     void                        OnBroadcastHTTPEndpoint();

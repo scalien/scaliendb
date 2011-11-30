@@ -135,6 +135,7 @@ void ShardHTTPClientSession::PrintStatus()
     ShardQuorumProcessor*       it;
     char                        hexbuf[64 + 1];
     int                         i;
+    uint64_t                    elapsed;
 
     session.PrintPair("ScalienDB", "ShardServer");
     session.PrintPair("Version", VERSION_STRING);
@@ -181,7 +182,8 @@ void ShardHTTPClientSession::PrintStatus()
         uint64_t highestPaxosID = shardServer->GetQuorumProcessor(it->GetQuorumID())->GetConfigQuorum()->paxosID;
         if (paxosID > highestPaxosID)
             highestPaxosID = paxosID;
-        valbuf.Writef("primary %U, paxosID %U/%U", primaryID, paxosID, highestPaxosID);
+        elapsed = (EventLoop::Now() - it->GetLastLearnChosenTime()) / 1000.0;
+        valbuf.Writef("primary: %U, paxosID: %U/%U, Seconds since last replication: %U", primaryID, paxosID, highestPaxosID, elapsed);
         if (it->IsCatchupActive())
         {
             valbuf.Appendf(", catchup active (sent: %s/%s, aggregate throughput: %s/s)",
@@ -365,6 +367,12 @@ void ShardHTTPClientSession::ProcessDebugCommand()
         boolValue = PARAM_BOOL_VALUE(param);
         Log_SetDebug(boolValue);
         session.PrintPair("Debug", boolValue ? "on" : "off");
+    }
+
+    if (HTTP_GET_OPT_PARAM(params, "assert", param))
+    {
+        ASSERT_FAIL();
+        // program terminates here
     }
 
     session.Flush();

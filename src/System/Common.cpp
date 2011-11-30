@@ -28,6 +28,19 @@
 #include "Buffers/Buffer.h"
 #include "Buffers/ReadBuffer.h"
 
+static bool exitOnError = false;
+
+void Error()
+{
+    if (exitOnError)
+        _exit(1);   // exit immediately
+}
+
+void SetExitOnError(bool exitOnError_)
+{
+    exitOnError = exitOnError_;
+}
+
 unsigned NumDigits(int n)
 {
     return n == 0 ? 1 : (unsigned) floor(log10((float)n) + 1);
@@ -349,6 +362,17 @@ const char* StaticPrint(const char* format, ...)
     
     va_start(ap, format);
     VWritef(buffer, sizeof(buffer), format, ap);
+    va_end(ap);
+    
+    return buffer;
+}
+
+const char* InlinePrintf(char* buffer, size_t size, const char* format, ...)
+{
+    va_list     ap;
+
+    va_start(ap, format);
+    vsnprintf(buffer, size, format, ap);
     va_end(ap);
     
     return buffer;

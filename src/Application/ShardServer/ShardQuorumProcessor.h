@@ -85,6 +85,7 @@ public:
     uint64_t                GetQuorumID();
     uint64_t                GetPaxosID();
     void                    SetPaxosID(uint64_t paxosID);
+    uint64_t                GetLastLearnChosenTime();
     ConfigQuorum*           GetConfigQuorum();
     
     // ========================================================================================

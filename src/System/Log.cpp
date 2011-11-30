@@ -12,6 +12,7 @@
 #define strerror_r(errno, buf, buflen) strerror_s(buf, buflen, errno)
 typedef unsigned __int64    uint64_t;
 typedef __int64             int64_t;
+typedef unsigned __int16    uint16_t;
 #define Log_GetThreadID() (uint64_t)(GetCurrentThreadId())
 #else
 #include <sys/time.h>
@@ -44,6 +45,11 @@ static uint64_t maxSize = 0;
 static uint64_t logFileSize = 0;
 static Mutex    logFileMutex;
 static bool     autoFlush = true;
+static unsigned traceBufferSize = 0;
+static char*    traceBuffer = NULL;
+static char*    traceBufferHead = NULL;
+static char*    traceBufferTail = NULL;
+static Mutex    traceBufferMutex;
 
 #ifdef _WIN32
 typedef char log_timestamp_t[24];
@@ -261,7 +267,7 @@ static void Log_Rotate()
     delete[] oldOldFilename;
 }
 
-static void Log_Write(const char* buf, int size, int flush)
+static void Log_Write(const char* buf, int size, int flush, bool lockMutex = true)
 {
     if ((target & LOG_TARGET_STDOUT) == LOG_TARGET_STDOUT)
     {
@@ -281,7 +287,8 @@ static void Log_Write(const char* buf, int size, int flush)
     
     if ((target & LOG_TARGET_FILE) == LOG_TARGET_FILE && logfile)
     {
-        logFileMutex.Lock();
+        if (lockMutex)
+            logFileMutex.Lock();
 
         if (buf)
             fputs(buf, logfile);
@@ -303,8 +310,180 @@ static void Log_Write(const char* buf, int size, int flush)
             }
         }
 
-        logFileMutex.Unlock();
+        if (lockMutex)
+            logFileMutex.Unlock();
     }
+}
+
+static void Log_TraceBufferAppendHead(const char* msg, size_t size)
+{
+    size_t  partSize;
+
+    if (traceBufferHead + size >= traceBuffer + traceBufferSize)
+    {
+        // handle overflow
+        partSize = traceBufferSize - (traceBufferHead - traceBuffer);
+        memcpy(traceBufferHead, msg, partSize);
+
+        traceBufferHead = traceBuffer;
+        msg += partSize;
+        size -= partSize;
+    }
+    
+    memcpy(traceBufferHead, msg, size);
+    traceBufferHead += size;
+}
+
+static bool Log_TraceBufferTailNext()
+{
+    uint16_t    tailMessageSize;
+    char        tmpSize[2];
+    char*       p;
+    bool        overflow;
+
+    overflow = false;
+
+    // move tail to start of next message
+    if ((traceBufferTail + sizeof(uint16_t)) - traceBuffer >= traceBufferSize)
+    {
+        p = traceBufferTail;
+        if (p - traceBuffer >= traceBufferSize)
+            p = traceBuffer;
+        tmpSize[0] = *p;
+        p++;
+        if (p - traceBuffer >= traceBufferSize)
+            p = traceBuffer;
+        tmpSize[1] = *p;
+        tailMessageSize = *(uint16_t*)&tmpSize;
+    }
+    else
+    {
+        tailMessageSize = *(uint16_t*)traceBufferTail;
+    }
+    traceBufferTail += tailMessageSize;
+
+    // handle overflow
+    if (traceBufferTail - traceBuffer >= traceBufferSize)
+    {
+        traceBufferTail = traceBuffer + (traceBufferTail - traceBuffer) % traceBufferSize;
+        overflow = true;
+    }
+
+    return overflow;
+}
+
+static void Log_WriteToTraceBuffer(const char* msg, int size)
+{
+    uint16_t    messageSize;
+    char*       newBufferHead;
+    bool        headOverflow;
+    bool        tailOverflow;
+    bool        tailMove;
+
+    MutexGuard  guard(traceBufferMutex);
+
+    if ((unsigned) size >= traceBufferSize)
+        return;
+
+    // initialize the head pointer if needed
+    if (traceBufferHead == NULL)
+        traceBufferHead = traceBuffer;
+
+    // we store the length of each message on two bytes
+    messageSize = (uint16_t) size + 2;
+
+    tailMove = false;
+    if (traceBufferTail != NULL)
+    {
+        headOverflow = false;
+        if (traceBufferHead + messageSize > traceBuffer + traceBufferSize)
+            headOverflow = true;
+
+        newBufferHead = traceBuffer + (traceBufferHead - traceBuffer + messageSize) % traceBufferSize;
+        if (traceBufferHead > traceBufferTail && headOverflow && newBufferHead > traceBufferTail)
+            tailMove = true;
+        if (traceBufferHead <= traceBufferTail && traceBufferHead + messageSize > traceBufferTail)
+            tailMove = true;
+    }
+
+    while (tailMove)
+    {
+        tailOverflow = Log_TraceBufferTailNext();
+        
+        tailMove = false;
+        if (traceBufferHead > traceBufferTail && headOverflow && newBufferHead > traceBufferTail)
+            tailMove = true;
+        if (traceBufferHead <= traceBufferTail && traceBufferHead + messageSize > traceBufferTail)
+            tailMove = true;
+    }
+
+    // write data to the buffer
+    Log_TraceBufferAppendHead((const char*) &messageSize, sizeof(messageSize));
+    Log_TraceBufferAppendHead((const char*) msg, size);
+
+    // initialize the tail pointer if needed
+    if (traceBufferTail == NULL)
+        traceBufferTail = traceBuffer;
+}
+
+void Log_FlushTraceBuffer()
+{
+    uint16_t    tailMessageSize;
+    size_t      partSize;
+    char*       msg;
+    char*       p;
+    char        tmpSize[2];
+
+    MutexGuard  guard(traceBufferMutex);
+
+    if (traceBufferHead == NULL)
+        return;
+
+    // write the traceBuffer atomically to the file
+    logFileMutex.Lock();
+
+    while (traceBufferTail != traceBufferHead)
+    {
+        // the two bytes of the message size overflows
+        if ((traceBufferTail + sizeof(uint16_t)) - traceBuffer >= traceBufferSize)
+        {
+            p = traceBufferTail;
+            if (p - traceBuffer >= traceBufferSize)
+                p = traceBuffer;
+            tmpSize[0] = *p;
+            p++;
+            if (p - traceBuffer >= traceBufferSize)
+                p = traceBuffer;
+            tmpSize[1] = *p;
+            tailMessageSize = *(uint16_t*)&tmpSize;
+        }
+        else
+        {
+            tailMessageSize = *(uint16_t*)traceBufferTail;
+        }
+        
+        msg = traceBufferTail + sizeof(uint16_t);
+        traceBufferTail += tailMessageSize;
+
+        if (msg + tailMessageSize >= traceBuffer + traceBufferSize)
+        {
+            partSize = traceBufferSize - (msg - traceBuffer);
+            Log_Write(msg, partSize, false, false);
+        
+            msg = traceBuffer;
+            tailMessageSize -= partSize;
+        }
+        Log_Write(msg, tailMessageSize, false, false);
+
+        // handle overflow
+        if (traceBufferTail - traceBuffer > traceBufferSize)
+            traceBufferTail = traceBuffer + (traceBufferTail - traceBuffer) % traceBufferSize;
+    }
+
+    logFileMutex.Unlock();
+
+    traceBufferHead = NULL;
+    traceBufferTail = NULL;
 }
 
 void Log_SetTimestamping(bool ts)
@@ -322,6 +501,13 @@ bool Log_SetTrace(bool trace_)
     bool prev = trace;
     
     trace = trace_;
+    if (prev == false && trace == true && traceBuffer)
+    {
+        Log_FlushTraceBuffer();
+        Log_Trace("Trace buffer was flushed.");
+        Log_Flush();
+    }
+
     return prev;
 }
 
@@ -388,6 +574,28 @@ void Log_SetMaxSize(unsigned maxSizeMB)
     maxSize = ((uint64_t)maxSizeMB) * 1000 * 1000;
 }
 
+void Log_SetTraceBufferSize(unsigned traceBufferSize_)
+{
+    MutexGuard  guard(traceBufferMutex);
+
+    if (traceBuffer)
+    {
+        free(traceBuffer);
+        traceBuffer = NULL;
+    }
+
+    traceBufferHead = NULL;
+    traceBufferTail = NULL;
+    traceBufferSize = traceBufferSize_;
+    if (traceBufferSize == 0)
+        return;
+
+    traceBuffer = (char*) malloc(traceBufferSize);
+    // put a terminating zero at the end of the buffer
+    traceBufferSize -= 1;
+    traceBuffer[traceBufferSize] = 0;
+}
+
 void Log_Flush()
 {
     Log_Write(NULL, 0, true);
@@ -423,12 +631,13 @@ void Log(const char* file, int line, const char* func, int type, const char* fmt
     int         ret;
     va_list     ap;
     uint64_t    threadID;
+    int         size;
 
     // In debug mode enable ERRNO type messages
-    if ((type == LOG_TYPE_TRACE || type == LOG_TYPE_ERRNO) && !trace)
+    if ((type == LOG_TYPE_TRACE || type == LOG_TYPE_ERRNO) && !trace && traceBuffer == NULL)
         return;
 
-    if ((type == LOG_TYPE_DEBUG) && !debug)
+    if ((type == LOG_TYPE_DEBUG) && !debug && traceBuffer == NULL)
         return;
 
     buf[maxLine - 1] = 0;
@@ -549,8 +758,18 @@ void Log(const char* file, int line, const char* func, int type, const char* fmt
     }
 
     Log_Append(p, remaining, "\n", 2);
+    size = maxLine - remaining - 1;
+    if (!trace)
+        Log_WriteToTraceBuffer(buf, size);
+
+    if ((type == LOG_TYPE_TRACE || type == LOG_TYPE_ERRNO) && !trace)
+        return;
+
+    if ((type == LOG_TYPE_DEBUG) && !debug)
+        return;
+
     if (autoFlush)
-        Log_Write(buf, maxLine - remaining, type != LOG_TYPE_TRACE && type != LOG_TYPE_DEBUG);
+        Log_Write(buf, size, type != LOG_TYPE_TRACE && type != LOG_TYPE_DEBUG);
     else
-        Log_Write(buf, maxLine - remaining, false);
+        Log_Write(buf, size, false);
 }

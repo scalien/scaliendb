@@ -6,6 +6,12 @@
 
 static Buffer dummy;
 
+ReplicatedLog::ReplicatedLog()
+{
+    canaryTimer.SetCallable(MFUNC(ReplicatedLog, OnCanaryTimeout));
+    canaryTimer.SetDelay(CANARY_TIMEOUT);
+}
+
 void ReplicatedLog::Init(QuorumContext* context_)
 {
     Log_Trace();
@@ -19,8 +25,11 @@ void ReplicatedLog::Init(QuorumContext* context_)
     acceptor.Init(context);
 
     lastRequestChosenTime = 0;
+    lastLearnChosenTime = 0;
     commitChaining = false;
     alwaysUseDatabaseCatchup = false;
+
+    EventLoop::Add(&canaryTimer);
     
     dummy.Write("dummy");
 }
@@ -55,6 +64,11 @@ bool ReplicatedLog::GetAsyncCommit()
     return acceptor.GetAsyncCommit();
 }
 
+uint64_t ReplicatedLog::GetLastLearnChosenTime()
+{
+    return lastLearnChosenTime;
+}
+
 void ReplicatedLog::SetAlwaysUseDatabaseCatchup(bool alwaysUseDatabaseCatchup_)
 {
     alwaysUseDatabaseCatchup = alwaysUseDatabaseCatchup_;
@@ -85,10 +99,11 @@ void ReplicatedLog::TryAppendDummy()
 {
     Log_Trace();
     
+    proposer.SetUseTimeouts(true);
+
     if (proposer.IsActive())
         return;
-
-    proposer.SetUseTimeouts(true);
+    
     Append(dummy);
 #ifdef RLOG_DEBUG_MESSAGES
     Log_Debug("Appending DUMMY!");
@@ -138,6 +153,7 @@ void ReplicatedLog::NewPaxosRound()
 {
     EventLoop::Remove(&(proposer.prepareTimeout));
     EventLoop::Remove(&(proposer.proposeTimeout));
+    EventLoop::Remove(&(proposer.restartTimeout));
 
     paxosID++;
     proposer.state.OnNewPaxosRound();
@@ -162,6 +178,7 @@ void ReplicatedLog::OnMessage(PaxosMessage& imsg)
     Log_Trace();
     bool processed;
 
+    processed = false;
     if (imsg.type == PAXOS_PREPARE_REQUEST)
         processed = OnPrepareRequest(imsg);
     else if (imsg.IsPrepareResponse())
@@ -362,7 +379,8 @@ bool ReplicatedLog::OnLearnChosen(PaxosMessage& imsg)
         RequestChosen(imsg.nodeID);
         return true;
     }
-        
+    
+    lastLearnChosenTime = EventLoop::Now();
     ProcessLearnChosen(imsg.nodeID, runID);
 
 #ifdef RLOG_DEBUG_MESSAGES
@@ -420,6 +438,14 @@ bool ReplicatedLog::OnStartCatchup(PaxosMessage& imsg)
         context->OnStartCatchup();
 
     return true;
+}
+
+void ReplicatedLog::OnCanaryTimeout()
+{
+    if (context->IsLeaseOwner() && !IsAppending())
+        TryAppendDummy();
+
+    EventLoop::Add(&canaryTimer);
 }
 
 void ReplicatedLog::ProcessLearnChosen(uint64_t nodeID, uint64_t runID)

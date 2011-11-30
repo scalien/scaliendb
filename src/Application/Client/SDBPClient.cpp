@@ -4,6 +4,8 @@
 #include "SDBPShardConnection.h"
 #include "SDBPPooledShardConnection.h"
 #include "SDBPClientConsts.h"
+#include "System/Common.h"
+#include "System/Macros.h"
 #include "System/IO/IOProcessor.h"
 #include "System/Threading/ThreadPool.h"
 #include "System/Threading/LockGuard.h"
@@ -1997,6 +1999,9 @@ void Client::IOThreadFunc()
 {
     long    sleep;
 
+    Log_SetTimestamping(true);
+    Log_SetThreadedOutput(true);
+    Log_SetTraceBufferSize(32 * 1024 * 1024);
     Log_Debug("IOThreadFunc started: %U", ThreadPool::GetThreadID());
 
     EventLoop::Start();

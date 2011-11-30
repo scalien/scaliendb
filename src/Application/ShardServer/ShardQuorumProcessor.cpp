@@ -140,6 +140,11 @@ void ShardQuorumProcessor::SetPaxosID(uint64_t paxosID)
     quorumContext.SetPaxosID(paxosID);
 }
 
+uint64_t ShardQuorumProcessor::GetLastLearnChosenTime()
+{
+    return quorumContext.GetLastLearnChosenTime();
+}
+
 ConfigQuorum* ShardQuorumProcessor::GetConfigQuorum()
 {
     return CONFIG_STATE->GetQuorum(GetQuorumID());

@@ -23,6 +23,11 @@ void ConfigHeartbeatManager::Shutdown()
     heartbeats.DeleteList();
 }
 
+void ConfigHeartbeatManager::SetShardSplitSize(uint64_t shardSplitSize_)
+{
+    shardSplitSize = shardSplitSize_;
+}
+
 void ConfigHeartbeatManager::OnHeartbeatMessage(ClusterMessage& message)
 {
     QuorumInfo*         it;
