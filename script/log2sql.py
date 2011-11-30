@@ -5,8 +5,9 @@ import signal
 import string
 
 FILTER = False
+KEYSONLY = True
 
-def write_command(data, context_id, shard_id):
+def write_command(data, context_id, shard_id, log_command_id):
 	command = data[0]
 	use_previous = data[1]
 	nread = 2
@@ -27,7 +28,10 @@ def write_command(data, context_id, shard_id):
 		if FILTER and context_id != 3:
 			pass
 		else:
-			print("INSERT INTO kv VALUES (%d, %d, '%s', '%s');" % (context_id, shard_id, key, val))
+			if KEYSONLY:
+				print("INSERT INTO kv VALUES (%d, %d, '%s'); -- logCommandID: %d" % (context_id, shard_id, key, log_command_id))
+			else:
+				print("INSERT INTO kv VALUES (%d, %d, '%s', '%s'); -- logCommandID: %d" % (context_id, shard_id, key, val, log_command_id))
 	elif command == "d":
 		# DELETE command
 		keylen, = struct.unpack("<H", data[nread:nread+2])
@@ -38,15 +42,19 @@ def write_command(data, context_id, shard_id):
 		if FILTER and context_id != 3:
 			pass
 		else:
-			print("DELETE FROM kv WHERE context_id=%d AND shard_id=%d AND k='%s';" % (context_id, shard_id, key))
+			print("DELETE FROM kv WHERE context_id=%d AND shard_id=%d AND k='%s'; -- logCommandID: %d" % (context_id, shard_id, key, log_command_id))
+	else:
+		print("-- UNKNOWN command")
 	return nread, context_id, shard_id
 
-def write_sql_commands(data):
+def write_sql_commands(data, log_command_id):
 	context_id = 0
 	shard_id = 0
 	while len(data) > 0:
-		nread, context_id, shard_id = write_command(data, context_id, shard_id)
+		nread, context_id, shard_id = write_command(data, context_id, shard_id, log_command_id)
 		data = data[nread:]
+		log_command_id += 1
+	return log_command_id
 
 if __name__ == "__main__":
 	filename = sys.argv[1]
@@ -61,14 +69,16 @@ if __name__ == "__main__":
 		sql_filename = archive_name.replace("log.", "sql.")
 		sql_file = open(sql_filename, "w+")
 		sys.stdout = sql_file
+
 	f = open(archive_name, "r")
-	data = f.read(8)
-	log_segment_id,  = struct.unpack("<Q", data)
-                    
-	while True:     
-		data = f.read(8)
+	data = f.read(12)
+	version, log_segment_id,  = struct.unpack("<IQ", data)
+	print("-- version: %d, logSegmentID: %d" % (version, log_segment_id))
+	log_command_id = 1
+	while True:
+		data = f.read(20)
 		if data == "":
 			break
-		size, crc = struct.unpack("<II", data)
-		data = f.read(size - 8)
-		write_sql_commands(data)
+		size, size2, crc = struct.unpack("<QQI", data)
+		data = f.read(size - 20)
+		log_command_id = write_sql_commands(data, log_command_id)
