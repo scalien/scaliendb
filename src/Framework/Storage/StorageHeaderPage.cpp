@@ -1,6 +1,6 @@
 #include "StorageHeaderPage.h"
 
-StorageHeaderPage::StorageHeaderPage(StorageFileChunk* owner_)
+StorageHeaderPage::StorageHeaderPage()
 {
     chunkID = 0;
     minLogSegmentID = 0;
@@ -13,7 +13,6 @@ StorageHeaderPage::StorageHeaderPage(StorageFileChunk* owner_)
     bloomPageOffset = 0;
     bloomPageSize = 0;
     merged = false;
-    owner = owner_;
 }
 
 uint32_t StorageHeaderPage::GetSize()

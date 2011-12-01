@@ -25,6 +25,8 @@ public:
     StorageDataPage(StorageFileChunk* owner, uint32_t index);
     ~StorageDataPage();
 
+    void                    SetOwner(StorageFileChunk* owner);
+
     uint32_t                GetSize();
     uint32_t                GetMemorySize();
     uint32_t                GetCompressedSize();
@@ -35,6 +37,7 @@ public:
     uint32_t                GetNumKeys();
     uint32_t                GetLength();
     uint32_t                GetIncrement(StorageKeyValue* kv);
+    uint32_t                GetIndex();
     
     void                    Append(StorageKeyValue* kv, bool keysOnly = false);
     void                    Finalize();

@@ -9,6 +9,12 @@ StorageBloomPage::StorageBloomPage(StorageFileChunk* owner_)
     owner = owner_;
 }
 
+void StorageBloomPage::SetOwner(StorageFileChunk* owner_)
+{
+    ASSERT(owner == NULL);
+    owner = owner_;
+}
+
 uint32_t StorageBloomPage::GetSize()
 {
     return size;
