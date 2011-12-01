@@ -32,7 +32,16 @@ void InCache<T>::Init(uint64_t size)
 template<class T>
 void InCache<T>::Shutdown()
 {
-    freeList.DeleteList();
+    T*  t;
+
+    // TODO: HACK because all elems in the list are already destroyed, 
+    // we need to call the contstructors before deleting the cache
+    FOREACH_FIRST (t, freeList)
+    {
+        freeList.Remove(t);
+        new(t) T;
+        delete t;
+    }
 }
 
 template<class T>
