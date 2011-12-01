@@ -1013,7 +1013,7 @@ void SDBP_SetTrace(bool trace)
         Log_SetDebug(true);
         Log_SetTimestamping(true);
         Log_SetThreadedOutput(true);
-		Log_SetTarget(LOG_TARGET_STDERR);
+		Log_SetTarget(Log_GetTarget() | LOG_TARGET_STDERR);
 	}
 	else
 	{
