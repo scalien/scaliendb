@@ -45,6 +45,7 @@ private:
     bool                    WriteBloomPage();
     
     bool                    IsDone();
+    StorageFileKeyValue*    GetSmallest();
     StorageFileKeyValue*    Next(ReadBuffer& lastKey);
 
     FDGuard                 fd;
