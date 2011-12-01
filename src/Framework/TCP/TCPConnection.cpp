@@ -131,7 +131,7 @@ void TCPConnection::TryFlush()
 {
     if (state == DISCONNECTED || tcpwrite.active || writeBuffers[writeIndex].GetLength() == 0)
     {
-        Log_Trace("Not flushing, fd = %d", tcpwrite.fd);
+        Log_Trace("Not flushing, fd = %d", (int) tcpwrite.fd);
         return;
     }
 
@@ -142,7 +142,7 @@ void TCPConnection::TryFlush()
     tcpwrite.SetBuffer(&writeBuffers[1 - writeIndex]);
     tcpwrite.transferred = 0;
     IOProcessor::Add(&tcpwrite);
-    Log_Trace("Flushing, added tcpwrite, fd = %d", tcpwrite.fd);
+    Log_Trace("Flushing, added tcpwrite, fd = %d", (int) tcpwrite.fd);
 }
 
 void TCPConnection::Init(bool startRead)
