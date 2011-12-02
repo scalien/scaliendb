@@ -120,8 +120,8 @@ void ConfigPrimaryLeaseManager::OnRequestPrimaryLease(ClusterMessage& message)
     {
         if (primaryLease->quorumID == message.quorumID && primaryLease->nodeID != message.nodeID)
         {
-            Log_Trace("nodeID %U requesting lease for quorum %U, \
-             but found non-expired lease for that quorum for node %U",
+            Log_Trace("nodeID %U requesting lease for quorum %U, "
+             "but found non-expired lease for that quorum for node %U",
              message.nodeID, message.quorumID, primaryLease->nodeID);
             return;
         }
