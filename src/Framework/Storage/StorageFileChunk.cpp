@@ -5,7 +5,17 @@
 #include "StorageEnvironment.h"
 #include "StorageAsyncGet.h"
 
-StorageFileChunk::StorageFileChunk() : headerPage(this)
+StorageFileChunk::StorageFileChunk()
+{
+    Init();
+}
+
+StorageFileChunk::~StorageFileChunk()
+{
+    Close();
+}
+
+void StorageFileChunk::Init()
 {
     prev = next = this;
     written = false;
@@ -18,12 +28,10 @@ StorageFileChunk::StorageFileChunk() : headerPage(this)
     fileSize = 0;
     useCache = true;
     deleted = false;
-    isBloomPageLoading = false;
-    isIndexPageLoading = false;
     fd = INVALID_FD;
 }
 
-StorageFileChunk::~StorageFileChunk()
+void StorageFileChunk::Close()
 {
     unsigned    i;
     
@@ -34,20 +42,12 @@ StorageFileChunk::~StorageFileChunk()
     {
         if (dataPages[i] != NULL)
         {
-//            if (dataPages[i]->IsCached())
-//                StoragePageCache::RemovePage(dataPages[i]);
-
             delete dataPages[i];
         }
     }
     free(dataPages);
     
-//    if (indexPage && indexPage->IsCached())
-//        StoragePageCache::RemovePage(indexPage);
     delete indexPage;
-    
-//    if (bloomPage && bloomPage->IsCached())
-//        StoragePageCache::RemovePage(bloomPage);
     delete bloomPage;
 }
 
@@ -543,7 +543,7 @@ StoragePage* StorageFileChunk::AsyncLoadBloomPage()
     uint64_t            offset;
     StorageBloomPage*   page;
     
-    if (isBloomPageLoading || bloomPage != NULL)
+    if (bloomPage != NULL)
         return NULL;
     
     Log_Debug("async loading bloom page: %U, cache size: %U, cache num: %u", GetChunkID(), StoragePageCache::GetSize(), StoragePageCache::GetNumPages());
@@ -551,8 +551,7 @@ StoragePage* StorageFileChunk::AsyncLoadBloomPage()
     if (fd == INVALID_FD)
         OpenForReading();
     
-    isBloomPageLoading = true;
-    page = new StorageBloomPage(this);
+    page = new StorageBloomPage(NULL);
     offset = headerPage.GetBloomPageOffset();
     page->SetOffset(offset);
     if (!ReadPage(offset, buffer))
@@ -582,7 +581,7 @@ StoragePage* StorageFileChunk::AsyncLoadIndexPage()
     uint64_t            offset;
     StorageIndexPage*   page;
     
-    if (isIndexPageLoading || indexPage != NULL)
+    if (indexPage != NULL)
         return NULL;
 
     Log_Debug("async loading index page: %U, cache size: %U, cache num: %u", GetChunkID(), StoragePageCache::GetSize(), StoragePageCache::GetNumPages());
@@ -590,8 +589,7 @@ StoragePage* StorageFileChunk::AsyncLoadIndexPage()
     if (fd == INVALID_FD)
         OpenForReading();
 
-    isIndexPageLoading = true;
-    page = new StorageIndexPage(this);
+    page = new StorageIndexPage(NULL);
     offset = headerPage.GetIndexPageOffset();
     page->SetOffset(offset);
     if (!ReadPage(offset, buffer))
@@ -620,7 +618,7 @@ StoragePage* StorageFileChunk::AsyncLoadDataPage(uint32_t index, uint64_t offset
     Buffer              buffer;
     StorageDataPage*    page;
     
-    if (dataPages[index] != NULL)
+    if (dataPages != NULL && dataPages[index] != NULL)
         return NULL;
     
 //    Log_Debug("async loading data page, chunk:%u, index: %u", headerPage.GetChunkID(), index);
@@ -628,7 +626,7 @@ StoragePage* StorageFileChunk::AsyncLoadDataPage(uint32_t index, uint64_t offset
     if (fd == INVALID_FD)
         OpenForReading();
     
-    page = new StorageDataPage(this, index);
+    page = new StorageDataPage(NULL, index);
     page->SetOffset(offset);
     if (!ReadPage(offset, buffer))
     {
@@ -647,6 +645,45 @@ StoragePage* StorageFileChunk::AsyncLoadDataPage(uint32_t index, uint64_t offset
     }
 
     return page;
+}
+
+void StorageFileChunk::SetBloomPage(StorageBloomPage* bloomPage_)
+{
+    ASSERT(bloomPage == NULL);
+
+    bloomPage = bloomPage_;
+    bloomPage->SetOwner(this);
+    if (useCache)
+        StoragePageCache::AddMetaPage(bloomPage);
+}
+
+void StorageFileChunk::SetIndexPage(StorageIndexPage* indexPage_)
+{
+    ASSERT(indexPage == NULL);
+
+    indexPage = indexPage_;
+    indexPage->SetOwner(this);
+    if (useCache)
+        StoragePageCache::AddMetaPage(indexPage);
+
+    if (dataPages == NULL)
+    {
+        numDataPages = indexPage->GetNumDataPages();
+        AllocateDataPageArray();
+    }
+}
+
+void StorageFileChunk::SetDataPage(StorageDataPage* dataPage)
+{
+    uint32_t    index;
+
+    ASSERT(dataPages != NULL && dataPages[dataPage->GetIndex()] == NULL);
+
+    index = dataPage->GetIndex();
+    dataPages[index] = dataPage;
+    dataPage->SetOwner(this);
+    if (useCache)
+        StoragePageCache::AddDataPage(dataPage);
 }
 
 bool StorageFileChunk::RangeContains(ReadBuffer key)

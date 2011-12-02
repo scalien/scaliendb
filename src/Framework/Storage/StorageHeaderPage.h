@@ -20,7 +20,7 @@ class StorageFileChunk;
 class StorageHeaderPage : public StoragePage
 {
 public:
-    StorageHeaderPage(StorageFileChunk* owner);
+    StorageHeaderPage();
 
     uint32_t            GetSize();
     uint32_t            GetMemorySize();

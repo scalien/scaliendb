@@ -40,6 +40,7 @@ TEST_ADD(TestConfigStateJSON);
 TEST_ADD(TestEndpointValidity);
 TEST_ADD(TestFileSystemDiskSpace);
 TEST_ADD(TestFileSystemFileSize);
+TEST_ADD(TestFormattingFD);
 TEST_ADD(TestFormattingUnsigned);
 TEST_ADD(TestFormattingPadding);
 TEST_ADD(TestInTreeMap);

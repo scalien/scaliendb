@@ -38,12 +38,16 @@ bool StorageChunkMerger::Merge(
         numKeys += readers[i].GetNumKeys();
         
         // set up segment and command IDs
-        if (readers[i].GetMinLogSegmentID() < minLogSegmentID)
+        if (minLogSegmentID == 0 || readers[i].GetMinLogSegmentID() < minLogSegmentID)
             minLogSegmentID = readers[i].GetMinLogSegmentID();
         
-        if (readers[i].GetMaxLogSegmentID() >= maxLogSegmentID)
+        if (readers[i].GetMaxLogSegmentID() > maxLogSegmentID)
         {
             maxLogSegmentID = readers[i].GetMaxLogSegmentID();
+            maxLogCommandID = readers[i].GetMaxLogCommandID();
+        }
+        else if (readers[i].GetMaxLogSegmentID() == maxLogSegmentID)
+        {
             if (readers[i].GetMaxLogCommandID() > maxLogCommandID)
                 maxLogCommandID = readers[i].GetMaxLogCommandID();
         }
@@ -361,62 +365,65 @@ bool StorageChunkMerger::IsDone()
     return false;
 }
 
-StorageFileKeyValue* StorageChunkMerger::Next(ReadBuffer& lastKey)
+#define ADVANCE_ITERATOR(i) iterators[i] = readers[i].Next(iterators[i])
+
+StorageFileKeyValue* StorageChunkMerger::GetSmallest()
 {
     unsigned                i;
-    unsigned                smallest;
-    StorageFileKeyValue*    it;
-    ReadBuffer              key;
-    
-Restart:
-    key.Reset();
-    it = NULL;
-    smallest = 0;
+    unsigned                smallestIndex;
+    ReadBuffer              smallestKey;
+    StorageFileKeyValue*    smallestKv;
+    int                     cmpres;
 
+    smallestKv = NULL;
     // readers are sorted by relevance, first is the oldest, last is the latest
     for (i = 0; i < numReaders; i++)
     {
-        if (iterators[i] != NULL) 
+        if (iterators[i] == NULL)
+            continue;
+
+        // do the comparison
+        if (smallestKey.GetLength() == 0)
+            cmpres = -1;
+        else
+            cmpres = ReadBuffer::Cmp(iterators[i]->GetKey(), smallestKey);
+
+        if (cmpres <= 0)
         {
-            // check that keys are still in the merged interval
-            if (lastKey.GetLength() > 0 && 
-             ReadBuffer::Cmp(iterators[i]->GetKey(), lastKey) >= 0)
-            {
-                iterators[i] = NULL;
-                continue;
-            }
-            
-            // in case of key equality, the reader with the highest chunkID wins
-            if (it != NULL && ReadBuffer::Cmp(iterators[i]->GetKey(), key) == 0)
-            {
-                // in case of DELETE, restart scanning from the first reader
-                if (iterators[i]->GetType() == STORAGE_KEYVALUE_TYPE_DELETE)
-                {
-                    iterators[smallest] = readers[smallest].Next(iterators[smallest]);
-                    iterators[i] = readers[i].Next(iterators[i]);
-                    goto Restart;
-                }
-            
-                iterators[smallest] = readers[smallest].Next(iterators[smallest]);
-                it = iterators[i];                
-                smallest = i;
-                continue;
-            }
-            
-            // find the next smallest key
-            if (STORAGE_KEY_LESS_THAN(iterators[i]->GetKey(), key) &&
-             iterators[i]->GetType() != STORAGE_KEYVALUE_TYPE_DELETE)
-            {
-                it = iterators[i];
-                key = it->GetKey();
-                smallest =  i;
-            }
+            // advance the previously smallest if it is equal to the current
+            // because it is less relevant
+            if (smallestKv != NULL && cmpres == 0)
+                ADVANCE_ITERATOR(smallestIndex);
+            smallestKv = iterators[i];
+            smallestIndex = i;
+            smallestKey = smallestKv->GetKey();
         }
     }
 
     // make progress in the reader that contained the smallest key
-    if (it != NULL)
-        iterators[smallest] = readers[smallest].Next(iterators[smallest]);
-    
-    return it;
+    if (smallestKv != NULL)
+        ADVANCE_ITERATOR(smallestIndex);
+
+    return smallestKv;
+}
+
+StorageFileKeyValue* StorageChunkMerger::Next(ReadBuffer& lastKey)
+{
+    StorageFileKeyValue*    kv;
+
+    while (true)
+    {
+        kv = GetSmallest();
+        if (kv == NULL)
+            return NULL;    // reached the end of all chunkfiles
+
+        // check that keys are still in the merged interval
+        if (lastKey.GetLength() > 0 && ReadBuffer::Cmp(kv->GetKey(), lastKey) >= 0)
+            return NULL;
+
+        if (kv->GetType() == STORAGE_KEYVALUE_TYPE_SET)
+            return kv;
+    }
+
+    return NULL;
 }

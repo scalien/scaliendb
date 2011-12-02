@@ -72,12 +72,19 @@ namespace ScalienClientUnitTesting
             public List<Int64> shards;
         }
 
+        public class Database
+        {
+            public Int64 databaseID;
+            public string name;
+            public List<Int64> tables;
+        }
+
         public Int64 paxosID;
         public Int64 master;
 
         public List<Controller> controllers;
         public List<Quorum> quorums;
-        // databases
+        public List<Database> databases;
         public List<Table> tables;
         public List<Shard> shards;
         public List<ShardServer> shardServers;

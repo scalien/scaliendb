@@ -24,6 +24,9 @@ public:
     StorageFileChunk();
     ~StorageFileChunk();
 
+    void                Init();
+    void                Close();
+
     void                ReadHeaderPage();
 
     void                SetFilename(ReadBuffer filename);
@@ -69,6 +72,10 @@ public:
     StoragePage*        AsyncLoadIndexPage();
     StoragePage*        AsyncLoadDataPage(uint32_t index, uint64_t offset);
 
+    void                SetBloomPage(StorageBloomPage* bloomPage);
+    void                SetIndexPage(StorageIndexPage* indexPage);
+    void                SetDataPage(StorageDataPage* dataPage);
+
     bool                RangeContains(ReadBuffer key);
 
     void                AppendDataPage(StorageDataPage* dataPage);
@@ -87,8 +94,6 @@ public:
     uint32_t            numDataPages;
     uint32_t            dataPagesSize;
     StorageDataPage**   dataPages;
-    bool                isBloomPageLoading;
-    bool                isIndexPageLoading;
     uint64_t            fileSize;
 
 private:

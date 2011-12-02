@@ -3,9 +3,11 @@
 
 #include "System/Buffers/ReadBuffer.h"
 #include "System/Events/Callable.h"
+#include "StorageFileChunk.h"
 
+class StorageEnvironment;
 class StorageShard;
-class StorageChunk;
+class StorageFileChunk;
 class StoragePage;
 class ThreadPool;
 
@@ -36,14 +38,20 @@ public:
     Callable            onComplete;
     uint32_t            index;
     uint64_t            offset;
-    StorageShard*       shard;
-    StorageChunk**      itChunk;
     StoragePage*        lastLoadedPage;
     ThreadPool*         threadPool;
+    uint16_t            contextID;
+    uint64_t            shardID;
+    uint64_t            chunkID;
+    StorageEnvironment* env;
+    StorageFileChunk    loaderFileChunk;
     
     StorageAsyncGet();
-    
+
+	StorageChunk**		GetChunkIterator(StorageShard* shard);
     void                ExecuteAsyncGet();
+    void                SetLastLoadedPage(StorageFileChunk* fileChunk);
+    void                SetupLoaderFileChunk(StorageFileChunk* fileChunk);
     void                OnComplete();
     void                AsyncLoadPage();
 };

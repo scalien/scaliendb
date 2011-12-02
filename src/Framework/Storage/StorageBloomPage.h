@@ -19,18 +19,20 @@ class StorageBloomPage : public StoragePage
 public:
     StorageBloomPage(StorageFileChunk* owner);
 
-    uint32_t            GetSize();
-    uint32_t            GetMemorySize();
+    void                SetOwner(StorageFileChunk* owner);
+
+    virtual uint32_t    GetSize();
+    virtual uint32_t    GetMemorySize();
 
     void                SetNumKeys(uint64_t numKeys);
     void                Add(ReadBuffer key);
     
     bool                Read(Buffer& buffer);
-    void                Write(Buffer& buffer);
+    virtual void        Write(Buffer& buffer);
     
     bool                Check(ReadBuffer& key);
 
-    void                Unload();
+    virtual void        Unload();
 
 private:
     uint32_t            RecommendNumBytes(uint32_t numKeys);

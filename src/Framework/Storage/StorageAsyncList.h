@@ -101,6 +101,7 @@ public:
     bool                    IsDone();
     bool                    IsAborted();
     void                    SetAborted(bool aborted);
+    StorageFileKeyValue*    GetSmallest();
     StorageFileKeyValue*    Next();
 };
 

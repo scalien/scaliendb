@@ -36,6 +36,7 @@ void ReplicatedLog::Init(QuorumContext* context_)
 
 void ReplicatedLog::Shutdown()
 {
+    EventLoop::Remove(&canaryTimer);
     proposer.Shutdown();
 }
 

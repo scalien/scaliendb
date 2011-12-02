@@ -98,7 +98,6 @@ namespace ScalienClientUnitTesting
     [TestClass]
     public class ConsistencyTests
     {
-        private static uint SHARDSERVER_HTTP_PORT = 8090;
         private static int COUNT_TIMEOUT = 120 * 1000;
 
         [TestMethod]
@@ -157,7 +156,7 @@ namespace ScalienClientUnitTesting
         {
             var threads = new ListerThreadState[shardServers.Count];
             var serverKeys = new string[shardServers.Count][];
-            var listGranularity = 100 * 1000;
+            var listGranularity = 100 * 1000 + 1;
 
             var i = 0;
             foreach (var shardServer in shardServers)
@@ -205,7 +204,13 @@ namespace ScalienClientUnitTesting
                         {
                             var a = serverKeys[i][j];
                             var b = serverKeys[0][j];
-                            Assert.IsTrue(a == b);
+                            if (a == b)
+                                continue;
+                            //Assert.IsTrue(a == b);
+                            System.Console.WriteLine("Inconsistency at tableID: " + tableID);
+                            System.Console.WriteLine("NodeID: " + shardServers.ElementAt(i).nodeID + ", key: " + a);
+                            System.Console.WriteLine("NodeID: " + shardServers.ElementAt(0).nodeID + ", key: " + b);
+                            return;
                         }
                     }
                 }
@@ -216,6 +221,57 @@ namespace ScalienClientUnitTesting
                 startKey = serverKeys[0][serverKeys[0].Length - 1];
                 System.Console.WriteLine("StartKey: " + startKey);
             }
+        }
+        
+        public static void CompareNumericTableKeysHTTP(List<ConfigState.ShardServer> shardServers, Int64 tableID, ulong num)
+        {
+            var serverKeys = new string[shardServers.Count][];
+            var startKey = "";
+            var endKey = Utils.Id(num);
+            ulong counter = 0;
+            while (true)
+            {
+                serverKeys = ParallelFetchTableKeysHTTP(shardServers, tableID, startKey, endKey);
+                var referenceKeys = GenerateNumericKeys(counter, (ulong) serverKeys[0].Length);
+
+                for (var i = 0; i < serverKeys.Length; i++)
+                {
+                    if (!serverKeys[i].SequenceEqual(referenceKeys))
+                    {
+                        for (var j = 0; j < Math.Max(serverKeys[i].Length, referenceKeys.Length); j++)
+                        {
+                            var a = serverKeys[i][j];
+                            var b = referenceKeys[j];
+                            if (a == b)
+                                continue;
+                            //Assert.IsTrue(a == b);
+                            System.Console.WriteLine("Inconsistency at tableID: " + tableID);
+                            System.Console.WriteLine("NodeID: " + shardServers.ElementAt(i).nodeID + ", key: " + a);
+                            return;
+                        }
+                    }
+                }
+
+                if (serverKeys[0].Length <= 1)
+                    break;
+
+                startKey = serverKeys[0][serverKeys[0].Length - 1];
+                counter += (ulong) referenceKeys.Length - 1;
+                System.Console.WriteLine("StartKey: " + startKey);
+            }
+        }
+
+        public static string[] GenerateNumericKeys(ulong start, ulong count)
+        {
+            var keys = new string[count];
+
+            for (ulong i = 0; i < count; i++)
+            {
+                var key = start + i;
+                keys[i] = Utils.Id(key);
+            }
+
+            return keys;
         }
 
         public static string[] GetTableKeysHTTP(string url)
@@ -337,18 +393,19 @@ namespace ScalienClientUnitTesting
             return shards;
         }
 
-        public static List<ConfigState.ShardServer> GetShardServersByTable(ConfigState.Table table, List<ConfigState.ShardServer> allShardServers)
+        public static List<ConfigState.ShardServer> GetShardServersByTable(ConfigState.Table table, ConfigState configState)
         {
             var shardServers = new List<ConfigState.ShardServer>();
 
-            foreach (var shardServer in allShardServers)
+            foreach (var quorum in configState.quorums)
             {
-                foreach (var info in shardServer.quorumShardInfos)
+                if (quorum.shards.Intersect(table.shards).Sum() > 0)
                 {
-                    if (table.shards.Contains(info.shardID))
+                    var quorumServers = GetQuorumActiveShardServers(configState, quorum);
+                    foreach (var quorumServer in quorumServers)
                     {
-                        shardServers.Add(shardServer);
-                        break;
+                        if (!shardServers.Contains(quorumServer))
+                            shardServers.Add(quorumServer);
                     }
                 }
             }
@@ -367,6 +424,119 @@ namespace ScalienClientUnitTesting
         public static string GetShardServerURL(ConfigState.ShardServer shardServer)
         {
             return "http://" + GetEndpointWithPort(shardServer.endpoint, shardServer.httpPort) + "/";
+        }
+
+        public static bool TryDeleteDatabase(Client client, string databaseName)
+        {
+            try
+            {
+                var database = client.GetDatabase(databaseName);
+                try
+                {
+                    database.DeleteDatabase();
+                    return true;
+                }
+                catch (SDBPException)
+                {
+                    return false;
+                }
+            }
+            catch (SDBPException)
+            {
+                return true;
+            }
+        }
+
+        public static Database TryCreateDatabase(Client client, string databaseName)
+        {
+            try
+            {
+                var database = client.CreateDatabase(databaseName);
+                return database;
+            }
+            catch (SDBPException)
+            {
+                return null;
+            }
+        }
+
+        public static Table TryCreateTable(Database database, string tableName)
+        {
+            try
+            {
+                var table = database.CreateTable(tableName);
+                return table;
+            }
+            catch (SDBPException)
+            {
+                return null;
+            }
+        }
+
+        public static void FillDatabaseWithNumericKeys(string databaseName, string tableName)
+        {
+            var client = new Client(Config.GetNodes());
+            Assert.IsTrue(TryDeleteDatabase(client, databaseName));
+            var database = client.CreateDatabase(databaseName);
+            Assert.IsNotNull(database, "Cannot create database " + databaseName);
+            var table = TryCreateTable(database, tableName);
+            Assert.IsNotNull(table, "Cannot create table " + tableName);
+
+            System.Console.WriteLine("Filling the database...");
+
+            DateTime last = DateTime.Now;
+            for (ulong i = 0; i < 100 * 1000 * 1000; i++)
+            {
+                var key = Utils.Id(i);
+                table.Set(key, key);
+                TimeSpan timeSpan = DateTime.Now - last;
+                if (timeSpan.TotalSeconds >= 60)
+                {
+                    System.Console.WriteLine("i: " + i);
+                    last = DateTime.Now;
+                }
+            }
+
+            client.Submit();
+
+            System.Console.WriteLine("Database filling is done.");
+        }
+
+        public static void CheckDatabaseWithNumericKeys(string databaseName, string tableName)
+        {
+            var client = new Client(Config.GetNodes());
+            var jsonConfigState = client.GetJSONConfigState();
+            var configState = Utils.JsonDeserialize<ConfigState>(System.Text.Encoding.UTF8.GetBytes(jsonConfigState));
+            var shardServers = new List<ConfigState.ShardServer>();
+            Int64 tableID = 0;
+            foreach (var database in configState.databases)
+            {
+                if (database.name == databaseName)
+                {
+                    foreach (var table in configState.tables)
+                    {
+                        if (table.databaseID == database.databaseID && table.name == tableName)
+                        {
+                            shardServers = GetShardServersByTable(table, configState);
+                            tableID = table.tableID;
+                            break;
+                        }
+                    }
+                }
+                if (tableID != 0)
+                    break;
+            }
+
+            Assert.IsTrue(tableID != 0);
+
+            CompareNumericTableKeysHTTP(shardServers, tableID, 15 * 1000 * 1000);
+        }
+
+        [TestMethod]
+        public void NumericConsistencyTest()
+        {
+            //FillDatabaseWithNumericKeys("NumericConsistencyTest", "test");
+            CheckDatabaseWithNumericKeys("NumericConsistencyTest", "test");
         }
     }
 }
