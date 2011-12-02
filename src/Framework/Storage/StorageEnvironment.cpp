@@ -1363,11 +1363,9 @@ void StorageEnvironment::TryArchiveLogSegments()
     }
 }
 
-void StorageEnvironment::TryDeleteLogSegmentFileChunks()
+void StorageEnvironment::TryDeleteFileChunks()
 {
-    StorageFileChunk*   fileChunk;
-    StorageShard*       shard;
-    StorageChunk*       chunk;
+    StorageShard* shard;
     
     Log_Trace();
 
@@ -1376,21 +1374,67 @@ void StorageEnvironment::TryDeleteLogSegmentFileChunks()
 
     FOREACH (shard, shards)
     {
-        if (shard->GetStorageType() != STORAGE_SHARD_TYPE_LOG)
-            continue;
-        if (shard->GetChunks().GetLength() > config.numLogSegmentFileChunks)
+        // the subfunctions return whether a delete job was issued
+
+        if (shard->GetStorageType() == STORAGE_SHARD_TYPE_LOG)
         {
-            chunk = *(shard->GetChunks().First());
-            if (chunk->GetChunkState() != StorageChunk::Written)
-                continue;
+            if (TryDeleteLogTypeFileChunk(shard))
+                return;
+        }
+        else if (shard->GetStorageType() == STORAGE_SHARD_TYPE_DUMP)
+        {
+            if (TryDeleteDumpTypeFileChunk(shard))
+                return;
+        }
+    }
+}
+
+bool StorageEnvironment::TryDeleteLogTypeFileChunk(StorageShard* shard)
+{
+    StorageFileChunk*   fileChunk;
+    StorageChunk*       chunk;
+
+    if (shard->GetChunks().GetLength() <= config.numLogSegmentFileChunks)
+        return false;
+
+    chunk = *(shard->GetChunks().First());
+    if (chunk->GetChunkState() != StorageChunk::Written)
+        return false;
+
+    fileChunk = (StorageFileChunk*) chunk;
+    fileChunk->RemovePagesFromCache();
+    fileChunks.Remove(fileChunk);
+    shard->GetChunks().Remove(chunk);
+    deleteChunkJobs.Enqueue(new StorageDeleteFileChunkJob(fileChunk));
+    return true;
+}
+
+bool StorageEnvironment::TryDeleteDumpTypeFileChunk(StorageShard* shard)
+{
+    bool                writtenFound;
+    StorageChunk*       chunk;
+    StorageFileChunk*   fileChunk;
+    StorageChunk**      itChunk;
+
+    writtenFound = false;
+    FOREACH_BACK(itChunk, shard->GetChunks())
+    {
+        chunk = *itChunk;
+        if (chunk->GetChunkState() != StorageChunk::Written)
+            continue;
+        if (writtenFound)
+        {
             fileChunk = (StorageFileChunk*) chunk;
             fileChunk->RemovePagesFromCache();
             fileChunks.Remove(fileChunk);
             shard->GetChunks().Remove(chunk);
             deleteChunkJobs.Enqueue(new StorageDeleteFileChunkJob(fileChunk));
-            return;
+            return true;
         }
+        writtenFound = true;
     }
+
+    return false;
 }
 
 void StorageEnvironment::OnChunkSerialize(StorageSerializeChunkJob* job)
@@ -1506,7 +1550,7 @@ void StorageEnvironment::OnBackgroundTimer()
     TryWriteChunks();
     TryMergeChunks();
     TryArchiveLogSegments();
-    TryDeleteLogSegmentFileChunks();
+    TryDeleteFileChunks();
     
     EventLoop::Add(&backgroundTimer);
     Log_Trace("End");
