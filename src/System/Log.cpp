@@ -344,14 +344,14 @@ static bool Log_TraceBufferTailNext()
     overflow = false;
 
     // move tail to start of next message
-    if ((traceBufferTail + sizeof(uint16_t)) - traceBuffer >= traceBufferSize)
+    if ((traceBufferTail + sizeof(uint16_t)) - traceBuffer >= (intptr_t) traceBufferSize)
     {
         p = traceBufferTail;
-        if (p - traceBuffer >= traceBufferSize)
+        if (p - traceBuffer >= (intptr_t) traceBufferSize)
             p = traceBuffer;
         tmpSize[0] = *p;
         p++;
-        if (p - traceBuffer >= traceBufferSize)
+        if (p - traceBuffer >= (intptr_t) traceBufferSize)
             p = traceBuffer;
         tmpSize[1] = *p;
         tailMessageSize = *(uint16_t*)&tmpSize;
@@ -363,7 +363,7 @@ static bool Log_TraceBufferTailNext()
     traceBufferTail += tailMessageSize;
 
     // handle overflow
-    if (traceBufferTail - traceBuffer >= traceBufferSize)
+    if (traceBufferTail - traceBuffer >= (intptr_t) traceBufferSize)
     {
         traceBufferTail = traceBuffer + (traceBufferTail - traceBuffer) % traceBufferSize;
         overflow = true;
@@ -445,14 +445,14 @@ void Log_FlushTraceBuffer()
     while (traceBufferTail != traceBufferHead)
     {
         // the two bytes of the message size overflows
-        if ((traceBufferTail + sizeof(uint16_t)) - traceBuffer >= traceBufferSize)
+        if ((traceBufferTail + sizeof(uint16_t)) - traceBuffer >= (intptr_t) traceBufferSize)
         {
             p = traceBufferTail;
-            if (p - traceBuffer >= traceBufferSize)
+            if (p - traceBuffer >= (intptr_t) traceBufferSize)
                 p = traceBuffer;
             tmpSize[0] = *p;
             p++;
-            if (p - traceBuffer >= traceBufferSize)
+            if (p - traceBuffer >= (intptr_t) traceBufferSize)
                 p = traceBuffer;
             tmpSize[1] = *p;
             tailMessageSize = *(uint16_t*)&tmpSize;
@@ -476,7 +476,7 @@ void Log_FlushTraceBuffer()
         Log_Write(msg, tailMessageSize, false, false);
 
         // handle overflow
-        if (traceBufferTail - traceBuffer > traceBufferSize)
+        if (traceBufferTail - traceBuffer > (intptr_t) traceBufferSize)
             traceBufferTail = traceBuffer + (traceBufferTail - traceBuffer) % traceBufferSize;
     }
 

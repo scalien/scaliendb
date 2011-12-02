@@ -24,6 +24,12 @@ StorageDataPage::~StorageDataPage()
 {
 }
 
+void StorageDataPage::SetOwner(StorageFileChunk* owner_)
+{
+    ASSERT(owner == NULL);
+    owner = owner_;
+}
+
 uint32_t StorageDataPage::GetSize()
 {
     return size;
@@ -81,6 +87,11 @@ uint32_t StorageDataPage::GetIncrement(StorageKeyValue* kv)
         ASSERT_FAIL();
 
     return 0;
+}
+
+uint32_t StorageDataPage::GetIndex()
+{
+    return index;
 }
 
 void StorageDataPage::Append(StorageKeyValue* kv, bool keysOnly)

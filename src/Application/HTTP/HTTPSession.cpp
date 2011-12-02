@@ -189,6 +189,16 @@ void HTTPSession::Flush()
     if (!conn)
         return;
 
+    if (!headerSent)
+    {
+        if (type == JSON)
+            json.Start();
+        else
+            conn->WriteHeader(HTTP_STATUS_CODE_OK);
+
+        headerSent = true;
+    }
+
     if (type == JSON)
         json.End();
     

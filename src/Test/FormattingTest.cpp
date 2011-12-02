@@ -1,6 +1,7 @@
 #include "Test.h"
 #include "System/Macros.h"
 #include "System/Buffers/Buffer.h"
+#include "System/IO/FD.h"
 
 extern int UIntToBuffer(char* buf, size_t bufsize, unsigned value);
 
@@ -38,5 +39,17 @@ TEST_DEFINE(TestFormattingPadding)
     tmp.Writef("% 4d", 1);
     TEST_ASSERT(tmp.Cmp("   1") == 0);
     
+    return TEST_SUCCESS;
+}
+
+TEST_DEFINE(TestFormattingFD)
+{
+    Buffer  tmp;
+    FD      fd;
+
+    fd = INVALID_FD;
+    tmp.Writef("%d", (int) fd);
+    TEST_ASSERT(tmp.Cmp("-1") == 0);
+
     return TEST_SUCCESS;
 }

@@ -419,8 +419,10 @@ void StorageEnvironment::AsyncGet(uint16_t contextID, uint64_t shardID, StorageA
     
     deferred.Unset();
     asyncGet->completed = false;
-    asyncGet->shard = shard;
-    asyncGet->itChunk = shard->GetChunks().Last();
+    asyncGet->env = this;
+    asyncGet->contextID = contextID;
+    asyncGet->shardID = shardID;
+    asyncGet->chunkID = 0;
     asyncGet->lastLoadedPage = NULL;
     asyncGet->stage = StorageAsyncGet::START;
     asyncGet->threadPool = asyncGetThread;

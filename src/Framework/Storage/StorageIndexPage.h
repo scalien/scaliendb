@@ -43,6 +43,8 @@ public:
     StorageIndexPage(StorageFileChunk* owner);
     ~StorageIndexPage();
 
+    void                SetOwner(StorageFileChunk* owner);
+
     uint32_t            GetSize();
     uint32_t            GetMemorySize();
     uint32_t            GetNumDataPages();

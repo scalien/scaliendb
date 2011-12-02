@@ -38,7 +38,7 @@ void ConfigServerApp::Init()
     
     logStatTimer.SetCallable(MFUNC(ConfigServerApp, OnLogStatTimer));
     // logStatTime is in seconds in the config file, default is 10min
-    SetLogStatTimeout(configFile.GetIntValue("controller.logStatTime", 0) * 1000);
+    SetLogStatTimeout(configFile.GetIntValue("controller.logStatTime", 600) * 1000);
 }
 
 void ConfigServerApp::Shutdown()

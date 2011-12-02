@@ -283,70 +283,68 @@ void StorageAsyncList::SetAborted(bool aborted_)
     aborted = aborted_;
 }
 
-StorageFileKeyValue* StorageAsyncList::Next()
+#define ADVANCE_ITERATOR(i) iterators[i] = listers[i]->Next(iterators[i])
+
+StorageFileKeyValue* StorageAsyncList::GetSmallest()
 {
     unsigned                i;
-    unsigned                smallest;
-    StorageFileKeyValue*    it;
-    ReadBuffer              key;
-    
-Restart:
-    key.Reset();
-    it = NULL;
-    smallest = 0;
-    
-    // TODO: special case when there is only one chunk
+    unsigned                smallestIndex;
+    ReadBuffer              smallestKey;
+    StorageFileKeyValue*    smallestKv;
+    int                     cmpres;
 
-    // listers are sorted by relevance, first is the oldest, last is the latest
+    smallestKv = NULL;
+    // readers are sorted by relevance, first is the oldest, last is the latest
     for (i = 0; i < numListers; i++)
     {
-        if (iterators[i] != NULL) 
+        if (iterators[i] == NULL)
+            continue;
+
+        // check that keys are still in the merged interval
+        if (shardLastKey.GetLength() > 0 && ReadBuffer::Cmp(iterators[i]->GetKey(), shardLastKey) >= 0)
         {
-            // check that keys are still in the merged interval
-            if (shardLastKey.GetLength() > 0 && 
-             ReadBuffer::Cmp(iterators[i]->GetKey(), shardLastKey) >= 0)
-            {
-                iterators[i] = NULL;
-                continue;
-            }
-            
-            // in case of key equality, the lister with the highest chunkID wins
-            if (it != NULL && ReadBuffer::Cmp(iterators[i]->GetKey(), key) == 0)
-            {
-                // in case of DELETE, restart scanning from the first lister
-                if (iterators[i]->GetType() == STORAGE_KEYVALUE_TYPE_DELETE)
-                {
-                    iterators[smallest] = listers[smallest]->Next(iterators[smallest]);
-                    iterators[i] = listers[i]->Next(iterators[i]);
-                    goto Restart;
-                }
-                
-                iterators[smallest] = listers[smallest]->Next(iterators[smallest]);
-                it = iterators[i];                
-                smallest = i;
-                continue;
-            }
-            
-            // find the next smallest key
-            if ((forwardDirection && STORAGE_KEY_LESS_THAN(iterators[i]->GetKey(), key)) ||
-             (!forwardDirection && STORAGE_KEY_LESS_THAN(key, iterators[i]->GetKey())))
-            {
-                if (iterators[i]->GetType() == STORAGE_KEYVALUE_TYPE_DELETE)
-                {
-                    iterators[i] = listers[i]->Next(iterators[i]);
-                    goto Restart;
-                }
-                
-                it = iterators[i];
-                key = it->GetKey();
-                smallest =  i;
-            }
+            iterators[i] = NULL;
+            continue;
+        }
+
+        // do the comparison
+        if (smallestKey.GetLength() == 0)
+            cmpres = -1;
+        else
+            cmpres = ReadBuffer::Cmp(iterators[i]->GetKey(), smallestKey);
+
+        if (cmpres <= 0)
+        {
+            // advance the previously smallest if it is equal to the current
+            // because it is less relevant
+            if (smallestKv != NULL && cmpres == 0)
+                ADVANCE_ITERATOR(smallestIndex);
+            smallestKv = iterators[i];
+            smallestIndex = i;
+            smallestKey = smallestKv->GetKey();
         }
     }
 
-    // make progress in the lister that contained the smallest key
-    if (it != NULL)
-        iterators[smallest] = listers[smallest]->Next(iterators[smallest]);
-    
-    return it;
+    // make progress in the reader that contained the smallest key
+    if (smallestKv != NULL)
+        ADVANCE_ITERATOR(smallestIndex);
+
+    return smallestKv;
+}
+
+StorageFileKeyValue* StorageAsyncList::Next()
+{
+    StorageFileKeyValue*    kv;
+
+    while (true)
+    {
+        kv = GetSmallest();
+        if (kv == NULL)
+            return NULL;    // reached the end of all chunkfiles
+
+        if (kv->GetType() == STORAGE_KEYVALUE_TYPE_SET)
+            return kv;
+    }
+
+    return NULL;
 }

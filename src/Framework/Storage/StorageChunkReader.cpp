@@ -45,8 +45,7 @@ void StorageChunkReader::OpenWithFileChunk(
 
     fileChunk.useCache = false;
     fileChunk.SetFilename(fileChunk_->GetFilename());
-    // TODO: it is safe to shallow copy headerPage, only StorageHeaderPage::owner points to bad fileChunk,
-    // but it is never used anyhow
+    // it is safe to shallow copy headerPage
     fileChunk.headerPage = fileChunk_->headerPage;
 
     index = 0;

@@ -2,6 +2,7 @@
 #include "StorageFileChunk.h"
 #include "StoragePageCache.h"
 #include "StorageShard.h"
+#include "StorageEnvironment.h"
 #include "System/IO/IOProcessor.h"
 
 StorageAsyncGet::StorageAsyncGet()
@@ -12,64 +13,72 @@ StorageAsyncGet::StorageAsyncGet()
     skipMemoChunk = false;
 }
 
+StorageChunk** StorageAsyncGet::GetChunkIterator(StorageShard* shard)
+{
+	StorageChunk**	itChunk;
+
+	itChunk = NULL;
+    if (chunkID == 0)
+    {
+        // start from the newest shard
+        return shard->GetChunks().Last();
+    }
+    else
+    {
+        // check if the chunk still exists
+        FOREACH (itChunk, shard->GetChunks())
+        {
+            if ((*itChunk)->GetChunkID() == chunkID)
+                break;
+        }
+        
+        // chunk was deleted, restart
+        if (itChunk == NULL)
+        {
+            return shard->GetChunks().Last();
+        }
+    }
+
+	return itChunk;
+}
+
 // This function is executed in the main thread
 void StorageAsyncGet::ExecuteAsyncGet()
 {
-    StorageFileChunk*   fileChunk;
+    StorageShard*               shard;
+    StorageChunk**              itChunk;
+    StorageChunk::ChunkState    chunkState;
 
-    if (itChunk == NULL)
+    // check if the shard still exists
+    shard = env->GetShard(contextID, shardID);
+    if (!shard)
+    {
+        completed = true;
         goto complete;
-    
-    fileChunk = (StorageFileChunk*) (*itChunk);
-    if (stage == BLOOM_PAGE)
-    {
-        if (lastLoadedPage != NULL)
-        {
-            ASSERT(fileChunk->bloomPage == NULL);
-            fileChunk->bloomPage = (StorageBloomPage*) lastLoadedPage;
-            fileChunk->isBloomPageLoading = false;
-            StoragePageCache::AddMetaPage(lastLoadedPage);
-        }
     }
-    else if (stage == INDEX_PAGE)
-    {
-        if (lastLoadedPage != NULL)
-        {
-            ASSERT(fileChunk->indexPage == NULL);
-            fileChunk->indexPage = (StorageIndexPage*) lastLoadedPage;
-            if (fileChunk->dataPages == NULL)
-            {
-                fileChunk->numDataPages = fileChunk->indexPage->GetNumDataPages();
-                fileChunk->AllocateDataPageArray();
-            }
-            fileChunk->isIndexPageLoading = false;
-            StoragePageCache::AddMetaPage(lastLoadedPage);
-        }
-    }
-    else if (stage == DATA_PAGE)
-    {
-        if (lastLoadedPage != NULL)
-        {
-            // TODO: FIXME:
-//            ASSERT(fileChunk->dataPages[index] == NULL);
-            if (fileChunk->dataPages[index] == NULL)
-            {
-                fileChunk->dataPages[index] = (StorageDataPage*) lastLoadedPage;
-                StoragePageCache::AddDataPage(lastLoadedPage);
-                lastLoadedPage = NULL;
-            }
-            else
-            {
-                delete lastLoadedPage;
-                lastLoadedPage = NULL;
-            }
-        }
-    }
+
+	// NULL means the chunk was deleted
+	itChunk = GetChunkIterator(shard);
+	if (itChunk == NULL)
+		goto complete;
+
+	// only filechunks' pages need to be set 
+    chunkState = (*itChunk)->GetChunkState();
+    if (chunkState == StorageChunk::Written)
+        SetLastLoadedPage((StorageFileChunk*) (*itChunk));
 
     stage = START;
     while (itChunk != NULL)
     {
-        completed = false;
+        // When we return from async page loading, the chunk might already
+        // be deleted, so we don't store the pointer, but its ID instead
+        chunkID = (*itChunk)->GetChunkID();
+
+		chunkState = (*itChunk)->GetChunkState();
+		if (chunkState == StorageChunk::Written)
+	        SetupLoaderFileChunk((StorageFileChunk*) (*itChunk));
+
+		completed = false;
         (*itChunk)->AsyncGet(this);
         if (completed && ret)
             break;  // found
@@ -80,6 +89,7 @@ void StorageAsyncGet::ExecuteAsyncGet()
         itChunk = shard->GetChunks().Prev(itChunk);
     }
 
+
 complete:
     if (itChunk == NULL)
         completed = true;
@@ -88,6 +98,62 @@ complete:
         OnComplete();
 
     // don't put code here, because OnComplete deletes the object
+}
+
+void StorageAsyncGet::SetLastLoadedPage(StorageFileChunk* fileChunk)
+{
+    if (lastLoadedPage == NULL)
+        return;
+
+    if (stage == BLOOM_PAGE)
+    {
+        if (fileChunk->bloomPage == NULL)
+        {
+            fileChunk->SetBloomPage((StorageBloomPage*) lastLoadedPage);
+            lastLoadedPage = NULL;
+        }
+    }
+    else if (stage == INDEX_PAGE)
+    {
+        if (fileChunk->indexPage == NULL)
+        {
+            fileChunk->SetIndexPage((StorageIndexPage*) lastLoadedPage);
+            lastLoadedPage = NULL;
+        }
+    }
+    else if (stage == DATA_PAGE)
+    {
+        if (fileChunk->dataPages == NULL)
+        {
+            // the fileChunk must have been unloaded and reloaded, go back to INDEX_PAGE stage
+            stage = INDEX_PAGE;
+        }
+        else if (fileChunk->dataPages[index] == NULL)
+        {
+            fileChunk->SetDataPage((StorageDataPage*) lastLoadedPage);
+            lastLoadedPage = NULL;
+        }
+    }
+
+    if (lastLoadedPage != NULL)
+    {
+        delete lastLoadedPage;
+        lastLoadedPage = NULL;
+    }
+}
+
+void StorageAsyncGet::SetupLoaderFileChunk(StorageFileChunk* fileChunk)
+{
+    if (loaderFileChunk.GetChunkID() == fileChunk->GetChunkID())
+        return;
+
+    loaderFileChunk.Close();
+    loaderFileChunk.Init();
+
+    loaderFileChunk.useCache = false;
+    loaderFileChunk.SetFilename(fileChunk->GetFilename());
+    // it is safe to shallow copy headerPage
+    loaderFileChunk.headerPage = fileChunk->headerPage;
 }
 
 // This function is executed in the main thread
@@ -100,15 +166,13 @@ void StorageAsyncGet::OnComplete()
 void StorageAsyncGet::AsyncLoadPage()
 {
     Callable            asyncGet;
-    StorageFileChunk*   fileChunk;
-    
-    fileChunk = (StorageFileChunk*) (*itChunk);
+
     if (stage == BLOOM_PAGE)
-        lastLoadedPage = fileChunk->AsyncLoadBloomPage();
+        lastLoadedPage = loaderFileChunk.AsyncLoadBloomPage();
     else if (stage == INDEX_PAGE)
-        lastLoadedPage = fileChunk->AsyncLoadIndexPage();
+        lastLoadedPage = loaderFileChunk.AsyncLoadIndexPage();
     else if (stage == DATA_PAGE)
-        lastLoadedPage = fileChunk->AsyncLoadDataPage(index, offset);
+        lastLoadedPage = loaderFileChunk.AsyncLoadDataPage(index, offset);
     
     asyncGet = MFUNC(StorageAsyncGet, ExecuteAsyncGet);
     IOProcessor::Complete(&asyncGet);

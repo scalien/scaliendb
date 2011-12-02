@@ -512,7 +512,7 @@ void ConfigHTTPClientSession::ProcessSettings()
     if (HTTP_GET_OPT_PARAM(params, "traceBufferSize", param))
     {
         // initialize variable, because conversion may fail
-        logStatTime = 0;
+        traceBufferSize = 0;
         HTTP_GET_OPT_U64_PARAM(params, "traceBufferSize", traceBufferSize);
         // we expect traceBufferSize is in bytes
         Log_SetTraceBufferSize((unsigned) traceBufferSize);

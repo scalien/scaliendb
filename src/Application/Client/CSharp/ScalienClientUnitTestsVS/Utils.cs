@@ -262,5 +262,14 @@ namespace Scalien
                 values[i] = tmp;
             }
         }
+
+        /// <summary>
+        /// Helper function for converting string type to byte[]
+        /// </summary>
+        public static byte[] StringToByteArray(string str)
+        {
+            return System.Text.Encoding.UTF8.GetBytes(str);
+        }
+
     }
 }
