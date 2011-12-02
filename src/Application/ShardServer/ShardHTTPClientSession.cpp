@@ -383,6 +383,7 @@ bool ShardHTTPClientSession::ProcessSettings()
 {
     ReadBuffer  param;
     bool        boolValue;
+    uint64_t    traceBufferSize;
     
     if (HTTP_GET_OPT_PARAM(params, "trace", param))
     {
@@ -390,6 +391,16 @@ bool ShardHTTPClientSession::ProcessSettings()
         Log_SetTrace(boolValue);
         Log_Flush();
         session.PrintPair("Trace", boolValue ? "on" : "off");
+    }
+
+    if (HTTP_GET_OPT_PARAM(params, "traceBufferSize", param))
+    {
+        // initialize variable, because conversion may fail
+        traceBufferSize = 0;
+        HTTP_GET_OPT_U64_PARAM(params, "traceBufferSize", traceBufferSize);
+        // we expect traceBufferSize is in bytes
+        Log_SetTraceBufferSize((unsigned) traceBufferSize);
+        session.PrintPair("TraceBufferSize", INLINE_PRINTF("%u", 100, (unsigned) traceBufferSize));
     }
 
     if (HTTP_GET_OPT_PARAM(params, "debug", param))
