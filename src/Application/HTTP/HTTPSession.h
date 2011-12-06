@@ -66,6 +66,7 @@ public:
     bool                ParseRequest(HTTPRequest& request, ReadBuffer& cmd, UrlParam& params);
     void                ParseType(ReadBuffer& cmd);
 
+    void                SendHeaders();
     void                ResponseFail();
     void                Redirect(const ReadBuffer& location);
     

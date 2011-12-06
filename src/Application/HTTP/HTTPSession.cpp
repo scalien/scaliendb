@@ -93,6 +93,19 @@ void HTTPSession::ParseType(ReadBuffer& rb)
         SetType(PLAIN);
 }
 
+void HTTPSession::SendHeaders()
+{
+    if (headerSent)
+        return;
+
+    if (type == JSON)
+        json.Start();
+    else
+        conn->WriteHeader(HTTP_STATUS_CODE_OK);
+
+    headerSent = true;
+}
+
 void HTTPSession::ResponseFail()
 {
     ASSERT(headerSent == false);
@@ -127,14 +140,7 @@ void HTTPSession::Print(const ReadBuffer& line)
         return;
 
     if (!headerSent)
-    {
-        if (type == JSON)
-            json.Start();
-        else
-            conn->WriteHeader(HTTP_STATUS_CODE_OK);
-
-        headerSent = true;
-    }
+        SendHeaders();
     
     if (type == JSON)
     {
@@ -156,14 +162,7 @@ void HTTPSession::PrintPair(const ReadBuffer& key, const ReadBuffer& value)
         return;
 
     if (!headerSent)
-    {
-        if (type == JSON)
-            json.Start();
-        else
-            conn->WriteHeader(HTTP_STATUS_CODE_OK);
-
-        headerSent = true;
-    }
+        SendHeaders();
 
     if (type == JSON)
         json.PrintPair(key.GetBuffer(), key.GetLength(), value.GetBuffer(), value.GetLength());
@@ -189,15 +188,7 @@ void HTTPSession::Flush()
     if (!conn)
         return;
 
-    if (!headerSent)
-    {
-        if (type == JSON)
-            json.Start();
-        else
-            conn->WriteHeader(HTTP_STATUS_CODE_OK);
-
-        headerSent = true;
-    }
+    // TODO: if no data was sent, no headers are sent either
 
     if (type == JSON)
         json.End();
