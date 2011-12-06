@@ -613,14 +613,16 @@ void ConfigQuorumProcessor::OnAppend(uint64_t paxosID, ConfigMessage& message, b
     {
         if (quorumContext.IsLeader())
         {
-            ASSERT(CONFIG_STATE->isMigrating);
-            ASSERT(CONFIG_STATE->migrateQuorumID == message.quorumID);
-            ASSERT(CONFIG_STATE->migrateSrcShardID == message.srcShardID);
-            ASSERT(CONFIG_STATE->migrateDstShardID == message.dstShardID);
-            CONFIG_STATE->isMigrating = false;
-            CONFIG_STATE->migrateQuorumID = 0;
-            CONFIG_STATE->migrateSrcShardID = 0;
-            CONFIG_STATE->migrateDstShardID = 0;
+            if (CONFIG_STATE->isMigrating)
+            {
+                ASSERT(CONFIG_STATE->migrateQuorumID == message.quorumID);
+                ASSERT(CONFIG_STATE->migrateSrcShardID == message.srcShardID);
+                ASSERT(CONFIG_STATE->migrateDstShardID == message.dstShardID);
+                CONFIG_STATE->isMigrating = false;
+                CONFIG_STATE->migrateQuorumID = 0;
+                CONFIG_STATE->migrateSrcShardID = 0;
+                CONFIG_STATE->migrateDstShardID = 0;
+            }
         }
     }
     

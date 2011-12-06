@@ -5,6 +5,8 @@
 #include "Framework/Replication/ReplicationConfig.h"
 #include "Framework/Storage/StoragePageCache.h"
 
+#define SHARD_MIGRATION_WRITER  (shardServer->GetShardMigrationWriter())
+
 static void WriteValue(
 Buffer &buffer, uint64_t paxosID, uint64_t commandID, ReadBuffer userValue)
 {
@@ -434,9 +436,7 @@ void ShardDatabaseManager::DeleteDataShards(uint64_t quorumID)
         return;
     
     FOREACH (itShardID, configQuorum->shards)
-    {
-        environment.DeleteShard(QUORUM_DATABASE_DATA_CONTEXT, *itShardID);        
-    }
+        environment.DeleteShard(QUORUM_DATABASE_DATA_CONTEXT, *itShardID);
 }
 
 void ShardDatabaseManager::SetShards(SortedList<uint64_t>& shards)
@@ -487,6 +487,7 @@ void ShardDatabaseManager::SetQuorumShards(uint64_t quorumID)
 
 void ShardDatabaseManager::RemoveDeletedDataShards(SortedList<uint64_t>& myShardIDs)
 {
+    uint64_t                        shardID;
     uint64_t*                       itShardID;
     StorageEnvironment::ShardIDList storageShardIDs;
     
@@ -494,8 +495,14 @@ void ShardDatabaseManager::RemoveDeletedDataShards(SortedList<uint64_t>& myShard
     
     FOREACH (itShardID, storageShardIDs)
     {
-        if (!myShardIDs.Contains(*itShardID))
+        shardID = *itShardID;
+        if (!myShardIDs.Contains(shardID))
+        {
+            if (SHARD_MIGRATION_WRITER->IsActive() && SHARD_MIGRATION_WRITER->GetShardID() == shardID)
+                SHARD_MIGRATION_WRITER->Abort();
+
             environment.DeleteShard(QUORUM_DATABASE_DATA_CONTEXT, *itShardID);
+        }
     }
 }
 

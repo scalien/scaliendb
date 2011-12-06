@@ -1397,7 +1397,9 @@ void ConfigState::OnShardMigrationComplete(ConfigMessage& message)
     ConfigTable*    table;
     
     shard = GetShard(message.srcShardID);
-    ASSERT(shard != NULL);
+    if (!shard)
+        return;
+
     // quorum = old quorum
     quorum = GetQuorum(shard->quorumID);
     ASSERT(quorum != NULL);
@@ -1624,6 +1626,9 @@ void ConfigState::DeleteShard(ConfigShard* shard)
 {
     ConfigQuorum*   quorum;
     ConfigTable*    table;
+
+    if (isMigrating && migrateSrcShardID == shard->shardID)
+        OnAbortShardMigration();
 
     quorum = GetQuorum(shard->quorumID);
     ASSERT(quorum != NULL);
