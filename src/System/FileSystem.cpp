@@ -899,8 +899,25 @@ int64_t FS_FreeDiskSpace(const char* path)
 int64_t FS_DiskSpace(const char* path)
 {
     ULARGE_INTEGER  bytes;
+    unsigned        len;
+    char*           last;
+    Buffer          buf;
+
+    // find last / or \ character
+    last = (char*)strrchr (path, '\\');
+    if (!last)
+        last = (char*)strrchr (path, '/');
     
-    if (!GetDiskFreeSpaceEx(path, NULL, &bytes, NULL))
+    // find length of prefix, or use entire string if not found
+    if (last)
+        len = last - path;
+    if (!last || len == 0)
+        len = strlen(path);
+
+    buf.Write(path, len);
+    buf.NullTerminate();
+    
+    if (!GetDiskFreeSpaceEx(buf.GetBuffer(), NULL, &bytes, NULL))
         return -1;
     return bytes.QuadPart;
 }

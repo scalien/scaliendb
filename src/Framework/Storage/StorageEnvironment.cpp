@@ -777,6 +777,7 @@ printable.Write(a); if (!printable.IsAsciiPrintable()) { printable.ToHexadecimal
     StorageChunk**      itChunk;
     StorageMemoChunk*   memoChunk;
     Buffer              printable;
+    Buffer              tmp;
     uint64_t            totalSize;
     
     buffer.Clear();
@@ -862,7 +863,12 @@ printable.Write(a); if (!printable.IsAsciiPrintable()) { printable.ToHexadecimal
 
     buffer.Appendf("\nCache size: %s\n", HUMAN_BYTES(StoragePageCache::GetSize()));
     totalSize += StoragePageCache::GetSize();
-    buffer.Appendf("Total memory size: %s", HUMAN_BYTES(totalSize));
+    buffer.Appendf("Total memory size: %s\n", HUMAN_BYTES(totalSize));
+    
+    tmp.Write(envPath);
+    tmp.NullTerminate();
+    buffer.Appendf("Total disk space: %s\n", HUMAN_BYTES(FS_DiskSpace(tmp.GetBuffer())));
+    buffer.Appendf("Free disk space: %s\n", HUMAN_BYTES(FS_FreeDiskSpace(tmp.GetBuffer())));
 }
 
 uint64_t StorageEnvironment::GetShardMemoryUsage()
