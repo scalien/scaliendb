@@ -2001,7 +2001,6 @@ void Client::IOThreadFunc()
 
     Log_SetTimestamping(true);
     Log_SetThreadedOutput(true);
-    Log_SetTraceBufferSize(32 * 1024 * 1024);
     Log_Debug("IOThreadFunc started: %U", ThreadPool::GetThreadID());
 
     EventLoop::Start();

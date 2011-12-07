@@ -203,6 +203,7 @@ PooledShardConnection::PooledShardConnection(Endpoint& endpoint_)
     autoFlush = false;
     endpoint = endpoint_;
     prev = next = this;
+    conn = NULL;
     name.Write(endpoint.ToString());
     
     ASSERT(name.GetLength() > 0);

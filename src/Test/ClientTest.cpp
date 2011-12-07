@@ -84,6 +84,8 @@ static int SetupDefaultClient(Client& client)
     int             ret;
     ClientObj       clientObj;
 
+    client.Shutdown();
+    
     configFile.Shutdown();
     configFile.Init("test/client/client.conf");
 
@@ -1131,6 +1133,44 @@ TEST_DEFINE(TestClientInfiniteLoop)
     }
     
     // this test always fails or gets cancelled
+    return TEST_SUCCESS;
+}
+
+static void ClientShardConnectionPoolingSet()
+{
+    Client**    clients;
+    int         numClients = 200;
+    Buffer      key;
+    Buffer      value;
+
+    clients = new Client*[numClients];
+    for (int i = 0; i < numClients; i++)
+    {
+        clients[i] = new Client;
+        Client& client = *clients[i];
+        TEST(SetupDefaultClient(client));
+
+        key.Writef("%d", i);
+        value.Writef("%d", i);
+        clients[i]->Set(defaultTableID, key, value);
+    }
+    
+    for (int i = 0; i < numClients; i++)
+    {
+        delete clients[i];
+        clients[i] = NULL;
+    }
+    
+    delete[] clients;
+}
+
+TEST_DEFINE(TestClientShardConnectionPooling)
+{
+    SDBP_SetShardPoolSize(0);
+    ClientShardConnectionPoolingSet();
+    SDBP_SetShardPoolSize(100);
+    ClientShardConnectionPoolingSet();
+    
     return TEST_SUCCESS;
 }
 
