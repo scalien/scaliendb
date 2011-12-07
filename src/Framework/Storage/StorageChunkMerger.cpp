@@ -248,6 +248,13 @@ bool StorageChunkMerger::WriteDataPages(ReadBuffer /*firstKey*/, ReadBuffer last
         {
             Log_Trace("Yielding...");
             MSleep(1);
+
+            if (env->shuttingDown || mergeChunk->deleted || !env->mergeEnabled)
+            {
+                Log_Debug("Aborting merge");
+                mergeChunk->writeError = false;
+                return false;
+            }
         }
 
         it = Next(lastKey);
