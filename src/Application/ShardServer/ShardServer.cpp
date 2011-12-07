@@ -58,6 +58,9 @@ void ShardServer::Init(ShardServerApp* app)
 
 void ShardServer::Shutdown()
 {
+    if (migrationWriter.IsActive())
+        migrationWriter.Abort();
+
     quorumProcessors.DeleteList();
     databaseManager.Shutdown();
     CONTEXT_TRANSPORT->Shutdown();
@@ -424,6 +427,13 @@ DeleteQuorum:
         {
             next = quorumProcessors.Next(quorumProcessor);
             continue;
+        }
+
+        if (migrationWriter.IsActive())
+        {
+            configShard = configState.GetShard(migrationWriter.GetShardID());
+            if (quorumProcessor->GetQuorumID() == configShard->quorumID)
+                migrationWriter.Abort();
         }
 
         databaseManager.DeleteQuorumPaxosShard(quorumProcessor->GetQuorumID());
