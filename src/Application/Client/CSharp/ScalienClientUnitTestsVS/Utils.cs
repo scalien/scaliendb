@@ -119,11 +119,82 @@ namespace Scalien
             return String.Format("{0:0000000000000}", num);
         }
 
-        public static void DeleteDBs(Client c)
+        public static void DeleteAllDatabases(Client c)
         {
             foreach (Database db in c.GetDatabases())
                 db.DeleteDatabase();
         }
+
+        public static Table GetOrCreateTableAndDatabase(Client client, string dbName, string tableName)
+        {
+            Database db = null;
+            try
+            {
+                db = client.GetDatabase(dbName);
+            }
+            catch (SDBPException e)
+            {
+                if (e.Status == Status.SDBP_BADSCHEMA)
+                    db = client.CreateDatabase(dbName);
+            }
+            if (db == null)
+                return null;
+
+            Table table = null;
+            try
+            {
+                table = db.GetTable(tableName);
+            }
+            catch (SDBPException e)
+            {
+                if (e.Status == Status.SDBP_BADSCHEMA)
+                    table = db.CreateTable(tableName);
+            }
+
+            if (table == null)
+                table = db.CreateTable(tableName);
+
+            return table;
+        }
+
+        public static Table GetOrCreateEmptyTableAndDatabase(Client client, string dbName, string tableName)
+        {
+            Table table = GetOrCreateTableAndDatabase(client, dbName, tableName);
+            if (table == null)
+                return null;
+
+            table.TruncateTable();
+
+            return table;
+        }
+
+        public static Database GetOrCreateEmptyDatabase(Client client, string dbName)
+        {
+            Database db = null;
+            try
+            {
+                db = client.GetDatabase(dbName);
+            }
+            catch (SDBPException e)
+            {
+                if (e.Status == Status.SDBP_BADSCHEMA)
+                {
+                    db = client.CreateDatabase(dbName);
+                    return db;
+                }
+
+            }
+            if (db == null)
+                return null;
+
+            foreach (Table table in db.GetTables())
+            {
+                table.DeleteTable();
+            }
+
+            return db;
+        }
+
 
         public static string RandomString(int size = 0)
         {

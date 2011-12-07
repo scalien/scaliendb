@@ -75,6 +75,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\ScalienClientUnitTestsVS\ClientTests.cs">
+      <Link>ClientTests.cs</Link>
+    </Compile>
     <Compile Include="..\ScalienClientUnitTestsVS\Config.cs">
       <Link>Config.cs</Link>
     </Compile>

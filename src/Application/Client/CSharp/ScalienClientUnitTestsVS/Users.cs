@@ -87,8 +87,6 @@ namespace Scalien
 
         public void EmptyAll()
         {
-            while(IterateClients())
-                Utils.DeleteDBs(clients[client_index]);
             OpenDB();
         }
 
@@ -108,6 +106,8 @@ namespace Scalien
             {
                 db = clients[client_index].CreateDatabase(dbname);
             }
+
+            db = Utils.GetOrCreateEmptyDatabase(clients[client_index], dbname);
 
             try
             {
