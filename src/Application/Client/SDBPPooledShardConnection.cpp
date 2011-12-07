@@ -5,6 +5,8 @@
 
 using namespace SDBPClient;
 
+#define CLEANUP_TIMEOUT                     (15*1000)
+
 class PooledShardConnectionList
 {
 public:
@@ -17,6 +19,7 @@ typedef InTreeMap<PooledShardConnectionList>  ConnectionListMap;
 
 static ConnectionListMap    connections;
 static Mutex                globalMutex;
+static Countdown            cleanupTimer;
 static unsigned             poolSize = 0;
 static unsigned             maxPoolSize = 0;
 
@@ -75,15 +78,44 @@ void PooledShardConnection::ReleaseConnection(PooledShardConnection* conn)
     Log_Debug("Connection released, nodeID: %U, endpoint: %s", conn->conn->GetNodeID(), conn->conn->GetEndpoint().ToString());
 
     conn->conn = NULL;
-    if (poolSize < maxPoolSize)
+    conn->lastUsed = EventLoop::Now();
+    connList = connections.Get(conn->GetName());
+    ASSERT(connList != NULL);
+    connList->list.Prepend(conn);
+    poolSize += 1;
+}
+
+void PooledShardConnection::Cleanup()
+{
+    PooledShardConnectionList*      connList;
+    PooledShardConnection*          conn;
+    PooledShardConnection*          next;
+    InList<PooledShardConnection>   deleteList;
+    uint64_t                        now;
+
+    MutexGuard      guard(globalMutex);
+
+    if (poolSize <= maxPoolSize)
+        return;
+
+    now = EventLoop::Now();
+    FOREACH (connList, connections)
     {
-        connList = connections.Get(conn->GetName());
-        ASSERT(connList != NULL);
-        connList->list.Prepend(conn);
-        poolSize += 1;
+        for (conn = connList->list.First(); conn; conn = next)
+        {
+            if (now - conn->lastUsed > CLEANUP_TIMEOUT)
+            {
+                next = connList->list.Remove(conn);
+                deleteList.Append(conn);
+            }
+            else
+                next = connList->list.Next(conn);
+        }
     }
-    else
-        delete conn;
+
+    guard.Unlock();
+
+    deleteList.DeleteList();
 }
 
 void PooledShardConnection::SetPoolSize(unsigned poolSize_)
@@ -91,6 +123,22 @@ void PooledShardConnection::SetPoolSize(unsigned poolSize_)
     MutexGuard      guard(globalMutex);
 
     maxPoolSize = poolSize_;
+    if (maxPoolSize > 0)
+    {
+        if (!cleanupTimer.IsActive())
+        {
+            cleanupTimer.SetDelay(CLEANUP_TIMEOUT);
+            cleanupTimer.SetCallable(CFunc(PooledShardConnection::Cleanup));
+            EventLoop::Add(&cleanupTimer);
+        }
+    }
+    else
+    {
+        if (cleanupTimer.IsActive())
+        {
+            EventLoop::Remove(&cleanupTimer);
+        }
+    }
 }
 
 unsigned PooledShardConnection::GetPoolSize()
@@ -204,6 +252,7 @@ PooledShardConnection::PooledShardConnection(Endpoint& endpoint_)
     endpoint = endpoint_;
     prev = next = this;
     conn = NULL;
+    lastUsed = 0;
     name.Write(endpoint.ToString());
     
     ASSERT(name.GetLength() > 0);

@@ -17,6 +17,7 @@ class PooledShardConnection : MessageConnection
 public:    
     static PooledShardConnection*       GetConnection(ShardConnection* conn);
     static void                         ReleaseConnection(PooledShardConnection* conn);
+    static void                         Cleanup();
     static void                         SetPoolSize(unsigned poolSize);
     static unsigned                     GetPoolSize();
     static void                         ShutdownPool();
@@ -44,6 +45,7 @@ private:
     ShardConnection*                    conn;
     Buffer                              name;
     Endpoint                            endpoint;
+    uint64_t                            lastUsed;
 };
 
 };  // namespace
