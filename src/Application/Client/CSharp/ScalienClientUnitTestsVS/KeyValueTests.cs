@@ -21,15 +21,19 @@ namespace ScalienClientUnitTesting
             string tableName = "random_key_values_tbl";
 
             Client client = new Client(Config.GetNodes());
-            Utils.DeleteDBs(client);
-
-            Database db = client.CreateDatabase(dbName);
-            Table tbl = db.CreateTable(tableName);
+            Table tbl = Utils.GetOrCreateEmptyTableAndDatabase(client, dbName, tableName);
 
             byte[] key = new byte[0];
-            tbl.Set(key, key);
-
-            client.Submit();
+            try
+            {
+                tbl.Set(key, key);
+                Assert.Fail("Empty key");
+            }
+            catch (SDBPException e)
+            {
+                if (e.Status != Status.SDBP_API_ERROR)
+                    Assert.Fail("Empty key");
+            }
         }
 
         [TestMethod]
@@ -39,10 +43,7 @@ namespace ScalienClientUnitTesting
             string tableName = "random_key_values_tbl";
 
             Client client = new Client(Config.GetNodes());
-            Utils.DeleteDBs(client);
-
-            Database db = client.CreateDatabase(dbName);
-            Table tbl = db.CreateTable(tableName);
+            Table tbl = Utils.GetOrCreateEmptyTableAndDatabase(client, dbName, tableName);
 
             tbl.Set("", "");
 
@@ -56,10 +57,7 @@ namespace ScalienClientUnitTesting
             string tableName = "random_key_values_tbl";
 
             Client client = new Client(Config.GetNodes());
-            Utils.DeleteDBs(client);
-
-            Database db = client.CreateDatabase(dbName);
-            Table tbl = db.CreateTable(tableName);
+            Table tbl = Utils.GetOrCreateEmptyTableAndDatabase(client, dbName, tableName);
 
             tbl.Set("empty", "");
 
@@ -77,10 +75,7 @@ namespace ScalienClientUnitTesting
             string tableName = "random_key_values_tbl";
 
             Client client = new Client(Config.GetNodes());
-            Utils.DeleteDBs(client);
-
-            Database db = client.CreateDatabase(dbName);
-            Table tbl = db.CreateTable(tableName);
+            Table tbl = Utils.GetOrCreateEmptyTableAndDatabase(client, dbName, tableName);
             byte[][] key = new byte[50000][];
             byte[][] value = new byte[50000][];
             
@@ -109,10 +104,7 @@ namespace ScalienClientUnitTesting
             string tableName = "random_key_values_tbl";
 
             Client client = new Client(Config.GetNodes());
-            Utils.DeleteDBs(client);
-
-            Database db = client.CreateDatabase(dbName);
-            Table tbl = db.CreateTable(tableName);
+            Table tbl = Utils.GetOrCreateEmptyTableAndDatabase(client, dbName, tableName);
             byte[][] key = new byte[10000][];
             byte[][] value = new byte[10000][];
 
@@ -144,10 +136,7 @@ namespace ScalienClientUnitTesting
             string tableName = "random_key_values_tbl";
 
             Client client = new Client(Config.GetNodes());
-            Utils.DeleteDBs(client);
-
-            Database db = client.CreateDatabase(dbName);
-            Table tbl = db.CreateTable(tableName);
+            Table tbl = Utils.GetOrCreateEmptyTableAndDatabase(client, dbName, tableName);
             byte[] prefix = System.Text.Encoding.UTF8.GetBytes("prefix_");
 
             byte[][] key = new byte[10000][];
@@ -186,10 +175,7 @@ namespace ScalienClientUnitTesting
             string tableName = "random_key_values_tbl";
 
             Client client = new Client(Config.GetNodes());
-            Utils.DeleteDBs(client);
-
-            Database db = client.CreateDatabase(dbName);
-            Table tbl = db.CreateTable(tableName);
+            Table tbl = Utils.GetOrCreateEmptyTableAndDatabase(client, dbName, tableName);
             byte[][] key = new byte[10000][];
             byte[][] value = new byte[10000][];
 
@@ -220,10 +206,7 @@ namespace ScalienClientUnitTesting
             string tableName = "random_key_values_tbl";
 
             Client client = new Client(Config.GetNodes());
-            Utils.DeleteDBs(client);
-
-            Database db = client.CreateDatabase(dbName);
-            Table tbl = db.CreateTable(tableName);
+            Table tbl = Utils.GetOrCreateEmptyTableAndDatabase(client, dbName, tableName);
             byte[][] key = new byte[1500][];
             byte[][] value = new byte[1500][];
 
@@ -261,10 +244,7 @@ namespace ScalienClientUnitTesting
             string tableName = "random_key_values_tbl";
 
             Client client = new Client(Config.GetNodes());
-            Utils.DeleteDBs(client);
-
-            Database db = client.CreateDatabase(dbName);
-            Table tbl = db.CreateTable(tableName);
+            Table tbl = Utils.GetOrCreateEmptyTableAndDatabase(client, dbName, tableName);
             byte[] prefix = System.Text.Encoding.UTF8.GetBytes("prefix_");
             byte[][] key = new byte[10000][];
             byte[][] value = new byte[10000][];

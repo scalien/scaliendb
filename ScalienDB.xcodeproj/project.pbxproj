@@ -175,6 +175,7 @@
 		9AABB05D123E55DE003626AC /* FileSystem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9ACF203E122E942900247703 /* FileSystem.cpp */; };
 		9ABFE522147124ED0085B06B /* Signal_Posix.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54D53AD713F323E000311381 /* Signal_Posix.cpp */; };
 		9ABFE55614715AFA0085B06B /* LogTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9ABFE55514715AFA0085B06B /* LogTest.cpp */; };
+		9ABFE5F5147EAE7B0085B06B /* SDBPPooledShardConnection.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9ABFE5F4147EAE7B0085B06B /* SDBPPooledShardConnection.cpp */; };
 		9ACBF1BD141A4C9E00297EE1 /* SDBPController.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9ACBF1BB141A4C9E00297EE1 /* SDBPController.cpp */; };
 		9ACBF22B141E60EB00297EE1 /* MemoryTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9ACBF22A141E60EB00297EE1 /* MemoryTest.cpp */; };
 		9ACBF27314228DAE00297EE1 /* ConfigServerApp.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 543DE65812BFBB420069786A /* ConfigServerApp.cpp */; };
@@ -624,6 +625,8 @@
 		9AB1EEDF13D6F31700A463EF /* scaliendb_clientPINVOKE.cs */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = scaliendb_clientPINVOKE.cs; path = Client/CSharp/ScalienClient/scaliendb_clientPINVOKE.cs; sourceTree = "<group>"; };
 		9AB1F17613E0754100A463EF /* scaliendb_client_csharp.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = scaliendb_client_csharp.cpp; path = Client/CSharp/scaliendb_client_csharp.cpp; sourceTree = "<group>"; };
 		9ABFE55514715AFA0085B06B /* LogTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = LogTest.cpp; path = Test/LogTest.cpp; sourceTree = "<group>"; };
+		9ABFE5F3147EAE7B0085B06B /* SDBPPooledShardConnection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SDBPPooledShardConnection.h; path = Client/SDBPPooledShardConnection.h; sourceTree = "<group>"; };
+		9ABFE5F4147EAE7B0085B06B /* SDBPPooledShardConnection.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SDBPPooledShardConnection.cpp; path = Client/SDBPPooledShardConnection.cpp; sourceTree = "<group>"; };
 		9ACBF164140FFB3F00297EE1 /* Atomic.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Atomic.h; sourceTree = "<group>"; };
 		9ACBF1B3141A491E00297EE1 /* LockGuard.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LockGuard.h; sourceTree = "<group>"; };
 		9ACBF1BB141A4C9E00297EE1 /* SDBPController.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SDBPController.cpp; path = Client/SDBPController.cpp; sourceTree = "<group>"; };
@@ -1363,6 +1366,8 @@
 				9AE8177212CE1E550038BDB1 /* SDBPResult.cpp */,
 				9AE8177512CE1E550038BDB1 /* SDBPShardConnection.h */,
 				9AE8177412CE1E550038BDB1 /* SDBPShardConnection.cpp */,
+				9ABFE5F3147EAE7B0085B06B /* SDBPPooledShardConnection.h */,
+				9ABFE5F4147EAE7B0085B06B /* SDBPPooledShardConnection.cpp */,
 			);
 			name = Client;
 			sourceTree = "<group>";
@@ -1796,6 +1801,7 @@
 				9ACBF28814228E3200297EE1 /* Mime.cpp in Sources */,
 				9ACBF28B14228E4700297EE1 /* SDBPConnection.cpp in Sources */,
 				9ABFE55614715AFA0085B06B /* LogTest.cpp in Sources */,
+				9ABFE5F5147EAE7B0085B06B /* SDBPPooledShardConnection.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

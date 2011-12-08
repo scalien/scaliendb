@@ -23,10 +23,7 @@ namespace ScalienClientUnitTesting
             string tableName = "test_mp3_table";
 
             Client client = new Client(Config.GetNodes());
-            Utils.DeleteDBs(client);
-
-            Database db = client.CreateDatabase(dbName);
-            Table tbl = db.CreateTable(tableName);
+            Table tbl = Utils.GetOrCreateEmptyTableAndDatabase(client, dbName, tableName);
 
             // SET MP3 (you will need a valdi path to test.mp3
             byte[] payload = Utils.ReadFile("f:/test.mp3");
@@ -48,12 +45,7 @@ namespace ScalienClientUnitTesting
             string tableName = "get_set_db_table";
 
             Client client = new Client(Config.GetNodes());
-            Utils.DeleteDBs(client);
-
-            Database db = client.CreateDatabase(dbName);
-            Table tbl = db.CreateTable(tableName);
-
-            tbl.TruncateTable();
+            Table tbl = Utils.GetOrCreateEmptyTableAndDatabase(client, dbName, tableName);
 
             //client.Submit();
 
@@ -77,13 +69,8 @@ namespace ScalienClientUnitTesting
             Client client1 = new Client(Config.GetNodes());
             Client client2 = new Client(Config.GetNodes());
 
-            Utils.DeleteDBs(client1);
-
-            Database db1 = client1.CreateDatabase(dbName);
-            Table tbl1 = db1.CreateTable(tableName);
-
-            Database db2 = client1.CreateDatabase(dbName + "_2");
-            Table tbl2 = db2.CreateTable(tableName);
+            Table tbl1 = Utils.GetOrCreateEmptyTableAndDatabase(client1, dbName, tableName);
+            Table tbl2 = Utils.GetOrCreateEmptyTableAndDatabase(client2, dbName + "_2", tableName);
 
             tbl1.TruncateTable();
 
@@ -120,10 +107,7 @@ namespace ScalienClientUnitTesting
             Client.SetLogFile("f:\\log.txt");
             Client.SetTrace(true);
             Client client = new Client(Config.GetNodes());
-            Utils.DeleteDBs(client);
-
-            Database db = client.CreateDatabase(dbName);
-            Table tbl = db.CreateTable(tableName);
+            Table tbl = Utils.GetOrCreateEmptyTableAndDatabase(client, dbName, tableName);
 
             try
             {
@@ -152,12 +136,8 @@ namespace ScalienClientUnitTesting
             string tableNameTrunc = "trunc_table";
 
             Client client = new Client(Config.GetNodes());
-            
-            Utils.DeleteDBs(client);
-
-            Database db = client.CreateDatabase(dbName);
-            Table tblSeq = db.CreateTable(tableNameSeq);
-            Table tblTrunc = db.CreateTable(tableNameTrunc);
+            Table tblSeq = Utils.GetOrCreateEmptyTableAndDatabase(client, dbName, tableNameSeq);
+            Table tblTrunc = Utils.GetOrCreateEmptyTableAndDatabase(client, dbName, tableNameTrunc);
 
             Sequence testSeq = tblSeq.GetSequence("seqIDs");
 
@@ -186,12 +166,8 @@ namespace ScalienClientUnitTesting
             string tableNameSet = "set_table";
 
             Client client = new Client(Config.GetNodes());
-
-            Utils.DeleteDBs(client);
-
-            Database db = client.CreateDatabase(dbName);
-            Table tblSeq = db.CreateTable(tableNameSeq);
-            Table tblSet = db.CreateTable(tableNameSet);
+            Table tblSeq = Utils.GetOrCreateEmptyTableAndDatabase(client, dbName, tableNameSeq);
+            Table tblSet = Utils.GetOrCreateEmptyTableAndDatabase(client, dbName, tableNameSet);
 
             Sequence testSeq = tblSeq.GetSequence("seqIDs");
 
@@ -213,11 +189,7 @@ namespace ScalienClientUnitTesting
             string tableName = "test_table";
 
             Client client = new Client(Config.GetNodes());
-
-            Utils.DeleteDBs(client);
-
-            Database db = client.CreateDatabase(dbName);
-            Table tbl = db.CreateTable(tableName);
+            Table tbl = Utils.GetOrCreateEmptyTableAndDatabase(client, dbName, tableName);
 
             for(ulong i = 0; i < 1000; i++)
                 tbl.Set(Utils.Id(i), "test");
@@ -245,11 +217,7 @@ namespace ScalienClientUnitTesting
             string tableName = "test_table";
 
             Client client = new Client(Config.GetNodes());
-
-            Utils.DeleteDBs(client);
-
-            Database db = client.CreateDatabase(dbName);
-            Table tbl = db.CreateTable(tableName);
+            Table tbl = Utils.GetOrCreateEmptyTableAndDatabase(client, dbName, tableName);
 
             for (ulong i = 0; i < 1000; i++)
                 tbl.Set(Utils.Id(i), "test");
@@ -295,14 +263,7 @@ namespace ScalienClientUnitTesting
             uint num = 22 * 1000;
 
             Client client = new Client(Config.GetNodes());
-
-            //Database db = client.GetDatabase(dbName);
-            //Table tbl = db.GetTable(tableName);
-
-            Utils.DeleteDBs(client);
-
-            Database db = client.CreateDatabase(dbName);
-            Table tbl = db.CreateTable(tableName);
+            Table tbl = Utils.GetOrCreateEmptyTableAndDatabase(client, dbName, tableName);
 
             var value = Utils.RandomString(length);
 
@@ -324,14 +285,7 @@ namespace ScalienClientUnitTesting
             uint num = 22 * 1000;
 
             Client client = new Client(Config.GetNodes());
-
-            //Database db = client.GetDatabase(dbName);
-            //Table tbl = db.GetTable(tableName);
-
-            Utils.DeleteDBs(client);
-
-            Database db = client.CreateDatabase(dbName);
-            Table tbl = db.CreateTable(tableName);
+            Table tbl = Utils.GetOrCreateEmptyTableAndDatabase(client, dbName, tableName);
 
             var value = Utils.RandomString(length);
 

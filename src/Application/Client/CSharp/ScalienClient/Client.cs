@@ -323,6 +323,21 @@ namespace Scalien
         }
 
         /// <summary>
+        /// Set the size of the connection pool.
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        /// Sets the maximum number of connections that are kept in the pool. Setting this value to 0 means no 
+        /// connection pooling.
+        /// </para>
+        /// </remarks>
+        /// <param name="poolSize">The size of the pool</param>
+        public static void SetConnectionPoolSize(uint poolSize)
+        {
+            scaliendb_client.SDBP_SetShardPoolSize(poolSize);
+        }
+
+        /// <summary>
         /// The maximum time the client library will wait to complete operations, in miliseconds. Default 120 seconds.
         /// </summary>
         /// <param name="timeout">The global timeout in miliseconds.</param>

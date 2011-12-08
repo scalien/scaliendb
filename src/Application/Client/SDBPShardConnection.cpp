@@ -1,4 +1,5 @@
 #include "SDBPShardConnection.h"
+#include "SDBPPooledShardConnection.h"
 #include "SDBPClient.h"
 #include "Application/Common/ClientResponse.h"
 #include "Application/SDBP/SDBPRequestMessage.h"
@@ -22,14 +23,7 @@ ShardConnection::ShardConnection(Client* client_, uint64_t nodeID_, Endpoint& en
     client = client_;
     nodeID = nodeID_;
     endpoint = endpoint_;
-    autoFlush = false;
-    Connect();
-}
-
-void ShardConnection::Connect()
-{
-//    Log_Debug("Connecting to %s", endpoint.ToString());
-    MessageConnection::Connect(endpoint);
+    conn = NULL;
 }
 
 void ShardConnection::ClearRequests()
@@ -41,37 +35,32 @@ bool ShardConnection::SendRequest(Request* request)
 {
     SDBPRequestMessage  msg;
 
-    ASSERT(state == CONNECTED);
-
     sentRequests.Append(request);
     request->numTry++;
     request->requestTime = EventLoop::Now();
 
     msg.request = request;
-    Write(msg);
-
-    // buffer is saturated
-    if (GetWriteBuffer().GetLength() >= MESSAGING_BUFFER_THRESHOLD)
-        return false;
+    if (conn == NULL)
+        conn = PooledShardConnection::GetConnection(this);
     
-    return true;
-}
-
-void ShardConnection::SendSubmit(uint64_t /*quorumID*/)
-{
-    Flush();
+    return conn->SendRequest(msg);
 }
 
 void ShardConnection::Flush()
 {
-    TCPConnection::TryFlush();
+    if (conn == NULL)
+        return;
+
+    conn->Flush();
 }
 
-bool ShardConnection::HasRequestBuffered()
+void ShardConnection::ReleaseConnection()
 {
-    if (GetWriteBuffer().GetLength() > 0)
-        return true;
-    return false;
+    if (conn == NULL)
+        return;
+    
+    PooledShardConnection::ReleaseConnection(conn);
+    conn = NULL;
 }
 
 uint64_t ShardConnection::GetNodeID() const
@@ -86,7 +75,18 @@ Endpoint& ShardConnection::GetEndpoint()
 
 bool ShardConnection::IsWritePending()
 {
-    return tcpwrite.active;
+    if (conn == NULL)
+        return false;
+        
+    return conn->IsWritePending();
+}
+
+bool ShardConnection::IsConnected()
+{
+    if (conn == NULL)
+        conn = PooledShardConnection::GetConnection(this);
+
+    return conn->IsConnected();
 }
 
 unsigned ShardConnection::GetNumSentRequests()
@@ -219,8 +219,6 @@ void ShardConnection::OnWrite()
     
     CLIENT_MUTEX_GUARD_DECLARE();
     
-    MessageConnection::OnWrite();
-
     SendQuorumRequests();
 }
 
@@ -231,7 +229,6 @@ void ShardConnection::OnConnect()
 
     CLIENT_MUTEX_GUARD_DECLARE();
 
-    MessageConnection::OnConnect();
     client->ActivateQuorumMembership(this);
     SendQuorumRequests();
 }
@@ -245,9 +242,6 @@ void ShardConnection::OnClose()
     
     CLIENT_MUTEX_GUARD_DECLARE();
        
-    // close the socket and try reconnecting
-    MessageConnection::OnClose();
-
     // invalidate quorums
     for (itQuorum = quorums.First(); itQuorum != NULL; itQuorum = itNext)
     {
@@ -257,17 +251,6 @@ void ShardConnection::OnClose()
     
     // put back requests that have no response to the client's quorum queue
     ReassignSentRequests();
-    
-    if (EventLoop::Now() - connectTime > connectTimeout.GetDelay())
-    {
-        // lot of time has elapsed since last connect, reconnect immediately
-        Connect();
-    }
-    else
-    {
-        // wait for timeout
-        EventLoop::Reset(&connectTimeout);
-    }
 }
 
 void ShardConnection::InvalidateQuorum(uint64_t quorumID)

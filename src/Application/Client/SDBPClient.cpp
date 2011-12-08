@@ -2,6 +2,7 @@
 #include "SDBPControllerConnection.h"
 #include "SDBPController.h"
 #include "SDBPShardConnection.h"
+#include "SDBPPooledShardConnection.h"
 #include "SDBPClientConsts.h"
 #include "System/Common.h"
 #include "System/Macros.h"
@@ -202,6 +203,8 @@ void Client::Shutdown()
     numClients--;
     if (numClients == 0)
     {
+        PooledShardConnection::ShutdownPool();
+        
         Log_Debug("Stopping IOThread");
         EventLoop::Stop();
         ioThread->WaitStop();
@@ -220,10 +223,7 @@ void Client::Shutdown()
 // this is always called from the IO thread with the client lock locked
 void Client::OnClientShutdown()
 {
-    ShardConnection*        shardConnection;
-
-    FOREACH (shardConnection, shardConnections)
-        shardConnection->Close();
+    ReleaseShardConnections();
     
     EventLoop::Remove(&masterTimeout);
     EventLoop::Remove(&globalTimeout);
@@ -234,7 +234,7 @@ void Client::OnClientShutdown()
     
     shardConnections.DeleteTree();
 
-    ClearQuorumRequests();
+    DeleteQuorumRequests();
     quorumRequests.Clear();
     numControllerRequests = 0;
 
@@ -1116,6 +1116,8 @@ void Client::EventLoop()
     
         CLIENT_MUTEX_GUARD_LOCK();
     }
+    if (PooledShardConnection::GetPoolSize() > 0)
+        ReleaseShardConnections();
     ClearRequests();
     result->SetConnectivityStatus(connectivityStatus);
     result->SetTimeoutStatus(timeoutStatus);
@@ -1366,9 +1368,6 @@ void Client::SendQuorumRequest(ShardConnection* conn, uint64_t quorumID)
     bool                flushNeeded;
 
     // sanity checks
-    if (conn->GetState() != TCPConnection::CONNECTED)
-        return;
-
     if (configState.paxosID == 0)
         return;
 
@@ -1382,6 +1381,9 @@ void Client::SendQuorumRequest(ShardConnection* conn, uint64_t quorumID)
     
     // with consistency level set to STRICT, send requests only to primary shard server
     if (consistencyMode == SDBP_CONSISTENCY_STRICT && quorum->primaryID != conn->GetNodeID())
+        return;
+
+    if (!conn->IsConnected())
         return;
 
     // load balancing in relaxed consistency levels
@@ -1492,6 +1494,18 @@ void Client::ClearQuorumRequests()
     {
         requestList = requestNode->Value();
         requestList->Clear();
+    }
+}
+
+void Client::DeleteQuorumRequests()
+{
+    RequestListMap::Node*   requestNode;
+    RequestList*            requestList;
+
+    FOREACH (requestNode, quorumRequests)
+    {
+        requestList = requestNode->Value();
+        delete requestList;
     }
 }
 
@@ -1654,6 +1668,14 @@ void Client::ConfigureShardServers()
                 shardConn->SetQuorumMembership(qit->quorumID);
         }        
     }
+}
+
+void Client::ReleaseShardConnections()
+{
+    ShardConnection*    shardConnection;
+
+    FOREACH (shardConnection, shardConnections)
+        shardConnection->ReleaseConnection();
 }
 
 void Client::OnControllerConnected(ControllerConnection* conn)
@@ -1979,7 +2001,6 @@ void Client::IOThreadFunc()
 
     Log_SetTimestamping(true);
     Log_SetThreadedOutput(true);
-    Log_SetTraceBufferSize(32 * 1024 * 1024);
     Log_Debug("IOThreadFunc started: %U", ThreadPool::GetThreadID());
 
     EventLoop::Start();

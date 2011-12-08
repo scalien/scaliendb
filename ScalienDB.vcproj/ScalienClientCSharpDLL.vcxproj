@@ -170,7 +170,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
     </Link>
     <PreBuildEvent>
-      <Command>..\script\replaceversion.cmd $(ProjectName).rc</Command>
+      <Command>..\script\prebuild.cmd $(ProjectName)</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>

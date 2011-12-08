@@ -601,6 +601,9 @@ def set_logfile(filename):
 def log_trace(msg):
     SDBP_LogTrace(msg)
 
+def set_connection_pool_size(size):
+    SDBP_SetShardPoolSize(size)
+
 def _get_version():
     return SDBP_GetVersion()
 

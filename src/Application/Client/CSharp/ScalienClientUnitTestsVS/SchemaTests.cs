@@ -28,7 +28,7 @@ namespace ScalienClientUnitTesting
             string dbName = "manydb_test_";
             Client client = new Client(Config.GetNodes());
 
-            Utils.DeleteDBs(client);
+            Utils.DeleteAllDatabases(client);
 
             Database[] db = new Database[500];
 
@@ -54,7 +54,7 @@ namespace ScalienClientUnitTesting
             string dbName = "manydb_test_";
             Client client = new Client(Config.GetNodes());
 
-            Utils.DeleteDBs(client);
+            Utils.DeleteAllDatabases(client);
 
             Database[] db = new Database[100];
 
@@ -75,7 +75,7 @@ namespace ScalienClientUnitTesting
 
             Client client = new Client(Config.GetNodes());
 
-            Utils.DeleteDBs(client);
+            Utils.DeleteAllDatabases(client);
 
             Database[] db = new Database[1000];
 
@@ -96,10 +96,7 @@ namespace ScalienClientUnitTesting
             string tableName = "manytables_test_";
 
             Client client = new Client(Config.GetNodes());
-
-            Utils.DeleteDBs(client);
-
-            Database db = client.CreateDatabase(dbName);
+            Database db = Utils.GetOrCreateEmptyDatabase(client, dbName);
 
             Table[] tbl = new Table[1000];
 
@@ -120,10 +117,7 @@ namespace ScalienClientUnitTesting
             string tableName = "manytables_test_";
 
             Client client = new Client(Config.GetNodes());
-
-            Utils.DeleteDBs(client);
-
-            Database db = client.CreateDatabase(dbName);
+            Database db = Utils.GetOrCreateEmptyDatabase(client, dbName);
 
             Table[] tbl = new Table[10000];
 
@@ -145,7 +139,7 @@ namespace ScalienClientUnitTesting
 
             Client client = new Client(Config.GetNodes());
 
-            Utils.DeleteDBs(client);
+            Utils.DeleteAllDatabases(client);
 
             Database[] db = new Database[100];
             Table[,] tbl = new Table[100, 100];
@@ -175,7 +169,7 @@ namespace ScalienClientUnitTesting
         {
             Client client = new Client(Config.GetNodes());
 
-            Utils.DeleteDBs(client);
+            Utils.DeleteAllDatabases(client);
 
             Database[] db = new Database[100];
             string[] dbNames = new string[100];
@@ -198,7 +192,7 @@ namespace ScalienClientUnitTesting
         {
             Client client = new Client(Config.GetNodes());
 
-            Utils.DeleteDBs(client);
+            Utils.DeleteAllDatabases(client);
 
             Database[] db = new Database[100];
             List<string> dbNames = new List<string>();
@@ -223,10 +217,7 @@ namespace ScalienClientUnitTesting
             string[] tableNames = new string[100];
 
             Client client = new Client(Config.GetNodes());
-
-            Utils.DeleteDBs(client);
-
-            Database db = client.CreateDatabase(dbName);
+            Database db = Utils.GetOrCreateEmptyDatabase(client, dbName);
 
             Table[] tbl = new Table[100];
 
@@ -250,10 +241,7 @@ namespace ScalienClientUnitTesting
             List<string> tableNames = new List<string>(100);
 
             Client client = new Client(Config.GetNodes());
-
-            Utils.DeleteDBs(client);
-
-            Database db = client.CreateDatabase(dbName);
+            Database db = Utils.GetOrCreateEmptyDatabase(client, dbName);
 
             Table[] tbl = new Table[100];
 
