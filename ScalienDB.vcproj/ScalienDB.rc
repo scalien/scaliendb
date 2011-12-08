@@ -51,8 +51,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 2,2,0,0
- PRODUCTVERSION 2,2,0,0
+ FILEVERSION 2,2,1,0
+ PRODUCTVERSION 2,2,1,0
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -69,12 +69,12 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "Scalien Software"
             VALUE "FileDescription", "Scalien Database Server"
-            VALUE "FileVersion", "2.2.0"
+            VALUE "FileVersion", "2.2.1"
             VALUE "InternalName", "Scalien Database server"
             VALUE "LegalCopyright", "Copyright (C) 2009-2011 Scalien"
             VALUE "OriginalFilename", "ScalienDB.exe"
             VALUE "ProductName", "Scalien Database Server"
-            VALUE "ProductVersion", "2.2.0"
+            VALUE "ProductVersion", "2.2.1"
         END
     END
     BLOCK "VarFileInfo"
