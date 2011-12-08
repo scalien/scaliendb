@@ -143,7 +143,7 @@ void PooledShardConnection::Cleanup()
     if (poolSize <= maxPoolSize)
         return;
 
-    // find all connections that are unused for a certain time
+    // find all connections that are idle for a certain time
     now = EventLoop::Now();
     FOREACH (connList, connections)
     {
@@ -285,7 +285,7 @@ void PooledShardConnection::OnClose()
     // reconnect
     if (EventLoop::Now() - connectTime > connectTimeout.GetDelay())
     {
-        // more than connectTimeout time has elapsed since last connect, reconnect immediately
+        // more than connectTimeout has elapsed since last connect, reconnect immediately
         Connect();
     }
     else
