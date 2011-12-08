@@ -15,6 +15,8 @@ class PooledShardConnection : MessageConnection
     typedef InTreeNode<PooledShardConnection> TreeNode;
 
 public:    
+    ~PooledShardConnection();
+
     static PooledShardConnection*       GetConnection(ShardConnection* conn);
     static void                         ReleaseConnection(PooledShardConnection* conn);
     static void                         Cleanup();

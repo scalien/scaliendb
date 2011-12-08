@@ -5,6 +5,7 @@
 #include "System/Config.h"
 #include "System/Threading/ThreadPool.h"
 #include "System/Threading/Atomic.h"
+#include "System/Events/Deferred.h"
 
 using namespace SDBPClient;
 
@@ -43,11 +44,27 @@ using namespace SDBPClient;
     case SDBP_BADSCHEMA: TEST_LOG("%s status: SDBP_BADSCHEMA", which); break; \
     }
 
+static void TestShutdown();
+
 // module global variables
 static uint64_t     defaultTableID;
 static uint64_t     defaultDatabaseID;
 static bool         stopOnTestFailure = true;
 static uint32_t     failCount;
+static bool         configRead = false;
+static Mutex        configMutex;
+static Deferred     onShutdown = CFunc(TestShutdown);
+
+static void TestShutdown()
+{
+    MutexGuard      guard(configMutex);
+
+    if (configRead == false)
+        return;
+
+    configFile.Shutdown();
+    configRead = false;
+}
 
 static int SetupDefaultControllerNodes(Client& client)
 {
@@ -75,6 +92,18 @@ static int SetupDefaultControllerNodes(Client& client)
     return client.Init(SIZE(nodes), nodes);
 }
 
+static void ReadConfig()
+{    
+    MutexGuard      guard(configMutex);
+
+    if (configRead)
+        return;
+
+    configFile.Shutdown();
+    configFile.Init("test/client/client.conf");
+    configRead = true;
+}
+
 static int SetupDefaultClient(Client& client)
 {
     std::string     databaseName = "test";
@@ -84,11 +113,9 @@ static int SetupDefaultClient(Client& client)
     int             ret;
     ClientObj       clientObj;
 
-    client.Shutdown();
-    
-    configFile.Shutdown();
-    configFile.Init("test/client/client.conf");
+    ReadConfig();
 
+    client.Shutdown();
     ret = SetupDefaultControllerNodes(client);
     if (ret != SDBP_SUCCESS)
         TEST_CLIENT_FAIL();
@@ -1136,10 +1163,64 @@ TEST_DEFINE(TestClientInfiniteLoop)
     return TEST_SUCCESS;
 }
 
+static void SetFunc()
+{
+    Client      client;
+    Buffer      key;
+    Buffer      value;
+    static int  counter;
+    static int  i;
+    
+    i = AtomicIncrement32(counter);
+    
+    TEST(SetupDefaultClient(client));
+    key.Writef("%d", i);
+    value.Writef("%d", i);
+    client.Set(defaultTableID, key, value);
+}
+
+static void MultiSetFunc()
+{
+    Client      client;
+    Buffer      key;
+    Buffer      value;
+    static int  counter;
+    static int  i;
+    
+    i = AtomicIncrement32(counter);
+    
+    TEST(SetupDefaultClient(client));
+    for (int j = i * 100; j < i * 100 + 100; j++)
+    {
+        key.Writef("%d", i);
+        value.Writef("%d", i);
+        client.Set(defaultTableID, key, value);
+        client.Submit();
+    }
+}
+
+static void MultiClientShardConnectionPoolingSet(Callable func)
+{
+    int             numClients = 20;
+    ThreadPool*     threadPool;
+    
+    threadPool = ThreadPool::Create(numClients);
+
+    for (int i = 0; i < numClients; i++)
+    {
+        threadPool->Execute(func);
+    }
+    
+    threadPool->Start();
+    threadPool->WaitStop();
+    
+    delete threadPool;
+}
+
 static void ClientShardConnectionPoolingSet()
 {
     Client**    clients;
-    int         numClients = 200;
+    int         numClients = 20;
     Buffer      key;
     Buffer      value;
 
@@ -1166,10 +1247,17 @@ static void ClientShardConnectionPoolingSet()
 
 TEST_DEFINE(TestClientShardConnectionPooling)
 {
+    Log_Debug("Shard pool size: 0");
     SDBP_SetShardPoolSize(0);
     ClientShardConnectionPoolingSet();
+    MultiClientShardConnectionPoolingSet(CFunc(SetFunc));
+    MultiClientShardConnectionPoolingSet(CFunc(MultiSetFunc));
+    
+    Log_Debug("Shard pool size: 100");
     SDBP_SetShardPoolSize(100);
     ClientShardConnectionPoolingSet();
+    MultiClientShardConnectionPoolingSet(CFunc(SetFunc));
+    MultiClientShardConnectionPoolingSet(CFunc(MultiSetFunc));
     
     return TEST_SUCCESS;
 }

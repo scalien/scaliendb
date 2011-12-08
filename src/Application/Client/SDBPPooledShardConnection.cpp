@@ -79,6 +79,13 @@ void PooledShardConnection::ReleaseConnection(PooledShardConnection* conn)
 
     conn->conn = NULL;
     conn->lastUsed = EventLoop::Now();
+    
+    if (maxPoolSize == 0)
+    {
+        delete conn;
+        return;
+    }
+    
     connList = connections.Get(conn->GetName());
     ASSERT(connList != NULL);
     connList->list.Prepend(conn);
@@ -258,4 +265,9 @@ PooledShardConnection::PooledShardConnection(Endpoint& endpoint_)
     ASSERT(name.GetLength() > 0);
 
     Connect();
+}
+
+PooledShardConnection::~PooledShardConnection()
+{
+    Log_Debug("Connection deleted, endpoint: %B", &name);
 }
