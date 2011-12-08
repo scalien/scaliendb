@@ -43,6 +43,8 @@ PooledShardConnection* PooledShardConnection::GetConnection(ShardConnection* sha
 
     name.Write(shardConn->GetEndpoint().ToReadBuffer());
     connList = connections.Get(name);
+
+    // create new list if not exists by the name
     if (connList == NULL)
     {
         connList = new PooledShardConnectionList();
@@ -52,11 +54,13 @@ PooledShardConnection* PooledShardConnection::GetConnection(ShardConnection* sha
     
     if (connList->list.GetLength() == 0)
     {
+        // create new connection and start connecting
         conn = new PooledShardConnection(shardConn->GetEndpoint());
         Log_Debug("New connection, nodeID: %U, endpoint: %s", shardConn->GetNodeID(), shardConn->GetEndpoint().ToString());
     }
     else
     {
+        // acquire pooled connection
         conn = connList->list.Pop();
         poolSize -= 1;
         Log_Debug("Pooled connection, nodeID: %U, endpoint: %s", shardConn->GetNodeID(), shardConn->GetEndpoint().ToString());
@@ -64,8 +68,6 @@ PooledShardConnection* PooledShardConnection::GetConnection(ShardConnection* sha
 
     conn->conn = shardConn;
 
-    // TODO: start sending requests
-        
     return conn;
 }
 
@@ -80,12 +82,14 @@ void PooledShardConnection::ReleaseConnection(PooledShardConnection* conn)
     conn->conn = NULL;
     conn->lastUsed = EventLoop::Now();
     
+    // no connection pooling
     if (maxPoolSize == 0)
     {
         delete conn;
         return;
     }
     
+    // put back the connection to the pool, the cleanup mechanism will take care of idle connections
     connList = connections.Get(conn->GetName());
     ASSERT(connList != NULL);
     connList->list.Prepend(conn);
@@ -105,6 +109,7 @@ void PooledShardConnection::Cleanup()
     if (poolSize <= maxPoolSize)
         return;
 
+    // find all connections that are unused for a certain time
     now = EventLoop::Now();
     FOREACH (connList, connections)
     {
@@ -122,6 +127,7 @@ void PooledShardConnection::Cleanup()
 
     guard.Unlock();
 
+    // do the memory deallocation outside the mutex
     deleteList.DeleteList();
 }
 
@@ -132,6 +138,7 @@ void PooledShardConnection::SetPoolSize(unsigned poolSize_)
     maxPoolSize = poolSize_;
     if (maxPoolSize > 0)
     {
+        // start the cleanup timer
         if (!cleanupTimer.IsActive())
         {
             cleanupTimer.SetDelay(CLEANUP_TIMEOUT);
@@ -141,6 +148,7 @@ void PooledShardConnection::SetPoolSize(unsigned poolSize_)
     }
     else
     {
+        // remove the cleanup timer
         if (cleanupTimer.IsActive())
         {
             EventLoop::Remove(&cleanupTimer);
@@ -243,7 +251,7 @@ void PooledShardConnection::OnClose()
     // reconnect
     if (EventLoop::Now() - connectTime > connectTimeout.GetDelay())
     {
-        // lot of time has elapsed since last connect, reconnect immediately
+        // more than connectTimeout time has elapsed since last connect, reconnect immediately
         Connect();
     }
     else
