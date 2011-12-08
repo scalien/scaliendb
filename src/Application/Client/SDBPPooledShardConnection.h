@@ -10,6 +10,14 @@ namespace SDBPClient
 
 class ShardConnection;
 
+/*
+===============================================================================================
+
+ SDBPClient::PooledShardConnection
+
+===============================================================================================
+*/
+
 class PooledShardConnection : MessageConnection
 {
     typedef InTreeNode<PooledShardConnection> TreeNode;

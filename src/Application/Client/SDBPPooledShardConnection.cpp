@@ -7,6 +7,16 @@ using namespace SDBPClient;
 
 #define CLEANUP_TIMEOUT                     (15*1000)
 
+/*
+===============================================================================================
+
+ SDBPClient::PooledShardConnectionList
+
+ Used for holding PooledShardConnections in a map, keyed by the endpoint of the connection.
+
+===============================================================================================
+*/
+
 class PooledShardConnectionList
 {
 public:
@@ -15,13 +25,29 @@ public:
     InTreeNode<PooledShardConnectionList>   treeNode;
 };
 
-typedef InTreeMap<PooledShardConnectionList>  ConnectionListMap;
+/*
+===============================================================================================
+
+ Globals
+
+===============================================================================================
+*/
+
+typedef InTreeMap<PooledShardConnectionList> ConnectionListMap;
 
 static ConnectionListMap    connections;
 static Mutex                globalMutex;
 static Countdown            cleanupTimer;
 static unsigned             poolSize = 0;
 static unsigned             maxPoolSize = 0;
+
+/*
+===============================================================================================
+
+ Helpers
+
+===============================================================================================
+*/
 
 static inline const Buffer& Key(const PooledShardConnectionList* conn)
 {
@@ -32,6 +58,14 @@ static inline int KeyCmp(const Buffer& a, const Buffer& b)
 {
     return Buffer::Cmp(a, b);
 }
+
+/*
+===============================================================================================
+
+ SDBPClient::PooledShardConnection implementation.
+
+===============================================================================================
+*/
 
 PooledShardConnection* PooledShardConnection::GetConnection(ShardConnection* shardConn)
 {
