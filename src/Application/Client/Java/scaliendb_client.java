@@ -323,16 +323,24 @@ public class scaliendb_client {
     scaliendb_clientJNI.SDBP_SetLogFile(filename);
   }
 
+  public static void SDBP_SetTraceBufferSize(long traceBufferSize) {
+    scaliendb_clientJNI.SDBP_SetTraceBufferSize(traceBufferSize);
+  }
+
+  public static void SDBP_LogTrace(String msg) {
+    scaliendb_clientJNI.SDBP_LogTrace(msg);
+  }
+
+  public static void SDBP_SetShardPoolSize(long shardPoolSize) {
+    scaliendb_clientJNI.SDBP_SetShardPoolSize(shardPoolSize);
+  }
+
   public static String SDBP_GetVersion() {
     return scaliendb_clientJNI.SDBP_GetVersion();
   }
 
   public static String SDBP_GetDebugString() {
     return scaliendb_clientJNI.SDBP_GetDebugString();
-  }
-
-  public static void SDBP_LogTrace(String msg) {
-    scaliendb_clientJNI.SDBP_LogTrace(msg);
   }
 
 }

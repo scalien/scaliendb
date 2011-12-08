@@ -187,6 +187,19 @@ public class Client
 
 
     /**
+     * Sets the size of the connection pool.
+     * <p>
+     * Sets the maximum number of connections that are kept in the pool. 
+     * Setting this value to 0 means no connection pooling.
+     *
+     * @param   poolSize    The size of the pool
+     */
+    public static void setConnectionPoolSize(int poolSize)
+    {
+        scaliendb_client.SDBP_SetShardPoolSize(poolSize);
+    }
+
+    /**
      * The maximum time the client library will wait to complete operations, in miliseconds.
      * Default 120 seconds.
      * @param timeout The global timeout in miliseconds.
