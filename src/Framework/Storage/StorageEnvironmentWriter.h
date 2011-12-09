@@ -20,6 +20,7 @@ class StorageEnvironmentWriter
 public:
 
     bool                    Write(StorageEnvironment* env);
+    uint64_t                WriteUnique(StorageEnvironment* env);
 
 private:
     void                    WriteBuffer();

@@ -126,6 +126,7 @@ public:
     StorageShard*           GetShard(uint16_t contextID, uint64_t shardID);
     StorageShard*           GetShardByKey(uint16_t contextID, uint64_t tableID, ReadBuffer& key);
     void                    WriteTOC();
+    uint64_t                WriteUniqueTOC();
     StorageFileChunk*       GetFileChunk(uint64_t chunkID);
     void                    EnqueueAsyncGet(StorageAsyncGet* asyncGet);
     void                    OnChunkSerialized(StorageMemoChunk* memoChunk, StorageFileChunk* fileChunk);
@@ -164,6 +165,7 @@ public:
     bool                    shuttingDown;
     bool                    writingTOC;
     bool                    mergeEnabled;
+    bool                    deleteEnabled;
 };
 
 #endif

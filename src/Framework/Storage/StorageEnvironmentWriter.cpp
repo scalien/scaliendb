@@ -44,6 +44,38 @@ bool StorageEnvironmentWriter::Write(StorageEnvironment* env_)
     return true;
 }
 
+uint64_t StorageEnvironmentWriter::WriteUnique(StorageEnvironment* env_)
+{
+    Buffer      TOC;
+    uint32_t    writeSize;
+    uint64_t    uniqueID;
+ 
+    env = env_;
+    
+    WriteBuffer();
+    
+    uniqueID = Now();
+    TOC.Write(env->envPath);
+    TOC.Append("toc.%U", uniqueID);
+    TOC.NullTerminate();
+    
+    if (fd.Open(TOC.GetBuffer(), FS_CREATE | FS_READWRITE) == INVALID_FD)
+        return false;
+    
+    // TODO: open with FS_TRUNCATE flag
+    FS_FileTruncate(fd.GetFD(), 0);
+    StorageEnvironment::Sync(fd.GetFD());
+    
+    writeSize = writeBuffer.GetLength();
+    if (FS_FileWrite(fd.GetFD(), writeBuffer.GetBuffer(), writeSize) != (ssize_t) writeSize)
+        return false;
+
+    StorageEnvironment::Sync(fd.GetFD());
+    fd.Close();
+
+    return uniqueID;
+}
+
 void StorageEnvironmentWriter::WriteBuffer()
 {
     uint32_t        numShards, checksum, length;
