@@ -40,6 +40,8 @@ public:
     
     bool                BeginsWith(const char* s);
     bool                BeginsWith(ReadBuffer& other);
+    bool                Equals(const char* s);
+    bool                Equals(ReadBuffer& other);
     
     int                 Find(const ReadBuffer& other);
     
