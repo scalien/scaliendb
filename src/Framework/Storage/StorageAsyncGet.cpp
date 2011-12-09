@@ -53,6 +53,7 @@ void StorageAsyncGet::ExecuteAsyncGet()
     shard = env->GetShard(contextID, shardID);
     if (!shard)
     {
+        itChunk = NULL;
         completed = true;
         goto complete;
     }
