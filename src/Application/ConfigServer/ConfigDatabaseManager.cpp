@@ -38,6 +38,11 @@ ConfigState* ConfigDatabaseManager::GetConfigState()
     return &configState;
 }
 
+StorageEnvironment* ConfigDatabaseManager::GetEnvironment()
+{
+    return &environment;
+}
+
 void ConfigDatabaseManager::SetPaxosID(uint64_t paxosID_)
 {
     paxosID = paxosID_;

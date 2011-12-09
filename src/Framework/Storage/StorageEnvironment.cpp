@@ -228,6 +228,11 @@ void StorageEnvironment::SetMergeEnabled(bool mergeEnabled_)
     mergeEnabled = mergeEnabled_;
 }
 
+void StorageEnvironment::SetDeleteEnabled(bool deleteEnabled_)
+{
+    deleteEnabled = deleteEnabled_;
+}
+
 uint64_t StorageEnvironment::GetShardID(uint16_t contextID, uint64_t tableID, ReadBuffer& key)
 {
     StorageShard* it;
@@ -1592,15 +1597,22 @@ void StorageEnvironment::WriteTOC()
     Log_Debug("WriteTOC finished");
 }
 
-uint64_t StorageEnvironment::WriteUniqueTOC()
+uint64_t StorageEnvironment::WriteSnapshotTOC()
 {
     StorageEnvironmentWriter    writer;
-    uint64_t                    uniqueID;
+    uint64_t                    tocID;
 
     Log_Debug("WriteTOC started");
 
-    uniqueID = writer.Write(this);
-    return uniqueID;
+    tocID = writer.WriteSnapshot(this);
+    return tocID;
+}
+
+bool StorageEnvironment::DeleteSnapshotTOC(uint64_t tocID)
+{
+    StorageEnvironmentWriter    writer;
+
+    return writer.DeleteSnapshot(this, tocID);
 }
 
 StorageFileChunk* StorageEnvironment::GetFileChunk(uint64_t chunkID)

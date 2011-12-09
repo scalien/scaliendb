@@ -66,6 +66,7 @@ public:
 
     void                    SetYieldThreads(bool yieldThreads);
     void                    SetMergeEnabled(bool mergeEnabled);
+    void                    SetDeleteEnabled(bool deleteEnabled);
 
     uint64_t                GetShardID(uint16_t contextID, uint64_t tableID, ReadBuffer& key);
     bool                    ShardExists(uint16_t contextID, uint64_t shardID);
@@ -126,7 +127,8 @@ public:
     StorageShard*           GetShard(uint16_t contextID, uint64_t shardID);
     StorageShard*           GetShardByKey(uint16_t contextID, uint64_t tableID, ReadBuffer& key);
     void                    WriteTOC();
-    uint64_t                WriteUniqueTOC();
+    uint64_t                WriteSnapshotTOC();
+    bool                    DeleteSnapshotTOC(uint64_t tocID);
     StorageFileChunk*       GetFileChunk(uint64_t chunkID);
     void                    EnqueueAsyncGet(StorageAsyncGet* asyncGet);
     void                    OnChunkSerialized(StorageMemoChunk* memoChunk, StorageFileChunk* fileChunk);

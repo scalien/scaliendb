@@ -606,6 +606,16 @@ bool ConfigHTTPClientSession::ProcessCommand(ReadBuffer& cmd)
         ProcessDebugCommand();
         return true;
     }
+    else if (HTTP_MATCH_COMMAND(cmd, "startbackup"))
+    {
+        ProcessStartBackup();
+        return true;
+    }
+    else if (HTTP_MATCH_COMMAND(cmd, "endbackup"))
+    {
+        ProcessEndBackup();
+        return true;
+    }
 
     request = ProcessConfigCommand(cmd);
     if (!request)
@@ -650,6 +660,41 @@ void ConfigHTTPClientSession::ProcessDebugCommand()
 
     session.Flush();
 #endif
+}
+
+void ConfigHTTPClientSession::ProcessStartBackup()
+{
+    uint64_t                tocID;
+    Buffer                  output;
+    StorageEnvironment*     env;
+
+    env = configServer->GetDatabaseManager()->GetEnvironment();
+    
+    // turn off file deletion and write a snapshot of the TOC
+    env->SetDeleteEnabled(false);
+    tocID = env->WriteSnapshotTOC();
+    
+    output.Writef("%U", tocID);
+    output.NullTerminate();
+    
+    session.Print(output.GetBuffer());
+    session.Flush();
+}
+
+void ConfigHTTPClientSession::ProcessEndBackup()
+{
+    uint64_t                tocID;
+    Buffer                  output;
+    StorageEnvironment*     env;
+
+    HTTP_GET_OPT_U64_PARAM(params, "tocID", tocID);
+    
+    env = configServer->GetDatabaseManager()->GetEnvironment();
+    env->DeleteSnapshotTOC(tocID);
+    env->SetDeleteEnabled(true);
+    
+    session.Print("Done.");
+    session.Flush();
 }
 
 ClientRequest* ConfigHTTPClientSession::ProcessConfigCommand(ReadBuffer& cmd)

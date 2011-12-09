@@ -20,7 +20,9 @@ class StorageEnvironmentWriter
 public:
 
     bool                    Write(StorageEnvironment* env);
-    uint64_t                WriteUnique(StorageEnvironment* env);
+    
+    uint64_t                WriteSnapshot(StorageEnvironment* env);
+    bool                    DeleteSnapshot(StorageEnvironment* env, uint64_t tocID);
 
 private:
     void                    WriteBuffer();

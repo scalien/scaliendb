@@ -44,19 +44,19 @@ bool StorageEnvironmentWriter::Write(StorageEnvironment* env_)
     return true;
 }
 
-uint64_t StorageEnvironmentWriter::WriteUnique(StorageEnvironment* env_)
+uint64_t StorageEnvironmentWriter::WriteSnapshot(StorageEnvironment* env_)
 {
     Buffer      TOC;
     uint32_t    writeSize;
-    uint64_t    uniqueID;
+    uint64_t    tocID;
  
     env = env_;
     
     WriteBuffer();
     
-    uniqueID = Now();
+    tocID = Now();
     TOC.Write(env->envPath);
-    TOC.Append("toc.%U", uniqueID);
+    TOC.Appendf("toc.%U", tocID);
     TOC.NullTerminate();
     
     if (fd.Open(TOC.GetBuffer(), FS_CREATE | FS_READWRITE) == INVALID_FD)
@@ -73,7 +73,18 @@ uint64_t StorageEnvironmentWriter::WriteUnique(StorageEnvironment* env_)
     StorageEnvironment::Sync(fd.GetFD());
     fd.Close();
 
-    return uniqueID;
+    return tocID;
+}
+
+bool StorageEnvironmentWriter::DeleteSnapshot(StorageEnvironment* env, uint64_t tocID)
+{
+    Buffer      TOC;
+
+    TOC.Write(env->envPath);
+    TOC.Appendf("toc.%U", tocID);
+    TOC.NullTerminate();
+
+    return FS_Delete(TOC.GetBuffer());
 }
 
 void StorageEnvironmentWriter::WriteBuffer()

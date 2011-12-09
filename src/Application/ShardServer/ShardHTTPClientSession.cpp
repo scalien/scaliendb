@@ -327,6 +327,16 @@ bool ShardHTTPClientSession::ProcessCommand(ReadBuffer& cmd)
         ProcessDebugCommand();
         return true;
     }
+    else if (HTTP_MATCH_COMMAND(cmd, "startbackup"))
+    {
+        ProcessStartBackup();
+        return true;
+    }
+    else if (HTTP_MATCH_COMMAND(cmd, "endbackup"))
+    {
+        ProcessEndBackup();
+        return true;
+    }
 
     request = ProcessShardServerCommand(cmd);
     if (!request)
@@ -377,6 +387,41 @@ void ShardHTTPClientSession::ProcessDebugCommand()
 
     session.Flush();
 #endif
+}
+
+void ShardHTTPClientSession::ProcessStartBackup()
+{
+    uint64_t                tocID;
+    Buffer                  output;
+    StorageEnvironment*     env;
+
+    env = shardServer->GetDatabaseManager()->GetEnvironment();
+    
+    // turn off file deletion and write a snapshot of the TOC
+    env->SetDeleteEnabled(false);
+    tocID = env->WriteSnapshotTOC();
+    
+    output.Writef("%U", tocID);
+    output.NullTerminate();
+    
+    session.Print(output.GetBuffer());
+    session.Flush();
+}
+
+void ShardHTTPClientSession::ProcessEndBackup()
+{
+    uint64_t                tocID;
+    Buffer                  output;
+    StorageEnvironment*     env;
+
+    HTTP_GET_OPT_U64_PARAM(params, "tocID", tocID);
+    
+    env = shardServer->GetDatabaseManager()->GetEnvironment();
+    env->DeleteSnapshotTOC(tocID);
+    env->SetDeleteEnabled(true);
+    
+    session.Print("Done.");
+    session.Flush();
 }
 
 bool ShardHTTPClientSession::ProcessSettings()
