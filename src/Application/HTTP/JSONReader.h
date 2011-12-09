@@ -91,7 +91,8 @@ public:
         Array = 4,
         True = 5,
         False = 6,
-        Null = 7 
+        Bool = True | False, // 7
+        Null = 8 
     };
         
     unsigned        GetLength();
@@ -119,6 +120,7 @@ public:
     bool            GetArrayElement(unsigned index, JSON& json);
     bool            GetStringValue(ReadBuffer& value);
     bool            GetInt64Value(int64_t& value);
+    bool            GetBoolValue(bool& value);
     
     ReadBuffer      GetReadBuffer();
 
