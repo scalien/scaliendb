@@ -40,6 +40,8 @@ private:
 
     bool                ProcessCommand(ReadBuffer& cmd);
     void                ProcessDebugCommand();
+    void                ProcessStartBackup();
+    void                ProcessEndBackup();
     bool                ProcessSettings();
     void                ProcessClearCache();
     ClientRequest*      ProcessShardServerCommand(ReadBuffer& cmd);

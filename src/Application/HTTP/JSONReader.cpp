@@ -995,6 +995,8 @@ JSONIterator JSON::Next(JSONIterator it)
         tmp.Advance(it.data.GetBuffer() + it.data.GetLength() - GetBuffer());
         if (tmp.GetLength() > 0 && tmp.GetCharAt(0) == ',')
             tmp = JSON_SkipChar(tmp, ',');
+        if (tmp.GetLength() > 0 && tmp.GetCharAt(0) == ']')
+            return end;
 
         if (!JSONReader::GetValue(tmp, value))
             return end;
@@ -1108,6 +1110,46 @@ bool JSON::GetStringValue(ReadBuffer& value)
         return false;
     
     return JSONReader::GetStringValue(GetReadBuffer(), value);
+}
+
+bool JSON::GetInt64Value(int64_t& value)
+{
+    int64_t     ret;
+    ReadBuffer  buffer;
+
+    if (GetType() != JSON::Number)
+        return false;
+
+    buffer = data;
+    ret = 0;
+    while (buffer.GetLength() > 0 && isdigit(buffer.GetCharAt(0)))
+    {
+        ret = ret * 10 + buffer.GetCharAt(0) - '0';
+        buffer.Advance(1);
+    }
+
+    value = ret;
+    return true;
+}
+
+bool JSON::GetBoolValue(bool& value)
+{
+    JSON::Type  type;
+
+    type = GetType();
+    if (type == JSON::False)
+    {
+        value = false;
+        return true;
+    }
+
+    if (type == JSON::True)
+    {
+        value = true;
+        return true;
+    }
+
+    return false;
 }
 
 ReadBuffer JSON::GetReadBuffer()

@@ -44,6 +44,49 @@ bool StorageEnvironmentWriter::Write(StorageEnvironment* env_)
     return true;
 }
 
+uint64_t StorageEnvironmentWriter::WriteSnapshot(StorageEnvironment* env_)
+{
+    Buffer      TOC;
+    uint32_t    writeSize;
+    uint64_t    tocID;
+ 
+    env = env_;
+    
+    WriteBuffer();
+    
+    tocID = Now();
+    TOC.Write(env->envPath);
+    TOC.Appendf("toc.%U", tocID);
+    TOC.NullTerminate();
+    
+    if (fd.Open(TOC.GetBuffer(), FS_CREATE | FS_READWRITE) == INVALID_FD)
+        return false;
+    
+    // TODO: open with FS_TRUNCATE flag
+    FS_FileTruncate(fd.GetFD(), 0);
+    StorageEnvironment::Sync(fd.GetFD());
+    
+    writeSize = writeBuffer.GetLength();
+    if (FS_FileWrite(fd.GetFD(), writeBuffer.GetBuffer(), writeSize) != (ssize_t) writeSize)
+        return false;
+
+    StorageEnvironment::Sync(fd.GetFD());
+    fd.Close();
+
+    return tocID;
+}
+
+bool StorageEnvironmentWriter::DeleteSnapshot(StorageEnvironment* env, uint64_t tocID)
+{
+    Buffer      TOC;
+
+    TOC.Write(env->envPath);
+    TOC.Appendf("toc.%U", tocID);
+    TOC.NullTerminate();
+
+    return FS_Delete(TOC.GetBuffer());
+}
+
 void StorageEnvironmentWriter::WriteBuffer()
 {
     uint32_t        numShards, checksum, length;

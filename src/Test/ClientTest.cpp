@@ -70,6 +70,8 @@ static int SetupDefaultControllerNodes(Client& client)
 {
     uint64_t        nodeID;
     unsigned        numControllers;
+    int             ret;
+    const char**    nodes;
 
     // XXX: Warning! Don't use localhost on Windows, because if IPv6 is installed
     // resolution of localhost is at least 1 second. Instead use 127.0.0.1
@@ -83,13 +85,16 @@ static int SetupDefaultControllerNodes(Client& client)
         return client.Init(SIZE(defaultNodes), defaultNodes);
     }
     
-    const char* nodes[numControllers];
+    
+    nodes = new const char*[numControllers];
     for (nodeID = 0; nodeID < numControllers; nodeID++)
     {
         nodes[nodeID] = configFile.GetListValue("controllers", (int) nodeID, "");
     }
 
-    return client.Init(SIZE(nodes), nodes);
+    ret = client.Init(SIZE(nodes), nodes);
+    delete[] nodes;
+    return ret;
 }
 
 static void ReadConfig()
@@ -1165,35 +1170,35 @@ TEST_DEFINE(TestClientInfiniteLoop)
 
 static void SetFunc()
 {
-    Client      client;
-    Buffer      key;
-    Buffer      value;
-    static int  counter;
-    static int  i;
+    Client              client;
+    Buffer              key;
+    Buffer              value;
+    static uint32_t     counter;
+    static int          i;
     
     i = AtomicIncrement32(counter);
     
     TEST(SetupDefaultClient(client));
-    key.Writef("%d", i);
-    value.Writef("%d", i);
+    key.Writef("%u", i);
+    value.Writef("%u", i);
     client.Set(defaultTableID, key, value);
 }
 
 static void MultiSetFunc()
 {
-    Client      client;
-    Buffer      key;
-    Buffer      value;
-    static int  counter;
-    static int  i;
+    Client              client;
+    Buffer              key;
+    Buffer              value;
+    static uint32_t     counter;
+    static int          i;
     
     i = AtomicIncrement32(counter);
     
     TEST(SetupDefaultClient(client));
     for (int j = i * 100; j < i * 100 + 100; j++)
     {
-        key.Writef("%d", i);
-        value.Writef("%d", i);
+        key.Writef("%u", i);
+        value.Writef("%u", i);
         client.Set(defaultTableID, key, value);
         client.Submit();
     }

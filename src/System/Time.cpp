@@ -1,5 +1,6 @@
 #include "Time.h"
 #include "Threading/ThreadPool.h"
+#include "Threading/Atomic.h"
 #include "Events/Callable.h"
 
 #ifdef _WIN32
@@ -147,12 +148,17 @@ static inline void UpdateClock()
 {
     static struct timeval tv;
     uint64_t	prevMsec;
+    uint64_t    msec;
+    uint64_t    usec;
 
     prevMsec = clockMsec;
 
     gettimeofday(&tv, NULL);
-    clockMsec = (uint64_t)tv.tv_sec * 1000 + tv.tv_usec / 1000;
-    clockUsec = (uint64_t)tv.tv_sec * 1000000 + tv.tv_usec;
+    msec = (uint64_t)tv.tv_sec * 1000 + tv.tv_usec / 1000;
+    usec = (uint64_t)tv.tv_sec * 1000000 + tv.tv_usec;
+
+    AtomicExchange64(clockMsec, msec);
+    AtomicExchange64(clockUsec, usec);
 
     if (prevMsec != 0 && clockMsec - prevMsec > MAX(2 * CLOCK_RESOLUTION, 100))
         Log_Debug("Softclock diff: %U", clockMsec - prevMsec);

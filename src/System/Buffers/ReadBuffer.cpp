@@ -127,6 +127,16 @@ bool ReadBuffer::BeginsWith(ReadBuffer& other)
         return false;
 }
 
+bool ReadBuffer::Equals(const char* s)
+{
+    return Cmp(*this, s) == 0;
+}
+
+bool ReadBuffer::Equals(ReadBuffer& other)
+{
+    return Cmp(*this, other) == 0;
+}
+
 int ReadBuffer::Find(const ReadBuffer& other)
 {
     unsigned    rest;

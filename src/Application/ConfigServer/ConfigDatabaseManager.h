@@ -20,6 +20,7 @@ public:
     void                    Shutdown();
     
     ConfigState*            GetConfigState();
+    StorageEnvironment*     GetEnvironment();
     
     void                    SetPaxosID(uint64_t paxosID);
     uint64_t                GetPaxosID();

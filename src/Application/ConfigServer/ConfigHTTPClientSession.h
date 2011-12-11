@@ -48,6 +48,8 @@ private:
     void                ProcessSettings();
     bool                ProcessCommand(ReadBuffer& cmd);
     void                ProcessDebugCommand();
+    void                ProcessStartBackup();
+    void                ProcessEndBackup();
     ClientRequest*      ProcessConfigCommand(ReadBuffer& cmd);
     ClientRequest*      ProcessGetMaster();
     ClientRequest*      ProcessGetMasterHTTP();

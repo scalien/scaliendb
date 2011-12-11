@@ -293,6 +293,7 @@ StorageFileKeyValue* StorageAsyncList::GetSmallest()
     StorageFileKeyValue*    smallestKv;
     int                     cmpres;
 
+    smallestIndex = 0;  // making the compiler happy by initializing
     smallestKv = NULL;
     // readers are sorted by relevance, first is the oldest, last is the latest
     for (i = 0; i < numListers; i++)
