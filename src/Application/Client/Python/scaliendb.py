@@ -314,7 +314,7 @@ class Client:
                 self._result = self._table._client._list_key_values(self._table._table_id, self._prefix, self._start_key, self._end_key, num, self._direction, skip).items()
             else:
                 self._result = self._table._client._list_keys(self._table._table_id, self._prefix, self._start_key, self._end_key, num, self._direction, skip)
-            #self._result.sort()
+            self._result.sort()
             self._len = len(self._result)
             self._pos = 0
         
