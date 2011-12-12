@@ -150,6 +150,7 @@ static inline void UpdateClock()
     uint64_t	prevMsec;
     uint64_t    msec;
     uint64_t    usec;
+    uint64_t    diff;
 
     prevMsec = clockMsec;
 
@@ -161,7 +162,15 @@ static inline void UpdateClock()
     AtomicExchange64(clockUsec, usec);
 
     if (prevMsec != 0 && clockMsec - prevMsec > MAX(2 * CLOCK_RESOLUTION, 100))
-        Log_Debug("Softclock diff: %U", clockMsec - prevMsec);
+    {
+        if (clockMsec - prevMsec > 9223372036854775808ULL)
+        {
+            diff = prevMsec - clockMsec;
+            Log_Debug("Softclock diff negative, possible system clock adjustment: %U", diff);
+        }
+        else
+            Log_Debug("Softclock diff: %U", clockMsec - prevMsec);
+    }
 }
 
 static void ClockThread()
