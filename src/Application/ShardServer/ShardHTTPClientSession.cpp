@@ -414,6 +414,7 @@ void ShardHTTPClientSession::ProcessEndBackup()
     Buffer                  output;
     StorageEnvironment*     env;
 
+    tocID = 0;
     HTTP_GET_OPT_U64_PARAM(params, "tocID", tocID);
     
     env = shardServer->GetDatabaseManager()->GetEnvironment();
