@@ -130,6 +130,19 @@ uint32_t StorageIndexPage::GetOffsetIndex(uint64_t& offset)
     return indexTree.Last()->index;
 }
 
+uint64_t StorageIndexPage::GetIndexOffset(uint32_t index)
+{
+    StorageIndexRecord* it;
+
+    FOREACH(it, indexTree)
+    {
+        if (it->index == index)
+            return it->offset;
+    }
+    
+    return 0;
+}
+
 void StorageIndexPage::Append(ReadBuffer key, uint32_t index, uint64_t offset)
 {
     StorageIndexRecord* record;
