@@ -79,6 +79,7 @@ StorageEnvironment::StorageEnvironment()
     numCursors = 0;
     mergeEnabled = true;
     deleteEnabled = true;
+    dumpMemoChunks = false;
 }
 
 bool StorageEnvironment::Open(Buffer& envPath_)
@@ -242,6 +243,22 @@ uint64_t StorageEnvironment::GetShardID(uint16_t contextID, uint64_t tableID, Re
         if (it->GetContextID() == contextID && it->GetTableID() == tableID)
         {
             if (it->RangeContains(key))
+                return it->GetShardID();
+        }
+    }
+
+    return 0;
+}
+
+uint64_t StorageEnvironment::GetShardIDByLastKey(uint16_t contextID, uint64_t tableID, ReadBuffer& key)
+{
+    StorageShard* it;
+
+    FOREACH (it, shards)
+    {
+        if (it->GetContextID() == contextID && it->GetTableID() == tableID)
+        {
+            if (it->GetLastKey().Equals(key))
                 return it->GetShardID();
         }
     }
@@ -447,8 +464,8 @@ void StorageEnvironment::AsyncList(uint16_t contextID, uint64_t shardID, Storage
     if (shard == NULL)
         return;
         
-    if (!shard->RangeContains(asyncList->shardFirstKey))
-        return;
+    //if (!shard->RangeContains(asyncList->shardFirstKey))
+    //    return;
 
     numCursors++;
     
@@ -1209,6 +1226,8 @@ void StorageEnvironment::TrySerializeChunks()
             goto Candidate;
         if (memoChunksSumSize > config.memoChunkCacheSize)
             goto Candidate;
+        if (dumpMemoChunks)
+            goto Candidate;
         if (logSegment->GetLogSegmentID() <= config.numUnbackedLogSegments)
             continue;
         if (memoChunk->GetMinLogSegmentID() == 0)
@@ -1222,7 +1241,10 @@ Candidate:
     }
 
     if (!candidateShard)
+    {
+        dumpMemoChunks = false;
         return;
+    }
 
     memoChunk = candidateShard->GetMemoChunk();
     Log_Debug("Serializing chunk %U, size: %s", memoChunk->GetChunkID(),

@@ -69,6 +69,7 @@ public:
     void                    SetDeleteEnabled(bool deleteEnabled);
 
     uint64_t                GetShardID(uint16_t contextID, uint64_t tableID, ReadBuffer& key);
+    uint64_t                GetShardIDByLastKey(uint16_t contextID, uint64_t tableID, ReadBuffer& key);
     bool                    ShardExists(uint16_t contextID, uint64_t shardID);
     void                    GetShardIDs(uint64_t contextID, ShardIDList& shardIDs);
     void                    GetShardIDs(uint64_t contextID, uint64_t tableID, ShardIDList& shardIDs);
@@ -168,6 +169,7 @@ public:
     bool                    writingTOC;
     bool                    mergeEnabled;
     bool                    deleteEnabled;
+    bool                    dumpMemoChunks;
 };
 
 #endif
