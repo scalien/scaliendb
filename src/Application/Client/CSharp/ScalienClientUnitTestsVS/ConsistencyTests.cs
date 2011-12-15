@@ -152,16 +152,17 @@ namespace ScalienClientUnitTesting
             }
         }
 
-        public static string[][] ParallelFetchTableKeysHTTP(List<ConfigState.ShardServer> shardServers, Int64 tableID, string startKey, string endKey)
+        public static string[][] ParallelFetchTableKeysHTTP(List<ConfigState.ShardServer> shardServers, Int64 tableID, string startKey, string endKey, bool forward)
         {
             var threads = new ListerThreadState[shardServers.Count];
             var serverKeys = new string[shardServers.Count][];
             var listGranularity = 100 * 1000 + 1;
+            var direction = forward ? "forward" : "backward";
 
             var i = 0;
             foreach (var shardServer in shardServers)
             {
-                var url = GetShardServerURL(shardServer) + "listkeys?tableID=" + tableID + "&startKey=" + startKey + "&endKey=" + endKey + "&count=" + listGranularity;
+                var url = GetShardServerURL(shardServer) + "listkeys?tableID=" + tableID + "&startKey=" + startKey + "&endKey=" + endKey + "&count=" + listGranularity + "&direction=" + direction;
 
                 threads[i] = new ListerThreadState();
                 threads[i].thread = new Thread(new ThreadStart(threads[i].ListerThreadFunc));
@@ -194,7 +195,7 @@ namespace ScalienClientUnitTesting
             var i = 0;
             while (true)
             {
-                serverKeys = ParallelFetchTableKeysHTTP(shardServers, tableID, startKey, endKey);
+                serverKeys = ParallelFetchTableKeysHTTP(shardServers, tableID, startKey, endKey, true);
 
                 for (i = 1; i < serverKeys.Length; i++)
                 {
@@ -210,6 +211,7 @@ namespace ScalienClientUnitTesting
                             System.Console.WriteLine("Inconsistency at tableID: " + tableID);
                             System.Console.WriteLine("NodeID: " + shardServers.ElementAt(i).nodeID + ", key: " + a);
                             System.Console.WriteLine("NodeID: " + shardServers.ElementAt(0).nodeID + ", key: " + b);
+                            Assert.IsTrue(a == b);
                             return;
                         }
                     }
@@ -231,7 +233,7 @@ namespace ScalienClientUnitTesting
             ulong counter = 0;
             while (true)
             {
-                serverKeys = ParallelFetchTableKeysHTTP(shardServers, tableID, startKey, endKey);
+                serverKeys = ParallelFetchTableKeysHTTP(shardServers, tableID, startKey, endKey, true);
                 var referenceKeys = GenerateNumericKeys(counter, (ulong) serverKeys[0].Length);
 
                 for (var i = 0; i < serverKeys.Length; i++)
@@ -261,6 +263,46 @@ namespace ScalienClientUnitTesting
             }
         }
 
+        public static void CompareNumericTableKeysBackwardsHTTP(List<ConfigState.ShardServer> shardServers, Int64 tableID, ulong num)
+        {
+            var serverKeys = new string[shardServers.Count][];
+            var startKey = Utils.Id(num);
+            var endKey = "";
+            ulong counter = num;
+            while (true)
+            {
+                serverKeys = ParallelFetchTableKeysHTTP(shardServers, tableID, startKey, endKey, false);
+                var referenceKeys = GenerateNumericKeysBackwards(counter, (ulong)serverKeys[0].Length);
+
+                for (var i = 0; i < serverKeys.Length; i++)
+                {
+                    if (!serverKeys[i].SequenceEqual(referenceKeys))
+                    {
+                        for (var j = 0; j < Math.Max(serverKeys[i].Length, referenceKeys.Length); j++)
+                        {
+                            var a = serverKeys[i][j];
+                            var b = referenceKeys[j];
+                            if (a == b)
+                                continue;
+                            //Assert.IsTrue(a == b);
+                            System.Console.WriteLine("Inconsistency at tableID: " + tableID);
+                            System.Console.WriteLine("NodeID: " + shardServers.ElementAt(i).nodeID + ", key: " + a);
+                            Assert.IsTrue(a == b);
+                            return;
+                        }
+                    }
+                }
+
+                if (serverKeys[0].Length <= 1)
+                    break;
+
+                startKey = serverKeys[0][serverKeys[0].Length - 1];
+                counter -= (ulong)referenceKeys.Length - 1;
+                System.Console.WriteLine("StartKey: " + startKey);
+            }
+        }
+
+
         public static string[] GenerateNumericKeys(ulong start, ulong count)
         {
             var keys = new string[count];
@@ -268,6 +310,19 @@ namespace ScalienClientUnitTesting
             for (ulong i = 0; i < count; i++)
             {
                 var key = start + i;
+                keys[i] = Utils.Id(key);
+            }
+
+            return keys;
+        }
+
+        public static string[] GenerateNumericKeysBackwards(ulong start, ulong count)
+        {
+            var keys = new string[count];
+
+            for (ulong i = 0; i < count; i++)
+            {
+                var key = start - i;
                 keys[i] = Utils.Id(key);
             }
 
@@ -529,7 +584,9 @@ namespace ScalienClientUnitTesting
 
             Assert.IsTrue(tableID != 0);
 
-            CompareNumericTableKeysHTTP(shardServers, tableID, 15 * 1000 * 1000);
+            ulong num = 50 * 1000 * 1000;
+            CompareNumericTableKeysHTTP(shardServers, tableID, num);
+            CompareNumericTableKeysBackwardsHTTP(shardServers, tableID, num);
         }
 
         [TestMethod]
