@@ -75,6 +75,7 @@ public:
     unsigned            GetRemaining();
     char*               GetPosition();
     uint32_t            GetChecksum();
+    ReadBuffer          GetReadBuffer();
     
     void                Clear();
     void                Reset();

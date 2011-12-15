@@ -363,6 +363,11 @@ uint32_t Buffer::GetChecksum()
     return ChecksumBuffer(buffer, length);
 }
 
+ReadBuffer Buffer::GetReadBuffer()
+{
+    return ReadBuffer(*this);
+}
+
 void Buffer::Clear()
 {
     length = 0;
