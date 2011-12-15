@@ -337,6 +337,11 @@ bool ShardHTTPClientSession::ProcessCommand(ReadBuffer& cmd)
         ProcessEndBackup();
         return true;
     }
+    else if (HTTP_MATCH_COMMAND(cmd, "dumpmemochunks"))
+    {
+        ProcessDumpMemoChunks();
+        return true;
+    }
 
     request = ProcessShardServerCommand(cmd);
     if (!request)
@@ -422,6 +427,14 @@ void ShardHTTPClientSession::ProcessEndBackup()
     env->SetDeleteEnabled(true);
     
     session.Print("Done.");
+    session.Flush();
+}
+
+void ShardHTTPClientSession::ProcessDumpMemoChunks()
+{
+    shardServer->GetDatabaseManager()->GetEnvironment()->dumpMemoChunks = true;
+
+    session.Print("Dumping memo chunks.");
     session.Flush();
 }
 

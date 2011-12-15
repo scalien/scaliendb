@@ -42,6 +42,7 @@ private:
     void                ProcessDebugCommand();
     void                ProcessStartBackup();
     void                ProcessEndBackup();
+    void                ProcessDumpMemoChunks();
     bool                ProcessSettings();
     void                ProcessClearCache();
     ClientRequest*      ProcessShardServerCommand(ReadBuffer& cmd);
