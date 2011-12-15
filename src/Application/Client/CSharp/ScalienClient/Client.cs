@@ -327,7 +327,7 @@ namespace Scalien
         /// </summary>
         /// <remarks>
         /// <para>
-        /// Sets the maximum number of connections that are kept in the pool. Setting this value to 0 means no 
+        /// Sets the number of connections that are kept in the pool. Setting this value to 0 means no 
         /// connection pooling.
         /// </para>
         /// </remarks>
@@ -335,6 +335,20 @@ namespace Scalien
         public static void SetConnectionPoolSize(uint poolSize)
         {
             scaliendb_client.SDBP_SetShardPoolSize(poolSize);
+        }
+
+        /// <summary>
+        /// Set the maximum number of connections.
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        /// Sets the maximum number of network connections to be made from the client.
+        /// </para>
+        /// </remarks>
+        /// <param name="maxConnections">The maximum number of connections</param>
+        public static void SetMaxConnections(uint maxConnections)
+        {
+            scaliendb_client.SDBP_SetMaxConnections(maxConnections);
         }
 
         /// <summary>
