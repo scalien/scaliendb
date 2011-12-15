@@ -232,53 +232,40 @@ void StorageChunkReader::PreloadDataPages()
     uint32_t    i;
     uint32_t    pageSize;
     uint64_t    totalSize;
-    uint64_t    origOffset;
     
     totalSize = 0;
-    origOffset = offset; // to make the compiler happy
-
-    if (forwardDirection)
-        i = index;
-    else
-    {
-        if (offset > preloadThreshold)
-            offset -= preloadThreshold;
-        else
-            offset = 0;
-
-        if (origOffset != offset)
-        {
-            if (fileChunk.indexPage == NULL)
-            {
-                fileChunk.ReadHeaderPage();
-                fileChunk.LoadIndexPage();
-            }
-
-            preloadIndex = i = fileChunk.indexPage->GetOffsetIndex(offset);
-            origOffset = offset;
-        }
-        else
-        {
-            preloadIndex = i = index;
-        }
-    }
-
-    do
-    {
-        fileChunk.LoadDataPage(i, offset, false, keysOnly);
-        //Log_Debug("Preloading datapage %u at offset %U from chunk %U", i, offset, fileChunk.GetChunkID());
-        pageSize = fileChunk.dataPages[i]->GetSize();
-        totalSize += pageSize;
-        offset += pageSize;
-        i++;
-    }
-    while (i > 0 && i < fileChunk.numDataPages &&
-           (((forwardDirection && totalSize < preloadThreshold)) || (!forwardDirection && i <= index)));
     
     if (forwardDirection)
+    {
+        do
+        {
+            i = index;
+            fileChunk.LoadDataPage(i, offset, false, keysOnly);
+            //Log_Debug("Preloading datapage %u at offset %U from chunk %U", i, offset, fileChunk.GetChunkID());
+            pageSize = fileChunk.dataPages[i]->GetSize();
+            totalSize += pageSize;
+            offset += pageSize;
+            i++;
+        }
+        while (i > 0 && i < fileChunk.numDataPages && totalSize < preloadThreshold);
+
         preloadIndex = i-1;
+    }
     else
-        offset = origOffset;
+    {
+        // don't preload when going backwards
+        if (fileChunk.indexPage == NULL)
+        {
+            fileChunk.ReadHeaderPage();
+            fileChunk.LoadIndexPage();
+        }
+
+        offset = fileChunk.indexPage->GetIndexOffset(index);
+        fileChunk.LoadDataPage(index, offset, false, keysOnly);
+        pageSize = fileChunk.dataPages[index]->GetSize();
+        totalSize += pageSize;
+        preloadIndex = index;
+    }
 }
 
 bool StorageChunkReader::LocateIndexAndOffset(StorageIndexPage* indexPage, uint32_t numDataPages, ReadBuffer& firstKey)

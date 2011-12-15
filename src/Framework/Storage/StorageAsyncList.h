@@ -101,6 +101,7 @@ public:
     bool                    IsDone();
     bool                    IsAborted();
     void                    SetAborted(bool aborted);
+    int                     CompareSmallestKey(const ReadBuffer& key, const ReadBuffer& smallestKey);
     StorageFileKeyValue*    GetSmallest();
     StorageFileKeyValue*    Next();
 };

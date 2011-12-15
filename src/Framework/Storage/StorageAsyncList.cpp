@@ -285,6 +285,28 @@ void StorageAsyncList::SetAborted(bool aborted_)
 
 #define ADVANCE_ITERATOR(i) iterators[i] = listers[i]->Next(iterators[i])
 
+int StorageAsyncList::CompareSmallestKey(const ReadBuffer& key, const ReadBuffer& smallestKey)
+{
+    int     cmpres;
+
+    if (forwardDirection)
+    {
+        if (smallestKey.GetLength() == 0)
+            cmpres = -1;
+        else
+            cmpres = ReadBuffer::Cmp(key, smallestKey);        
+    }
+    else
+    {
+        if (key.GetLength() == 0)
+            cmpres = -1;
+        else
+            cmpres = ReadBuffer::Cmp(smallestKey, key);
+    }
+    
+    return cmpres;
+}
+
 StorageFileKeyValue* StorageAsyncList::GetSmallest()
 {
     unsigned                i;
@@ -292,7 +314,9 @@ StorageFileKeyValue* StorageAsyncList::GetSmallest()
     ReadBuffer              smallestKey;
     StorageFileKeyValue*    smallestKv;
     int                     cmpres;
+    ReadBuffer              tmp;
 
+    smallestIndex = 0;  // making the compiler happy by initializing
     smallestKv = NULL;
     // readers are sorted by relevance, first is the oldest, last is the latest
     for (i = 0; i < numListers; i++)
@@ -307,12 +331,7 @@ StorageFileKeyValue* StorageAsyncList::GetSmallest()
             continue;
         }
 
-        // do the comparison
-        if (smallestKey.GetLength() == 0)
-            cmpres = -1;
-        else
-            cmpres = ReadBuffer::Cmp(iterators[i]->GetKey(), smallestKey);
-
+        cmpres = CompareSmallestKey(iterators[i]->GetKey(), smallestKey);
         if (cmpres <= 0)
         {
             // advance the previously smallest if it is equal to the current

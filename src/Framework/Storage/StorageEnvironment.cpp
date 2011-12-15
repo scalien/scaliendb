@@ -78,6 +78,7 @@ StorageEnvironment::StorageEnvironment()
     writingTOC = false;
     numCursors = 0;
     mergeEnabled = true;
+    deleteEnabled = true;
 }
 
 bool StorageEnvironment::Open(Buffer& envPath_)
@@ -225,6 +226,11 @@ void StorageEnvironment::SetYieldThreads(bool yieldThreads_)
 void StorageEnvironment::SetMergeEnabled(bool mergeEnabled_)
 {
     mergeEnabled = mergeEnabled_;
+}
+
+void StorageEnvironment::SetDeleteEnabled(bool deleteEnabled_)
+{
+    deleteEnabled = deleteEnabled_;
 }
 
 uint64_t StorageEnvironment::GetShardID(uint16_t contextID, uint64_t tableID, ReadBuffer& key)
@@ -1315,6 +1321,9 @@ void StorageEnvironment::TryArchiveLogSegments()
     
     Log_Trace();
 
+    if (!deleteEnabled)
+        return;
+
     if (archiveLogJobs.IsActive() || logSegments.GetLength() == 0)
         return;
 
@@ -1376,6 +1385,9 @@ void StorageEnvironment::TryDeleteFileChunks()
     StorageShard* shard;
     
     Log_Trace();
+
+    if (!deleteEnabled)
+        return;
 
     if (deleteChunkJobs.IsActive())
         return;
@@ -1583,6 +1595,24 @@ void StorageEnvironment::WriteTOC()
     writingTOC = false;
     
     Log_Debug("WriteTOC finished");
+}
+
+uint64_t StorageEnvironment::WriteSnapshotTOC()
+{
+    StorageEnvironmentWriter    writer;
+    uint64_t                    tocID;
+
+    Log_Debug("WriteTOC started");
+
+    tocID = writer.WriteSnapshot(this);
+    return tocID;
+}
+
+bool StorageEnvironment::DeleteSnapshotTOC(uint64_t tocID)
+{
+    StorageEnvironmentWriter    writer;
+
+    return writer.DeleteSnapshot(this, tocID);
 }
 
 StorageFileChunk* StorageEnvironment::GetFileChunk(uint64_t chunkID)
