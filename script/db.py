@@ -4,6 +4,15 @@ import struct
 import signal
 import string
 
+def read_data(fmt, data):
+	size = struct.calcsize(fmt)
+	struct_buf = data[:size]
+	data = data[size:]
+	ret = [data]
+	t = struct.unpack(fmt, struct_buf)
+	ret.extend(list(t))
+	return tuple(ret)
+
 class StoragePage:
 	def __init__(self):
 		self.offset = 0

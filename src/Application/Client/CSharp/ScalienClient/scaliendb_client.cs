@@ -423,6 +423,10 @@ public class scaliendb_client {
     scaliendb_clientPINVOKE.SDBP_SetShardPoolSize(shardPoolSize);
   }
 
+  public unsafe static void SDBP_SetMaxConnections(uint maxConnections) {
+    scaliendb_clientPINVOKE.SDBP_SetMaxConnections(maxConnections);
+  }
+
   public unsafe static string SDBP_GetVersion() {
     string ret = scaliendb_clientPINVOKE.SDBP_GetVersion();
     return ret;

@@ -1883,6 +1883,14 @@ SWIGEXPORT void SWIGSTDCALL CSharp_SDBP_SetShardPoolSize(unsigned int jarg1) {
 }
 
 
+SWIGEXPORT void SWIGSTDCALL CSharp_SDBP_SetMaxConnections(unsigned int jarg1) {
+  unsigned int arg1 ;
+  
+  arg1 = (unsigned int)jarg1; 
+  SDBP_SetMaxConnections(arg1);
+}
+
+
 SWIGEXPORT char * SWIGSTDCALL CSharp_SDBP_GetVersion() {
   char * jresult ;
   std::string result;

@@ -41,7 +41,11 @@ bool ShardConnection::SendRequest(Request* request)
 
     msg.request = request;
     if (conn == NULL)
+    {
         conn = PooledShardConnection::GetConnection(this);
+        if (conn == NULL)
+            return false;
+    }
     
     return conn->SendRequest(msg);
 }
@@ -84,7 +88,11 @@ bool ShardConnection::IsWritePending()
 bool ShardConnection::IsConnected()
 {
     if (conn == NULL)
+    {
         conn = PooledShardConnection::GetConnection(this);
+        if (conn == NULL)
+            return false;
+    }
 
     return conn->IsConnected();
 }

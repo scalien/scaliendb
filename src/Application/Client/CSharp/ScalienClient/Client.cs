@@ -314,7 +314,7 @@ namespace Scalien
         }
 
         /// <summary>
-        /// Send a log message thru the unedrlying C++ client library.
+        /// Send a log message through the underlying C++ client library.
         /// </summary>
         /// <param name="msg">The message.</param>
         public static void LogTrace(string msg)

@@ -30,6 +30,7 @@ public:
     static void                         Cleanup();
     static void                         SetPoolSize(unsigned poolSize);
     static unsigned                     GetPoolSize();
+    static void                         SetMaxConnections(unsigned maxConnections);
     static void                         ShutdownPool();
     
     const Buffer&                       GetName() const;
