@@ -132,7 +132,7 @@ bool ReadBuffer::Equals(const char* s)
     return Cmp(*this, s) == 0;
 }
 
-bool ReadBuffer::Equals(ReadBuffer& other)
+bool ReadBuffer::Equals(const ReadBuffer& other)
 {
     return Cmp(*this, other) == 0;
 }
