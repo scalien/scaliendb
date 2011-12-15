@@ -1806,6 +1806,7 @@ void Client::ComputeListResponse()
         }
     }
 
+    // CopyResult
     // fetch result returned by servers into serverKeys/serverValues
     for (result->Begin(); !result->IsEnd(); result->Next())
     {

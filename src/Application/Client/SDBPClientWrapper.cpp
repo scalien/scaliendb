@@ -1060,6 +1060,11 @@ void SDBP_SetShardPoolSize(unsigned shardPoolSize)
     PooledShardConnection::SetPoolSize(shardPoolSize);
 }
 
+void SDBP_SetMaxConnections(unsigned maxConnections)
+{
+    PooledShardConnection::SetMaxConnections(maxConnections);
+}
+
 std::string SDBP_GetVersion()
 {
     return "ScalienDB Client v" VERSION_STRING " " PLATFORM_STRING;

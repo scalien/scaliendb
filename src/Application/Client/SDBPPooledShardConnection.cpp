@@ -40,6 +40,8 @@ static Mutex                globalMutex;
 static Countdown            cleanupTimer;
 static unsigned             poolSize = 0;
 static unsigned             maxPoolSize = 0;
+static unsigned             numConnections = 0;
+static unsigned             maxConnections = 0;
 
 /*
 ===============================================================================================
@@ -75,6 +77,9 @@ PooledShardConnection* PooledShardConnection::GetConnection(ShardConnection* sha
     
     MutexGuard                  guard(globalMutex);
 
+    if (maxConnections != 0 && numConnections >= maxConnections)
+        return NULL;
+
     name.Write(shardConn->GetEndpoint().ToReadBuffer());
     connList = connections.Get(name);
 
@@ -90,6 +95,7 @@ PooledShardConnection* PooledShardConnection::GetConnection(ShardConnection* sha
     {
         // create new connection and start connecting
         conn = new PooledShardConnection(shardConn->GetEndpoint());
+        numConnections += 1;
         Log_Debug("New connection, nodeID: %U, endpoint: %s", shardConn->GetNodeID(), shardConn->GetEndpoint().ToString());
     }
     else
@@ -119,6 +125,7 @@ void PooledShardConnection::ReleaseConnection(PooledShardConnection* conn)
     // no connection pooling
     if (maxPoolSize == 0)
     {
+        numConnections -= 1;
         delete conn;
         return;
     }
@@ -159,6 +166,7 @@ void PooledShardConnection::Cleanup()
         }
     }
 
+    numConnections -= deleteList.GetLength();
     guard.Unlock();
 
     // do the memory deallocation outside the mutex
@@ -195,6 +203,13 @@ unsigned PooledShardConnection::GetPoolSize()
     return maxPoolSize;
 }
 
+void PooledShardConnection::SetMaxConnections(unsigned maxConnections_)
+{
+    MutexGuard      guard(globalMutex);
+
+    maxConnections = maxConnections_;
+}
+
 void PooledShardConnection::ShutdownPool()
 {
     PooledShardConnectionList*  connList;
@@ -207,6 +222,7 @@ void PooledShardConnection::ShutdownPool()
     }
 
     connections.DeleteTree();
+    numConnections = 0;
 }
 
 const Buffer& PooledShardConnection::GetName() const

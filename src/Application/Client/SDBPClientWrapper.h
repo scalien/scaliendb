@@ -209,6 +209,7 @@ void            SDBP_SetLogFile(const std::string& filename);
 void            SDBP_SetTraceBufferSize(unsigned traceBufferSize);
 void            SDBP_LogTrace(const std::string& msg);
 void            SDBP_SetShardPoolSize(unsigned shardPoolSize);
+void            SDBP_SetMaxConnections(unsigned maxConnections);
 std::string     SDBP_GetVersion();
 std::string     SDBP_GetDebugString();
 

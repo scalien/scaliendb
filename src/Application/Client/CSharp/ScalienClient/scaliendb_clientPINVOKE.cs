@@ -497,6 +497,9 @@ class scaliendb_clientPINVOKE {
   [DllImport("scaliendb_client", EntryPoint="CSharp_SDBP_SetShardPoolSize")]
   public static extern void SDBP_SetShardPoolSize(uint jarg1);
 
+  [DllImport("scaliendb_client", EntryPoint="CSharp_SDBP_SetMaxConnections")]
+  public static extern void SDBP_SetMaxConnections(uint jarg1);
+
   [DllImport("scaliendb_client", EntryPoint="CSharp_SDBP_GetVersion")]
   public static extern string SDBP_GetVersion();
 

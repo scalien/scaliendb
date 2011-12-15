@@ -120,11 +120,16 @@ static int SetupDefaultClient(Client& client)
 
     ReadConfig();
 
+    Log_SetTrace(configFile.GetBoolValue("log.trace", false));
+
     client.Shutdown();
     ret = SetupDefaultControllerNodes(client);
     if (ret != SDBP_SUCCESS)
         TEST_CLIENT_FAIL();
-    
+
+    databaseName = configFile.GetValue("databaseName", "test");
+    tableName = configFile.GetValue("tableName", "test");
+
     client.SetMasterTimeout((uint64_t)configFile.GetInt64Value("masterTimeout", 10*1000));
     client.SetGlobalTimeout((uint64_t)configFile.GetInt64Value("globalTimeout", 30*1000));
     //client.SetConsistencyMode(SDBP_CONSISTENCY_RYW);
@@ -337,6 +342,38 @@ TEST_DEFINE(TestClientListKeysWithPrefix)
         TEST_CLIENT_FAIL();
     
     ret = client.ListKeys(defaultTableID, "aa1", "", "aa1", 0, true, false);
+    if (ret != SDBP_SUCCESS)
+        TEST_CLIENT_FAIL();
+
+    result = client.GetResult();
+    for (result->Begin(); !result->IsEnd(); result->Next())
+    {
+        if (result->GetCommandStatus() != SDBP_SUCCESS)
+            TEST_CLIENT_FAIL();
+
+        result->GetKey(key);
+        TEST_LOG("%.*s", key.GetLength(), key.GetBuffer());
+    }
+    
+    delete result;
+
+    client.Shutdown();
+    
+    return TEST_SUCCESS;
+}
+
+TEST_DEFINE(TestClientListKeysMultiple)
+{
+    Client          client;
+    Result*         result;
+    ReadBuffer      key;
+    int             ret;
+
+    ret = SetupDefaultClient(client);
+    if (ret != SDBP_SUCCESS)
+        TEST_CLIENT_FAIL();
+    
+    ret = client.ListKeyValues(413, "S:2|L:634589844707537267|", "", "S:2|", 100, false, false);
     if (ret != SDBP_SUCCESS)
         TEST_CLIENT_FAIL();
 
