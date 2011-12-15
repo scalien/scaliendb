@@ -136,8 +136,6 @@ void ShardDatabaseAsyncList::OnShardComplete()
     unsigned                numKeys;
     unsigned                i;
 
-    Log_Debug("OnShardComplete, final: %b", lastResult->final);
-
     // possibly an error happened or already disconnected
     if (!lastResult || !request || !request->IsActive())
     {
@@ -145,6 +143,8 @@ void ShardDatabaseAsyncList::OnShardComplete()
         OnRequestComplete();
         return;
     }
+
+    Log_Debug("OnShardComplete, final: %b", lastResult->final);
 
     numKeys = lastResult->numKeys;
     total += numKeys;
@@ -259,18 +259,22 @@ ActivateExecuteList:
 void ShardDatabaseAsyncList::TryNextShard()
 {
     ReadBuffer  rbShardLastKey;
-    
-    Log_Debug("TryNextShard: shardLastKey: %B", &shardLastKey);
+
+    if (forwardDirection)
+        rbShardLastKey.Wrap(shardLastKey);
+    else
+        rbShardLastKey.Wrap(shardFirstKey);
+
+    Log_Debug("TryNextShard: shardLastKey: %R", &rbShardLastKey);
     
     // check if this was the last shard
-    if (shardLastKey.GetLength() == 0)
+    if (rbShardLastKey.GetLength() == 0)
     {
         OnRequestComplete();
         return;
     }
 
     // check if shardLastKey matches prefix
-    rbShardLastKey.Wrap(shardLastKey);
     if (prefix.GetLength() > 0 && !rbShardLastKey.BeginsWith(prefix))
     {
         OnRequestComplete();
@@ -284,8 +288,12 @@ void ShardDatabaseAsyncList::TryNextShard()
         request->OnComplete(false);
     }
     
+    // TODO: HACK: Find next shard based on rbShardLastKey when iterating backwards
+    if (!forwardDirection)
+        request->findByLastKey = true;
+
     // update the request with the next shard's startKey
-    request->key.Write(shardLastKey);
+    request->key.Write(rbShardLastKey);
     if (request->count > 0)
         request->count -= total;
 
@@ -926,89 +934,110 @@ void ShardDatabaseManager::OnExecuteReads()
 
 void ShardDatabaseManager::OnExecuteLists()
 {
-    uint64_t        start;
-    uint64_t        shardID;
-    int16_t         contextID;
-    ReadBuffer      prefix;
-    ReadBuffer      startKey;
-    ReadBuffer      endKey;
-    ClientRequest*  itRequest;
-    ConfigShard*    configShard;
+    uint64_t                    start;
+    uint64_t                    shardID;
+    int16_t                     contextID;
+    ReadBuffer                  prefix;
+    ReadBuffer                  startKey;
+    ReadBuffer                  endKey;
+    ClientRequest*              request;
+    ConfigShard*                configShard;
+    ShardDatabaseAsyncList*     asyncList;
 
     if (inactiveAsyncLists.GetLength() == 0)
         return;
     
     start = NowClock();
 
-    FOREACH_FIRST (itRequest, listRequests)
+    FOREACH_FIRST (request, listRequests)
     {
         TRY_YIELD_RETURN(executeLists, start);
-        listRequests.Remove(itRequest);
+        listRequests.Remove(request);
 
         // silently drop requests from disconnected clients
-        if (!itRequest->session->IsActive())
+        if (!request->session->IsActive())
         {
-            itRequest->response.NoResponse();
-            itRequest->OnComplete();
+            request->response.NoResponse();
+            request->OnComplete();
             continue;
         }
 
         // set if prefix is set it is assumed that startKey and endKey is prefixed
-        prefix = itRequest->prefix;
-        if (itRequest->key.GetLength() == 0 && itRequest->prefix.GetLength() > 0)
+        prefix = request->prefix;
+        if (request->key.GetLength() == 0 && request->prefix.GetLength() > 0)
         {
-            itRequest->key.Write(itRequest->prefix);
-            if (!itRequest->forwardDirection)
+            request->key.Write(request->prefix);
+            if (!request->forwardDirection)
             {
-                if ((unsigned)itRequest->prefix.GetCharAt(itRequest->prefix.GetLength() - 1) < 255)
-                    itRequest->key.GetBuffer()[itRequest->key.GetLength() - 1]++;
+                if ((unsigned)request->prefix.GetCharAt(request->prefix.GetLength() - 1) < 255)
+                    request->key.GetBuffer()[request->key.GetLength() - 1]++;
                 else
-                    itRequest->key.Append((char)0);
+                    request->key.Append((char)0);
             }
         }
-        startKey = itRequest->key;
-        endKey = itRequest->endKey;
+
+        startKey = request->key;
+        endKey = request->endKey;
+
+        if (request->forwardDirection && ReadBuffer::Cmp(startKey, prefix) < 0)
+        {
+            startKey = request->prefix;
+        }
         
+        // when iterating backwards, empty startKey means start from the last shard
+        if (!request->forwardDirection && startKey.GetLength() == 0)
+            request->findByLastKey = true;
+
         // find the exact shard based on what startKey is given in the request
         contextID = QUORUM_DATABASE_DATA_CONTEXT;
-        shardID = environment.GetShardID(contextID, itRequest->tableID, startKey);
+        if (request->findByLastKey)
+            shardID = environment.GetShardIDByLastKey(contextID, request->tableID, startKey);
+        else
+            shardID = environment.GetShardID(contextID, request->tableID, startKey);
+
+        // check if the shard is local
         configShard = shardServer->GetConfigState()->GetShard(shardID);
         if (configShard == NULL)
         {
             Log_Debug("sending Next");
-            itRequest->response.Next(startKey, endKey, prefix, itRequest->count);
-            itRequest->OnComplete();
+            request->response.Next(startKey, endKey, prefix, request->count);
+            request->OnComplete();
             continue;
         }
 
-        ShardDatabaseAsyncList& asyncList = *inactiveAsyncLists.Pop();
-        asyncList.Clear();
-        if (itRequest->type == CLIENTREQUEST_LIST_KEYS)
-            asyncList.type = StorageAsyncList::KEY;
-        else if (itRequest->type == CLIENTREQUEST_LIST_KEYVALUES)
-            asyncList.type = StorageAsyncList::KEYVALUE;
-        else if (itRequest->type == CLIENTREQUEST_COUNT)
-            asyncList.type = StorageAsyncList::COUNT;
+        asyncList = inactiveAsyncLists.Pop();
+        asyncList->Clear();
+
+        // set type based on request type
+        if (request->type == CLIENTREQUEST_LIST_KEYS)
+            asyncList->type = StorageAsyncList::KEY;
+        else if (request->type == CLIENTREQUEST_LIST_KEYVALUES)
+            asyncList->type = StorageAsyncList::KEYVALUE;
+        else if (request->type == CLIENTREQUEST_COUNT)
+            asyncList->type = StorageAsyncList::COUNT;
         else
             ASSERT_FAIL();
 
-        asyncList.SetTotal(0);
-        asyncList.num = 0;
-        asyncList.SetRequest(itRequest);
-        asyncList.endKey = endKey;
-        asyncList.prefix = itRequest->prefix;
-        asyncList.count = itRequest->count;
-        asyncList.forwardDirection = itRequest->forwardDirection;
-        asyncList.shardFirstKey.Write(startKey);
-        asyncList.shardLastKey.Write(configShard->lastKey);
-        asyncList.onComplete = MFunc<ShardDatabaseAsyncList, &ShardDatabaseAsyncList::OnShardComplete>(&asyncList);
-        Log_Debug("Listing shard: shardFirstKey: %B, shardLastKey: %B", &asyncList.shardFirstKey, &asyncList.shardLastKey);
-        environment.AsyncList(contextID, shardID, &asyncList);
-        //if (asyncList.IsActive())
-        //    return;
-
-        if (!asyncList.IsActive())
-            inactiveAsyncLists.Append(&asyncList);
+        // set parameters
+        asyncList->SetTotal(0);
+        asyncList->num = 0;
+        asyncList->SetRequest(request);
+        asyncList->startKey = startKey;
+        asyncList->endKey = endKey;
+        asyncList->prefix = request->prefix;
+        asyncList->count = request->count;
+        asyncList->forwardDirection = request->forwardDirection;
+        asyncList->startWithLastKey = request->findByLastKey;
+        asyncList->shardFirstKey.Write(configShard->firstKey);
+        asyncList->shardLastKey.Write(configShard->lastKey);
+        asyncList->onComplete = MFunc<ShardDatabaseAsyncList, &ShardDatabaseAsyncList::OnShardComplete>(asyncList);
+        
+        // try to execute the list command asynchronously
+        Log_Debug("Listing shard: shardFirstKey: %B, shardLastKey: %B", &asyncList->shardFirstKey, &asyncList->shardLastKey);
+        environment.AsyncList(contextID, shardID, asyncList);
+ 
+        if (!asyncList->IsActive())
+            inactiveAsyncLists.Append(asyncList);
 
         if (inactiveAsyncLists.GetLength() == 0)
             return;

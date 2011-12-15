@@ -119,8 +119,10 @@ StorageFileKeyValue* StorageChunkReader::First(ReadBuffer& firstKey)
         else if (!forwardDirection && cmpres < 0)
             it = Next(it);
 
-        if (it != NULL && prefix.GetLength() > 0 && !it->GetKey().BeginsWith(prefix))
-            it = NULL;
+        // TODO: FIXME: this is an optimization that only works when iterating forwards
+        // TODO: make it work for reverse iteration too
+        //if (it != NULL && forwardDirection && prefix.GetLength() > 0 && !it->GetKey().BeginsWith(prefix))
+        //    it = NULL;
     }
 
     return it;
@@ -237,9 +239,9 @@ void StorageChunkReader::PreloadDataPages()
     
     if (forwardDirection)
     {
+        i = index;
         do
         {
-            i = index;
             fileChunk.LoadDataPage(i, offset, false, keysOnly);
             //Log_Debug("Preloading datapage %u at offset %U from chunk %U", i, offset, fileChunk.GetChunkID());
             pageSize = fileChunk.dataPages[i]->GetSize();

@@ -67,11 +67,12 @@ public:
     };
 
     unsigned                count;
-    ReadBuffer              firstKey;
+    ReadBuffer              startKey;
     ReadBuffer              endKey;
     ReadBuffer              prefix;
     Type                    type;
     bool                    forwardDirection;
+    bool                    startWithLastKey;
     
     bool                    ret;
     bool                    completed;
@@ -101,6 +102,7 @@ public:
     bool                    IsDone();
     bool                    IsAborted();
     void                    SetAborted(bool aborted);
+    bool                    IsKeyInShard(const ReadBuffer& key);
     int                     CompareSmallestKey(const ReadBuffer& key, const ReadBuffer& smallestKey);
     StorageFileKeyValue*    GetSmallest();
     StorageFileKeyValue*    Next();
