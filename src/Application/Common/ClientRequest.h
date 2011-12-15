@@ -192,6 +192,7 @@ public:
     ClientRequest*  next;
 
     bool            forwardDirection;
+    bool            findByLastKey;
     char            type;
     uint64_t        commandID;
     uint64_t        quorumID;

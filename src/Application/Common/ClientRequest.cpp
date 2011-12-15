@@ -12,6 +12,8 @@ void ClientRequest::Init()
     session = NULL;
     response.request = this;
     prev = next = this;
+    forwardDirection = false;
+    findByLastKey = false;
     type = CLIENTREQUEST_UNDEFINED;
     commandID = 0;
     quorumID = 0;
