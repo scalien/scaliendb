@@ -22,7 +22,7 @@ void StorageArchiveLogSegmentJob::Execute()
         Log_Debug("Archiving log segment %U...", logSegment->GetLogSegmentID());
 
         dest.Write(env->archivePath);
-        dest.Appendf("log.%020U", logSegment->GetLogSegmentID());
+        dest.Appendf("log.%020U.%020U", logSegment->GetTrackID(), logSegment->GetLogSegmentID());
         dest.NullTerminate();
 
         FS_Rename(logSegment->filename.GetBuffer(), dest.GetBuffer());
