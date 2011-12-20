@@ -1,6 +1,5 @@
 package com.scalien.scaliendb;
 
-import java.math.BigInteger;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -53,9 +52,7 @@ public class Database
      * @see Table 
      */
     public Table getTable(String name) throws SDBPException {
-        BigInteger biDatabaseID = BigInteger.valueOf(databaseID);
-        BigInteger bi = scaliendb_client.SDBP_GetTableIDByName(client.getPtr(), biDatabaseID, name);
-        long tableID = bi.longValue();
+        long tableID = scaliendb_client.SDBP_GetTableIDByName(client.getPtr(), databaseID, name);
         if (tableID == 0)
             throw new SDBPException(Status.SDBP_BADSCHEMA, "Table not found: " + name);
         return new Table(client, this, tableID, name);
@@ -68,12 +65,11 @@ public class Database
      * @see Table 
      */
     public List<Table> getTables() throws SDBPException {
-        BigInteger biDatabaseID = BigInteger.valueOf(databaseID);
-        long numTables = scaliendb_client.SDBP_GetNumTables(client.getPtr(), biDatabaseID);
+        long numTables = scaliendb_client.SDBP_GetNumTables(client.getPtr(), databaseID);
         ArrayList<Table> tables = new ArrayList<Table>();
         for (long i = 0; i < numTables; i++) {
-            long tableID = scaliendb_client.SDBP_GetTableIDAt(client.getPtr(), biDatabaseID, i).longValue();
-            String name = scaliendb_client.SDBP_GetTableNameAt(client.getPtr(), biDatabaseID, i);
+            long tableID = scaliendb_client.SDBP_GetTableIDAt(client.getPtr(), databaseID, i);
+            String name = scaliendb_client.SDBP_GetTableNameAt(client.getPtr(), databaseID, i);
             tables.add(new Table(client, this, tableID, name));
         }
         return tables;
@@ -104,9 +100,7 @@ public class Database
      * @see #createTable(String) 
      */
     public Table createTable(String name, Quorum quorum) throws SDBPException {
-        BigInteger biDatabaseID = BigInteger.valueOf(databaseID);
-        BigInteger biQuorumID = BigInteger.valueOf(quorum.getQuorumID());
-        int status = scaliendb_client.SDBP_CreateTable(client.cptr, biDatabaseID, biQuorumID, name);
+        int status = scaliendb_client.SDBP_CreateTable(client.cptr, databaseID, quorum.getQuorumID(), name);
         client.checkResultStatus(status);
         return getTable(name);
     }    
@@ -117,8 +111,7 @@ public class Database
      * @exception SDBPException 
      */
     public void renameDatabase(String newName) throws SDBPException {
-        BigInteger biDatabaseID = BigInteger.valueOf(databaseID);
-        int status = scaliendb_client.SDBP_RenameDatabase(client.cptr, biDatabaseID, newName);
+        int status = scaliendb_client.SDBP_RenameDatabase(client.cptr, databaseID, newName);
         client.checkResultStatus(status);
     }
 
@@ -127,8 +120,7 @@ public class Database
      * @exception SDBPException 
      */
     public void deleteDatabase() throws SDBPException {
-        BigInteger biDatabaseID = BigInteger.valueOf(databaseID);
-        int status = scaliendb_client.SDBP_DeleteDatabase(client.cptr, biDatabaseID);
+        int status = scaliendb_client.SDBP_DeleteDatabase(client.cptr, databaseID);
         client.checkResultStatus(status);
     }
     

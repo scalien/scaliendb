@@ -86,8 +86,7 @@ import java.util.Map;
      * @exception SDBPException 
      */
     public void renameTable(String newName) throws SDBPException {
-        BigInteger biTableID = BigInteger.valueOf(tableID);
-        int status = scaliendb_client.SDBP_RenameTable(client.cptr, biTableID, newName);
+        int status = scaliendb_client.SDBP_RenameTable(client.cptr, tableID, newName);
         client.checkResultStatus(status);    
     }
 
@@ -96,8 +95,7 @@ import java.util.Map;
      * @exception SDBPException 
      */
     public void deleteTable() throws SDBPException {
-        BigInteger biTableID = BigInteger.valueOf(tableID);
-        int status = scaliendb_client.SDBP_DeleteTable(client.cptr, biTableID);
+        int status = scaliendb_client.SDBP_DeleteTable(client.cptr, tableID);
         client.checkResultStatus(status);    
     }
 
@@ -106,8 +104,7 @@ import java.util.Map;
      * @exception SDBPException 
      */
     public void truncateTable() throws SDBPException {
-        BigInteger biTableID = BigInteger.valueOf(tableID);
-        int status = scaliendb_client.SDBP_TruncateTable(client.cptr, biTableID);
+        int status = scaliendb_client.SDBP_TruncateTable(client.cptr, tableID);
         client.checkResultStatus(status);    
     }
  
