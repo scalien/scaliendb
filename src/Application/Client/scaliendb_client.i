@@ -42,6 +42,19 @@
     return $jnicall;
 }
 
+%typemap(jni) uint64_t "jlong"
+%typemap(jtype) uint64_t "long"
+%typemap(jstype) uint64_t "long"
+%typemap(javain) uint64_t "$javainput"
+%typemap(in) uint64_t 
+{
+    $1 = (uint64_t) $input;
+}
+%typemap(out) uint64_t
+{
+    $result = $1;
+}
+
 #endif /* SWIGJAVA */
 
 /* C# specific byte array typemaps */

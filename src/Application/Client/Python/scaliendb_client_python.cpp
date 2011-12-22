@@ -7680,6 +7680,27 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_SDBP_SetMaxConnections(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  unsigned int arg1 ;
+  unsigned int val1 ;
+  int ecode1 = 0 ;
+  PyObject * obj0 = 0 ;
+  
+  if(!PyArg_UnpackTuple(args,(char *)"SDBP_SetMaxConnections",1,1,&obj0)) SWIG_fail;
+  ecode1 = SWIG_AsVal_unsigned_SS_int(obj0, &val1);
+  if (!SWIG_IsOK(ecode1)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "SDBP_SetMaxConnections" "', argument " "1"" of type '" "unsigned int""'");
+  } 
+  arg1 = static_cast< unsigned int >(val1);
+  SDBP_SetMaxConnections(arg1);
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *_wrap_SDBP_GetVersion(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   std::string result;
@@ -7833,6 +7854,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"SDBP_SetTraceBufferSize", _wrap_SDBP_SetTraceBufferSize, METH_VARARGS, NULL},
 	 { (char *)"SDBP_LogTrace", _wrap_SDBP_LogTrace, METH_VARARGS, NULL},
 	 { (char *)"SDBP_SetShardPoolSize", _wrap_SDBP_SetShardPoolSize, METH_VARARGS, NULL},
+	 { (char *)"SDBP_SetMaxConnections", _wrap_SDBP_SetMaxConnections, METH_VARARGS, NULL},
 	 { (char *)"SDBP_GetVersion", _wrap_SDBP_GetVersion, METH_VARARGS, NULL},
 	 { (char *)"SDBP_GetDebugString", _wrap_SDBP_GetDebugString, METH_VARARGS, NULL},
 	 { NULL, NULL, 0, NULL }

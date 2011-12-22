@@ -49,7 +49,7 @@ public class scaliendb_client {
     return scaliendb_clientJNI.SDBP_ResultSignedNumber(SWIGTYPE_p_void.getCPtr(result));
   }
 
-  public static java.math.BigInteger SDBP_ResultNumber(SWIGTYPE_p_void result) {
+  public static long SDBP_ResultNumber(SWIGTYPE_p_void result) {
     return scaliendb_clientJNI.SDBP_ResultNumber(SWIGTYPE_p_void.getCPtr(result));
   }
 
@@ -57,11 +57,11 @@ public class scaliendb_client {
     return scaliendb_clientJNI.SDBP_ResultIsConditionalSuccess(SWIGTYPE_p_void.getCPtr(result));
   }
 
-  public static java.math.BigInteger SDBP_ResultDatabaseID(SWIGTYPE_p_void result) {
+  public static long SDBP_ResultDatabaseID(SWIGTYPE_p_void result) {
     return scaliendb_clientJNI.SDBP_ResultDatabaseID(SWIGTYPE_p_void.getCPtr(result));
   }
 
-  public static java.math.BigInteger SDBP_ResultTableID(SWIGTYPE_p_void result) {
+  public static long SDBP_ResultTableID(SWIGTYPE_p_void result) {
     return scaliendb_clientJNI.SDBP_ResultTableID(SWIGTYPE_p_void.getCPtr(result));
   }
 
@@ -93,7 +93,7 @@ public class scaliendb_client {
     return scaliendb_clientJNI.SDBP_ResultNumNodes(SWIGTYPE_p_void.getCPtr(result));
   }
 
-  public static java.math.BigInteger SDBP_ResultNodeID(SWIGTYPE_p_void result, long n) {
+  public static long SDBP_ResultNodeID(SWIGTYPE_p_void result, long n) {
     return scaliendb_clientJNI.SDBP_ResultNodeID(SWIGTYPE_p_void.getCPtr(result), n);
   }
 
@@ -119,19 +119,19 @@ public class scaliendb_client {
     return (cPtr == 0) ? null : new SWIGTYPE_p_void(cPtr, false);
   }
 
-  public static void SDBP_SetGlobalTimeout(SWIGTYPE_p_void client, java.math.BigInteger timeout) {
+  public static void SDBP_SetGlobalTimeout(SWIGTYPE_p_void client, long timeout) {
     scaliendb_clientJNI.SDBP_SetGlobalTimeout(SWIGTYPE_p_void.getCPtr(client), timeout);
   }
 
-  public static void SDBP_SetMasterTimeout(SWIGTYPE_p_void client, java.math.BigInteger timeout) {
+  public static void SDBP_SetMasterTimeout(SWIGTYPE_p_void client, long timeout) {
     scaliendb_clientJNI.SDBP_SetMasterTimeout(SWIGTYPE_p_void.getCPtr(client), timeout);
   }
 
-  public static java.math.BigInteger SDBP_GetGlobalTimeout(SWIGTYPE_p_void client) {
+  public static long SDBP_GetGlobalTimeout(SWIGTYPE_p_void client) {
     return scaliendb_clientJNI.SDBP_GetGlobalTimeout(SWIGTYPE_p_void.getCPtr(client));
   }
 
-  public static java.math.BigInteger SDBP_GetMasterTimeout(SWIGTYPE_p_void client) {
+  public static long SDBP_GetMasterTimeout(SWIGTYPE_p_void client) {
     return scaliendb_clientJNI.SDBP_GetMasterTimeout(SWIGTYPE_p_void.getCPtr(client));
   }
 
@@ -159,27 +159,27 @@ public class scaliendb_client {
     return scaliendb_clientJNI.SDBP_CreateDatabase(SWIGTYPE_p_void.getCPtr(client), name);
   }
 
-  public static int SDBP_RenameDatabase(SWIGTYPE_p_void client, java.math.BigInteger databaseID, String name) {
+  public static int SDBP_RenameDatabase(SWIGTYPE_p_void client, long databaseID, String name) {
     return scaliendb_clientJNI.SDBP_RenameDatabase(SWIGTYPE_p_void.getCPtr(client), databaseID, name);
   }
 
-  public static int SDBP_DeleteDatabase(SWIGTYPE_p_void client, java.math.BigInteger databaseID) {
+  public static int SDBP_DeleteDatabase(SWIGTYPE_p_void client, long databaseID) {
     return scaliendb_clientJNI.SDBP_DeleteDatabase(SWIGTYPE_p_void.getCPtr(client), databaseID);
   }
 
-  public static int SDBP_CreateTable(SWIGTYPE_p_void client, java.math.BigInteger databaseID, java.math.BigInteger quorumID, String name) {
+  public static int SDBP_CreateTable(SWIGTYPE_p_void client, long databaseID, long quorumID, String name) {
     return scaliendb_clientJNI.SDBP_CreateTable(SWIGTYPE_p_void.getCPtr(client), databaseID, quorumID, name);
   }
 
-  public static int SDBP_RenameTable(SWIGTYPE_p_void client, java.math.BigInteger tableID, String name) {
+  public static int SDBP_RenameTable(SWIGTYPE_p_void client, long tableID, String name) {
     return scaliendb_clientJNI.SDBP_RenameTable(SWIGTYPE_p_void.getCPtr(client), tableID, name);
   }
 
-  public static int SDBP_DeleteTable(SWIGTYPE_p_void client, java.math.BigInteger tableID) {
+  public static int SDBP_DeleteTable(SWIGTYPE_p_void client, long tableID) {
     return scaliendb_clientJNI.SDBP_DeleteTable(SWIGTYPE_p_void.getCPtr(client), tableID);
   }
 
-  public static int SDBP_TruncateTable(SWIGTYPE_p_void client, java.math.BigInteger tableID) {
+  public static int SDBP_TruncateTable(SWIGTYPE_p_void client, long tableID) {
     return scaliendb_clientJNI.SDBP_TruncateTable(SWIGTYPE_p_void.getCPtr(client), tableID);
   }
 
@@ -187,7 +187,7 @@ public class scaliendb_client {
     return scaliendb_clientJNI.SDBP_GetNumQuorums(SWIGTYPE_p_void.getCPtr(client));
   }
 
-  public static java.math.BigInteger SDBP_GetQuorumIDAt(SWIGTYPE_p_void client, long n) {
+  public static long SDBP_GetQuorumIDAt(SWIGTYPE_p_void client, long n) {
     return scaliendb_clientJNI.SDBP_GetQuorumIDAt(SWIGTYPE_p_void.getCPtr(client), n);
   }
 
@@ -195,7 +195,7 @@ public class scaliendb_client {
     return scaliendb_clientJNI.SDBP_GetQuorumNameAt(SWIGTYPE_p_void.getCPtr(client), n);
   }
 
-  public static java.math.BigInteger SDBP_GetQuorumIDByName(SWIGTYPE_p_void client, String name) {
+  public static long SDBP_GetQuorumIDByName(SWIGTYPE_p_void client, String name) {
     return scaliendb_clientJNI.SDBP_GetQuorumIDByName(SWIGTYPE_p_void.getCPtr(client), name);
   }
 
@@ -203,7 +203,7 @@ public class scaliendb_client {
     return scaliendb_clientJNI.SDBP_GetNumDatabases(SWIGTYPE_p_void.getCPtr(client));
   }
 
-  public static java.math.BigInteger SDBP_GetDatabaseIDAt(SWIGTYPE_p_void client, long n) {
+  public static long SDBP_GetDatabaseIDAt(SWIGTYPE_p_void client, long n) {
     return scaliendb_clientJNI.SDBP_GetDatabaseIDAt(SWIGTYPE_p_void.getCPtr(client), n);
   }
 
@@ -211,95 +211,95 @@ public class scaliendb_client {
     return scaliendb_clientJNI.SDBP_GetDatabaseNameAt(SWIGTYPE_p_void.getCPtr(client), n);
   }
 
-  public static java.math.BigInteger SDBP_GetDatabaseIDByName(SWIGTYPE_p_void client, String name) {
+  public static long SDBP_GetDatabaseIDByName(SWIGTYPE_p_void client, String name) {
     return scaliendb_clientJNI.SDBP_GetDatabaseIDByName(SWIGTYPE_p_void.getCPtr(client), name);
   }
 
-  public static long SDBP_GetNumTables(SWIGTYPE_p_void client, java.math.BigInteger databaseID) {
+  public static long SDBP_GetNumTables(SWIGTYPE_p_void client, long databaseID) {
     return scaliendb_clientJNI.SDBP_GetNumTables(SWIGTYPE_p_void.getCPtr(client), databaseID);
   }
 
-  public static java.math.BigInteger SDBP_GetTableIDAt(SWIGTYPE_p_void client, java.math.BigInteger databaseID, long n) {
+  public static long SDBP_GetTableIDAt(SWIGTYPE_p_void client, long databaseID, long n) {
     return scaliendb_clientJNI.SDBP_GetTableIDAt(SWIGTYPE_p_void.getCPtr(client), databaseID, n);
   }
 
-  public static String SDBP_GetTableNameAt(SWIGTYPE_p_void client, java.math.BigInteger databaseID, long n) {
+  public static String SDBP_GetTableNameAt(SWIGTYPE_p_void client, long databaseID, long n) {
     return scaliendb_clientJNI.SDBP_GetTableNameAt(SWIGTYPE_p_void.getCPtr(client), databaseID, n);
   }
 
-  public static java.math.BigInteger SDBP_GetTableIDByName(SWIGTYPE_p_void client, java.math.BigInteger databaseID, String name) {
+  public static long SDBP_GetTableIDByName(SWIGTYPE_p_void client, long databaseID, String name) {
     return scaliendb_clientJNI.SDBP_GetTableIDByName(SWIGTYPE_p_void.getCPtr(client), databaseID, name);
   }
 
-  public static int SDBP_Get(SWIGTYPE_p_void client, java.math.BigInteger tableID, String key) {
+  public static int SDBP_Get(SWIGTYPE_p_void client, long tableID, String key) {
     return scaliendb_clientJNI.SDBP_Get(SWIGTYPE_p_void.getCPtr(client), tableID, key);
   }
 
-  public static int SDBP_GetCStr(SWIGTYPE_p_void client, java.math.BigInteger tableID, byte[] key, int len) {
+  public static int SDBP_GetCStr(SWIGTYPE_p_void client, long tableID, byte[] key, int len) {
     return scaliendb_clientJNI.SDBP_GetCStr(SWIGTYPE_p_void.getCPtr(client), tableID, key, len);
   }
 
-  public static int SDBP_Set(SWIGTYPE_p_void client, java.math.BigInteger tableID, String key, String value) {
+  public static int SDBP_Set(SWIGTYPE_p_void client, long tableID, String key, String value) {
     return scaliendb_clientJNI.SDBP_Set(SWIGTYPE_p_void.getCPtr(client), tableID, key, value);
   }
 
-  public static int SDBP_SetCStr(SWIGTYPE_p_void client_, java.math.BigInteger tableID, byte[] key, int lenKey, byte[] value, int lenValue) {
+  public static int SDBP_SetCStr(SWIGTYPE_p_void client_, long tableID, byte[] key, int lenKey, byte[] value, int lenValue) {
     return scaliendb_clientJNI.SDBP_SetCStr(SWIGTYPE_p_void.getCPtr(client_), tableID, key, lenKey, value, lenValue);
   }
 
-  public static int SDBP_Add(SWIGTYPE_p_void client, java.math.BigInteger tableID, String key, long number) {
+  public static int SDBP_Add(SWIGTYPE_p_void client, long tableID, String key, long number) {
     return scaliendb_clientJNI.SDBP_Add(SWIGTYPE_p_void.getCPtr(client), tableID, key, number);
   }
 
-  public static int SDBP_AddCStr(SWIGTYPE_p_void client_, java.math.BigInteger tableID, byte[] key, int len, long number) {
+  public static int SDBP_AddCStr(SWIGTYPE_p_void client_, long tableID, byte[] key, int len, long number) {
     return scaliendb_clientJNI.SDBP_AddCStr(SWIGTYPE_p_void.getCPtr(client_), tableID, key, len, number);
   }
 
-  public static int SDBP_Delete(SWIGTYPE_p_void client, java.math.BigInteger tableID, String key) {
+  public static int SDBP_Delete(SWIGTYPE_p_void client, long tableID, String key) {
     return scaliendb_clientJNI.SDBP_Delete(SWIGTYPE_p_void.getCPtr(client), tableID, key);
   }
 
-  public static int SDBP_DeleteCStr(SWIGTYPE_p_void client_, java.math.BigInteger tableID, byte[] key, int len) {
+  public static int SDBP_DeleteCStr(SWIGTYPE_p_void client_, long tableID, byte[] key, int len) {
     return scaliendb_clientJNI.SDBP_DeleteCStr(SWIGTYPE_p_void.getCPtr(client_), tableID, key, len);
   }
 
-  public static int SDBP_SequenceSet(SWIGTYPE_p_void client, java.math.BigInteger tableID, String key, java.math.BigInteger number) {
+  public static int SDBP_SequenceSet(SWIGTYPE_p_void client, long tableID, String key, long number) {
     return scaliendb_clientJNI.SDBP_SequenceSet(SWIGTYPE_p_void.getCPtr(client), tableID, key, number);
   }
 
-  public static int SDBP_SequenceSetCStr(SWIGTYPE_p_void client_, java.math.BigInteger tableID, byte[] key, int len, java.math.BigInteger number) {
+  public static int SDBP_SequenceSetCStr(SWIGTYPE_p_void client_, long tableID, byte[] key, int len, long number) {
     return scaliendb_clientJNI.SDBP_SequenceSetCStr(SWIGTYPE_p_void.getCPtr(client_), tableID, key, len, number);
   }
 
-  public static int SDBP_SequenceNext(SWIGTYPE_p_void client, java.math.BigInteger tableID, String key) {
+  public static int SDBP_SequenceNext(SWIGTYPE_p_void client, long tableID, String key) {
     return scaliendb_clientJNI.SDBP_SequenceNext(SWIGTYPE_p_void.getCPtr(client), tableID, key);
   }
 
-  public static int SDBP_SequenceNextCStr(SWIGTYPE_p_void client, java.math.BigInteger tableID, byte[] key, int len) {
+  public static int SDBP_SequenceNextCStr(SWIGTYPE_p_void client, long tableID, byte[] key, int len) {
     return scaliendb_clientJNI.SDBP_SequenceNextCStr(SWIGTYPE_p_void.getCPtr(client), tableID, key, len);
   }
 
-  public static int SDBP_ListKeys(SWIGTYPE_p_void client, java.math.BigInteger tableID, String startKey, String endKey, String prefix, long count, boolean forwardDirection, boolean skip) {
+  public static int SDBP_ListKeys(SWIGTYPE_p_void client, long tableID, String startKey, String endKey, String prefix, long count, boolean forwardDirection, boolean skip) {
     return scaliendb_clientJNI.SDBP_ListKeys(SWIGTYPE_p_void.getCPtr(client), tableID, startKey, endKey, prefix, count, forwardDirection, skip);
   }
 
-  public static int SDBP_ListKeysCStr(SWIGTYPE_p_void client, java.math.BigInteger tableID, byte[] startKey, int startKeyLen, byte[] endKey, int endKeyLen, byte[] prefix, int prefixLen, long count, boolean forwardDirection, boolean skip) {
+  public static int SDBP_ListKeysCStr(SWIGTYPE_p_void client, long tableID, byte[] startKey, int startKeyLen, byte[] endKey, int endKeyLen, byte[] prefix, int prefixLen, long count, boolean forwardDirection, boolean skip) {
     return scaliendb_clientJNI.SDBP_ListKeysCStr(SWIGTYPE_p_void.getCPtr(client), tableID, startKey, startKeyLen, endKey, endKeyLen, prefix, prefixLen, count, forwardDirection, skip);
   }
 
-  public static int SDBP_ListKeyValues(SWIGTYPE_p_void client, java.math.BigInteger tableID, String startKey, String endKey, String prefix, long count, boolean forwardDirection, boolean skip) {
+  public static int SDBP_ListKeyValues(SWIGTYPE_p_void client, long tableID, String startKey, String endKey, String prefix, long count, boolean forwardDirection, boolean skip) {
     return scaliendb_clientJNI.SDBP_ListKeyValues(SWIGTYPE_p_void.getCPtr(client), tableID, startKey, endKey, prefix, count, forwardDirection, skip);
   }
 
-  public static int SDBP_ListKeyValuesCStr(SWIGTYPE_p_void client, java.math.BigInteger tableID, byte[] startKey, int startKeyLen, byte[] endKey, int endKeyLen, byte[] prefix, int prefixLen, long count, boolean forwardDirection, boolean skip) {
+  public static int SDBP_ListKeyValuesCStr(SWIGTYPE_p_void client, long tableID, byte[] startKey, int startKeyLen, byte[] endKey, int endKeyLen, byte[] prefix, int prefixLen, long count, boolean forwardDirection, boolean skip) {
     return scaliendb_clientJNI.SDBP_ListKeyValuesCStr(SWIGTYPE_p_void.getCPtr(client), tableID, startKey, startKeyLen, endKey, endKeyLen, prefix, prefixLen, count, forwardDirection, skip);
   }
 
-  public static int SDBP_Count(SWIGTYPE_p_void client, java.math.BigInteger tableID, String startKey, String endKey, String prefix, boolean forwardDirection) {
+  public static int SDBP_Count(SWIGTYPE_p_void client, long tableID, String startKey, String endKey, String prefix, boolean forwardDirection) {
     return scaliendb_clientJNI.SDBP_Count(SWIGTYPE_p_void.getCPtr(client), tableID, startKey, endKey, prefix, forwardDirection);
   }
 
-  public static int SDBP_CountCStr(SWIGTYPE_p_void client, java.math.BigInteger tableID, byte[] startKey, int startKeyLen, byte[] endKey, int endKeyLen, byte[] prefix, int prefixLen, boolean forwardDirection) {
+  public static int SDBP_CountCStr(SWIGTYPE_p_void client, long tableID, byte[] startKey, int startKeyLen, byte[] endKey, int endKeyLen, byte[] prefix, int prefixLen, boolean forwardDirection) {
     return scaliendb_clientJNI.SDBP_CountCStr(SWIGTYPE_p_void.getCPtr(client), tableID, startKey, startKeyLen, endKey, endKeyLen, prefix, prefixLen, forwardDirection);
   }
 
@@ -333,6 +333,10 @@ public class scaliendb_client {
 
   public static void SDBP_SetShardPoolSize(long shardPoolSize) {
     scaliendb_clientJNI.SDBP_SetShardPoolSize(shardPoolSize);
+  }
+
+  public static void SDBP_SetMaxConnections(long maxConnections) {
+    scaliendb_clientJNI.SDBP_SetMaxConnections(maxConnections);
   }
 
   public static String SDBP_GetVersion() {

@@ -7,6 +7,7 @@ Args:
     -d <database>       Initial database to use
     -t <table>          Initial table to use
     -h <hostname>       Hostname to connect to
+    --trace		Turns on trace
 """
 import sys
 import scaliendb

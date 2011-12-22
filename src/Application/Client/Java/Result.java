@@ -1,6 +1,5 @@
 package com.scalien.scaliendb;
 
-import java.math.BigInteger;
 import java.util.TreeMap;
 
 public class Result
@@ -70,8 +69,7 @@ public class Result
      * Returns the current numeric value in result.
      */
     public long getNumber() {
-        BigInteger bi = scaliendb_client.SDBP_ResultNumber(cptr);
-        return bi.longValue();
+        return scaliendb_client.SDBP_ResultNumber(cptr);
     }
     
     /**

@@ -208,7 +208,7 @@ public class Client
      * @see #getMasterTimeout() 
      */
     public void setGlobalTimeout(long timeout) {
-        scaliendb_client.SDBP_SetGlobalTimeout(cptr, BigInteger.valueOf(timeout));
+        scaliendb_client.SDBP_SetGlobalTimeout(cptr, timeout);
     }
     
     /**
@@ -220,7 +220,7 @@ public class Client
      * @see #getMasterTimeout() 
      */
     public void setMasterTimeout(long timeout) {
-        scaliendb_client.SDBP_SetMasterTimeout(cptr, BigInteger.valueOf(timeout));
+        scaliendb_client.SDBP_SetMasterTimeout(cptr, timeout);
     }
     
     /**
@@ -232,8 +232,7 @@ public class Client
      * @see #setMasterTimeout(long) 
      */
     public long getGlobalTimeout() {
-        BigInteger bi = scaliendb_client.SDBP_GetGlobalTimeout(cptr);
-        return bi.longValue();
+        return scaliendb_client.SDBP_GetGlobalTimeout(cptr);
     }
     
     /**
@@ -245,8 +244,7 @@ public class Client
      * @see #setMasterTimeout(long) 
      */
     public long getMasterTimeout() {
-        BigInteger bi = scaliendb_client.SDBP_GetMasterTimeout(cptr);
-        return bi.longValue();
+        return scaliendb_client.SDBP_GetMasterTimeout(cptr);
     }
     
     /**
@@ -334,8 +332,7 @@ public class Client
      * @see #getQuorums()
      */
     public Quorum getQuorum(String name) throws SDBPException {
-        BigInteger bi = scaliendb_client.SDBP_GetQuorumIDByName(cptr, name);
-        long quorumID = bi.longValue();
+        long quorumID = scaliendb_client.SDBP_GetQuorumIDByName(cptr, name);
         if (quorumID == 0)
             throw new SDBPException(Status.SDBP_BADSCHEMA, "Database not found: " + name);
         return new Quorum(this, quorumID, name);
@@ -351,8 +348,7 @@ public class Client
         long numQuorums = scaliendb_client.SDBP_GetNumQuorums(cptr);
         ArrayList<Quorum> quorums = new ArrayList<Quorum>();
         for (long i = 0; i < numQuorums; i++) {
-            BigInteger bi = scaliendb_client.SDBP_GetQuorumIDAt(cptr, i);
-            long quorumID = bi.longValue();
+            long quorumID = scaliendb_client.SDBP_GetQuorumIDAt(cptr, i);
             String name = scaliendb_client.SDBP_GetQuorumNameAt(cptr, i);
             quorums.add(new Quorum(this, quorumID, name));
         }
@@ -368,8 +364,7 @@ public class Client
      * @see #createDatabase(String)
      */
     public Database getDatabase(String name) throws SDBPException {
-        BigInteger bi = scaliendb_client.SDBP_GetDatabaseIDByName(cptr, name);
-        long databaseID = bi.longValue();
+        long databaseID = scaliendb_client.SDBP_GetDatabaseIDByName(cptr, name);
         if (databaseID == 0)
             throw new SDBPException(Status.SDBP_BADSCHEMA, "Database not found: " + name);
         return new Database(this, databaseID, name);
@@ -386,8 +381,7 @@ public class Client
         long numDatabases = scaliendb_client.SDBP_GetNumDatabases(cptr);
         ArrayList<Database> databases = new ArrayList<Database>();
         for (long i = 0; i < numDatabases; i++) {
-            BigInteger bi = scaliendb_client.SDBP_GetDatabaseIDAt(cptr, i);
-            long databaseID = bi.longValue();            
+            long databaseID = scaliendb_client.SDBP_GetDatabaseIDAt(cptr, i);
             String name = scaliendb_client.SDBP_GetDatabaseNameAt(cptr, i);
             databases.add(new Database(this, databaseID, name));
         }
@@ -413,8 +407,7 @@ public class Client
     }
 
     byte[] get(long tableID, byte[] key) throws SDBPException {
-        BigInteger biTableID = BigInteger.valueOf(tableID);
-        int status = scaliendb_client.SDBP_GetCStr(cptr, biTableID, key, key.length);
+        int status = scaliendb_client.SDBP_GetCStr(cptr, tableID, key, key.length);
         if (status < 0) {
             if (status == Status.SDBP_FAILED)
                 return null;
@@ -431,8 +424,7 @@ public class Client
     }
 
     void set(long tableID, byte[] key, byte[] value) throws SDBPException {
-        BigInteger biTableID = BigInteger.valueOf(tableID);
-        int status = scaliendb_client.SDBP_SetCStr(cptr, biTableID, key, key.length, value, value.length);
+        int status = scaliendb_client.SDBP_SetCStr(cptr, tableID, key, key.length, value, value.length);
         if (status < 0) {
             result = new Result(scaliendb_client.SDBP_GetResult(cptr));
             if (status == Status.SDBP_API_ERROR)
@@ -449,8 +441,7 @@ public class Client
     }
 
     long add(long tableID, byte[] key, long number) throws SDBPException {
-        BigInteger biTableID = BigInteger.valueOf(tableID);
-        int status = scaliendb_client.SDBP_AddCStr(cptr, biTableID, key, key.length, number);
+        int status = scaliendb_client.SDBP_AddCStr(cptr, tableID, key, key.length, number);
         if (status < 0) {
             result = new Result(scaliendb_client.SDBP_GetResult(cptr));
             checkStatus(status);
@@ -465,8 +456,7 @@ public class Client
     }
 
     void delete(long tableID, byte[] key) throws SDBPException {
-        BigInteger biTableID = BigInteger.valueOf(tableID);
-        int status = scaliendb_client.SDBP_DeleteCStr(cptr, biTableID, key, key.length);
+        int status = scaliendb_client.SDBP_DeleteCStr(cptr, tableID, key, key.length);
         if (status < 0) {
             result = new Result(scaliendb_client.SDBP_GetResult(cptr));
             if (status == Status.SDBP_API_ERROR)
@@ -483,9 +473,7 @@ public class Client
     }
 
     void sequenceSet(long tableID, byte[] key, long number) throws SDBPException {
-        BigInteger biTableID = BigInteger.valueOf(tableID);
-        BigInteger biNumber = BigInteger.valueOf(number);
-        int status = scaliendb_client.SDBP_SequenceSetCStr(cptr, biTableID, key, key.length, biNumber);
+        int status = scaliendb_client.SDBP_SequenceSetCStr(cptr, tableID, key, key.length, number);
         if (status < 0) {
             result = new Result(scaliendb_client.SDBP_GetResult(cptr));
             checkStatus(status);
@@ -499,8 +487,7 @@ public class Client
     }
 
     long sequenceNext(long tableID, byte[] key) throws SDBPException {
-        BigInteger biTableID = BigInteger.valueOf(tableID);
-        int status = scaliendb_client.SDBP_SequenceNextCStr(cptr, biTableID, key, key.length);
+        int status = scaliendb_client.SDBP_SequenceNextCStr(cptr, tableID, key, key.length);
         if (status < 0) {
             result = new Result(scaliendb_client.SDBP_GetResult(cptr));
             checkStatus(status);
@@ -515,9 +502,8 @@ public class Client
     }
     
     long count(long tableID, ByteRangeParams ps) throws SDBPException {
-        BigInteger biTableID = BigInteger.valueOf(tableID);
         int status = scaliendb_client.SDBP_CountCStr(
-         cptr, biTableID, ps.startKey, ps.startKey.length, ps.endKey, ps.endKey.length,
+         cptr, tableID, ps.startKey, ps.startKey.length, ps.endKey, ps.endKey.length,
          ps.prefix, ps.prefix.length, ps.forwardDirection);
         checkResultStatus(status);
         return result.getNumber();
@@ -534,9 +520,8 @@ public class Client
 
     protected List<byte[]> listKeys(long tableID, byte[] startKey, byte[] endKey, byte[] prefix, int count, boolean forwardDirection, boolean skip)
     throws SDBPException {
-        BigInteger biTableID = BigInteger.valueOf(tableID);
         int status = scaliendb_client.SDBP_ListKeysCStr(
-         cptr, biTableID, startKey, startKey.length, 
+         cptr, tableID, startKey, startKey.length, 
          endKey, endKey.length, prefix, prefix.length, count, forwardDirection, skip);
          checkResultStatus(status);
 
@@ -557,8 +542,7 @@ public class Client
     }
 
     protected Map<byte[], byte[]> listKeyValues(long tableID, byte[] startKey, byte[] endKey, byte[] prefix, int count, boolean forwardDirection, boolean skip) throws SDBPException {
-        BigInteger biTableID = BigInteger.valueOf(tableID);
-        int status = scaliendb_client.SDBP_ListKeyValuesCStr(cptr, biTableID,
+        int status = scaliendb_client.SDBP_ListKeyValuesCStr(cptr, tableID,
          startKey, startKey.length, endKey, endKey.length, prefix, prefix.length,
          count, forwardDirection, skip);
         checkResultStatus(status);

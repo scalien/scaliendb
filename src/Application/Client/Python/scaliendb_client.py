@@ -211,6 +211,7 @@ SDBP_SetLogFile = _scaliendb_client.SDBP_SetLogFile
 SDBP_SetTraceBufferSize = _scaliendb_client.SDBP_SetTraceBufferSize
 SDBP_LogTrace = _scaliendb_client.SDBP_LogTrace
 SDBP_SetShardPoolSize = _scaliendb_client.SDBP_SetShardPoolSize
+SDBP_SetMaxConnections = _scaliendb_client.SDBP_SetMaxConnections
 SDBP_GetVersion = _scaliendb_client.SDBP_GetVersion
 SDBP_GetDebugString = _scaliendb_client.SDBP_GetDebugString
 
