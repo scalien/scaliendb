@@ -592,8 +592,10 @@ namespace ScalienClientUnitTesting
         [TestMethod]
         public void NumericConsistencyTest()
         {
-            //FillDatabaseWithNumericKeys("NumericConsistencyTest", "test");
-            CheckDatabaseWithNumericKeys("NumericConsistencyTest", "test");
+            var dbName = "NumericConsistencyTest";
+            var tableName = "test";
+            //FillDatabaseWithNumericKeys(dbName, tableName);
+            CheckDatabaseWithNumericKeys(dbName, tableName);
         }
     }
 }
