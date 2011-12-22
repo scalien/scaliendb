@@ -59,8 +59,8 @@ namespace Scalien
         override protected bool ReleaseHandle()
         {
             // This is a hack to free all references of the DLL
-            if (NativeMethods.FreeLibrary(handle))
-                NativeMethods.FreeLibrary(handle);
+            while (NativeMethods.FreeLibrary(handle)) ;
+                
             return true;
         }
     }
