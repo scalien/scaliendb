@@ -19,6 +19,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ScalienClientWithNativeDLL"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ScalienClientWithNativeDLLTest", "ScalienClientWithNativeDLLTest\ScalienClientWithNativeDLLTest.csproj", "{BFE3F27C-0439-4B21-8E0F-0FBD68E750B4}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ScalienClientUtils", "ScalienClientUtils\ScalienClientUtils.csproj", "{C734416F-CD00-4CB5-BECD-444E9C75AD99}"
+EndProject
 Global
 	GlobalSection(TestCaseManagementSettings) = postSolution
 		CategoryFile = ScalienClient.vsmdi
@@ -107,6 +109,18 @@ Global
 		{BFE3F27C-0439-4B21-8E0F-0FBD68E750B4}.Release|x64.ActiveCfg = Release|x86
 		{BFE3F27C-0439-4B21-8E0F-0FBD68E750B4}.Release|x86.ActiveCfg = Release|x86
 		{BFE3F27C-0439-4B21-8E0F-0FBD68E750B4}.Release|x86.Build.0 = Release|x86
+		{C734416F-CD00-4CB5-BECD-444E9C75AD99}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C734416F-CD00-4CB5-BECD-444E9C75AD99}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C734416F-CD00-4CB5-BECD-444E9C75AD99}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{C734416F-CD00-4CB5-BECD-444E9C75AD99}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{C734416F-CD00-4CB5-BECD-444E9C75AD99}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{C734416F-CD00-4CB5-BECD-444E9C75AD99}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{C734416F-CD00-4CB5-BECD-444E9C75AD99}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C734416F-CD00-4CB5-BECD-444E9C75AD99}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C734416F-CD00-4CB5-BECD-444E9C75AD99}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{C734416F-CD00-4CB5-BECD-444E9C75AD99}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{C734416F-CD00-4CB5-BECD-444E9C75AD99}.Release|x64.ActiveCfg = Release|Any CPU
+		{C734416F-CD00-4CB5-BECD-444E9C75AD99}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

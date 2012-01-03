@@ -21,6 +21,13 @@ namespace Scalien
 
         public static void Main(string[] args)
         {
+            //new ScalienClientUnitTesting.ClientTests().CreateClientPerRequest();
+            new ScalienClientUnitTesting.ConsistencyTests().CheckClusterConsistencyByCount();
+            //new ScalienClientUnitTesting.ConsistencyTests().NumericConsistencyTest();
+            //new ScalienClientUnitTesting.SimpleUnitTests().ListTestsWithoutProxies();
+            //new ScalienClientUnitTesting.ClientTests().TestMaxConnections();
+            return;
+
             Stopwatch stopwatch = new Stopwatch();
             stopwatch.Start();
 

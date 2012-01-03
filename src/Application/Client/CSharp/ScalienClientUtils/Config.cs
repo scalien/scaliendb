@@ -6,11 +6,9 @@ using System.Text;
 using System.IO;
 using System.Reflection;
 
-using Scalien;
-
-namespace ScalienClientUnitTesting
+namespace Scalien
 {
-    class Config
+    public class Config
     {
         public string[] _default_nodes = { "localhost:7080" };
 
