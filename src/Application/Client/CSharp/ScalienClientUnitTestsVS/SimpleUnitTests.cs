@@ -22,7 +22,7 @@ namespace ScalienClientUnitTesting
             string dbName = "test_mp3_db";
             string tableName = "test_mp3_table";
 
-            Client client = new Client(Config.GetNodes());
+            Client client = new Client(Utils.GetConfigNodes());
             Table tbl = Utils.GetOrCreateEmptyTableAndDatabase(client, dbName, tableName);
 
             // SET MP3 (you will need a valdi path to test.mp3
@@ -44,7 +44,7 @@ namespace ScalienClientUnitTesting
             string dbName = "get_set_db";
             string tableName = "get_set_db_table";
 
-            Client client = new Client(Config.GetNodes());
+            Client client = new Client(Utils.GetConfigNodes());
             Table tbl = Utils.GetOrCreateEmptyTableAndDatabase(client, dbName, tableName);
 
             //client.Submit();
@@ -66,8 +66,8 @@ namespace ScalienClientUnitTesting
             string dbName = "create_and_close_clients_db";
             string tableName = "create_and_close_clients_table";
 
-            Client client1 = new Client(Config.GetNodes());
-            Client client2 = new Client(Config.GetNodes());
+            Client client1 = new Client(Utils.GetConfigNodes());
+            Client client2 = new Client(Utils.GetConfigNodes());
 
             Table tbl1 = Utils.GetOrCreateEmptyTableAndDatabase(client1, dbName, tableName);
             Table tbl2 = Utils.GetOrCreateEmptyTableAndDatabase(client2, dbName + "_2", tableName);
@@ -106,7 +106,7 @@ namespace ScalienClientUnitTesting
             string tableName = "get_set_db_table";
             Client.SetLogFile("f:\\log.txt");
             Client.SetTrace(true);
-            Client client = new Client(Config.GetNodes());
+            Client client = new Client(Utils.GetConfigNodes());
             Table tbl = Utils.GetOrCreateEmptyTableAndDatabase(client, dbName, tableName);
 
             try
@@ -135,7 +135,7 @@ namespace ScalienClientUnitTesting
             string tableNameSeq = "seq_table";
             string tableNameTrunc = "trunc_table";
 
-            Client client = new Client(Config.GetNodes());
+            Client client = new Client(Utils.GetConfigNodes());
             Table tblSeq = Utils.GetOrCreateEmptyTableAndDatabase(client, dbName, tableNameSeq);
             Table tblTrunc = Utils.GetOrCreateEmptyTableAndDatabase(client, dbName, tableNameTrunc);
 
@@ -165,7 +165,7 @@ namespace ScalienClientUnitTesting
             string tableNameSeq = "seq_table";
             string tableNameSet = "set_table";
 
-            Client client = new Client(Config.GetNodes());
+            Client client = new Client(Utils.GetConfigNodes());
             Table tblSeq = Utils.GetOrCreateEmptyTableAndDatabase(client, dbName, tableNameSeq);
             Table tblSet = Utils.GetOrCreateEmptyTableAndDatabase(client, dbName, tableNameSet);
 
@@ -188,7 +188,7 @@ namespace ScalienClientUnitTesting
             string dbName = "test_db";
             string tableName = "test_table";
 
-            Client client = new Client(Config.GetNodes());
+            Client client = new Client(Utils.GetConfigNodes());
             Table tbl = Utils.GetOrCreateEmptyTableAndDatabase(client, dbName, tableName);
 
             for(ulong i = 0; i < 1000; i++)
@@ -216,7 +216,7 @@ namespace ScalienClientUnitTesting
             string dbName = "test_db";
             string tableName = "test_table";
 
-            Client client = new Client(Config.GetNodes());
+            Client client = new Client(Utils.GetConfigNodes());
             Table tbl = Utils.GetOrCreateEmptyTableAndDatabase(client, dbName, tableName);
 
             for (ulong i = 0; i < 1000; i++)
@@ -240,7 +240,7 @@ namespace ScalienClientUnitTesting
         {
             var dbName = "Benchmark";
             var tableName = "fileContentLockStartDateIndex";
-            Client client = new Client(Config.GetNodes());
+            Client client = new Client(Utils.GetConfigNodes());
 
             Database db = client.GetDatabase(dbName);
             Table tbl = db.GetTable(tableName);
@@ -262,7 +262,7 @@ namespace ScalienClientUnitTesting
             int length = 10 * 1000;
             uint num = 22 * 1000;
 
-            Client client = new Client(Config.GetNodes());
+            Client client = new Client(Utils.GetConfigNodes());
             Table tbl = Utils.GetOrCreateEmptyTableAndDatabase(client, dbName, tableName);
 
             var value = Utils.RandomString(length);
@@ -284,7 +284,7 @@ namespace ScalienClientUnitTesting
             int length = 10 * 1000;
             uint num = 22 * 1000;
 
-            Client client = new Client(Config.GetNodes());
+            Client client = new Client(Utils.GetConfigNodes());
             Table tbl = Utils.GetOrCreateEmptyTableAndDatabase(client, dbName, tableName);
 
             var value = Utils.RandomString(length);

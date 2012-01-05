@@ -342,5 +342,10 @@ namespace Scalien
             return System.Text.Encoding.UTF8.GetBytes(str);
         }
 
+
+        public static string[] GetConfigNodes()
+        {
+            return new ConfigFile().GetStringArrayValue("controllers");
+        }
     }
 }

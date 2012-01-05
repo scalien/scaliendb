@@ -88,7 +88,7 @@ namespace ScalienClientUnitTesting
             {
                 actions = (List<KillerConf>)param;
             }
-            Client client = new Client(Config.GetNodes());
+            Client client = new Client(Utils.GetConfigNodes());
 
             vix = 0;
             victim = null;
@@ -228,7 +228,7 @@ namespace ScalienClientUnitTesting
 
             try
             {
-                Users usr = new Users(Config.GetNodes());
+                Users usr = new Users(Utils.GetConfigNodes());
                 while (loop-- > 0)
                 {
                     usr.TestCycle(users_per_iteration);
@@ -246,7 +246,7 @@ namespace ScalienClientUnitTesting
         [TestMethod]
         public void TestConfigState() // debug purposes only
         {
-            Client client = new Client(Config.GetNodes());
+            Client client = new Client(Utils.GetConfigNodes());
 
             client.SetGlobalTimeout(15000);
 
@@ -263,8 +263,8 @@ namespace ScalienClientUnitTesting
             int init_users = 10000;
             int threadnum = 10;
 
-            var nodes = Config.GetNodes();
-            Users usr = new Users(Config.GetNodes());
+            var nodes = Utils.GetConfigNodes();
+            Users usr = new Users(Utils.GetConfigNodes());
             usr.EmptyAll();
             usr.InsertUsers(init_users);
 
@@ -300,8 +300,8 @@ namespace ScalienClientUnitTesting
             int init_users = 10000;
             int threadnum = 10;
 
-            var nodes = Config.GetNodes();
-            Users usr = new Users(Config.GetNodes());
+            var nodes = Utils.GetConfigNodes();
+            Users usr = new Users(Utils.GetConfigNodes());
             usr.EmptyAll();
             usr.InsertUsers(init_users);
 
