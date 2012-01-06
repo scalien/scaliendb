@@ -23,30 +23,87 @@ namespace Scalien
 
         public static System.Random RandomNumber = new System.Random();
 
-        public static string HTTP_GET(string url, int Timeout = 30000)
+        public class HTTP
         {
-            HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
-            request.UserAgent = "ScalienClient CSharp";
-            request.KeepAlive = false;
-            request.Method = "GET";
-            request.Timeout = Timeout;
-            request.Proxy = null;
-            try
+            public static string BuildUri(params object[] args)
             {
-                HttpWebResponse response = (HttpWebResponse)request.GetResponse();
-                using (BufferedStream buffer = new BufferedStream(response.GetResponseStream()))
+                string uri = "";
+
+                foreach (var arg in args)
                 {
-                    using (StreamReader reader = new StreamReader(buffer))
+                    if (arg is string)
+                        uri += RequestUriString(StringToByteArray((string)arg));
+                    else
+                        uri += RequestUriString((byte[])arg);
+                }
+
+                return uri;
+            }
+
+            public static string RequestUriString(byte[] uri)
+            {
+                string ret = "";
+
+                foreach (var b in uri)
+                {
+                    if (b < 32 || b >= 128)
                     {
-                        return reader.ReadToEnd();
+                        ret += String.Format("%{0:00G}", b);
+                    }
+                    else
+                        ret += (char)b;
+                }
+
+                return ret;
+            }
+
+            public static string GET(string url, int Timeout = 30000)
+            {
+                HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
+                request.UserAgent = "ScalienClient CSharp";
+                request.KeepAlive = false;
+                request.Method = "GET";
+                request.Timeout = Timeout;
+                request.Proxy = null;
+                try
+                {
+                    HttpWebResponse response = (HttpWebResponse)request.GetResponse();
+                    using (BufferedStream buffer = new BufferedStream(response.GetResponseStream()))
+                    {
+                        using (StreamReader reader = new StreamReader(buffer))
+                        {
+                            return reader.ReadToEnd();
+                        }
                     }
                 }
-                //StreamReader sr = new StreamReader(response.GetResponseStream());
-                //return sr.ReadToEnd();
+                catch (Exception e)
+                {
+                    return e.Message;
+                }
             }
-            catch (Exception e)
+
+            public static byte[] BinaryGET(string url, int Timeout = 30000)
             {
-                return e.Message;
+                HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
+                request.UserAgent = "ScalienClient CSharp";
+                request.KeepAlive = false;
+                request.Method = "GET";
+                request.Timeout = Timeout;
+                request.Proxy = null;
+                try
+                {
+                    HttpWebResponse response = (HttpWebResponse)request.GetResponse();
+                    using (BufferedStream buffer = new BufferedStream(response.GetResponseStream()))
+                    {
+                        MemoryStream stream = new MemoryStream();
+                        buffer.CopyTo(stream);
+                        return stream.ToArray();
+                    }
+                }
+                catch (Exception e)
+                {
+                    return null;
+                }
             }
         }
 
