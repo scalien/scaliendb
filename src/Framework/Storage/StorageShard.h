@@ -28,6 +28,7 @@ class StorageShard
     
 public:
     typedef SortedList<StorageChunk*> ChunkList;
+    typedef bool (StorageShard::*IsMergeCandidateFunc)();
     
     StorageShard();
     ~StorageShard();
@@ -62,7 +63,10 @@ public:
     StorageMemoChunk*   GetMemoChunk();
     ChunkList&          GetChunks();
     void                OnChunkSerialized(StorageMemoChunk* memoChunk, StorageFileChunk* fileChunk);
+    bool                IsSplitMergeCandidate();
+    bool                IsFragmentedMergeCandidate();
     void                GetMergeInputChunks(List<StorageFileChunk*>& inputChunks);
+
 
     StorageShard*       prev;
     StorageShard*       next;

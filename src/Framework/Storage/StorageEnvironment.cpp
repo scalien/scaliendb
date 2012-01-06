@@ -1283,11 +1283,7 @@ void StorageEnvironment::TryWriteChunks()
 
 void StorageEnvironment::TryMergeChunks()
 {
-    ShardSize*              shardSize;
-    StorageMergeChunkJob*   job;
-    StorageShard*           itShard;
-    StorageFileChunk*       mergeChunk;
-    List<StorageFileChunk*> inputChunks;
+    StorageShard*           shard;
     InSortedList<ShardSize> shardSizes;
 
     Log_Trace();
@@ -1295,37 +1291,19 @@ void StorageEnvironment::TryMergeChunks()
     if (!mergeEnabled || mergeChunkJobs.IsActive() || numCursors > 0)
         return;
 
-    FOREACH(itShard, shards)
-    {
-        shardSize = new ShardSize;
-        shardSize->contextID = itShard->GetContextID();
-        shardSize->shardID = itShard->GetShardID();
-        shardSize->size = GetSize(shardSize->contextID, shardSize->shardID);
-        shardSize->prev = shardSize->next = shardSize;
-        shardSizes.Add(shardSize);
-    }
+    // construct list of shards as ShardSize objects sorted with ascending size
+    ConstructShardSizes(shardSizes);
 
-    FOREACH_BACK (shardSize, shardSizes)
-    {
-        // iterate with decreasing shard size
-        itShard = GetShard(shardSize->contextID, shardSize->shardID);
-        inputChunks.Clear();
-        itShard->GetMergeInputChunks(inputChunks);
-        if (inputChunks.GetLength() < 2)
-            continue;
-        
-        mergeChunk = new StorageFileChunk;
-        mergeChunk->headerPage.SetChunkID(nextChunkID++);
-        mergeChunk->headerPage.SetUseBloomFilter(itShard->UseBloomFilter());
-        mergeChunk->SetFilename(chunkPath, mergeChunk->GetChunkID());
+    // find largest shard which has been split and needs merging
+    shard = FindLargestShardCond(shardSizes, &StorageShard::IsSplitMergeCandidate);
 
-        job = new StorageMergeChunkJob(
-         this, itShard->GetContextID(), itShard->GetShardID(),
-         inputChunks, mergeChunk,
-         itShard->GetFirstKey(), itShard->GetLastKey());
-        mergeChunkJobs.Execute(job);
-        break;
-    }
+    // if no shard with a merge job was found so far,
+    // find largest shard which has too many file chunks
+    if (!shard)
+        shard = FindLargestShardCond(shardSizes,  &StorageShard::IsFragmentedMergeCandidate);        
+
+    if (shard)
+        MergeChunk(shard);
 
     shardSizes.DeleteList();
 }
@@ -1477,6 +1455,60 @@ bool StorageEnvironment::TryDeleteDumpTypeFileChunk(StorageShard* shard)
     }
 
     return false;
+}
+
+void StorageEnvironment::ConstructShardSizes(InSortedList<ShardSize>& shardSizes)
+{
+    StorageShard*   shard;
+    ShardSize*      shardSize;
+
+    FOREACH(shard, shards)
+    {
+        shardSize = new ShardSize;
+        shardSize->contextID = shard->GetContextID();
+        shardSize->shardID = shard->GetShardID();
+        shardSize->size = GetSize(shardSize->contextID, shardSize->shardID);
+        shardSize->prev = shardSize->next = shardSize;
+        shardSizes.Add(shardSize);
+    }
+}
+
+StorageShard* StorageEnvironment::FindLargestShardCond(
+ InSortedList<ShardSize>& shardSizes, StorageShard::IsMergeCandidateFunc IsMergeCandidateFunc)
+{
+    ShardSize*      shardSize;
+    StorageShard*   shard;
+
+    // merge larger shards first: iterate backwards with decreasing shard size
+    FOREACH_BACK (shardSize, shardSizes)
+    {
+        shard = GetShard(shardSize->contextID, shardSize->shardID);
+        if ((shard->*IsMergeCandidateFunc)())
+            return shard;
+    }
+
+    return NULL;
+}
+
+void StorageEnvironment::MergeChunk(StorageShard* shard)
+{
+    StorageFileChunk*       mergeChunk;
+    StorageMergeChunkJob*   job;
+    List<StorageFileChunk*> inputChunks;
+
+    shard->GetMergeInputChunks(inputChunks);
+
+    mergeChunk = new StorageFileChunk();
+    mergeChunk->headerPage.SetChunkID(nextChunkID++);
+    mergeChunk->headerPage.SetUseBloomFilter(shard->UseBloomFilter());
+    mergeChunk->SetFilename(chunkPath, mergeChunk->GetChunkID());
+
+    job = new StorageMergeChunkJob(
+     this, shard->GetContextID(), shard->GetShardID(),
+     inputChunks, mergeChunk,
+     shard->GetFirstKey(), shard->GetLastKey());
+
+    mergeChunkJobs.Execute(job);
 }
 
 void StorageEnvironment::OnChunkSerialize(StorageSerializeChunkJob* job)
