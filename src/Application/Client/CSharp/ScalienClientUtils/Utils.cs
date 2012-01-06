@@ -95,9 +95,9 @@ namespace Scalien
                     HttpWebResponse response = (HttpWebResponse)request.GetResponse();
                     using (BufferedStream buffer = new BufferedStream(response.GetResponseStream()))
                     {
-                        byte[] ret = new byte[buffer.Length];
-                        buffer.Read(ret, 0, (int)buffer.Length);
-                        return ret;
+                        MemoryStream stream = new MemoryStream();
+                        buffer.CopyTo(stream);
+                        return stream.ToArray();
                     }
                 }
                 catch (Exception e)

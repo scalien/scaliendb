@@ -116,6 +116,10 @@ namespace Scalien
                     prefix = prefix * 10 + (data[pos] - '0');
                     pos += 1;
                 }
+                else if (data[pos] == ':')
+                {
+                    break;
+                }
                 else
                     return -1;
             }
@@ -145,10 +149,14 @@ namespace Scalien
                 return -1;
             if (pos >= data.Length)
                 return -1;
+            if (data[pos] != ':')
+                return -1;
+            pos += 1;
+
             if (data[pos] != ' ')
                 return -1;
             pos += 1;
-            
+
             byte[] value = null;
             pos = ParseByteArray(data, pos, ref value);
             if (pos == -1)
@@ -166,6 +174,7 @@ namespace Scalien
         public static List<KeyValuePair<byte[], byte[]>> GetTableKeyValuesHTTP(string url)
         {
             var keyValues = new List<KeyValuePair<byte[], byte[]>>();
+            url += "&binary=true";
             var data = Utils.HTTP.BinaryGET(Utils.HTTP.RequestUriString(Utils.StringToByteArray(url)), COUNT_TIMEOUT);
             try
             {
@@ -234,7 +243,7 @@ namespace Scalien
             {
                 //var url = GetShardServerURL(shardServer) + "listkeys?tableID=" + tableID + "&startKey=" + startKey + "&endKey=" + endKey + "&count=" + listGranularity + "&direction=" + direction;
                 var url = Utils.HTTP.BuildUri(GetShardServerURL(shardServer),
-                            "listkeys?tableID=" + tableID,
+                            "listkeyvalues?tableID=" + tableID,
                             "&startKey=", startKey,
                             "&endKey=", endKey,
                             "&count=" + listGranularity,
@@ -356,10 +365,7 @@ namespace Scalien
             {
                 var shardServer = GetShardServer(configState, nodeID);
                 if (shardServer != null)
-                {
                     shardServers.Add(shardServer);
-                    return shardServers;    // EXPERIMENTAL, remove!
-                }
             }
 
             return shardServers;
