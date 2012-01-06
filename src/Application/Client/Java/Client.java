@@ -573,12 +573,20 @@ public class Client
     }
 
     static byte[] stringToByteArray(String s) throws SDBPException { 
-        try { return s.getBytes("UTF8"); }
-	catch(Exception e) { throw new SDBPException(Status.SDBP_API_ERROR, "Cannot convert string to byte[] using UTF-8"); }
+        try {
+            return s.getBytes("UTF8"); 
+        } catch(Exception e) { 
+            throw new SDBPException(Status.SDBP_API_ERROR, "Cannot convert string to byte[] using UTF-8"); 
+        }
     }
 
     static String byteArrayToString(byte[] b) throws SDBPException {
-        try { return new String(b, "UTF8"); }
-	catch(Exception e) { throw new SDBPException(Status.SDBP_API_ERROR, "Cannot convert byte[] to String using UTF-8"); }
+        if (b == null)
+            return null;
+        try {
+            return new String(b, "UTF8");
+        } catch(Exception e) { 
+            throw new SDBPException(Status.SDBP_API_ERROR, "Cannot convert byte[] to String using UTF-8"); 
+        }
     }
 }
