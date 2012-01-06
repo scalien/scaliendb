@@ -86,6 +86,15 @@ namespace Scalien
         {
         }
 
+        public static void Cleanup()
+        {
+            if (handle == null)
+                return;
+
+            handle.Close();
+            handle = null;
+        }
+
         static string TryExtractDLL(string dirName, string name, string bitness)
         {
             string fileName = name + ".dll";

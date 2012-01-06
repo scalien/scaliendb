@@ -26,7 +26,7 @@ namespace ScalienClientUnitTesting
                 }*/
 
             string dbName = "manydb_test_";
-            Client client = new Client(Config.GetNodes());
+            Client client = new Client(Utils.GetConfigNodes());
 
             Utils.DeleteAllDatabases(client);
 
@@ -52,7 +52,7 @@ namespace ScalienClientUnitTesting
         public void ManyDBs100()
         {
             string dbName = "manydb_test_";
-            Client client = new Client(Config.GetNodes());
+            Client client = new Client(Utils.GetConfigNodes());
 
             Utils.DeleteAllDatabases(client);
 
@@ -73,7 +73,7 @@ namespace ScalienClientUnitTesting
         {
             string dbName = "manydb_test_";
 
-            Client client = new Client(Config.GetNodes());
+            Client client = new Client(Utils.GetConfigNodes());
 
             Utils.DeleteAllDatabases(client);
 
@@ -95,7 +95,7 @@ namespace ScalienClientUnitTesting
             string dbName = "manytables_test";
             string tableName = "manytables_test_";
 
-            Client client = new Client(Config.GetNodes());
+            Client client = new Client(Utils.GetConfigNodes());
             Database db = Utils.GetOrCreateEmptyDatabase(client, dbName);
 
             Table[] tbl = new Table[1000];
@@ -116,7 +116,7 @@ namespace ScalienClientUnitTesting
             string dbName = "manytables_test";
             string tableName = "manytables_test_";
 
-            Client client = new Client(Config.GetNodes());
+            Client client = new Client(Utils.GetConfigNodes());
             Database db = Utils.GetOrCreateEmptyDatabase(client, dbName);
 
             Table[] tbl = new Table[10000];
@@ -137,7 +137,7 @@ namespace ScalienClientUnitTesting
             string dbName = "manydbtables_test_";
             string tableName = "manydbtables_test_";
 
-            Client client = new Client(Config.GetNodes());
+            Client client = new Client(Utils.GetConfigNodes());
 
             Utils.DeleteAllDatabases(client);
 
@@ -167,7 +167,7 @@ namespace ScalienClientUnitTesting
         [TestMethod]
         public void RandomNamedDBs()
         {
-            Client client = new Client(Config.GetNodes());
+            Client client = new Client(Utils.GetConfigNodes());
 
             Utils.DeleteAllDatabases(client);
 
@@ -190,7 +190,7 @@ namespace ScalienClientUnitTesting
         [TestMethod]
         public void RandomNamedDBs_CheckByDBList()
         {
-            Client client = new Client(Config.GetNodes());
+            Client client = new Client(Utils.GetConfigNodes());
 
             Utils.DeleteAllDatabases(client);
 
@@ -216,7 +216,7 @@ namespace ScalienClientUnitTesting
             string dbName = "random_named_tables_db";
             string[] tableNames = new string[100];
 
-            Client client = new Client(Config.GetNodes());
+            Client client = new Client(Utils.GetConfigNodes());
             Database db = Utils.GetOrCreateEmptyDatabase(client, dbName);
 
             Table[] tbl = new Table[100];
@@ -240,7 +240,7 @@ namespace ScalienClientUnitTesting
             string dbName = "random_named_tables_db";
             List<string> tableNames = new List<string>(100);
 
-            Client client = new Client(Config.GetNodes());
+            Client client = new Client(Utils.GetConfigNodes());
             Database db = Utils.GetOrCreateEmptyDatabase(client, dbName);
 
             Table[] tbl = new Table[100];

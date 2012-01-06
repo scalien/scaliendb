@@ -19,7 +19,7 @@ namespace ScalienClientUnitTesting
         {
             int loop = System.Convert.ToInt32(param);
 
-            Users usr = new Users(Config.GetNodes());
+            Users usr = new Users(Utils.GetConfigNodes());
             while (loop-- > 0)
             {
                 usr.TestCycle_MultiUser();
@@ -32,7 +32,7 @@ namespace ScalienClientUnitTesting
             int init_users = 10000;
             int threadnum = 10;
 
-            Users usr = new Users(Config.GetNodes());
+            Users usr = new Users(Utils.GetConfigNodes());
             // TODO add another client
             usr.EmptyAll();
             usr.InsertUsers(init_users);

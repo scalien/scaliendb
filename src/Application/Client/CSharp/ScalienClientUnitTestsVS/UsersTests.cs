@@ -19,7 +19,7 @@ namespace ScalienClientUnitTesting
         [TestMethod]
         public void CountUsers() // for debug only
         {
-            Users usr = new Users(Config.GetNodes());
+            Users usr = new Users(Utils.GetConfigNodes());
 
             long cnt = usr.CountUsers();
 
@@ -29,7 +29,7 @@ namespace ScalienClientUnitTesting
         [TestMethod]
         public void SimpleTest()
         {
-            Users usr = new Users(Config.GetNodes());
+            Users usr = new Users(Utils.GetConfigNodes());
             usr.EmptyAll();
 
             usr.InsertUsers(1000);
@@ -50,7 +50,7 @@ namespace ScalienClientUnitTesting
 
             try
             {
-                Users usr = new Users(Config.GetNodes());
+                Users usr = new Users(Utils.GetConfigNodes());
                 while (loop-- > 0)
                 {
                     usr.TestCycle(users_per_iteration);
@@ -77,7 +77,7 @@ namespace ScalienClientUnitTesting
             StreamWriter sw = new StreamWriter(fs);
             Console.SetOut(sw);*/
 
-            Users usr = new Users(Config.GetNodes());
+            Users usr = new Users(Utils.GetConfigNodes());
             usr.EmptyAll();
             usr.InsertUsers(init_users);
 
@@ -116,7 +116,7 @@ namespace ScalienClientUnitTesting
             StreamWriter sw = new StreamWriter(fs);
             Console.SetOut(sw);*/
 
-            Users usr = new Users(Config.GetNodes());
+            Users usr = new Users(Utils.GetConfigNodes());
             usr.EmptyAll();
             usr.InsertUsers(init_users);
 
@@ -149,7 +149,7 @@ namespace ScalienClientUnitTesting
             int init_users = 1000;
             int threadnum = 1000;
 
-            Users usr = new Users(Config.GetNodes());
+            Users usr = new Users(Utils.GetConfigNodes());
             usr.EmptyAll();
             usr.InsertUsers(init_users);
 

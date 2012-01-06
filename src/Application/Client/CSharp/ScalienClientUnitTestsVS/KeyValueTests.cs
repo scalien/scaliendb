@@ -20,7 +20,7 @@ namespace ScalienClientUnitTesting
             string dbName = "random_key_values_db";
             string tableName = "random_key_values_tbl";
 
-            Client client = new Client(Config.GetNodes());
+            Client client = new Client(Utils.GetConfigNodes());
             Table tbl = Utils.GetOrCreateEmptyTableAndDatabase(client, dbName, tableName);
 
             byte[] key = new byte[0];
@@ -42,7 +42,7 @@ namespace ScalienClientUnitTesting
             string dbName = "random_key_values_db";
             string tableName = "random_key_values_tbl";
 
-            Client client = new Client(Config.GetNodes());
+            Client client = new Client(Utils.GetConfigNodes());
             Table tbl = Utils.GetOrCreateEmptyTableAndDatabase(client, dbName, tableName);
 
             tbl.Set("", "");
@@ -56,7 +56,7 @@ namespace ScalienClientUnitTesting
             string dbName = "random_key_values_db";
             string tableName = "random_key_values_tbl";
 
-            Client client = new Client(Config.GetNodes());
+            Client client = new Client(Utils.GetConfigNodes());
             Table tbl = Utils.GetOrCreateEmptyTableAndDatabase(client, dbName, tableName);
 
             tbl.Set("empty", "");
@@ -74,7 +74,7 @@ namespace ScalienClientUnitTesting
             string dbName = "random_key_values_db";
             string tableName = "random_key_values_tbl";
 
-            Client client = new Client(Config.GetNodes());
+            Client client = new Client(Utils.GetConfigNodes());
             Table tbl = Utils.GetOrCreateEmptyTableAndDatabase(client, dbName, tableName);
             byte[][] key = new byte[50000][];
             byte[][] value = new byte[50000][];
@@ -103,7 +103,7 @@ namespace ScalienClientUnitTesting
             string dbName = "random_key_values_db";
             string tableName = "random_key_values_tbl";
 
-            Client client = new Client(Config.GetNodes());
+            Client client = new Client(Utils.GetConfigNodes());
             Table tbl = Utils.GetOrCreateEmptyTableAndDatabase(client, dbName, tableName);
             byte[][] key = new byte[10000][];
             byte[][] value = new byte[10000][];
@@ -135,7 +135,7 @@ namespace ScalienClientUnitTesting
             string dbName = "random_key_values_db";
             string tableName = "random_key_values_tbl";
 
-            Client client = new Client(Config.GetNodes());
+            Client client = new Client(Utils.GetConfigNodes());
             Table tbl = Utils.GetOrCreateEmptyTableAndDatabase(client, dbName, tableName);
             byte[] prefix = System.Text.Encoding.UTF8.GetBytes("prefix_");
 
@@ -174,7 +174,7 @@ namespace ScalienClientUnitTesting
             string dbName = "random_key_values_db";
             string tableName = "random_key_values_tbl";
 
-            Client client = new Client(Config.GetNodes());
+            Client client = new Client(Utils.GetConfigNodes());
             Table tbl = Utils.GetOrCreateEmptyTableAndDatabase(client, dbName, tableName);
             byte[][] key = new byte[10000][];
             byte[][] value = new byte[10000][];
@@ -205,7 +205,7 @@ namespace ScalienClientUnitTesting
             string dbName = "random_key_values_db";
             string tableName = "random_key_values_tbl";
 
-            Client client = new Client(Config.GetNodes());
+            Client client = new Client(Utils.GetConfigNodes());
             Table tbl = Utils.GetOrCreateEmptyTableAndDatabase(client, dbName, tableName);
             byte[][] key = new byte[1500][];
             byte[][] value = new byte[1500][];
@@ -243,7 +243,7 @@ namespace ScalienClientUnitTesting
             string dbName = "random_key_values_db";
             string tableName = "random_key_values_tbl";
 
-            Client client = new Client(Config.GetNodes());
+            Client client = new Client(Utils.GetConfigNodes());
             Table tbl = Utils.GetOrCreateEmptyTableAndDatabase(client, dbName, tableName);
             byte[] prefix = System.Text.Encoding.UTF8.GetBytes("prefix_");
             byte[][] key = new byte[10000][];
