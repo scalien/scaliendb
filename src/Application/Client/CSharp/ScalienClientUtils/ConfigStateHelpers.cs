@@ -25,7 +25,7 @@ namespace Scalien
 
         public static Int64 GetTableCountHTTP(string url)
         {
-            var result = Utils.HTTP_GET(url, COUNT_TIMEOUT);
+            var result = Utils.HTTP.GET(url, COUNT_TIMEOUT);
             try
             {
                 if (result.StartsWith("NEXT"))
@@ -64,7 +64,7 @@ namespace Scalien
 
         public static string[] GetTableKeysHTTP(string url)
         {
-            var result = Utils.HTTP_GET(url, COUNT_TIMEOUT);
+            var result = Utils.HTTP.GET(url, COUNT_TIMEOUT);
             try
             {
                 string[] keys = result.Split(new char[] { '\n' });
@@ -85,6 +85,105 @@ namespace Scalien
             {
                 return null;
             }
+        }
+    }
+
+    public class BinaryListerThreadState
+    {
+        private static int COUNT_TIMEOUT = 120 * 1000;
+
+        public Thread thread;
+        public ConfigState.ShardServer shardServer;
+        public string url;
+        public List<KeyValuePair<byte[], byte[]>> keyValues;
+        public TimeSpan elapsed;
+        public bool keysOnly;
+
+        public void ListerThreadFunc()
+        {
+            DateTime start = DateTime.Now;
+            keyValues = GetTableKeyValuesHTTP(url);
+            elapsed = DateTime.Now.Subtract(start);
+        }
+
+        public static int ParseByteArray(byte[] data, int pos, ref byte[] array)
+        {
+            int prefix = 0;
+            while (pos < data.Length)
+            {
+                if (data[pos] >= '0' && data[pos] <= '9')
+                {
+                    prefix = prefix * 10 + (data[pos] - '0');
+                    pos += 1;
+                }
+                else
+                    return -1;
+            }
+
+            if (pos < data.Length)
+            {
+                if (data[pos] == ':')
+                    pos += 1;
+                else
+                    return -1;
+            }
+
+            if (pos + prefix >= data.Length)
+                return -1;
+
+            array = new byte[prefix];
+            Buffer.BlockCopy(data, pos, array, 0, prefix);
+            pos += prefix;
+            return pos;
+        }
+
+        public static int ParseKeyValue(byte[] data, int pos, ref KeyValuePair<byte[], byte[]> keyValue)
+        {
+            byte[] key = null;
+            pos = ParseByteArray(data, pos, ref key);
+            if (pos == -1)
+                return -1;
+            if (pos >= data.Length)
+                return -1;
+            if (data[pos] != ' ')
+                return -1;
+            pos += 1;
+            
+            byte[] value = null;
+            pos = ParseByteArray(data, pos, ref value);
+            if (pos == -1)
+                return -1;
+            if (pos >= data.Length)
+                return -1;
+            if (data[pos] != '\n')
+                return -1;
+            pos += 1;
+
+            keyValue = new KeyValuePair<byte[], byte[]>(key, value);
+            return pos;
+        }
+
+        public static List<KeyValuePair<byte[], byte[]>> GetTableKeyValuesHTTP(string url)
+        {
+            var keyValues = new List<KeyValuePair<byte[], byte[]>>();
+            var data = Utils.HTTP.BinaryGET(Utils.HTTP.RequestUriString(Utils.StringToByteArray(url)), COUNT_TIMEOUT);
+            try
+            {
+                int pos = 0;
+                while (pos >= 0)
+                {
+                    var keyValue = new KeyValuePair<byte[], byte[]>();
+                    pos = ParseKeyValue(data, pos, ref keyValue);
+                    if (pos == -1)
+                        break;
+                    keyValues.Add(keyValue);
+                }
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+            return keyValues;
         }
     }
 
@@ -123,6 +222,44 @@ namespace Scalien
             return serverKeys;
         }
 
+        public static List<KeyValuePair<byte[], byte[]>>[] ParallelFetchTableKeyValuesHTTP(List<ConfigState.ShardServer> shardServers, Int64 tableID, byte[] startKey, byte[] endKey, bool forward)
+        {
+            var threads = new BinaryListerThreadState[shardServers.Count];
+            var serverKeys = new List<KeyValuePair<byte[], byte[]>>[shardServers.Count];
+            var listGranularity = 100 * 1000 + 1;
+            var direction = forward ? "forward" : "backward";
+
+            var i = 0;
+            foreach (var shardServer in shardServers)
+            {
+                //var url = GetShardServerURL(shardServer) + "listkeys?tableID=" + tableID + "&startKey=" + startKey + "&endKey=" + endKey + "&count=" + listGranularity + "&direction=" + direction;
+                var url = Utils.HTTP.BuildUri(GetShardServerURL(shardServer),
+                            "listkeys?tableID=" + tableID,
+                            "&startKey=", startKey,
+                            "&endKey=", endKey,
+                            "&count=" + listGranularity,
+                            "&direction=" + direction);
+
+                threads[i] = new BinaryListerThreadState();
+                threads[i].thread = new Thread(new ThreadStart(threads[i].ListerThreadFunc));
+                threads[i].shardServer = shardServer;
+                threads[i].url = url;
+                threads[i].thread.Start();
+
+                i += 1;
+            }
+
+            i = 0;
+            foreach (var thread in threads)
+            {
+                thread.thread.Join();
+                serverKeys[i] = thread.keyValues;
+
+                i += 1;
+            }
+
+            return serverKeys;
+        }
 
 
         public static string[] GenerateNumericKeys(ulong start, ulong count)
@@ -219,7 +356,10 @@ namespace Scalien
             {
                 var shardServer = GetShardServer(configState, nodeID);
                 if (shardServer != null)
+                {
                     shardServers.Add(shardServer);
+                    return shardServers;    // EXPERIMENTAL, remove!
+                }
             }
 
             return shardServers;
