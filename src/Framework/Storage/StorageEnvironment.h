@@ -28,6 +28,7 @@ class StorageArchiveLogSegmentJob;
 
 #define STORAGE_DEFAULT_BACKGROUND_TIMER_DELAY      1  // sec
 
+struct ShardSize;
 
 /*
 ===============================================================================================
@@ -136,6 +137,11 @@ public:
     unsigned                GetNumShards(StorageChunk* chunk);
     StorageShard*           GetFirstShard(StorageChunk* chunk);
     StorageLogSegment*      GetLogSegment(uint64_t trackID);
+    void                    ConstructShardSizes(InSortedList<ShardSize>& shardSizes);
+    StorageShard*           FindLargestShardCond(
+                             InSortedList<ShardSize>& shardSizes,
+                             StorageShard::IsMergeCandidateFunc IsMergeCandidateFunc);
+    void                    MergeChunk(StorageShard* shard);
 
     Countdown               backgroundTimer;
     Callable                onBackgroundTimer;

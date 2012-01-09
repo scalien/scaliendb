@@ -194,17 +194,60 @@ void StorageShard::OnChunkSerialized(StorageMemoChunk* memoChunk, StorageFileChu
     chunks.Add(fileChunk);
 }
 
+bool StorageShard::IsSplitMergeCandidate()
+{
+    unsigned            count;
+    StorageChunk**      itChunk;
+
+    if (GetStorageType() == STORAGE_SHARD_TYPE_LOG)
+        return false;
+
+    // paxos shards with tableID == 0 are always splitable, but we should merge them
+    if (IsSplitable() && tableID > 0)
+        return false;
+    
+    count = 0;
+    FOREACH (itChunk, chunks)
+    {
+        if ((*itChunk)->GetChunkState() != StorageChunk::Written)
+            continue;
+
+        count++;
+    }
+
+    if (count < 2)
+        return false;
+
+    return true;
+}
+
+bool StorageShard::IsFragmentedMergeCandidate()
+{
+    unsigned            count;
+    StorageChunk**      itChunk;
+
+    if (GetStorageType() == STORAGE_SHARD_TYPE_LOG)
+        return false;
+    
+    count = 0;
+    FOREACH (itChunk, chunks)
+    {
+        if ((*itChunk)->GetChunkState() != StorageChunk::Written)
+            continue;
+
+        count++;
+    }
+
+    if (count < 10)
+        return false;
+
+    return true;
+}
 
 void StorageShard::GetMergeInputChunks(List<StorageFileChunk*>& inputChunks)
 {
     StorageFileChunk*       fileChunk;
     StorageChunk**          itChunk;
-
-    if (GetStorageType() == STORAGE_SHARD_TYPE_LOG)
-        return;
-
-    if (IsSplitable() && tableID > 0)
-        return;
     
     FOREACH (itChunk, chunks)
     {
