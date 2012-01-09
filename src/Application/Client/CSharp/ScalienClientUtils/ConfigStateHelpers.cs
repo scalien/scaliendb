@@ -241,7 +241,6 @@ namespace Scalien
             var i = 0;
             foreach (var shardServer in shardServers)
             {
-                //var url = GetShardServerURL(shardServer) + "listkeys?tableID=" + tableID + "&startKey=" + startKey + "&endKey=" + endKey + "&count=" + listGranularity + "&direction=" + direction;
                 var url = Utils.HTTP.BuildUri(GetShardServerURL(shardServer),
                             "listkeyvalues?tableID=" + tableID,
                             "&startKey=", startKey,
@@ -270,6 +269,48 @@ namespace Scalien
             return serverKeys;
         }
 
+        public static List<byte[]> ParallelFetchValuesHTTP(List<ConfigState.ShardServer> shardServers, Int64 tableID, byte[] key)
+        {
+            var threads = new BinaryListerThreadState[shardServers.Count];
+            var serverKeys = new List<KeyValuePair<byte[], byte[]>>[shardServers.Count];
+
+            var i = 0;
+            foreach (var shardServer in shardServers)
+            {
+                var url = Utils.HTTP.BuildUri(GetShardServerURL(shardServer),
+                            "listkeyvalues?tableID=" + tableID,
+                            "&startKey=", key,
+                            "&endKey=", key,
+                            "&count=" + 1);
+
+                threads[i] = new BinaryListerThreadState();
+                threads[i].thread = new Thread(new ThreadStart(threads[i].ListerThreadFunc));
+                threads[i].shardServer = shardServer;
+                threads[i].url = url;
+                threads[i].thread.Start();
+
+                i += 1;
+            }
+
+            i = 0;
+            foreach (var thread in threads)
+            {
+                thread.thread.Join();
+                serverKeys[i] = thread.keyValues;
+
+                i += 1;
+            }
+
+            var values = new List<byte[]>();
+            for (i = 0; i < serverKeys.Length; i++)
+            {
+                if (serverKeys[i] != null && serverKeys[i].Count != 0)
+                    values.Add(serverKeys[i].First().Value);
+                else
+                    values.Add(null);
+            }
+            return values;
+        }
 
         public static string[] GenerateNumericKeys(ulong start, ulong count)
         {
@@ -297,44 +338,16 @@ namespace Scalien
             return keys;
         }
 
-        //public static string[] GetTableKeysHTTP(string url)
-        //{
-        //    var result = Utils.HTTP_GET(url, COUNT_TIMEOUT);
-        //    try
-        //    {
-        //        string[] keys = result.Split(new char[] { '\n' });
-        //        if (keys.Length < 2)
-        //            return null;
-        //        // last line should be empty line and the one before last should be OK or NEXT
-        //        string lastKey = keys[keys.Length - 1];
-        //        if (lastKey.Length != 0)
-        //            return null;
-        //        lastKey = keys[keys.Length - 2];
-        //        if (!lastKey.StartsWith("OK") && !lastKey.StartsWith("NEXT"))
-        //            return null;
-        //        string[] ret = new string[keys.Length - 2];
-        //        Array.Copy(keys, ret, ret.Length);
-        //        return ret;
-        //    }
-        //    catch (Exception)
-        //    {
-        //        return null;
-        //    }
-        //}
+        public static ConfigState.Table GetTable(ConfigState configState, Int64 tableID)
+        {
+            foreach (var table in configState.tables)
+            {
+                if (table.tableID == tableID)
+                    return table;
+            }
 
-
-        //public static Int64 GetTableCountHTTP(string url)
-        //{
-        //    var result = Utils.HTTP_GET(url, COUNT_TIMEOUT);
-        //    try
-        //    {
-        //        return Convert.ToInt64(result);
-        //    }
-        //    catch (Exception e)
-        //    {
-        //        return -1;
-        //    }
-        //}
+            return null;
+        }
 
         public static ConfigState.Quorum GetQuorum(ConfigState configState, Int64 quorumID)
         {
