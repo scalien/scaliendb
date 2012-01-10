@@ -70,10 +70,9 @@ void StorageMergeChunkJob::Execute()
     }
     else
     {
-        Log_Debug("Merge aborted, chunk %U, elapsed: %U, size: %s, bps: %sB/s, free disk space: %s",
+        Log_Debug("Merge aborted, chunk %U, elapsed: %U, free disk space: %s",
          mergeChunk->GetChunkID(),
-         (uint64_t) sw.Elapsed(), HUMAN_BYTES(mergeChunk->GetSize()),
-         HUMAN_BYTES((uint64_t)(mergeChunk->GetSize() / (sw.Elapsed() / 1000.0))),
+         (uint64_t) sw.Elapsed(),
          HUMAN_BYTES(FS_FreeDiskSpace(mergeChunk->GetFilename().GetBuffer())));
     }
 }
