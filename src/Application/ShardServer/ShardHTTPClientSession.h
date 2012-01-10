@@ -65,6 +65,7 @@ private:
     ShardServer*        shardServer;
     HTTPSession         session;
     UrlParam            params;
+    bool                binaryData;
 };
 
 #endif
