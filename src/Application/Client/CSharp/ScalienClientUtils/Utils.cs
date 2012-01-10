@@ -92,12 +92,14 @@ namespace Scalien
                 request.Proxy = null;
                 try
                 {
-                    HttpWebResponse response = (HttpWebResponse)request.GetResponse();
-                    using (BufferedStream buffer = new BufferedStream(response.GetResponseStream()))
+                    using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
                     {
-                        MemoryStream stream = new MemoryStream();
-                        buffer.CopyTo(stream);
-                        return stream.ToArray();
+                        using (Stream responseStream = response.GetResponseStream())
+                        {
+                            MemoryStream mem = new MemoryStream();
+                            responseStream.CopyTo(mem);
+                            return mem.ToArray();
+                        }
                     }
                 }
                 catch (Exception e)

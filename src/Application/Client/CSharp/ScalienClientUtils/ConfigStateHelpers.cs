@@ -6,6 +6,25 @@ using System.Threading;
 
 namespace Scalien
 {
+    public class GetterThreadState
+    {
+        private static int GET_TIMEOUT = 120 * 1000;
+
+        public ConfigState.ShardServer shardServer;
+        public string url;
+        public byte[] value;
+        public TimeSpan elapsed;
+        public ManualResetEvent doneEvent;
+
+        public void GetterThreadFunc(Object threadContext)
+        {
+            DateTime start = DateTime.Now;
+            value = Utils.HTTP.BinaryGET(url, GET_TIMEOUT);
+            elapsed = DateTime.Now.Subtract(start);
+            doneEvent.Set();
+        }
+    }
+
     public class CounterThreadState
     {
         private static int COUNT_TIMEOUT = 120 * 1000;
@@ -202,7 +221,7 @@ namespace Scalien
         {
             var threads = new ListerThreadState[shardServers.Count];
             var serverKeys = new string[shardServers.Count][];
-            var listGranularity = 100 * 1000 + 1;
+            var listGranularity = 100 * 1000;
             var direction = forward ? "forward" : "backward";
 
             var i = 0;
@@ -235,7 +254,7 @@ namespace Scalien
         {
             var threads = new BinaryListerThreadState[shardServers.Count];
             var serverKeys = new List<KeyValuePair<byte[], byte[]>>[shardServers.Count];
-            var listGranularity = 100 * 1000 + 1;
+            var listGranularity = 100 * 1000;
             var direction = forward ? "forward" : "backward";
 
             var i = 0;
@@ -270,6 +289,40 @@ namespace Scalien
         }
 
         public static List<byte[]> ParallelFetchValuesHTTP(List<ConfigState.ShardServer> shardServers, Int64 tableID, byte[] key)
+        {
+            var threads = new GetterThreadState[shardServers.Count];
+            var doneEvents = new ManualResetEvent[shardServers.Count];
+            var serverKeys = new List<byte[]>();
+
+            var i = 0;
+            foreach (var shardServer in shardServers)
+            {
+                var url = Utils.HTTP.BuildUri(GetShardServerURL(shardServer),
+                            "raw/get?tableID=" + tableID,
+                            "&key=", key);
+
+                doneEvents[i] = new ManualResetEvent(false);
+
+                threads[i] = new GetterThreadState();
+                threads[i].shardServer = shardServer;
+                threads[i].url = url;
+                threads[i].doneEvent = doneEvents[i];
+                ThreadPool.QueueUserWorkItem(threads[i].GetterThreadFunc, null);
+
+                i += 1;
+            }
+
+            WaitHandle.WaitAll(doneEvents);
+
+            foreach (var thread in threads)
+            {
+                serverKeys.Add(thread.value);
+            }
+
+            return serverKeys;
+        }
+
+        public static List<byte[]> ParallelFetchKeyValuesHTTP(List<ConfigState.ShardServer> shardServers, Int64 tableID, byte[] key)
         {
             var threads = new BinaryListerThreadState[shardServers.Count];
             var serverKeys = new List<KeyValuePair<byte[], byte[]>>[shardServers.Count];
