@@ -55,7 +55,8 @@ class HTTPSession
 public:
     enum Type
     {
-        PLAIN,
+        OCTET_STREAM,
+        PLAIN_TEXT,
         HTML,
         JSON
     };
