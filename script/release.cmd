@@ -52,7 +52,7 @@ CHDIR /D %BASEDIR%
 ECHO.
 ECHO ============================================
 ECHO.
-ECHO Release files are all done.
+ECHO Release is done.
 ECHO.
 ECHO ============================================
 ECHO.
