@@ -33,8 +33,17 @@ void ShardHTTPClientSession::SetConnection(HTTPConnection* conn_)
 bool ShardHTTPClientSession::HandleRequest(HTTPRequest& request)
 {
     ReadBuffer  cmd;
+    ReadBuffer  param;
     
     session.ParseRequest(request, cmd, params);
+
+    // assume printable output by default
+    binaryData = false;
+    if (HTTP_GET_OPT_PARAM(params, "binary", param))
+    {
+        binaryData = PARAM_BOOL_VALUE(param);
+    }
+
     return ProcessCommand(cmd);
 }
 
@@ -42,6 +51,7 @@ void ShardHTTPClientSession::OnComplete(ClientRequest* request, bool last)
 {
     Buffer          tmp;
     ReadBuffer      rb;
+    Buffer          key, value;
     ClientResponse* response;
     Buffer          location;
 
@@ -82,11 +92,28 @@ void ShardHTTPClientSession::OnComplete(ClientRequest* request, bool last)
         break;
     case CLIENTRESPONSE_LIST_KEYS:
         for (unsigned i = 0; i < response->numKeys; i++)
-            session.Print(response->keys[i]);
+        {
+            if (binaryData)
+            {
+                key.Writef("%#R", &response->keys[i]);
+                session.Print(key);
+            }
+            else
+                session.Print(response->keys[i]);
+        }
         break;
     case CLIENTRESPONSE_LIST_KEYVALUES:
         for (unsigned i = 0; i < response->numKeys; i++)
-            session.PrintPair(response->keys[i], response->values[i]);
+        {
+            if (binaryData)
+            {
+                key.Writef("%#R", &response->keys[i]);
+                value.Writef("%#R", &response->values[i]);
+                session.PrintPair(key, value);
+            }
+            else
+                session.PrintPair(response->keys[i], response->values[i]);
+        }
         break;
     case CLIENTRESPONSE_NEXT:
         tmp.Writef("NEXT \"%R\" \"%R\" %U",
@@ -107,7 +134,7 @@ void ShardHTTPClientSession::OnComplete(ClientRequest* request, bool last)
             session.Print("BADSCHEMA");
         break;
     case CLIENTRESPONSE_FAILED:
-        if (GetRedirectedShardServer(request->tableID, request->key, location))
+        if (request->paxosID > 0 && GetRedirectedShardServer(request->tableID, request->key, location))
             session.Redirect(location);
         else
             session.Print("FAILED");
@@ -529,6 +556,8 @@ ClientRequest* ShardHTTPClientSession::ProcessGet()
     request = new ClientRequest;
     request->Get(0, 0, tableID, key);
 
+    HTTP_GET_OPT_U64_PARAM(params, "paxosID", request->paxosID);
+
     return request;    
 }
 
@@ -700,6 +729,8 @@ ClientRequest* ShardHTTPClientSession::ProcessListKeys()
     request = new ClientRequest;
     request->ListKeys(0, 0, tableID, startKey, endKey, prefix, count, forwardDirection);
 
+    HTTP_GET_OPT_U64_PARAM(params, "paxosID", request->paxosID);
+
     return request;    
 }
 
@@ -730,6 +761,8 @@ ClientRequest* ShardHTTPClientSession::ProcessListKeyValues()
     request = new ClientRequest;
     request->ListKeyValues(0, 0, tableID, startKey, endKey, prefix, count, forwardDirection);
 
+    HTTP_GET_OPT_U64_PARAM(params, "paxosID", request->paxosID);
+
     return request;    
 }
 
@@ -756,6 +789,8 @@ ClientRequest* ShardHTTPClientSession::ProcessCount()
 
     request = new ClientRequest;
     request->Count(0, 0, tableID, startKey, endKey, prefix, forwardDirection);
+
+    HTTP_GET_OPT_U64_PARAM(params, "paxosID", request->paxosID);
 
     return request;    
 }

@@ -14,7 +14,7 @@ HTTPSession::HTTPSession()
 {
     headerSent = false;
     conn = NULL;
-    type = PLAIN;
+    type = PLAIN_TEXT;
 }
 
 void HTTPSession::SetConnection(HTTPConnection* conn_)
@@ -78,6 +78,7 @@ void HTTPSession::ParseType(ReadBuffer& rb)
 {
     const char  JSON_PREFIX[] = "json/";
     const char  HTML_PREFIX[] = "html/";
+    const char  OCTET_STREAM_PREFIX[] = "raw/";
     
     if (HTTP_MATCH_PREFIX(rb, JSON_PREFIX))
     {
@@ -89,8 +90,13 @@ void HTTPSession::ParseType(ReadBuffer& rb)
         SetType(HTML);
         rb.Advance(sizeof(HTML_PREFIX) - 1);
     }
+    else if (HTTP_MATCH_PREFIX(rb, OCTET_STREAM_PREFIX))
+    {
+        SetType(OCTET_STREAM);
+        rb.Advance(sizeof(OCTET_STREAM_PREFIX) - 1);
+    }
     else
-        SetType(PLAIN);
+        SetType(PLAIN_TEXT);
 }
 
 void HTTPSession::SendHeaders()
@@ -152,7 +158,8 @@ void HTTPSession::Print(const ReadBuffer& line)
     else
     {
         conn->Write(line.GetBuffer(), line.GetLength());
-        conn->Print("\n");
+        if (type != OCTET_STREAM)
+            conn->Print("\n");
     }
 }
 
@@ -173,7 +180,7 @@ void HTTPSession::PrintPair(const ReadBuffer& key, const ReadBuffer& value)
         conn->Write(value.GetBuffer(), value.GetLength());
         if (type == HTML)
             conn->Print("<br/>");
-        else
+        else if (type == PLAIN_TEXT)
             conn->Print("\n");
     }
 }
@@ -206,7 +213,7 @@ void HTTPSession::SetType(Type type_)
 
     switch (type)
     {
-    case PLAIN:
+    case PLAIN_TEXT:
         mime = MIME_TYPE_TEXT_PLAIN;
         break;
     case HTML:
@@ -214,6 +221,9 @@ void HTTPSession::SetType(Type type_)
         break;
     case JSON:
         mime = MIME_TYPE_APPLICATION_JSON;
+        break;
+    case OCTET_STREAM:
+        mime = MIME_TYPE_APPLICATION_OCTET_STREAM;
         break;
     default:
         mime = MIME_TYPE_TEXT_PLAIN;
