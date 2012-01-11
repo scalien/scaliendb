@@ -44,12 +44,10 @@ Function ZipFolder( myFolder, myZipFile )
                 ' dummy
             Else
                 zipNameSpace.CopyHere objItem
-				WScript.Echo "Adding " & objItem.Path
 				itemCount = itemCount + 1
             End If
         Else
             zipNameSpace.CopyHere objItem
-			WScript.Echo "Adding " & objItem.Path
 			itemCount = itemCount + 1
         End If
 		

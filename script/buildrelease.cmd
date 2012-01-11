@@ -2,10 +2,30 @@
 @ECHO OFF
 SET ARCH=%1
 
-: Build release versions of ScalienDB
-CALL msbuild ScalienDB.vcxproj /t:Rebuild /p:Configuration=Release /p:Platform=%ARCH%
+ECHO.
+ECHO ============================================
+ECHO.
+ECHO Building ScalienDB %ARCH%
+ECHO.
+ECHO ============================================
+ECHO.
+CALL msbuild ScalienDB.vcxproj /v:minimal /t:Rebuild /p:Configuration=Release /p:Platform=%ARCH%
 
-: Build release versions of Scalien client library
-CALL msbuild ScalienClientLib.vcxproj /t:Rebuild /p:Configuration=Release /p:Platform=%ARCH%
-CALL msbuild ScalienClientCSharpDLL.vcxproj /t:Build /p:Configuration=Release /p:Platform=%ARCH%
+ECHO.
+ECHO ============================================
+ECHO.
+ECHO Building Scalien native client %ARCH%
+ECHO.
+ECHO ============================================
+ECHO.
+CALL msbuild ScalienClientLib.vcxproj /v:minimal /t:Rebuild /p:Configuration=Release /p:Platform=%ARCH%
+
+ECHO.
+ECHO ============================================
+ECHO.
+ECHO Building Scalien client DLL for %ARCH%
+ECHO.
+ECHO ============================================
+ECHO.
+CALL msbuild ScalienClientCSharpDLL.vcxproj /v:minimal /t:Build /p:Configuration=Release /p:Platform=%ARCH%
 

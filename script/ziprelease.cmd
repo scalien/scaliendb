@@ -2,5 +2,7 @@
 SET BUILD_DIR=%~dp1
 SET BUILD_NAME=%2
 SET ZIPFILE=%BUILD_DIR%%BUILD_NAME%.zip
+ECHO.
 ECHO Creating zipfile %ZIPFILE%
-CSCRIPT ..\script\zipfolder.vbs %BUILD_DIR%%BUILD_NAME% %ZIPFILE%
+ECHO.
+CSCRIPT //Nologo ..\script\zipfolder.vbs %BUILD_DIR%%BUILD_NAME% %ZIPFILE%
