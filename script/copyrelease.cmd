@@ -12,7 +12,6 @@ MD %BUILD_DIR%
 COPY %BIN_DIR%\ScalienDB.exe %BUILD_DIR%
 COPY %BIN_DIR%\scaliendb_client.dll %BUILD_DIR%
 COPY %BIN_DIR%\ScalienClient.dll %BUILD_DIR%
-COPY %BIN_DIR%\ScalienClientCombined.dll %BUILD_DIR%
 COPY ..\test\control\release\controller.conf %BUILD_DIR%\controller.conf
 COPY ..\test\shard\release\shard.conf %BUILD_DIR%\shard.conf
 XCOPY /q /e /i ..\webadmin %BUILD_DIR%\webadmin

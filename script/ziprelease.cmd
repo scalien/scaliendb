@@ -5,4 +5,5 @@ SET ZIPFILE=%BUILD_DIR%%BUILD_NAME%.zip
 ECHO.
 ECHO Creating zipfile %ZIPFILE%
 ECHO.
+DEL %ZIPFILE%
 CSCRIPT //Nologo ..\script\zipfolder.vbs %BUILD_DIR%%BUILD_NAME% %ZIPFILE%

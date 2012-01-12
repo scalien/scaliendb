@@ -5,18 +5,6 @@ SET OUTPUT=release.log
 ECHO.
 ECHO ============================================
 ECHO.
-ECHO Building C# client library
-ECHO.
-ECHO ============================================
-ECHO.
-SET BASEDIR=%CD%
-CD src\Application\Client\CSharp\ScalienClient
-CALL msbuild ScalienClient.csproj /v:minimal /t:Rebuild /p:Configuration=Debug
-CHDIR /D %BASEDIR%
-
-ECHO.
-ECHO ============================================
-ECHO.
 ECHO Building ScalienDB and native client library
 ECHO.
 ECHO ============================================
