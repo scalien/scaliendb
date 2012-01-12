@@ -508,7 +508,7 @@ void PrintStackTrace()
     // http://msdn.microsoft.com/en-us/windows/bb204633
     // Windows Server 2003 and Windows XP:  The sum of the FramesToSkip and FramesToCapture 
     // parameters must be less than 63.
-    frames = CaptureStackBackTrace(0, 63, stack, NULL);
+    frames = CaptureStackBackTrace(0, 62, stack, NULL);
     symbol = (SYMBOL_INFO*) symbolBuffer;
     symbol->MaxNameLen = MAX_SYM_NAME;
     symbol->SizeOfStruct = sizeof(SYMBOL_INFO);
