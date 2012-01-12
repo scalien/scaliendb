@@ -25,13 +25,13 @@ void StorageArchiveLogSegmentJob::Execute()
         dest.Appendf("log.%020U.%020U", logSegment->GetTrackID(), logSegment->GetLogSegmentID());
         dest.NullTerminate();
 
-        FS_Rename(logSegment->filename.GetBuffer(), dest.GetBuffer());
+        FS_Rename(logSegment->GetFilename(), dest.GetBuffer());
     }
     else if (ReadBuffer::Cmp(script, "$delete") == 0)
     {
         Log_Debug("Deleting archive log segment %U/%U...",
          logSegment->GetTrackID(), logSegment->GetLogSegmentID());
-        FS_Delete(logSegment->filename.GetBuffer());
+        FS_Delete(logSegment->GetFilename());
     }
     else
     {
@@ -86,7 +86,7 @@ void StorageArchiveLogSegmentJob::EvalScriptVariables()
 const char* StorageArchiveLogSegmentJob::GetVarValue(const char* var)
 {
     if (strcmp(var, "archiveFile") == 0)
-        return logSegment->filename.GetBuffer();
+        return logSegment->GetFilename();
     else
         return configFile.GetValue(var, "");
 }

@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		543047C214BF2710009342AC /* StorageLogSectionSerializer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 543047C014BF2710009342AC /* StorageLogSectionSerializer.cpp */; };
 		5431208F1361B64A0029D6A8 /* StorageCommitJob.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5431208E1361B64A0029D6A8 /* StorageCommitJob.cpp */; };
 		5431209A1361B80C0029D6A8 /* StorageSerializeChunkJob.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 543120991361B80C0029D6A8 /* StorageSerializeChunkJob.cpp */; };
 		543120A31361B9B70029D6A8 /* StorageWriteChunkJob.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 543120A21361B9B70029D6A8 /* StorageWriteChunkJob.cpp */; };
@@ -107,6 +108,7 @@
 		543DE73412C0B8730069786A /* StorageBulkCursor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 543DE73312C0B8730069786A /* StorageBulkCursor.cpp */; };
 		543DE8C512C113770069786A /* StorageShardProxy.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 543DE73B12C0B9350069786A /* StorageShardProxy.cpp */; };
 		5452866613C5F17600B6A374 /* ConfigController.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54A6AB4813B5D76F00DDB15B /* ConfigController.cpp */; };
+		5461E8D614BF2280003C7F0E /* StorageLogSegmentWriter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5461E8D414BF2280003C7F0E /* StorageLogSegmentWriter.cpp */; };
 		546E255211EF5CF700867EE1 /* Buffer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 546E254C11EF5CF700867EE1 /* Buffer.cpp */; };
 		546E255411EF5CF700867EE1 /* ReadBuffer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 546E255011EF5CF700867EE1 /* ReadBuffer.cpp */; };
 		546E269911EF712900867EE1 /* Stopwatch.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 546E269811EF712900867EE1 /* Stopwatch.cpp */; };
@@ -304,6 +306,9 @@
 
 /* Begin PBXFileReference section */
 		541D826411C7A17D00A6CB16 /* Callable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Callable.h; sourceTree = "<group>"; };
+		543047A214BF25B6009342AC /* StorageLogConsts.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StorageLogConsts.h; sourceTree = "<group>"; };
+		543047C014BF2710009342AC /* StorageLogSectionSerializer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = StorageLogSectionSerializer.cpp; sourceTree = "<group>"; };
+		543047C114BF2710009342AC /* StorageLogSectionSerializer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StorageLogSectionSerializer.h; sourceTree = "<group>"; };
 		5431208D1361B64A0029D6A8 /* StorageCommitJob.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StorageCommitJob.h; sourceTree = "<group>"; };
 		5431208E1361B64A0029D6A8 /* StorageCommitJob.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = StorageCommitJob.cpp; sourceTree = "<group>"; };
 		543120981361B80C0029D6A8 /* StorageSerializeChunkJob.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StorageSerializeChunkJob.h; sourceTree = "<group>"; };
@@ -525,6 +530,8 @@
 		543DE73B12C0B9350069786A /* StorageShardProxy.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = StorageShardProxy.cpp; sourceTree = "<group>"; };
 		543DE73C12C0B9350069786A /* StorageShardProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StorageShardProxy.h; sourceTree = "<group>"; };
 		5452854313C36DD200B6A374 /* InCache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = InCache.h; sourceTree = "<group>"; };
+		5461E8D414BF2280003C7F0E /* StorageLogSegmentWriter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = StorageLogSegmentWriter.cpp; sourceTree = "<group>"; };
+		5461E8D514BF2280003C7F0E /* StorageLogSegmentWriter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StorageLogSegmentWriter.h; sourceTree = "<group>"; };
 		546E190411E4D61300867EE1 /* InPriorityQueue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = InPriorityQueue.h; sourceTree = "<group>"; };
 		546E1FC611EC81B200867EE1 /* InList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = InList.h; sourceTree = "<group>"; };
 		546E254C11EF5CF700867EE1 /* Buffer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Buffer.cpp; sourceTree = "<group>"; };
@@ -888,6 +895,7 @@
 		543DE57612BFBB3D0069786A /* Storage */ = {
 			isa = PBXGroup;
 			children = (
+				545DA3F014BF220C00D6FCE1 /* LogSegment */,
 				54FE7549136196B500F7A78C /* Jobs */,
 				78CD47AB130C26870022BC9F /* List */,
 				543DE71012C0B7290069786A /* KeyValue */,
@@ -900,8 +908,6 @@
 				543DE57812BFBB3D0069786A /* FDGuard.cpp */,
 				543DE58712BFBB3D0069786A /* StorageConfig.h */,
 				543DE58612BFBB3D0069786A /* StorageConfig.cpp */,
-				543DE59A12BFBB3D0069786A /* StorageLogSegment.h */,
-				543DE59912BFBB3D0069786A /* StorageLogSegment.cpp */,
 				543DE5A612BFBB3D0069786A /* StorageShard.h */,
 				543DE5A512BFBB3D0069786A /* StorageShard.cpp */,
 				543DE73C12C0B9350069786A /* StorageShardProxy.h */,
@@ -1159,6 +1165,20 @@
 				543DE59D12BFBB3D0069786A /* StorageMemoKeyValue.cpp */,
 			);
 			name = KeyValue;
+			sourceTree = "<group>";
+		};
+		545DA3F014BF220C00D6FCE1 /* LogSegment */ = {
+			isa = PBXGroup;
+			children = (
+				543047A214BF25B6009342AC /* StorageLogConsts.h */,
+				543DE59A12BFBB3D0069786A /* StorageLogSegment.h */,
+				543DE59912BFBB3D0069786A /* StorageLogSegment.cpp */,
+				5461E8D514BF2280003C7F0E /* StorageLogSegmentWriter.h */,
+				5461E8D414BF2280003C7F0E /* StorageLogSegmentWriter.cpp */,
+				543047C114BF2710009342AC /* StorageLogSectionSerializer.h */,
+				543047C014BF2710009342AC /* StorageLogSectionSerializer.cpp */,
+			);
+			name = LogSegment;
 			sourceTree = "<group>";
 		};
 		546E254B11EF5CF700867EE1 /* Buffers */ = {
@@ -1651,6 +1671,8 @@
 				9AE5437F1431CF260002D500 /* Service_Posix.cpp in Sources */,
 				9AE543801431CF260002D500 /* Service_Windows.cpp in Sources */,
 				9ABFE522147124ED0085B06B /* Signal_Posix.cpp in Sources */,
+				5461E8D614BF2280003C7F0E /* StorageLogSegmentWriter.cpp in Sources */,
+				543047C214BF2710009342AC /* StorageLogSectionSerializer.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

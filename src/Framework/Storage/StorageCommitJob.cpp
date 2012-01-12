@@ -11,7 +11,7 @@ StorageCommitJob::StorageCommitJob(StorageEnvironment* env_,
 
 void StorageCommitJob::Execute()
 {
-    logSegment->Commit();
+    logSegment->GetWriter().Commit();
 }
 
 void StorageCommitJob::OnComplete()

@@ -6,6 +6,7 @@
 #include "System/PointerGuard.h"
 #include "StorageChunkSerializer.h"
 #include "StorageChunkWriter.h"
+#include "StorageLogConsts.h"
 
 static bool LessThan(const Buffer* a, const Buffer* b)
 {
@@ -582,8 +583,8 @@ bool StorageRecovery::ReplayLogSegment(uint64_t trackID, Buffer& filename)
         
         if (!parse.ReadLittle32(checksum))
             break;
-        dataPart.Wrap(buffer.GetBuffer() + STORAGE_LOGSEGMENT_BLOCK_HEAD_SIZE,
-         buffer.GetLength() - STORAGE_LOGSEGMENT_BLOCK_HEAD_SIZE);
+        dataPart.Wrap(buffer.GetBuffer() + STORAGE_LOGSECTION_HEAD_SIZE,
+         buffer.GetLength() - STORAGE_LOGSECTION_HEAD_SIZE);
 
 //        compChecksum = dataPart.GetChecksum();
 //        if (checksum != compChecksum)
@@ -652,10 +653,7 @@ bool StorageRecovery::ReplayLogSegment(uint64_t trackID, Buffer& filename)
         }
     }
     
-    logSegment = new StorageLogSegment;
-    logSegment->trackID = trackID;
-    logSegment->logSegmentID = logSegmentID;
-    logSegment->filename.Write(filename);
+    logSegment = new StorageLogSegment(trackID, logSegmentID);
     env->logSegments.Append(logSegment);
     tmp = 0;
     r = env->logSegmentIDMap.Get(trackID, tmp);
