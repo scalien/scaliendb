@@ -13,6 +13,7 @@
 #include <process.h>
 #include <windows.h>
 #include <psapi.h>
+#include <dbghelp.h>
 #endif
 #ifdef PLATFORM_DARWIN
 #include <mach/mach.h>
@@ -488,7 +489,51 @@ bool ChangeUser(const char *user)
 void PrintStackTrace()
 {
 #ifdef _WIN32
-    // TODO:
+    unsigned int        i;
+    void*               stack[100];
+    unsigned short      frames;
+    char                symbolBuffer[sizeof(SYMBOL_INFO) + MAX_SYM_NAME * sizeof(TCHAR)];
+    SYMBOL_INFO*        symbol;
+    HANDLE              process;
+    IMAGEHLP_LINE64     line;
+    IMAGEHLP_MODULE64   module;
+    DWORD               displacement;
+    const char*         fileName;
+    DWORD64             address;
+
+    process = GetCurrentProcess();
+    SymInitialize(process, NULL, TRUE);
+    SymSetOptions(SYMOPT_LOAD_LINES);
+
+    // http://msdn.microsoft.com/en-us/windows/bb204633
+    // Windows Server 2003 and Windows XP:  The sum of the FramesToSkip and FramesToCapture 
+    // parameters must be less than 63.
+    frames = CaptureStackBackTrace(0, 63, stack, NULL);
+    symbol = (SYMBOL_INFO*) symbolBuffer;
+    symbol->MaxNameLen = MAX_SYM_NAME;
+    symbol->SizeOfStruct = sizeof(SYMBOL_INFO);
+
+    line.SizeOfStruct = sizeof(IMAGEHLP_LINE64);
+    module.SizeOfStruct = sizeof(IMAGEHLP_MODULE64);
+
+    for (i = 0; i < frames; i++)
+    {
+        address = (DWORD64)(stack[i]);
+
+        if (SymFromAddr(process, address, 0, symbol) == FALSE)
+            break;
+
+        if (SymGetLineFromAddr64(process, address, &displacement, &line) == FALSE)
+            break;
+
+        if (SymGetModuleInfo64(process, address, &module) == FALSE)
+            break;
+
+        fileName = strrchr(module.ImageName, '\\');
+        fileName = fileName ? fileName + 1 : module.ImageName;
+        
+        fprintf(stderr, "%s!%s()  Line %u\n", fileName, symbol->Name, line.LineNumber);
+    }
 #else
     void*   array[100];
     size_t  size;
