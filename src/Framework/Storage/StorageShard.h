@@ -63,6 +63,7 @@ public:
     StorageMemoChunk*   GetMemoChunk();
     ChunkList&          GetChunks();
     void                OnChunkSerialized(StorageMemoChunk* memoChunk, StorageFileChunk* fileChunk);
+    bool                IsMergeableType();
     bool                IsSplitMergeCandidate();
     bool                IsFragmentedMergeCandidate();
     void                GetMergeInputChunks(List<StorageFileChunk*>& inputChunks);
