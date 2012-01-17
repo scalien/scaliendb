@@ -43,13 +43,17 @@
  */
 
 #ifdef DEBUG
-#define ASSERT(expr)            \
-    do {                        \
-        if (!(expr))            \
-        {                       \
-            PrintStackTrace();  \
-            assert(expr);       \
-        }                       \
+#define ASSERT(expr)                                                    \
+    do {                                                                \
+        if (!(expr))                                                    \
+        {                                                               \
+            PrintStackTrace();                                          \
+            if (IsAssertCritical())                                     \
+                assert(expr);                                           \
+            else                                                        \
+                Log_Message("Assertion failed: %s, file %s, line %u",   \
+                 #expr, __FILE__, __LINE__);                            \
+        }                                                               \
     } while (0)
 #else
 #define ASSERT(expr)                                                            \
@@ -77,6 +81,7 @@ do {                                                                            
     Log_SetTarget(LOG_TARGET_STDERR|LOG_TARGET_FILE);                           \
     const char* msg = StaticPrint("" __VA_ARGS__);                              \
     Log_Message("Exiting (%d)%s%s", code, msg ? ": " : "...", msg ? msg : "");  \
+    IFDEBUG(ASSERT_FAIL());                                                     \
     _exit(code);                                                                \
 } while (0)
 
