@@ -16,6 +16,7 @@
 #include "StorageCommitJob.h"
 #include "StorageBulkCursor.h"
 #include "StorageAsyncBulkCursor.h"
+#include "StorageLogManager.h"
 
 class StorageRecovery;
 class StorageEnvironmentWriter;
@@ -49,11 +50,11 @@ class StorageEnvironment
     friend class StorageBulkCursor;
     friend class StorageAsyncBulkCursor;
     
-    typedef InList<StorageLogSegment>               LogSegmentList;
-    typedef InList<StorageShard>                    ShardList;
-    typedef InList<StorageFileChunk>                FileChunkList;
-    typedef HashMap<uint64_t, StorageLogSegment*>   LogSegmentMap;
-    typedef HashMap<uint64_t, uint64_t>             LogSegmentIDMap;
+    typedef InList<StorageShard> ShardList;
+    typedef InList<StorageFileChunk> FileChunkList;
+    typedef StorageLogManager LogManager;
+    typedef LogManager::Track Track;
+    typedef List<Track> TrackList;
 
 public:
     typedef ArrayList<uint64_t, 64>     ShardIDList;
@@ -136,7 +137,6 @@ public:
     void                    OnChunkSerialized(StorageMemoChunk* memoChunk, StorageFileChunk* fileChunk);
     unsigned                GetNumShards(StorageChunk* chunk);
     StorageShard*           GetFirstShard(StorageChunk* chunk);
-    StorageLogSegment*      GetLogSegment(uint64_t trackID);
     void                    ConstructShardSizes(InSortedList<ShardSize>& shardSizes);
     StorageShard*           FindLargestShardCond(
                              InSortedList<ShardSize>& shardSizes,
@@ -146,9 +146,9 @@ public:
     Countdown               backgroundTimer;
     Callable                onBackgroundTimer;
 
+    LogManager              logManager;
     ShardList               shards;
     FileChunkList           fileChunks;
-    LogSegmentList          logSegments;
     StorageConfig           config;
     
     JobProcessor            commitJobs;
@@ -166,8 +166,6 @@ public:
     Buffer                  archivePath;
 
     uint64_t                nextChunkID;
-    LogSegmentMap           logSegmentMap;
-    LogSegmentIDMap         logSegmentIDMap;
     unsigned                numCursors;
     const char*             archiveScript;
     bool                    yieldThreads;
