@@ -30,6 +30,7 @@
 #include "Buffers/ReadBuffer.h"
 
 static bool exitOnError = false;
+static bool isAssertCritical = true;
 
 void Error()
 {
@@ -40,6 +41,16 @@ void Error()
 void SetExitOnError(bool exitOnError_)
 {
     exitOnError = exitOnError_;
+}
+
+void SetAssertCritical(bool isAssertCritical_)
+{
+    isAssertCritical = isAssertCritical_;
+}
+
+bool IsAssertCritical()
+{
+    return isAssertCritical;
 }
 
 unsigned NumDigits(int n)

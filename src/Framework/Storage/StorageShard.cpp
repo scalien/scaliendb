@@ -194,12 +194,20 @@ void StorageShard::OnChunkSerialized(StorageMemoChunk* memoChunk, StorageFileChu
     chunks.Add(fileChunk);
 }
 
+bool StorageShard::IsMergeableType()
+{
+    if (GetStorageType() == STORAGE_SHARD_TYPE_STANDARD)
+        return true;
+
+    return false;
+}
+
 bool StorageShard::IsSplitMergeCandidate()
 {
     unsigned            count;
     StorageChunk**      itChunk;
 
-    if (GetStorageType() == STORAGE_SHARD_TYPE_LOG)
+    if (!IsMergeableType())
         return false;
 
     // paxos shards with tableID == 0 are always splitable, but we should merge them
@@ -226,7 +234,7 @@ bool StorageShard::IsFragmentedMergeCandidate()
     unsigned            count;
     StorageChunk**      itChunk;
 
-    if (GetStorageType() == STORAGE_SHARD_TYPE_LOG)
+    if (!IsMergeableType())
         return false;
     
     count = 0;

@@ -146,6 +146,10 @@ void ParseArgs(int argc, char** argv)
             case 't':
                 Log_SetTrace(true);
                 break;
+            case 'X':
+                SetExitOnError(false);
+                SetAssertCritical(false);
+                break;
             case 'h':
                 STOP_FAIL(0, "Usage: %s [-t] config-file\n\n", argv[0]);
                 break;
