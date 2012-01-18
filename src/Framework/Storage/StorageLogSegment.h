@@ -14,6 +14,7 @@
 
 class StorageRecovery;
 class StorageArchiveLogSegmentJob;
+class StorageLogManager;
 
 /*
 ===============================================================================================
@@ -27,6 +28,7 @@ class StorageLogSegment
 {
     friend class StorageArchiveLogSegmentJob;
     friend class StorageRecovery;
+    friend class StorageLogManager;
 
 public:
     StorageLogSegment();
@@ -34,6 +36,8 @@ public:
     void                Open(Buffer& logPath, uint64_t trackID, uint64_t logSegmentID, uint64_t syncGranularity);
     void                Close();
     void                DeleteFile();
+
+    bool                IsOpen() { return fd != INVALID_FD; };
 
     uint64_t            GetTrackID();
     uint64_t            GetLogSegmentID();

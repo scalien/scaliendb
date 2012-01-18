@@ -47,7 +47,7 @@ void StorageLogSegment::Open(Buffer& logPath, uint64_t trackID_, uint64_t logSeg
     sw.Stop();
     if (fd == INVALID_FD)
     {
-        Log_Message("Unable to open log segment file %U to disk.", logSegmentID);
+        Log_Message("Unable to open log segment file %U.", logSegmentID);
         Log_Message("Free disk space: %s", HUMAN_BYTES(FS_FreeDiskSpace(filename.GetBuffer())));
         Log_Message("This should not happen.");
         Log_Message("Possible causes: not enough disk space, software bug...");
@@ -63,7 +63,7 @@ void StorageLogSegment::Open(Buffer& logPath, uint64_t trackID_, uint64_t logSeg
     
     if (FS_FileWrite(fd, writeBuffer.GetBuffer(), length) != (ssize_t) length)
     {
-        Log_Message("Unable to open log segment file %U to disk.", logSegmentID);
+        Log_Message("Unable to open log segment file %U.", logSegmentID);
         Log_Message("Free disk space: %s", HUMAN_BYTES(FS_FreeDiskSpace(filename.GetBuffer())));
         Log_Message("This should not happen.");
         Log_Message("Possible causes: not enough disk space, software bug...");
