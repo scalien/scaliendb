@@ -178,7 +178,7 @@ $(BUILD_DIR)/$(PYTHON_CLIENT_WRAPPER).o: $(BUILD_DIR) $(SRC_DIR)/$(PYTHON_CLIENT
 
 $(BIN_DIR)/$(PYTHON_DIR)/$(PYTHON_LIB): $(BIN_DIR)/$(ALIB) $(SWIG_WRAPPER_OBJECT) $(BUILD_DIR)/$(PYTHON_CLIENT_WRAPPER).o $(SRC_DIR)/$(PYTHON_CLIENT_DIR)/scaliendb.py
 	-mkdir -p $(BIN_DIR)/$(PYTHON_DIR)
-	$(CXX) $(SWIG_LDFLAGS) -o $@ $(BUILD_DIR)/$(PYTHON_CLIENT_WRAPPER).o $(SWIG_WRAPPER_OBJECT) $(BIN_DIR)/$(ALIB)
+	$(CXX) -o $@ $(BUILD_DIR)/$(PYTHON_CLIENT_WRAPPER).o $(SWIG_WRAPPER_OBJECT) $(BIN_DIR)/$(ALIB) $(SWIG_LDFLAGS) 
 	-cp -rf $(SRC_DIR)/$(PYTHON_CLIENT_DIR)/scaliendb.py $(BIN_DIR)/$(PYTHON_DIR)
 	-cp -rf $(SRC_DIR)/$(PYTHON_CLIENT_DIR)/scaliendb_client.py $(BIN_DIR)/$(PYTHON_DIR)
 	-cp -rf $(SRC_DIR)/$(PYTHON_CLIENT_DIR)/scaliendb_mapreduce.py $(BIN_DIR)/$(PYTHON_DIR)
@@ -198,7 +198,8 @@ JAVA_INCLUDE = \
 	-I/usr/java/jdk/include/ \
 	-I/usr/lib/jvm/java-6-sun/include/ \
 	-I/usr/lib/jvm/java-6-sun/include/linux \
-	-I/usr/lib/jvm/java-6-openjdk/include
+	-I/usr/lib/jvm/java-6-openjdk/include \
+	-I$(JAVA_HOME)/include \
 	
 
 JAVA_SOURCE_FILES = \
@@ -236,7 +237,7 @@ $(BUILD_DIR)/$(JAVA_CLIENT_WRAPPER).o: $(BUILD_DIR) $(SRC_DIR)/$(JAVA_CLIENT_WRA
 
 $(BIN_DIR)/$(JAVA_DIR)/$(JAVA_LIB): $(BIN_DIR)/$(ALIB) $(SWIG_WRAPPER_OBJECT) $(BUILD_DIR)/$(JAVA_CLIENT_WRAPPER).o
 	-mkdir -p $(BIN_DIR)/$(JAVA_DIR)
-	$(CXX) $(SWIG_LDFLAGS) -o $@ $(BUILD_DIR)/$(JAVA_CLIENT_WRAPPER).o $(SWIG_WRAPPER_OBJECT) $(BIN_DIR)/$(ALIB)
+	$(CXX) -o $@ $(BUILD_DIR)/$(JAVA_CLIENT_WRAPPER).o $(SWIG_WRAPPER_OBJECT) $(BIN_DIR)/$(ALIB) $(SWIG_LDFLAGS)
 
 $(BIN_DIR)/$(JAVA_DIR)/$(JAVA_JAR_FILE): $(SRC_DIR)/$(JAVA_CLIENT_WRAPPER).cpp $(JAVA_SOURCE_FILES)
 	-mkdir -p $(BIN_DIR)/$(JAVA_DIR)/$(JAVA_PACKAGE_DIR)
@@ -278,7 +279,7 @@ $(BUILD_DIR)/$(PHP_CLIENT_WRAPPER).o: $(BUILD_DIR) $(SRC_DIR)/$(PHP_CLIENT_WRAPP
 
 $(BIN_DIR)/$(PHP_DIR)/$(PHP_LIB): $(BIN_DIR)/$(ALIB) $(SWIG_WRAPPER_OBJECT) $(BUILD_DIR)/$(PHP_CLIENT_WRAPPER).o $(SRC_DIR)/$(PHP_CLIENT_DIR)/scaliendb.php
 	-mkdir -p $(BIN_DIR)/$(PHP_DIR)
-	$(CXX) $(SWIG_LDFLAGS) -o $@ $(BUILD_DIR)/$(PHP_CLIENT_WRAPPER).o $(SWIG_WRAPPER_OBJECT) $(BIN_DIR)/$(ALIB)
+	$(CXX) -o $@ $(BUILD_DIR)/$(PHP_CLIENT_WRAPPER).o $(SWIG_WRAPPER_OBJECT) $(BIN_DIR)/$(ALIB) $(SWIG_LDFLAGS)
 	php -l $(SRC_DIR)/$(PHP_CLIENT_DIR)/scaliendb.php
 	-cp -rf $(SRC_DIR)/$(PHP_CLIENT_DIR)/scaliendb.php $(BIN_DIR)/$(PHP_DIR)
 	-cp -rf $(SRC_DIR)/$(PHP_CLIENT_DIR)/scaliendb_client.php $(BIN_DIR)/$(PHP_DIR)
@@ -300,7 +301,7 @@ $(BUILD_DIR)/$(RUBY_CLIENT_WRAPPER).o: $(BUILD_DIR) $(SRC_DIR)/$(RUBY_CLIENT_WRA
 
 $(BIN_DIR)/$(RUBY_DIR)/$(RUBY_LIB): $(BIN_DIR)/$(ALIB) $(SWIG_WRAPPER_OBJECT) $(BUILD_DIR)/$(RUBY_CLIENT_WRAPPER).o
 	-mkdir -p $(BIN_DIR)/$(RUBY_DIR)
-	$(CXX) $(SWIG_LDFLAGS) -o $@ $(BUILD_DIR)/$(RUBY_CLIENT_WRAPPER).o $(SWIG_WRAPPER_OBJECT) $(BIN_DIR)/$(ALIB)
+	$(CXX) -o $@ $(BUILD_DIR)/$(RUBY_CLIENT_WRAPPER).o $(SWIG_WRAPPER_OBJECT) $(BIN_DIR)/$(ALIB) $(SWIG_LDFLAGS)
 	-cp -rf $(SRC_DIR)/$(RUBY_CLIENT_DIR)/scaliendb.rb $(BIN_DIR)/$(RUBY_DIR)
 
 # perl wrapper
@@ -320,22 +321,22 @@ $(BUILD_DIR)/$(PERL_CLIENT_WRAPPER).o: $(BUILD_DIR) $(SRC_DIR)/$(PERL_CLIENT_WRA
 
 $(BIN_DIR)/$(PERL_DIR)/$(PERL_LIB): $(BIN_DIR)/$(ALIB) $(SWIG_WRAPPER_OBJECT) $(BUILD_DIR)/$(PERL_CLIENT_WRAPPER).o
 	-mkdir -p $(BIN_DIR)/$(PERL_DIR)
-	$(CXX) $(SWIG_LDFLAGS) -o $@ $(BUILD_DIR)/$(PERL_CLIENT_WRAPPER).o $(SWIG_WRAPPER_OBJECT) $(BIN_DIR)/$(ALIB)
+	$(CXX) -o $@ $(BUILD_DIR)/$(PERL_CLIENT_WRAPPER).o $(SWIG_WRAPPER_OBJECT) $(BIN_DIR)/$(ALIB) $(SWIG_LDFLAGS)
 	-cp -rf $(SRC_DIR)/$(PERL_CLIENT_DIR)/scaliendb.pm $(BIN_DIR)/$(PERL_DIR)
 	-cp -rf $(SRC_DIR)/$(PERL_CLIENT_DIR)/scaliendb_client.pm $(BIN_DIR)/$(PERL_DIR)
 
 # executables	
 $(BUILD_DIR)/scaliendb: $(BUILD_DIR) $(LIBS) $(OBJECTS)
-	$(CXX) $(LDFLAGS) -o $@ $(OBJECTS) $(LIBS)
+	$(CXX) -o $@ $(OBJECTS) $(LIBS) $(LDFLAGS)
 
 $(BIN_DIR)/clienttest: $(BUILD_DIR) $(TEST_OBJECTS) $(BIN_DIR)/$(ALIB)
-	$(CXX) $(LDFLAGS) -o $@ $(TEST_OBJECTS) $(LIBS) $(BIN_DIR)/$(ALIB)
+	$(CXX) -o $@ $(TEST_OBJECTS) $(LIBS) $(BIN_DIR)/$(ALIB) $(LDFLAGS)
 
 $(BIN_DIR)/bdbtool: $(BUILD_DIR) $(LIBS) $(ALL_OBJECTS) $(BUILD_DIR)/Application/Tools/BDBTool/BDBTool.o
-	$(CXX) $(LDFLAGS) -o $@ $(ALL_OBJECTS) $(LIBS) $(BUILD_DIR)/Application/Tools/BDBTool/BDBTool.o
+	$(CXX)-o $@ $(ALL_OBJECTS) $(LIBS)  $(LDFLAGS) $(BUILD_DIR)/Application/Tools/BDBTool/BDBTool.o
 
 $(BUILD_DIR)/TestMain: $(BUILD_DIR) $(TEST_OBJECTS) $(ALL_OBJECTS) $(BUILD_DIR)/Test/TestMain.o $(BUILD_DIR)/Test/Test.o $(CLIENTLIB_OBJECTS)
-	$(CXX) $(LDFLAGS) $(CFLAGS) -o $@ $(TEST_OBJECTS) $(ALL_OBJECTS) $(BUILD_DIR)/Test/TestMain.o $(BUILD_DIR)/Test/Test.o $(LIBS) $(CLIENTLIB_OBJECTS)
+	$(CXX) $(CFLAGS) -o $@ $(TEST_OBJECTS) $(ALL_OBJECTS) $(BUILD_DIR)/Test/TestMain.o $(BUILD_DIR)/Test/Test.o $(LIBS) $(LDFLAGS) $(CLIENTLIB_OBJECTS)
 
 $(BUILD_DIR)/Test/TestMain.o: $(SRC_DIR)/Test/TestMain.cpp
 	$(CXX) $(CFLAGS) -o $@ -DTEST -c $(SRC_DIR)/Test/TestMain.cpp

@@ -34,6 +34,9 @@ extern "C" {
 void            Error();
 void            SetExitOnError(bool exitOnError);
 
+void            SetAssertCritical(bool isAssertCritical);
+bool            IsAssertCritical();
+
 unsigned        NumDigits(int n);
 unsigned        NumDigits64(uint64_t n);
 

@@ -21,6 +21,7 @@ public:
     void        Open(const char* filepath);
     void        Close();
 
+    bool        IsOpen();
     bool        HasUncommitted();
     uint32_t    GetLogCommandID();
     uint32_t    GetCommittedLogCommandID();

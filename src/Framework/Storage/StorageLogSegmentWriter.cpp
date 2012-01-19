@@ -25,6 +25,14 @@ void StorageLogSegmentWriter::Close()
     fd = INVALID_FD;
 }
 
+bool StorageLogSegmentWriter::IsOpen()
+{
+    if (fd != INVALID_FD)
+        return true;
+    else
+        return false;
+}
+
 bool StorageLogSegmentWriter::HasUncommitted()
 {
     return !(committedLogCommandID == logCommandID - 1);

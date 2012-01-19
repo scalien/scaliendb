@@ -484,6 +484,9 @@
     <ClCompile Include="..\src\System\Service_Posix.cpp">
       <Filter>System</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\Framework\Storage\StorageLogManager.cpp">
+      <Filter>Framework\Storage</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\System\Common.h">
@@ -990,6 +993,9 @@
       <Filter>System\Threading</Filter>
     </ClInclude>
     <ClInclude Include="..\src\SourceControl.h" />
+    <ClInclude Include="..\src\Framework\Storage\StorageLogManager.h">
+      <Filter>Framework\Storage</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="ScalienDB.rc" />

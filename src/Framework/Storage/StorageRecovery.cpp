@@ -508,17 +508,17 @@ bool StorageRecovery::ReplayLogSegment(uint64_t trackID, Buffer& filename)
     // look at that shard's computed max., if the log is bigger, then execute the command
     // against the MemoChunk
 
-    bool                r, usePrevious;
+    bool                usePrevious;
     char                type;
     uint16_t            contextID, klen;
     uint32_t            checksum, /*compChecksum,*/ vlen, version;
-    uint64_t            logSegmentID, tmp, shardID, logCommandID, size, rest;
+    uint64_t            logSegmentID, shardID, logCommandID, size, rest;
     ReadBuffer          parse, dataPart, key, value;
     Buffer              buffer;
     FDGuard             fd;
-    StorageLogSegment*  logSegment;
     uint64_t            uncompressedLength;
     ssize_t             ret;
+    StorageLogManager::Track*  track;
     
     Log_Message("Replaying log segment %B...", &filename);
     
@@ -653,12 +653,10 @@ bool StorageRecovery::ReplayLogSegment(uint64_t trackID, Buffer& filename)
         }
     }
     
-    logSegment = new StorageLogSegment(trackID, logSegmentID);
-    env->logSegments.Append(logSegment);
-    tmp = 0;
-    r = env->logSegmentIDMap.Get(trackID, tmp);
-    if (!ret || (ret && tmp <= logSegmentID))
-        env->logSegmentIDMap.Set(trackID, ++logSegmentID);
+    track = env->logManager.GetTrack(trackID);
+    if (!track)
+        env->logManager.CreateTrack(trackID);
+    env->logManager.Add(trackID, logSegmentID);
     
     fd.Close();
     
@@ -887,10 +885,3 @@ void StorageRecovery::TryWriteChunks()
         }
     }
 }
-
-static size_t Hash(uint64_t h)
-{
-    return h;
-}
-
-
