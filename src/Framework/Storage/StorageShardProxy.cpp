@@ -39,3 +39,8 @@ uint64_t StorageShardProxy::GetShardID()
 {
     return shardID;
 }
+
+uint64_t StorageShardProxy::GetTrackID()
+{
+    return environment->GetShard(contextID, shardID)->GetTrackID();
+}

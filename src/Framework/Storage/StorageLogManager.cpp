@@ -12,7 +12,6 @@ StorageLogManager::~StorageLogManager()
 void StorageLogManager::SetLogPath(ReadBuffer logPath_)
 {
     logPath.Write(logPath_);
-    logPath.NullTerminate();
 }
 
 StorageLogManager::Track* StorageLogManager::CreateTrack(uint64_t trackID)
@@ -76,9 +75,11 @@ List<StorageLogManager::Track>& StorageLogManager::GetTracks()
 
 StorageLogManager::LogSegment* StorageLogManager::GetHead(uint64_t trackID)
 {
+    
     uint64_t    logSegmentID;
     Track*      track;
     LogSegment* logSegment;
+    Buffer      filepath;
 
     FOREACH(track, tracks)
     {
@@ -96,7 +97,9 @@ StorageLogManager::LogSegment* StorageLogManager::GetHead(uint64_t trackID)
                 else
                     logSegmentID = 1;
                 logSegment = Add(track->trackID, logSegmentID);
-                logSegment->GetWriter().Open(StaticPrint("%B/%s", &logPath, logSegment->GetFilename()));
+                filepath.Writef("%B/%s", &logPath, logSegment->GetFilename());
+                filepath.NullTerminate();
+                logSegment->GetWriter().Open(filepath.GetBuffer());
                 return logSegment;
             }
         }

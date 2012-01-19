@@ -340,6 +340,9 @@ void ShardDatabaseManager::Init(ShardServer* shardServer_)
 
     envpath.Writef("%s", configFile.GetValue("database.dir", "db"));
     environment.Open(envpath);
+    
+    environment.CreateShard(0, QUORUM_DATABASE_SYSTEM_CONTEXT,1, 
+     0, "", "", true, STORAGE_SHARD_TYPE_STANDARD);
 
     // TODO: replace 1 with symbolic name
     systemShard.Init(&environment, QUORUM_DATABASE_SYSTEM_CONTEXT, 1);

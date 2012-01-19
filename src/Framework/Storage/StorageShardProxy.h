@@ -19,6 +19,7 @@ public:
     StorageEnvironment*     GetEnvironment();
     uint16_t                GetContextID();
     uint64_t                GetShardID();
+    uint64_t                GetTrackID();
     
 private:
     StorageEnvironment*     environment;

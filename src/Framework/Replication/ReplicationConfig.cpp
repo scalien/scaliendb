@@ -31,8 +31,8 @@ void ReplicationConfig::Init(StorageShardProxy* shard_)
     shard = shard_;
 
     // TODO: HACK
-    shard->GetEnvironment()->CreateShard(0, shard->GetContextID(), shard->GetShardID(), 
-     0, "", "", true, STORAGE_SHARD_TYPE_STANDARD);
+//    shard->GetEnvironment()->CreateShard(0, shard->GetContextID(), shard->GetShardID(), 
+//     0, "", "", true, STORAGE_SHARD_TYPE_STANDARD);
     
     ret = shard->Get(ReadBuffer("nodeID"), value);
     nread = 0;
@@ -140,5 +140,5 @@ void ReplicationConfig::Commit()
     ret = shard->Set(ReadBuffer("clusterID"), rbValue);
     ASSERT(ret == true);
     
-    shard->GetEnvironment()->Commit(0);
+    shard->GetEnvironment()->Commit(shard->GetTrackID());
 }
