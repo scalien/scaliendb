@@ -18,6 +18,8 @@ class StorageLogSegmentWriter
     typedef StorageLogSectionSerializer Serializer;
     
 public:
+    StorageLogSegmentWriter();
+    
     void        Open(const char* filepath);
     void        Close();
 

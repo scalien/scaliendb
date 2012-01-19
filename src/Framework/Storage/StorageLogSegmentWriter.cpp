@@ -3,13 +3,16 @@
 #include "StorageEnvironment.h"
 #include "System/FileSystem.h"
 
-void StorageLogSegmentWriter::Open(const char* filepath)
+StorageLogSegmentWriter::StorageLogSegmentWriter()
 {
-    fd = INVALID_FD;
     logCommandID = 1;
     committedLogCommandID = 0;
     filesize = 0;
-    
+    fd = INVALID_FD;
+}
+
+void StorageLogSegmentWriter::Open(const char* filepath)
+{
     filepathBuf.Write(filepath);
     filepathBuf.NullTerminate();
 
