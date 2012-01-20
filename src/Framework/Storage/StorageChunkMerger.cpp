@@ -61,7 +61,7 @@ bool StorageChunkMerger::Merge(
         iterators[i] = readers[i].First(firstKey);
     
     // open writer
-    if (fd.Open(mergeChunk->GetFilename().GetBuffer(), FS_CREATE | FS_READWRITE) == INVALID_FD)
+    if (fd.Open(mergeChunk->GetFilename().GetBuffer(), FS_CREATE | FS_WRITEONLY) == INVALID_FD)
         return false;
 
     offset = 0;
