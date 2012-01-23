@@ -539,7 +539,7 @@ FD FS_Open(const char* filename, int flags)
 
     // TODO: unbuffered file IO
     dwFlagsAndAttributes = FILE_ATTRIBUTE_ARCHIVE/* | FILE_FLAG_NO_BUFFERING */;
-    if ((flags & FS_WRITEONLY) == FS_WRITEONLY)
+    if (((flags & FS_WRITEONLY) == FS_WRITEONLY) || ((flags & FS_READWRITE) == FS_READWRITE))
         dwFlagsAndAttributes |= FILE_FLAG_WRITE_THROUGH;    // do not cache writes
 
     handle = CreateFile(filename, dwDesiredAccess, FILE_SHARE_READ, NULL, 

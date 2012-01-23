@@ -186,6 +186,7 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\src\Framework\Storage\StorageLogManager.cpp" />
     <ClCompile Include="..\src\System\Common.cpp" />
     <ClCompile Include="..\src\System\Config.cpp" />
     <ClCompile Include="..\src\System\FileSystem.cpp" />
@@ -324,6 +325,7 @@
     <ClCompile Include="..\src\Main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\src\Framework\Storage\StorageLogManager.h" />
     <ClInclude Include="..\src\SourceControl.h" />
     <ClInclude Include="..\src\System\Common.h" />
     <ClInclude Include="..\src\System\Config.h" />
