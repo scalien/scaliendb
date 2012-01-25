@@ -1688,11 +1688,6 @@ StorageShard* StorageEnvironment::GetFirstShard(StorageChunk* chunk)
     return NULL;
 }
 
-static size_t Hash(uint64_t h)
-{
-    return h;
-}
-
 static inline bool LessThan(ReadBuffer& a, ReadBuffer& b)
 {
     return ReadBuffer::Cmp(a, b) < 0 ? true : false;
