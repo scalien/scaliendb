@@ -15,6 +15,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ScalienWindowsPackage", "Sc
 		{F4DD91C3-235A-46A2-A61A-FCD79A6BA2A3} = {F4DD91C3-235A-46A2-A61A-FCD79A6BA2A3}
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ScalienBackup", "ScalienBackup.vcxproj", "{EAC85356-7467-4658-96CC-9BC8133E9946}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -53,6 +55,12 @@ Global
 		{3AD98872-2DF5-4882-9125-BC652E8E93BF}.Release|Win32.ActiveCfg = Release|Win32
 		{3AD98872-2DF5-4882-9125-BC652E8E93BF}.Release|Win32.Build.0 = Release|Win32
 		{3AD98872-2DF5-4882-9125-BC652E8E93BF}.Release|x64.ActiveCfg = Release|x64
+		{EAC85356-7467-4658-96CC-9BC8133E9946}.Debug|Win32.ActiveCfg = Debug|Win32
+		{EAC85356-7467-4658-96CC-9BC8133E9946}.Debug|Win32.Build.0 = Debug|Win32
+		{EAC85356-7467-4658-96CC-9BC8133E9946}.Debug|x64.ActiveCfg = Debug|Win32
+		{EAC85356-7467-4658-96CC-9BC8133E9946}.Release|Win32.ActiveCfg = Release|Win32
+		{EAC85356-7467-4658-96CC-9BC8133E9946}.Release|Win32.Build.0 = Release|Win32
+		{EAC85356-7467-4658-96CC-9BC8133E9946}.Release|x64.ActiveCfg = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -131,11 +131,6 @@ void StorageFileChunk::NextBunch(StorageBulkCursor& cursor, StorageShard* shard)
     ReadBuffer              nextKey, key, value;
     StorageFileKeyValue*    it;
     
-    if (!shard->RangeContains(headerPage.GetFirstKey()) && !shard->RangeContains(headerPage.GetLastKey()))
-    {
-        cursor.SetLast(true);
-        return;
-    }
     nextKey = cursor.GetNextKey();
 
     if (indexPage == NULL)

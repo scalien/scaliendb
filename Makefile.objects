@@ -94,7 +94,9 @@ ALL_OBJECTS = \
 	$(BUILD_DIR)/Framework/Storage/StorageFileKeyValue.o \
 	$(BUILD_DIR)/Framework/Storage/StorageHeaderPage.o \
 	$(BUILD_DIR)/Framework/Storage/StorageIndexPage.o \
+	$(BUILD_DIR)/Framework/Storage/StorageLogSectionSerializer.o \
 	$(BUILD_DIR)/Framework/Storage/StorageLogSegment.o \
+	$(BUILD_DIR)/Framework/Storage/StorageLogSegmentWriter.o \
 	$(BUILD_DIR)/Framework/Storage/StorageLogManager.o \
 	$(BUILD_DIR)/Framework/Storage/StorageMemoChunk.o \
 	$(BUILD_DIR)/Framework/Storage/StorageMemoChunkLister.o \

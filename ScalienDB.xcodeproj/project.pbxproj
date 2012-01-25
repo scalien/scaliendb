@@ -291,6 +291,7 @@
 		9AE819B412D4C4200038BDB1 /* ClientRequest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 543DE63612BFBB420069786A /* ClientRequest.cpp */; };
 		9AED118E13B379DC0023F27E /* JSONReader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9AED118C13B379DC0023F27E /* JSONReader.cpp */; };
 		9AED119013B379F40023F27E /* JSONReaderTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9AED118F13B379F40023F27E /* JSONReaderTest.cpp */; };
+		9AFEB97014CF007A00708D1F /* StorageLogManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9AFEB96E14CF007A00708D1F /* StorageLogManager.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -711,6 +712,8 @@
 		9AED118C13B379DC0023F27E /* JSONReader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = JSONReader.cpp; sourceTree = "<group>"; };
 		9AED118D13B379DC0023F27E /* JSONReader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JSONReader.h; sourceTree = "<group>"; };
 		9AED118F13B379F40023F27E /* JSONReaderTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = JSONReaderTest.cpp; path = Test/JSONReaderTest.cpp; sourceTree = "<group>"; };
+		9AFEB96E14CF007A00708D1F /* StorageLogManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = StorageLogManager.cpp; sourceTree = "<group>"; };
+		9AFEB96F14CF007A00708D1F /* StorageLogManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StorageLogManager.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -911,6 +914,10 @@
 				543DE57812BFBB3D0069786A /* FDGuard.cpp */,
 				543DE58712BFBB3D0069786A /* StorageConfig.h */,
 				543DE58612BFBB3D0069786A /* StorageConfig.cpp */,
+				9AFEB96E14CF007A00708D1F /* StorageLogManager.cpp */,
+				9AFEB96F14CF007A00708D1F /* StorageLogManager.h */,
+				543DE59A12BFBB3D0069786A /* StorageLogSegment.h */,
+				543DE59912BFBB3D0069786A /* StorageLogSegment.cpp */,
 				543DE5A612BFBB3D0069786A /* StorageShard.h */,
 				543DE5A512BFBB3D0069786A /* StorageShard.cpp */,
 				543DE73C12C0B9350069786A /* StorageShardProxy.h */,
@@ -1676,9 +1683,13 @@
 				9AE5437F1431CF260002D500 /* Service_Posix.cpp in Sources */,
 				9AE543801431CF260002D500 /* Service_Windows.cpp in Sources */,
 				9ABFE522147124ED0085B06B /* Signal_Posix.cpp in Sources */,
+<<<<<<< HEAD
 				5461E8D614BF2280003C7F0E /* StorageLogSegmentWriter.cpp in Sources */,
 				543047C214BF2710009342AC /* StorageLogSectionSerializer.cpp in Sources */,
 				5430488014C82A0B009342AC /* StorageLogManager.cpp in Sources */,
+=======
+				9AFEB97014CF007A00708D1F /* StorageLogManager.cpp in Sources */,
+>>>>>>> dev
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

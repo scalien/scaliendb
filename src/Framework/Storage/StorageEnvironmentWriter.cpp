@@ -23,7 +23,7 @@ bool StorageEnvironmentWriter::Write(StorageEnvironment* env_)
     TOC.Append("toc");
     TOC.NullTerminate();
     
-    if (fd.Open(newTOC.GetBuffer(), FS_CREATE | FS_READWRITE) == INVALID_FD)
+    if (fd.Open(newTOC.GetBuffer(), FS_CREATE | FS_WRITEONLY) == INVALID_FD)
         return false;
     
     // TODO: open with FS_TRUNCATE flag
@@ -59,7 +59,7 @@ uint64_t StorageEnvironmentWriter::WriteSnapshot(StorageEnvironment* env_)
     TOC.Appendf("toc.%U", tocID);
     TOC.NullTerminate();
     
-    if (fd.Open(TOC.GetBuffer(), FS_CREATE | FS_READWRITE) == INVALID_FD)
+    if (fd.Open(TOC.GetBuffer(), FS_CREATE | FS_WRITEONLY) == INVALID_FD)
         return false;
     
     // TODO: open with FS_TRUNCATE flag

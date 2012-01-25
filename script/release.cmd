@@ -1,9 +1,13 @@
 @ECHO OFF
 
-SET BASEDIR=%CD%
+SET SCRIPTDIR=%~dp0
+SET BASEDIR=%SCRIPTDIR%..\
+SET STARTDIR=%CD%
 SET OUTPUT=release.log
 : Possible values are: quiet, minimal, normal, detailed, diagnostic
 SET VERBOSITY=minimal
+
+CD %BASEDIR%
 
 ECHO.
 ECHO ============================================
@@ -62,5 +66,5 @@ ECHO An error occured!
 ECHO.
 ECHO ============================================
 ECHO.
-CHDIR /D %BASEDIR%
+CHDIR /D %STARTDIR%
 EXIT /B 1

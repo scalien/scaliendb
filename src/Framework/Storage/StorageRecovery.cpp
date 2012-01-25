@@ -568,6 +568,8 @@ bool StorageRecovery::ReplayLogSegment(uint64_t trackID, Buffer& filename)
             break;
         buffer.Allocate(size);
         
+        if (buffer.GetLength() > size)
+            break;  // rest would be negative
         rest = size - buffer.GetLength();
         if (rest < sizeof(uint64_t) + sizeof(uint32_t)) // size of uncompressed + checksum
             break;
