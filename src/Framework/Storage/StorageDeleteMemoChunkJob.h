@@ -22,6 +22,7 @@ public:
     void                OnComplete();
 
     StorageMemoChunk*   chunk;
+    uint64_t            chunkID;
 };
 
 #endif
