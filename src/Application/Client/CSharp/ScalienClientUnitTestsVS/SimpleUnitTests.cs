@@ -668,5 +668,19 @@ namespace ScalienClientUnitTesting
                 PerformListTest(tbl, ps, expected);
             }
         }
+
+        [TestMethod]
+        public void ListTestLinq()
+        {
+            Client client = new Client(Utils.GetConfigNodes());
+            Table table = client.GetDatabase("Benchmark").GetTable("transactionNetworkTransaction");
+            byte[] prefix = Utils.StringToByteArray("N:0000000000000|T:000000");
+            byte[] startKey = Utils.StringToByteArray("N:0000000000000|T:0000001250847|");
+            var rangeParams = new ByteRangeParams().StartKey(startKey).Prefix(prefix);
+            ByteKeyValueIterator iterator = table.GetKeyValueIterator(rangeParams);
+            
+            var list = new List<KeyValuePair<byte[], byte[]>>();
+            list.AddRange(iterator.Select(kv => kv));
+        }
     }
 }
