@@ -1100,6 +1100,7 @@ bool StorageEnvironment::SplitShard(uint16_t contextID,  uint64_t shardID,
     newMemoChunk->maxLogSegmentID = memoChunk->maxLogSegmentID;
     newMemoChunk->maxLogCommandID = memoChunk->maxLogCommandID;
 
+    Log_Debug("SplitShard memoChunk copy begin");
     FOREACH (itKeyValue, memoChunk->keyValues)
     {
         ASSERT(itKeyValue->GetKey().GetLength() > 0);
@@ -1111,6 +1112,7 @@ bool StorageEnvironment::SplitShard(uint16_t contextID,  uint64_t shardID,
                 newMemoChunk->Delete(itKeyValue->GetKey());
         }
     }
+    Log_Debug("SplitShard memoChunk copy end");
 
     newShard->PushMemoChunk(newMemoChunk);
 
