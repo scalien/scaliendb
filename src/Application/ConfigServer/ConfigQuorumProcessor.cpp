@@ -15,13 +15,13 @@ void ConfigQuorumProcessor::Init(ConfigServer* configServer_, unsigned numConfig
     configStateChecksum = 0;
     lastConfigChangeTime = 0;
 
+    leaseKnown = false;
+    leaseOwner = 0;
+
     quorumContext.Init(this, numConfigServers, quorumPaxosShard, quorumLogShard);    
     CONTEXT_TRANSPORT->AddQuorumContext(&quorumContext);
 
     onListenRequestTimeout.SetCallable(MFUNC(ConfigQuorumProcessor, OnListenRequestTimeout));
-
-    leaseKnown = false;
-    leaseOwner = 0;
 }
 
 void ConfigQuorumProcessor::Shutdown()
