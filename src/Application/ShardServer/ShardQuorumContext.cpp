@@ -259,8 +259,8 @@ void ShardQuorumContext::OnMessage(ReadBuffer buffer)
 
 void ShardQuorumContext::OnMessageProcessed()
 {
-    ReadBuffer message;
-    Buffer* buffer;
+    ReadBuffer  buffer;
+    Buffer*     message;
 
     ASSERT(numPendingPaxos == 1);
     numPendingPaxos--;
@@ -270,9 +270,9 @@ void ShardQuorumContext::OnMessageProcessed()
     
     if (paxosMessageQueue.GetLength() > 0)
     {
-        buffer = paxosMessageQueue.Dequeue();
-        message.Wrap(*buffer);
-        OnMessage(message);
+        message = paxosMessageQueue.Dequeue();
+        buffer.Wrap(*message);
+        OnMessage(buffer);
     }
 }
 
