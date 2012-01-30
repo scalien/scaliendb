@@ -205,7 +205,7 @@ namespace ScalienClientUnitTesting
                     url = "http://" + victim + action_string;
                     System.Console.WriteLine("Shard action(" + vix + "): " + url);
 
-                    System.Console.WriteLine(Utils.HTTP_GET(url, 3000));
+                    System.Console.WriteLine(Utils.HTTP.GET(url, 3000));
                 }
 
                 if (actions[0].repeat == 0) 
