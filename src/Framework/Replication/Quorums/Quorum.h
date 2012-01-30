@@ -18,9 +18,10 @@ class Quorum
 public:
     virtual ~Quorum() {}
 
-    virtual unsigned            GetNumNodes()       const   = 0;
-    virtual const uint64_t*     GetNodes()          const   = 0;
-    virtual QuorumVote*         NewVote()           const   = 0;
+    virtual bool                IsMember(uint64_t nodeID)   const   = 0;
+    virtual unsigned            GetNumNodes()               const   = 0;
+    virtual const uint64_t*     GetNodes()                  const   = 0;
+    virtual QuorumVote*         NewVote()                   const   = 0;
 };
 
 /*

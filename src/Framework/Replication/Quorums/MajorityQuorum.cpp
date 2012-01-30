@@ -10,13 +10,23 @@ void MajorityQuorum::AddNode(uint64_t nodeID)
 {
     if (numNodes >= SIZE(nodes))
         ASSERT_FAIL();
-    for (unsigned i = 0; i < GetNumNodes(); i++)
-    {
-        if (nodes[i] == nodeID)
-            return;
-    }
+
+    if (IsMember(nodeID))
+        return;
+
     nodes[numNodes] = nodeID;
     numNodes++;
+}
+
+bool MajorityQuorum::IsMember(uint64_t nodeID) const
+{
+    unsigned i;
+
+    for (i = 0; i < numNodes; i++)
+        if (nodes[i] == nodeID)
+            return true;
+
+    return false;
 }
 
 unsigned MajorityQuorum::GetNumNodes() const
@@ -33,26 +43,27 @@ QuorumVote* MajorityQuorum::NewVote() const
 {
     MajorityQuorumVote* round;
     
-    round = new MajorityQuorumVote;
-    
-    round->numNodes = numNodes;
-    
+    round = new MajorityQuorumVote((MajorityQuorum*) this);
+        
     return round;
 }
 
-MajorityQuorumVote::MajorityQuorumVote()
+MajorityQuorumVote::MajorityQuorumVote(MajorityQuorum* quorum_)
 {
+    quorum = quorum_;
     Reset();
 }
 
-void MajorityQuorumVote::RegisterAccepted(uint64_t)
+void MajorityQuorumVote::RegisterAccepted(uint64_t nodeID)
 {
-    numAccepted++;
+    if (quorum->IsMember(nodeID))
+        numAccepted++;
 }
 
-void MajorityQuorumVote::RegisterRejected(uint64_t)
+void MajorityQuorumVote::RegisterRejected(uint64_t nodeID)
 {
-    numRejected++;
+    if (quorum->IsMember(nodeID))
+        numRejected++;
 }
 
 void MajorityQuorumVote::Reset()
@@ -63,15 +74,15 @@ void MajorityQuorumVote::Reset()
 
 bool MajorityQuorumVote::IsRejected() const
 {
-    return (numRejected >= ceil((double)(numNodes) / 2));
+    return (numRejected >= ceil((double)(quorum->GetNumNodes()) / 2));
 }
 
 bool MajorityQuorumVote::IsAccepted() const
 {
-    return (numAccepted >= ceil((double)(numNodes+1) / 2));
+    return (numAccepted >= ceil((double)(quorum->GetNumNodes() + 1) / 2));
 }
 
 bool MajorityQuorumVote::IsComplete() const
 {
-    return ((numAccepted + numRejected) == numNodes);
+    return ((numAccepted + numRejected) == quorum->GetNumNodes());
 }
