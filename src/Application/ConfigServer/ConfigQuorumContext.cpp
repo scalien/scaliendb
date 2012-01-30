@@ -258,6 +258,10 @@ void ConfigQuorumContext::OnPaxosMessage(ReadBuffer buffer)
         return;
 
     msg.Read(buffer);
+
+    if (!quorum.IsMember(msg.nodeID))
+        return;
+
     RegisterPaxosID(msg.paxosID);
     replicatedLog.RegisterPaxosID(msg.paxosID, msg.nodeID);
     replicatedLog.OnMessage(msg);

@@ -293,6 +293,10 @@ void ShardQuorumContext::OnPaxosMessage(ReadBuffer buffer)
     PaxosMessage msg;
     
     msg.Read(buffer);
+    
+    if (!quorum.IsMember(msg.nodeID))
+        return;
+    
     RegisterPaxosID(msg.paxosID);
     replicatedLog.RegisterPaxosID(msg.paxosID, msg.nodeID);
     replicatedLog.OnMessage(msg);
