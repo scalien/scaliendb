@@ -448,20 +448,18 @@ DeleteQuorum:
     // check changes in active or inactive node list
     FOREACH (configQuorum, configState.quorums)
     {
-        if (configQuorum->IsActiveMember(MY_NODEID))
-        {
-            ConfigureQuorum(configQuorum); // also creates quorum
-            FOREACH (itShardID, configQuorum->shards)
-                myShardIDs.Add(*itShardID);
-        }
+        if (!configQuorum->IsMember(MY_NODEID))
+            continue;
+
+        ConfigureQuorum(configQuorum); // also creates quorum
+        FOREACH (itShardID, configQuorum->shards)
+            myShardIDs.Add(*itShardID);
+
         if (configQuorum->IsInactiveMember(MY_NODEID))
         {
-            ConfigureQuorum(configQuorum); // also creates quorum
             quorumProcessor = GetQuorumProcessor(configQuorum->quorumID);
             ASSERT(quorumProcessor != NULL);
             quorumProcessor->TryReplicationCatchup();
-            FOREACH (itShardID, configQuorum->shards)
-                myShardIDs.Add(*itShardID);
         }
     }
     
@@ -476,7 +474,6 @@ DeleteQuorum:
 
 void ShardServer::ConfigureQuorum(ConfigQuorum* configQuorum)
 {
-    uint64_t                quorumID;
     uint64_t*               itNodeID;
     ConfigShardServer*      shardServer;
     ShardQuorumProcessor*   quorumProcessor;
@@ -484,11 +481,10 @@ void ShardServer::ConfigureQuorum(ConfigQuorum* configQuorum)
     
     Log_Trace();
     
-    quorumID = configQuorum->quorumID;
-    quorumProcessor = GetQuorumProcessor(quorumID);
+    quorumProcessor = GetQuorumProcessor(configQuorum->quorumID);
     if (quorumProcessor == NULL)
     {
-        databaseManager.SetQuorumShards(quorumID);
+        databaseManager.SetQuorumShards(configQuorum->quorumID);
         
         quorumProcessor = new ShardQuorumProcessor;
         quorumProcessor->Init(configQuorum, this);
