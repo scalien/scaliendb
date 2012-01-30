@@ -91,6 +91,7 @@ public:
     // ========================================================================================
     // For ShardServer:
     //
+    void                    OnSetConfigState();
     void                    OnReceiveLease(ClusterMessage& message);
     void                    OnClientRequest(ClientRequest* request);
     void                    OnClientClose(ClientSession* session);

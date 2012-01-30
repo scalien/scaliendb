@@ -7,6 +7,7 @@
 #define CONFIG_STATE            (shardServer->GetConfigState())
 #define SHARD_MIGRATION_WRITER  (shardServer->GetShardMigrationWriter())
 #define DATABASE_MANAGER        (shardServer->GetDatabaseManager())
+#define HEARTBEAT_MANAGER       (shardServer->GetHeartbeatManager())
 
 static bool LessThan(uint64_t a, uint64_t b)
 {
@@ -148,6 +149,58 @@ uint64_t ShardQuorumProcessor::GetLastLearnChosenTime()
 ConfigQuorum* ShardQuorumProcessor::GetConfigQuorum()
 {
     return CONFIG_STATE->GetQuorum(GetQuorumID());
+}
+
+void ShardQuorumProcessor::OnSetConfigState()
+{
+    ConfigQuorum*   configQuorum;
+    ConfigShard*    configShard;
+    uint64_t*       itShardID;
+    ReadBuffer      splitKey;
+
+    RegisterPaxosID(configQuorum->paxosID);
+
+    if (configQuorum->IsActiveMember(MY_NODEID))
+    {                
+        if (configQuorum->isActivatingNode || configQuorum->activatingNodeID == MY_NODEID)
+        {
+            OnActivation();
+            HEARTBEAT_MANAGER->OnActivation();
+        }
+
+        if (IsPrimary())
+        {
+            // look for shard splits
+            FOREACH (itShardID, configQuorum->shards)
+            {
+                configShard = CONFIG_STATE->GetShard(*itShardID);
+                if (DATABASE_MANAGER->GetEnvironment()->ShardExists(QUORUM_DATABASE_DATA_CONTEXT, *itShardID))
+                    continue;
+                if (configShard->state == CONFIG_SHARD_STATE_SPLIT_CREATING)
+                {
+                    Log_Trace("Splitting shard (parent shardID = %U, new shardID = %U)...",
+                        configShard->parentShardID, configShard->shardID);
+                    splitKey.Wrap(configShard->firstKey);
+                    TrySplitShard(configShard->parentShardID, configShard->shardID, splitKey);
+                }
+                else if (configShard->state == CONFIG_SHARD_STATE_TRUNC_CREATING)
+                {
+                    TryTruncateTable(configShard->tableID, configShard->shardID);
+                }
+            }
+        }
+    }
+    else if (configQuorum->IsInactiveMember(MY_NODEID))
+    {
+        if (IsCatchupActive())
+            AbortCatchup();
+
+        if (IsPrimary())
+            OnLeaseTimeout();
+        
+        TryReplicationCatchup();
+    }        
+
 }
 
 void ShardQuorumProcessor::OnReceiveLease(ClusterMessage& message)

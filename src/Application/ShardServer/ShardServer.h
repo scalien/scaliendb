@@ -31,6 +31,7 @@ public:
     QuorumProcessorList*    GetQuorumProcessors();
     ShardDatabaseManager*   GetDatabaseManager();
     ShardMigrationWriter*   GetShardMigrationWriter();
+    ShardHeartbeatManager*  GetHeartbeatManager();
     ConfigState*            GetConfigState();
     ShardServerApp*         GetShardServerApp();
 
@@ -63,7 +64,12 @@ public:
 
 private:
     void                    OnSetConfigState(ClusterMessage& message);
+    void                    ResetChangedConnections();
+    void                    TryDeleteQuorumProcessors();
+    void                    TryDeleteQuorumProcessor(ShardQuorumProcessor* quorumProcessor);
+    void                    ConfigureQuorums();
     void                    ConfigureQuorum(ConfigQuorum* configQuorum);
+    void                    TryDeleteShards();
 
     ConfigState             configState;
     List<uint64_t>          configServers;
