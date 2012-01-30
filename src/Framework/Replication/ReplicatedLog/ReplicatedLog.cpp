@@ -224,7 +224,7 @@ void ReplicatedLog::OnLearnLease()
 
 void ReplicatedLog::OnLeaseTimeout()
 {
-    proposer.state.multi = false;
+    proposer.Stop();
 }
 
 void ReplicatedLog::OnAppendComplete()
