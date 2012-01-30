@@ -205,7 +205,6 @@ void ShardQuorumProcessor::OnReceiveLease(ClusterMessage& message)
     activeNodes.Clear();
     FOREACH (it, message.activeNodes)
         activeNodes.Add(*it);
-//    quorumContext.SetActiveNodes(activeNodes);
         
     shards = message.shards;
     
@@ -444,17 +443,6 @@ void ShardQuorumProcessor::OnClientRequest(ClientRequest* request)
 void ShardQuorumProcessor::OnClientClose(ClientSession* /*session*/)
 {
 }
-
-//void ShardQuorumProcessor::SetActiveNodes(SortedList<uint64_t>& activeNodes_)
-//{
-//    uint64_t* it;
-//    
-//    activeNodes.Clear();
-//    FOREACH(it, activeNodes_)
-//        activeNodes.Add(*it);
-//
-//    quorumContext.SetActiveNodes(activeNodes);
-//}
 
 void ShardQuorumProcessor::RegisterPaxosID(uint64_t paxosID)
 {
