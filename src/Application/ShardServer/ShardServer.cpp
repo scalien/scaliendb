@@ -459,6 +459,8 @@ DeleteQuorum:
         {
             quorumProcessor = GetQuorumProcessor(configQuorum->quorumID);
             ASSERT(quorumProcessor != NULL);
+            if (quorumProcessor->IsPrimary())
+                quorumProcessor->OnLeaseTimeout();
             quorumProcessor->TryReplicationCatchup();
         }
     }
@@ -477,37 +479,25 @@ void ShardServer::ConfigureQuorum(ConfigQuorum* configQuorum)
     uint64_t*               itNodeID;
     ConfigShardServer*      shardServer;
     ShardQuorumProcessor*   quorumProcessor;
-    SortedList<uint64_t>    activeNodes;
     
     Log_Trace();
     
     quorumProcessor = GetQuorumProcessor(configQuorum->quorumID);
-    if (quorumProcessor == NULL)
+    if (!quorumProcessor)
     {
         databaseManager.SetQuorumShards(configQuorum->quorumID);
         
         quorumProcessor = new ShardQuorumProcessor;
         quorumProcessor->Init(configQuorum, this);
-
         quorumProcessors.Append(quorumProcessor);
-        FOREACH (itNodeID, configQuorum->activeNodes)
-        {
-            shardServer = configState.GetShardServer(*itNodeID);
-            ASSERT(shardServer != NULL);
-            CONTEXT_TRANSPORT->AddConnection(*itNodeID, shardServer->endpoint);
-        }
     }
-    else
-    {
-        configQuorum->GetVolatileActiveNodes(activeNodes);
 
-        // add nodes to CONTEXT_TRANSPORT
-        FOREACH (itNodeID, configQuorum->activeNodes)
-        {
-            shardServer = configState.GetShardServer(*itNodeID);
-            ASSERT(shardServer != NULL);
-            CONTEXT_TRANSPORT->AddConnection(*itNodeID, shardServer->endpoint);
-        }
+    // add nodes to CONTEXT_TRANSPORT
+    FOREACH (itNodeID, configQuorum->activeNodes)
+    {
+        shardServer = configState.GetShardServer(*itNodeID);
+        ASSERT(shardServer != NULL);
+        CONTEXT_TRANSPORT->AddConnection(*itNodeID, shardServer->endpoint);
     }
 
     databaseManager.SetShards(configQuorum->shards);
