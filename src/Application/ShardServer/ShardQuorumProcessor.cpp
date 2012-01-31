@@ -170,6 +170,15 @@ void ShardQuorumProcessor::OnSetConfigState()
 
         if (IsPrimary())
         {
+            // if a node has been inactivated, restart replication
+            if (configQuorum->GetNumVolatileActiveNodes() < quorumContext.GetQuorum()->GetNumNodes())
+            {
+                // save the node list in the activeNodes member
+                configQuorum->GetVolatileActiveNodes(activeNodes);
+                // QuorumContext will call back here and re-initialize its Quorum object with activeNodes
+                quorumContext.RestartReplication();
+            }
+
             // look for shard splits
             FOREACH (itShardID, configQuorum->shards)
             {
