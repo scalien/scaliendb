@@ -73,7 +73,7 @@ public:
 
     bool            LearnValue(
                      uint64_t paxosID, uint64_t nodeID,
-                     uint64_t runID, Buffer& value);
+                     Buffer& value);
 
     bool            RequestChosen(
                      uint64_t paxosID, uint64_t nodeID);
