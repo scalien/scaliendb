@@ -260,7 +260,10 @@ void ConfigQuorumContext::OnPaxosMessage(ReadBuffer buffer)
     msg.Read(buffer);
 
     if (!quorum.IsMember(msg.nodeID))
+    {
+        Log_Debug("Dropping paxos msg from %U because that node is not a quourm member", msg.nodeID);
         return;
+    }
 
     RegisterPaxosID(msg.paxosID);
     replicatedLog.RegisterPaxosID(msg.paxosID, msg.nodeID);
