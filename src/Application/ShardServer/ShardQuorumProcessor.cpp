@@ -158,7 +158,7 @@ void ShardQuorumProcessor::OnSetConfigState()
     uint64_t*       itShardID;
     ReadBuffer      splitKey;
 
-    CONFIG_STATE->GetQuorum(GetQuorumID());
+    configQuorum = CONFIG_STATE->GetQuorum(GetQuorumID());
 
     RegisterPaxosID(configQuorum->paxosID);
 
