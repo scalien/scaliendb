@@ -88,9 +88,10 @@ bool PaxosMessage::ProposeAccepted(
 
 bool PaxosMessage::LearnValue(
  uint64_t paxosID_, uint64_t nodeID_,
- Buffer& value_)
+ uint64_t runID_, Buffer& value_)
 {
     Init(paxosID_, PAXOS_LEARN_VALUE, nodeID_);
+    runID = runID_;
     value.Wrap(value_);
     
     return true;
@@ -195,8 +196,8 @@ bool PaxosMessage::Read(ReadBuffer& buffer)
              &proto, &type, &paxosID, &nodeID, &proposalID);
             break;
         case PAXOS_LEARN_VALUE:
-            read = buffer.Readf("%c:%c:%U:%U:%#R",
-             &proto, &type, &paxosID, &nodeID, &value);
+            read = buffer.Readf("%c:%c:%U:%U:%U:%#R",
+             &proto, &type, &paxosID, &nodeID, &runID, &value);
             break;
         case PAXOS_REQUEST_CHOSEN:
             read = buffer.Readf("%c:%c:%U:%U",
@@ -255,8 +256,8 @@ bool PaxosMessage::Write(Buffer& buffer)
              proto, type, paxosID, nodeID, proposalID);
             break;
         case PAXOS_LEARN_VALUE:
-            buffer.Writef("%c:%c:%U:%U:%#R",
-             proto, type, paxosID, nodeID, &value);
+            buffer.Writef("%c:%c:%U:%U:%U:%#R",
+             proto, type, paxosID, nodeID, runID, &value);
             break;
         case PAXOS_REQUEST_CHOSEN:
             buffer.Writef("%c:%c:%U:%U",

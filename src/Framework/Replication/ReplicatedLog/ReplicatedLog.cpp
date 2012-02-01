@@ -365,7 +365,10 @@ bool ReplicatedLog::OnLearnChosen(PaxosMessage& imsg)
     
     if (imsg.type == PAXOS_LEARN_VALUE)
     {
-        runID = 0; // in the PAXOS_LEARN_VALUE case (and only in this case) runID is 0
+        runID = 0;
+        // in the PAXOS_LEARN_VALUE case (and only in this case) runID is 0
+        // for legacy reasons the PAXOS_LEARN_VALUE message also includes a runID,
+        // which is always set to 0
         acceptor.state.accepted = true;
         acceptor.state.acceptedValue.Write(imsg.value);
         acceptor.WriteState();
@@ -416,7 +419,7 @@ bool ReplicatedLog::OnRequestChosen(PaxosMessage& imsg)
         if (value.GetLength() > 0)
         {
             Log_Trace("Sending paxosID %d to node %d", imsg.paxosID, imsg.nodeID);
-            omsg.LearnValue(imsg.paxosID, MY_NODEID, value);
+            omsg.LearnValue(imsg.paxosID, MY_NODEID, 0, value);
         }
         else
         {
@@ -523,7 +526,7 @@ void ReplicatedLog::OnRequest(PaxosMessage& imsg)
             context->GetDatabase()->GetAcceptedValue(sendPaxosID, value);
             if (value.GetLength() == 0)
                 return;
-            omsg.LearnValue(sendPaxosID, MY_NODEID, value);
+            omsg.LearnValue(sendPaxosID, MY_NODEID, 0, value);
             context->GetTransport()->SendMessage(imsg.nodeID, omsg);
             total += value.GetLength();
             if (total >= PAXOS_CATCHUP_GRANULARITY)
