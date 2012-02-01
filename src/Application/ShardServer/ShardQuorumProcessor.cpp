@@ -158,6 +158,8 @@ void ShardQuorumProcessor::OnSetConfigState()
     uint64_t*       itShardID;
     ReadBuffer      splitKey;
 
+    CONFIG_STATE->GetQuorum(GetQuorumID());
+
     RegisterPaxosID(configQuorum->paxosID);
 
     if (configQuorum->IsActiveMember(MY_NODEID))
@@ -284,7 +286,6 @@ void ShardQuorumProcessor::OnReceiveLease(ClusterMessage& message)
     if (restartReplication)
         quorumContext.RestartReplication();
 }
-
 void ShardQuorumProcessor::OnStartProposing()
 {
     quorumContext.SetQuorumNodes(activeNodes);
