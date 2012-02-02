@@ -90,7 +90,7 @@ private:
     Buffer                          nextValue;
 
     unsigned                        numPendingPaxos;
-    InQueue<Buffer>                  paxosMessageQueue;
+    InQueue<Buffer>                 paxosMessageQueue;
 };
 
 #endif

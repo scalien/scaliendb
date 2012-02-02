@@ -224,7 +224,7 @@ void ReplicatedLog::OnLearnLease()
 
 void ReplicatedLog::OnLeaseTimeout()
 {
-    proposer.state.multi = false;
+    proposer.Stop();
 }
 
 void ReplicatedLog::OnAppendComplete()
@@ -365,7 +365,10 @@ bool ReplicatedLog::OnLearnChosen(PaxosMessage& imsg)
     
     if (imsg.type == PAXOS_LEARN_VALUE)
     {
-        runID = imsg.runID;
+        runID = 0;
+        // in the PAXOS_LEARN_VALUE case (and only in this case) runID is 0
+        // for legacy reasons the PAXOS_LEARN_VALUE message also includes a runID,
+        // which is always set to 0
         acceptor.state.accepted = true;
         acceptor.state.acceptedValue.Write(imsg.value);
         acceptor.WriteState();

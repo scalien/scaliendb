@@ -33,6 +33,7 @@ public:
     bool                    IsMember(uint64_t nodeID);
 
     void                    GetVolatileActiveNodes(SortedList<uint64_t>& activeNodes);
+    unsigned                GetNumVolatileActiveNodes();
     
     uint64_t                quorumID;
     Buffer                  name;

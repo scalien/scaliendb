@@ -123,13 +123,13 @@ bool PaxosMessage::StartCatchup(
   return true;
 }
 
-bool PaxosMessage::IsRequest()
+bool PaxosMessage::IsPaxosRequest()
 {
     return (type == PAXOS_PROPOSE_REQUEST ||
             type == PAXOS_PREPARE_REQUEST);
 }
 
-bool PaxosMessage::IsResponse()
+bool PaxosMessage::IsPaxosResponse()
 {
     return IsPrepareResponse() || IsProposeResponse();
 }

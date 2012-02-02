@@ -145,6 +145,7 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <TreatWarningAsError>true</TreatWarningAsError>
     </ClCompile>
     <Link>
       <AdditionalDependencies>ws2_32.lib;mswsock.lib;winmm.lib;psapi.lib;dbghelp.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -171,6 +172,7 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <TreatWarningAsError>true</TreatWarningAsError>
     </ClCompile>
     <Link>
       <AdditionalDependencies>ws2_32.lib;mswsock.lib;winmm.lib;psapi.lib;dbghelp.lib;%(AdditionalDependencies)</AdditionalDependencies>

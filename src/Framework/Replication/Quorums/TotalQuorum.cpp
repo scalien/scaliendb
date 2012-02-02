@@ -10,13 +10,23 @@ void TotalQuorum::AddNode(uint64_t nodeID)
 {
     if (numNodes >= SIZE(nodes))
         ASSERT_FAIL();
-    for (unsigned i = 0; i < GetNumNodes(); i++)
-    {
-        if (nodes[i] == nodeID)
-            return;
-    }
+
+    if (IsMember(nodeID))
+        return;
+
     nodes[numNodes] = nodeID;
     numNodes++;
+}
+
+bool TotalQuorum::IsMember(uint64_t nodeID) const
+{
+    unsigned i;
+
+    for (i = 0; i < numNodes; i++)
+        if (nodes[i] == nodeID)
+            return true;
+
+    return false;
 }
 
 void TotalQuorum::ClearNodes()
@@ -36,30 +46,31 @@ const uint64_t* TotalQuorum::GetNodes() const
 
 QuorumVote* TotalQuorum::NewVote() const
 {
-    TotalQuorumVote* round;
+    TotalQuorumVote* vote;
     
-    round = new TotalQuorumVote;
-    
-    round->numNodes = numNodes;
-    
+    vote = new TotalQuorumVote((TotalQuorum*)this);
+        
     Log_Trace("creating new vote with numNodes = %u", numNodes);
     
-    return round;
+    return vote;
 }
 
-TotalQuorumVote::TotalQuorumVote()
+TotalQuorumVote::TotalQuorumVote(TotalQuorum* quorum_)
 {
+    quorum = quorum_;
     Reset();
 }
 
-void TotalQuorumVote::RegisterAccepted(uint64_t)
+void TotalQuorumVote::RegisterAccepted(uint64_t nodeID)
 {
-    numAccepted++;
+    if (quorum->IsMember(nodeID))
+        numAccepted++;
 }
 
-void TotalQuorumVote::RegisterRejected(uint64_t)
+void TotalQuorumVote::RegisterRejected(uint64_t nodeID)
 {
-    numRejected++;
+    if (quorum->IsMember(nodeID))
+        numRejected++;
 }
 
 void TotalQuorumVote::Reset()
@@ -75,10 +86,10 @@ bool TotalQuorumVote::IsRejected() const
 
 bool TotalQuorumVote::IsAccepted() const
 {
-    return (numAccepted == numNodes);
+    return (numAccepted == quorum->GetNumNodes());
 }
 
 bool TotalQuorumVote::IsComplete() const
 {
-    return ((numAccepted + numRejected) == numNodes);
+    return ((numAccepted + numRejected) == quorum->GetNumNodes());
 }

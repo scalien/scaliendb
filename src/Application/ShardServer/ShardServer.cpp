@@ -96,6 +96,11 @@ ShardMigrationWriter* ShardServer::GetShardMigrationWriter()
     return &migrationWriter;
 }
 
+ShardHeartbeatManager* ShardServer::GetHeartbeatManager()
+{
+    return &heartbeatManager;
+}
+
 ConfigState* ShardServer::GetConfigState()
 {
     return &configState;
@@ -341,183 +346,6 @@ uint64_t ShardServer::GetLeaseOwner(uint64_t quorumID)
     return configQuorum->primaryID;
 }
 
-void ShardServer::OnSetConfigState(ClusterMessage& message)
-{
-    uint64_t*               itShardID;
-    ReadBuffer              splitKey;
-    ConfigShard*            configShard;
-    ConfigQuorum*           configQuorum;
-    ConfigShardServer*      configShardServer;
-    ShardQuorumProcessor*   quorumProcessor;
-    ShardQuorumProcessor*   next;
-    SortedList<uint64_t>    myShardIDs;
-    
-//    Log_Debug("ShardServer::OnSetConfigState");
-
-    configState = message.configState;
-    configShardServer = configState.GetShardServer(MY_NODEID);
-
-    FOREACH(configShardServer, configState.shardServers)
-    {
-        if (CONTEXT_TRANSPORT->HasConnection(configShardServer->nodeID))
-        {
-            if (CONTEXT_TRANSPORT->GetEndpoint(configShardServer->nodeID) != configShardServer->endpoint)
-            {
-                CONTEXT_TRANSPORT->DropConnection(configShardServer->nodeID);
-                CONTEXT_TRANSPORT->AddConnection(configShardServer->nodeID, configShardServer->endpoint);
-            }
-        }
-    }
-    
-    // look for removal
-    for (quorumProcessor = quorumProcessors.First(); quorumProcessor != NULL; quorumProcessor = next)
-    {
-        configQuorum = configState.GetQuorum(quorumProcessor->GetQuorumID());
-        if (configQuorum == NULL)
-            goto DeleteQuorum;
-        
-        next = quorumProcessors.Next(quorumProcessor);
-        
-        if (configQuorum->IsActiveMember(MY_NODEID))
-        {                
-            if (configQuorum->isActivatingNode || configQuorum->activatingNodeID == MY_NODEID)
-            {
-                quorumProcessor->OnActivation();
-                heartbeatManager.OnActivation();
-            }
-
-            quorumProcessor->RegisterPaxosID(configQuorum->paxosID);
-
-            if (quorumProcessor->IsPrimary())
-            {
-                // look for shard splits
-                FOREACH (itShardID, configQuorum->shards)
-                {
-                    configShard = configState.GetShard(*itShardID);
-                    if (databaseManager.GetEnvironment()->ShardExists(QUORUM_DATABASE_DATA_CONTEXT, *itShardID))
-                        continue;
-                    if (configShard->state == CONFIG_SHARD_STATE_SPLIT_CREATING)
-                    {
-                        Log_Trace("Splitting shard (parent shardID = %U, new shardID = %U)...",
-                         configShard->parentShardID, configShard->shardID);
-                        splitKey.Wrap(configShard->firstKey);
-                        quorumProcessor->TrySplitShard(configShard->parentShardID,
-                         configShard->shardID, splitKey);
-                    }
-                    else if (configShard->state == CONFIG_SHARD_STATE_TRUNC_CREATING)
-                    {
-                        quorumProcessor->TryTruncateTable(configShard->tableID, configShard->shardID);
-                    }
-                }
-            }
-            continue;
-        }
-        if (configQuorum->IsInactiveMember(MY_NODEID))
-        {
-            if (quorumProcessor->IsCatchupActive())
-                quorumProcessor->AbortCatchup();
-            quorumProcessor->RegisterPaxosID(configQuorum->paxosID);
-            continue;
-        }
-        
-DeleteQuorum:
-        // if the PaxosAcceptor inside the QuorumProcessor is doing an async commit,
-        // then we can't delete the quorumProcessor, because the OnComplete() would crash
-        if (databaseManager.GetEnvironment()->IsCommiting(quorumProcessor->GetQuorumID()))
-        {
-            next = quorumProcessors.Next(quorumProcessor);
-            continue;
-        }
-
-        if (migrationWriter.IsActive())
-        {
-            configShard = configState.GetShard(migrationWriter.GetShardID());
-            if (quorumProcessor->GetQuorumID() == configShard->quorumID)
-                migrationWriter.Abort();
-        }
-
-        databaseManager.DeleteQuorumPaxosShard(quorumProcessor->GetQuorumID());
-        databaseManager.DeleteQuorumLogShard(quorumProcessor->GetQuorumID());
-        databaseManager.DeleteDataShards(quorumProcessor->GetQuorumID());
-
-        next = quorumProcessors.Remove(quorumProcessor);
-        quorumProcessor->Shutdown();
-        delete quorumProcessor;
-    }
-
-    // check changes in active or inactive node list
-    FOREACH (configQuorum, configState.quorums)
-    {
-        if (configQuorum->IsActiveMember(MY_NODEID))
-        {
-            ConfigureQuorum(configQuorum); // also creates quorum
-            FOREACH (itShardID, configQuorum->shards)
-                myShardIDs.Add(*itShardID);
-        }
-        if (configQuorum->IsInactiveMember(MY_NODEID))
-        {
-            ConfigureQuorum(configQuorum); // also creates quorum
-            quorumProcessor = GetQuorumProcessor(configQuorum->quorumID);
-            ASSERT(quorumProcessor != NULL);
-            quorumProcessor->TryReplicationCatchup();
-            FOREACH (itShardID, configQuorum->shards)
-                myShardIDs.Add(*itShardID);
-        }
-    }
-    
-    if (configState.isMigrating)
-    {
-        myShardIDs.Add(configState.migrateSrcShardID);
-        myShardIDs.Add(configState.migrateDstShardID);
-    }
-    
-    databaseManager.RemoveDeletedDataShards(myShardIDs);
-}
-
-void ShardServer::ConfigureQuorum(ConfigQuorum* configQuorum)
-{
-    uint64_t                quorumID;
-    uint64_t*               itNodeID;
-    ConfigShardServer*      shardServer;
-    ShardQuorumProcessor*   quorumProcessor;
-    SortedList<uint64_t>    activeNodes;
-    
-    Log_Trace();
-    
-    quorumID = configQuorum->quorumID;
-    quorumProcessor = GetQuorumProcessor(quorumID);
-    if (quorumProcessor == NULL)
-    {
-        databaseManager.SetQuorumShards(quorumID);
-        
-        quorumProcessor = new ShardQuorumProcessor;
-        quorumProcessor->Init(configQuorum, this);
-
-        quorumProcessors.Append(quorumProcessor);
-        FOREACH (itNodeID, configQuorum->activeNodes)
-        {
-            shardServer = configState.GetShardServer(*itNodeID);
-            ASSERT(shardServer != NULL);
-            CONTEXT_TRANSPORT->AddConnection(*itNodeID, shardServer->endpoint);
-        }
-    }
-    else
-    {
-        configQuorum->GetVolatileActiveNodes(activeNodes);
-//        quorumProcessor->SetActiveNodes(activeNodes);
-
-        // add nodes to CONTEXT_TRANSPORT
-        FOREACH (itNodeID, configQuorum->activeNodes)
-        {
-            shardServer = configState.GetShardServer(*itNodeID);
-            ASSERT(shardServer != NULL);
-            CONTEXT_TRANSPORT->AddConnection(*itNodeID, shardServer->endpoint);
-        }
-    }
-
-    databaseManager.SetShards(configQuorum->shards);
-}
-
 unsigned ShardServer::GetHTTPPort()
 {
     return configFile.GetIntValue("http.port", 8080);
@@ -591,4 +419,154 @@ void ShardServer::GetMemoryUsageBuffer(Buffer& buffer)
 unsigned ShardServer::GetNumSDBPClients()
 {
     return shardServerApp->GetNumSDBPClients();
+}
+
+void ShardServer::OnSetConfigState(ClusterMessage& message)
+{
+    ConfigQuorum*           configQuorum;
+    ShardQuorumProcessor*   quorumProcessor;
+    
+    configState = message.configState;
+
+    ResetChangedConnections();
+
+    TryDeleteQuorumProcessors();
+
+    ConfigureQuorums();
+
+    FOREACH(quorumProcessor, quorumProcessors)
+    {
+        configQuorum = configState.GetQuorum(quorumProcessor->GetQuorumID());
+        if (!configQuorum || !configQuorum->IsMember(MY_NODEID))
+            continue; // in case it was not deleted in TryDeleteQuorumProcessors() above
+
+        quorumProcessor->OnSetConfigState();     
+    }
+
+    TryDeleteShards();
+}
+
+void ShardServer::ResetChangedConnections()
+{
+    ConfigShardServer* configShardServer;
+
+    FOREACH(configShardServer, configState.shardServers)
+    {
+        if (CONTEXT_TRANSPORT->HasConnection(configShardServer->nodeID))
+        {
+            if (CONTEXT_TRANSPORT->GetEndpoint(configShardServer->nodeID) != configShardServer->endpoint)
+            {
+                CONTEXT_TRANSPORT->DropConnection(configShardServer->nodeID);
+                CONTEXT_TRANSPORT->AddConnection(configShardServer->nodeID, configShardServer->endpoint);
+            }
+        }
+    }
+}
+
+void ShardServer::TryDeleteQuorumProcessors()
+{
+    ShardQuorumProcessor*   quorumProcessor;
+    ShardQuorumProcessor*   next;
+    ConfigQuorum*           configQuorum;
+    
+    // delete quorum processors no longer required:
+    //   - the quorum was deleted on the controllers
+    //   - this node is no longer a member of the quorum
+    for (quorumProcessor = quorumProcessors.First(); quorumProcessor != NULL; quorumProcessor = next)
+    {
+        next = quorumProcessors.Next(quorumProcessor); // it may be removed at the end of the block
+        configQuorum = configState.GetQuorum(quorumProcessor->GetQuorumID());
+        if (!configQuorum || !configQuorum->IsMember(MY_NODEID))
+            TryDeleteQuorumProcessor(quorumProcessor);
+    }
+}
+
+void ShardServer::TryDeleteQuorumProcessor(ShardQuorumProcessor* quorumProcessor)
+{
+    ConfigShard* configShard;
+
+    // if the PaxosAcceptor inside the QuorumProcessor is doing an async commit,
+    // then we can't delete the quorumProcessor, because the OnComplete() would crash
+    if (databaseManager.GetEnvironment()->IsCommiting(quorumProcessor->GetQuorumID()))
+        return;
+
+    if (migrationWriter.IsActive())
+    {
+        configShard = configState.GetShard(migrationWriter.GetShardID());
+        if (quorumProcessor->GetQuorumID() == configShard->quorumID)
+            migrationWriter.Abort();
+    }
+
+    databaseManager.DeleteQuorumPaxosShard(quorumProcessor->GetQuorumID());
+    databaseManager.DeleteQuorumLogShard(quorumProcessor->GetQuorumID());
+    databaseManager.DeleteDataShards(quorumProcessor->GetQuorumID());
+
+    quorumProcessor->Shutdown();
+    delete quorumProcessor;
+}
+
+void ShardServer::ConfigureQuorums()
+{
+    ConfigQuorum* configQuorum;
+
+    FOREACH (configQuorum, configState.quorums)
+    {
+        if (!configQuorum->IsMember(MY_NODEID))
+            continue;
+
+        ConfigureQuorum(configQuorum); // also creates quorum
+    }
+}
+
+void ShardServer::ConfigureQuorum(ConfigQuorum* configQuorum)
+{
+    uint64_t*               itNodeID;
+    ConfigShardServer*      shardServer;
+    ShardQuorumProcessor*   quorumProcessor;
+    
+    Log_Trace();
+    
+    quorumProcessor = GetQuorumProcessor(configQuorum->quorumID);
+    if (!quorumProcessor)
+    {
+        databaseManager.SetQuorumShards(configQuorum->quorumID);
+        
+        quorumProcessor = new ShardQuorumProcessor;
+        quorumProcessor->Init(configQuorum, this);
+        quorumProcessors.Append(quorumProcessor);
+    }
+
+    // add nodes to CONTEXT_TRANSPORT
+    FOREACH (itNodeID, configQuorum->activeNodes)
+    {
+        shardServer = configState.GetShardServer(*itNodeID);
+        ASSERT(shardServer != NULL);
+        CONTEXT_TRANSPORT->AddConnection(*itNodeID, shardServer->endpoint);
+    }
+
+    databaseManager.SetShards(configQuorum->shards);
+}
+
+void ShardServer::TryDeleteShards()
+{
+    uint64_t*               itShardID;
+    ConfigQuorum*           configQuorum;
+    SortedList<uint64_t>    shardIDs;
+    
+    FOREACH (configQuorum, configState.quorums)
+    {
+        if (!configQuorum->IsMember(MY_NODEID))
+            continue;
+
+        FOREACH (itShardID, configQuorum->shards)
+            shardIDs.Add(*itShardID);
+    }
+    
+    if (configState.isMigrating)
+    {
+        shardIDs.Add(configState.migrateSrcShardID);
+        shardIDs.Add(configState.migrateDstShardID);
+    }
+    
+    databaseManager.RemoveDeletedDataShards(shardIDs);
 }

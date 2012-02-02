@@ -7,6 +7,7 @@
 #define CONFIG_STATE            (shardServer->GetConfigState())
 #define SHARD_MIGRATION_WRITER  (shardServer->GetShardMigrationWriter())
 #define DATABASE_MANAGER        (shardServer->GetDatabaseManager())
+#define HEARTBEAT_MANAGER       (shardServer->GetHeartbeatManager())
 
 static bool LessThan(uint64_t a, uint64_t b)
 {
@@ -150,6 +151,69 @@ ConfigQuorum* ShardQuorumProcessor::GetConfigQuorum()
     return CONFIG_STATE->GetQuorum(GetQuorumID());
 }
 
+void ShardQuorumProcessor::OnSetConfigState()
+{
+    ConfigQuorum*   configQuorum;
+    ConfigShard*    configShard;
+    uint64_t*       itShardID;
+    ReadBuffer      splitKey;
+
+    configQuorum = CONFIG_STATE->GetQuorum(GetQuorumID());
+
+    RegisterPaxosID(configQuorum->paxosID);
+
+    if (configQuorum->IsActiveMember(MY_NODEID))
+    {                
+        if (configQuorum->isActivatingNode || configQuorum->activatingNodeID == MY_NODEID)
+        {
+            OnActivation();
+            HEARTBEAT_MANAGER->OnActivation();
+        }
+
+        if (IsPrimary())
+        {
+            // if a node has been inactivated, restart replication
+            if (configQuorum->GetNumVolatileActiveNodes() < quorumContext.GetQuorum()->GetNumNodes())
+            {
+                // save the node list in the activeNodes member
+                configQuorum->GetVolatileActiveNodes(activeNodes);
+                // QuorumContext will call back here and re-initialize its Quorum object with activeNodes
+                quorumContext.RestartReplication();
+            }
+
+            // look for shard splits
+            FOREACH (itShardID, configQuorum->shards)
+            {
+                configShard = CONFIG_STATE->GetShard(*itShardID);
+                if (DATABASE_MANAGER->GetEnvironment()->ShardExists(QUORUM_DATABASE_DATA_CONTEXT, *itShardID))
+                    continue;
+                if (configShard->state == CONFIG_SHARD_STATE_SPLIT_CREATING)
+                {
+                    Log_Trace("Splitting shard (parent shardID = %U, new shardID = %U)...",
+                        configShard->parentShardID, configShard->shardID);
+                    splitKey.Wrap(configShard->firstKey);
+                    TrySplitShard(configShard->parentShardID, configShard->shardID, splitKey);
+                }
+                else if (configShard->state == CONFIG_SHARD_STATE_TRUNC_CREATING)
+                {
+                    TryTruncateTable(configShard->tableID, configShard->shardID);
+                }
+            }
+        }
+    }
+    else if (configQuorum->IsInactiveMember(MY_NODEID))
+    {
+        if (IsCatchupActive())
+            AbortCatchup();
+
+        if (IsPrimary())
+            OnLeaseTimeout();
+        
+        TryReplicationCatchup();
+    }        
+
+}
+
 void ShardQuorumProcessor::OnReceiveLease(ClusterMessage& message)
 {
     bool                    restartReplication;
@@ -205,7 +269,6 @@ void ShardQuorumProcessor::OnReceiveLease(ClusterMessage& message)
     activeNodes.Clear();
     FOREACH (it, message.activeNodes)
         activeNodes.Add(*it);
-//    quorumContext.SetActiveNodes(activeNodes);
         
     shards = message.shards;
     
@@ -223,7 +286,6 @@ void ShardQuorumProcessor::OnReceiveLease(ClusterMessage& message)
     if (restartReplication)
         quorumContext.RestartReplication();
 }
-
 void ShardQuorumProcessor::OnStartProposing()
 {
     quorumContext.SetQuorumNodes(activeNodes);
@@ -444,17 +506,6 @@ void ShardQuorumProcessor::OnClientRequest(ClientRequest* request)
 void ShardQuorumProcessor::OnClientClose(ClientSession* /*session*/)
 {
 }
-
-//void ShardQuorumProcessor::SetActiveNodes(SortedList<uint64_t>& activeNodes_)
-//{
-//    uint64_t* it;
-//    
-//    activeNodes.Clear();
-//    FOREACH(it, activeNodes_)
-//        activeNodes.Add(*it);
-//
-//    quorumContext.SetActiveNodes(activeNodes);
-//}
 
 void ShardQuorumProcessor::RegisterPaxosID(uint64_t paxosID)
 {

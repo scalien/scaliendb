@@ -259,8 +259,8 @@ void ShardQuorumContext::OnMessage(ReadBuffer buffer)
 
 void ShardQuorumContext::OnMessageProcessed()
 {
-    ReadBuffer message;
-    Buffer* buffer;
+    ReadBuffer  buffer;
+    Buffer*     message;
 
     ASSERT(numPendingPaxos == 1);
     numPendingPaxos--;
@@ -270,9 +270,9 @@ void ShardQuorumContext::OnMessageProcessed()
     
     if (paxosMessageQueue.GetLength() > 0)
     {
-        buffer = paxosMessageQueue.Dequeue();
-        message.Wrap(*buffer);
-        OnMessage(message);
+        message = paxosMessageQueue.Dequeue();
+        buffer.Wrap(*message);
+        OnMessage(buffer);
     }
 }
 
@@ -293,6 +293,16 @@ void ShardQuorumContext::OnPaxosMessage(ReadBuffer buffer)
     PaxosMessage msg;
     
     msg.Read(buffer);
+    
+    if (msg.IsPaxosRequest() || msg.IsPaxosResponse() || msg.IsLearn())
+    {
+        if (!quorum.IsMember(msg.nodeID))
+        {
+            Log_Debug("Dropping paxos msg from %U because that node is not a quourm member", msg.nodeID);
+            return;
+        }
+    }
+
     RegisterPaxosID(msg.paxosID);
     replicatedLog.RegisterPaxosID(msg.paxosID, msg.nodeID);
     replicatedLog.OnMessage(msg);

@@ -113,3 +113,11 @@ void ConfigQuorum::GetVolatileActiveNodes(SortedList<uint64_t>& list)
     if (isActivatingNode)
         list.Add(activatingNodeID);
 }
+
+unsigned ConfigQuorum::GetNumVolatileActiveNodes()
+{
+    if (!isActivatingNode)
+        return activeNodes.GetLength();
+    else
+        return activeNodes.GetLength() + 1;
+}

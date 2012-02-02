@@ -80,10 +80,10 @@ public:
 
     bool            StartCatchup(uint64_t paxosID, uint64_t nodeID);
 
-    bool            IsRequest();
+    bool            IsPaxosRequest();
     bool            IsPrepareResponse();
     bool            IsProposeResponse();
-    bool            IsResponse();
+    bool            IsPaxosResponse();
     bool            IsLearn();
 
     // implementation of Message interface:

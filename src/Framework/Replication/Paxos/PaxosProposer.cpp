@@ -159,6 +159,7 @@ void PaxosProposer::Stop()
     state.proposedValue.Clear();
     state.preparing = false;
     state.proposing = false;
+    state.multi = false;
     EventLoop::Remove(&prepareTimeout);
     EventLoop::Remove(&proposeTimeout);
     EventLoop::Remove(&restartTimeout);

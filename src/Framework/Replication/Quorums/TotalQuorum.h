@@ -20,6 +20,7 @@ public:
     
     void                AddNode(uint64_t nodeID);
     void                ClearNodes();
+    bool                IsMember(uint64_t nodeID) const;
     unsigned            GetNumNodes() const;
     const uint64_t*     GetNodes() const;
     QuorumVote*         NewVote() const;    
@@ -42,7 +43,7 @@ private:
 class TotalQuorumVote : public QuorumVote
 {
 public:
-    TotalQuorumVote();
+    TotalQuorumVote(TotalQuorum* quorum);
     
     void                RegisterAccepted(uint64_t nodeID);
     void                RegisterRejected(uint64_t nodeID);
@@ -53,12 +54,9 @@ public:
     bool                IsComplete() const;
 
 private:
-    uint64_t            nodes[9];
-    unsigned            numNodes;
+    TotalQuorum*        quorum;
     unsigned            numAccepted;
     unsigned            numRejected;
-    
-    friend class TotalQuorum;
 };
 
 
