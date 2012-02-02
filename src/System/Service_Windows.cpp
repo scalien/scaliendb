@@ -6,27 +6,14 @@
 
 static SERVICE_STATUS_HANDLE    serviceHandle;
 static Callable                 serviceCallback;
-static Buffer                   serviceName;
-static Buffer                   serviceDescription;
-static Buffer                   displayName;
-
-extern bool IsController();
+static ServiceIdentity          serviceIdentity;
 
 static BOOL IsAdministrator(VOID)
-/*++ 
-Routine Description: This routine returns TRUE if the caller's
-process is a member of the Administrators local group. Caller is NOT
-expected to be impersonating anyone and is expected to be able to
-open its own process and process token. 
-Arguments: None. 
-Return Value: 
-   TRUE - Caller has Administrators local group. 
-   FALSE - Caller does not have Administrators local group. --
-*/ 
 {
-    BOOL ret;
-    SID_IDENTIFIER_AUTHORITY ntAuthority = SECURITY_NT_AUTHORITY;
-    PSID administratorsGroup;
+    BOOL                        ret;
+    SID_IDENTIFIER_AUTHORITY    ntAuthority = SECURITY_NT_AUTHORITY;
+    PSID                        administratorsGroup;
+    
     ret = AllocateAndInitializeSid(
      &ntAuthority,
      2,
@@ -101,7 +88,7 @@ static void WINAPI ServiceCtrlHandler(DWORD fdwControl)
 
 static void WINAPI InitService(DWORD argc, LPTSTR *argv)
 {
-    serviceHandle = RegisterServiceCtrlHandler(serviceName.GetBuffer(), ServiceCtrlHandler);
+    serviceHandle = RegisterServiceCtrlHandler(serviceIdentity.name, ServiceCtrlHandler);
     if (!serviceHandle)
     {
         Log_Errno();
@@ -136,36 +123,15 @@ static bool ServiceGetFullPathname(const char* filename, Buffer& fullPath)
     return true;
 }
 
-static void SetupNamesAndDescriptions()
-{
-    if (IsController())
-    {
-        serviceName.Write("ScalienController");
-        displayName.Write("Scalien Database Controller");
-        serviceDescription.Write("Provides and stores metadata for Scalien Database cluster");
-    }
-    else
-    {
-        serviceName.Write("ScalienShardServer");
-        displayName.Write("Scalien Database Shard Server");
-        serviceDescription.Write("Provides reliable and replicated data storage for Scalien Database cluster");
-    }
-    serviceName.NullTerminate();
-    displayName.NullTerminate();
-    serviceDescription.NullTerminate();
-}
-
 static bool UninstallService()
 {
     if (!IsAdministrator())
     {
         // message is an altered version of the one at http://msdn.microsoft.com/en-us/library/bb756922.aspx
-        fprintf(stderr, "\nAccess Denied. Administrator permissions are needed to uninstall ScalienDB. Use an administrator command prompt to complete these tasks.\n\n");
+        fprintf(stderr, "\nAccess Denied. Administrator permissions are needed to uninstall ScalienDB. "
+            "Use an administrator command prompt to complete these tasks.\n\n");
         return false;
     }
-
-    // set up names and descriptions
-    SetupNamesAndDescriptions();
 
     // connect to service control manager on the local machine
     SC_HANDLE scManager = OpenSCManager(NULL, NULL, SC_MANAGER_ALL_ACCESS);
@@ -176,11 +142,11 @@ static bool UninstallService()
     }
 
     // check if the service already exists
-    SC_HANDLE scService = OpenService(scManager, serviceName.GetBuffer(), SERVICE_ALL_ACCESS);
+    SC_HANDLE scService = OpenService(scManager, serviceIdentity.name, SERVICE_ALL_ACCESS);
     if (scService == NULL)
     {
 
-        fprintf(stderr, "\nError %u: Cannot find service: %s\n\n", GetLastError(), serviceName.GetBuffer());
+        fprintf(stderr, "\nError %u: Cannot find service: %s\n\n", GetLastError(), serviceIdentity.name);
         CloseServiceHandle(scService);
         CloseServiceHandle(scManager);
         return false;
@@ -203,11 +169,11 @@ static bool UninstallService()
     BOOL ret = DeleteService(scService);
     if (ret == 0)
     {
-        fprintf(stderr, "\nError %u: Cannot delete service: %s\n\n", GetLastError(), serviceName.GetBuffer());
+        fprintf(stderr, "\nError %u: Cannot delete service: %s\n\n", GetLastError(), serviceIdentity.name);
         return false;
     }
 
-    fprintf(stderr, "\n%s service deleted.\n\n", serviceName.GetBuffer());
+    fprintf(stderr, "\n%s service deleted.\n\n", serviceIdentity.name);
     return true;
 }
 
@@ -221,7 +187,8 @@ static bool InstallService(int argc, char* argv[])
 
     if (!IsAdministrator())
     {
-        fprintf(stderr, "\nAccess Denied. Administrator permissions are needed to install ScalienDB. Use an administrator command prompt to complete these tasks.\n\n");
+        fprintf(stderr, "\nAccess Denied. Administrator permissions are needed to install ScalienDB. "
+            "Use an administrator command prompt to complete these tasks.\n\n");
         return false;
     }
 
@@ -260,9 +227,6 @@ static bool InstallService(int argc, char* argv[])
     if (reinstall)
         UninstallService();
 
-    // set up names and descriptions
-    SetupNamesAndDescriptions();
-
     // connect to service control manager on the local machine
     SC_HANDLE scManager = OpenSCManager(NULL, NULL, SC_MANAGER_ALL_ACCESS);
     if (scManager == NULL)
@@ -272,11 +236,11 @@ static bool InstallService(int argc, char* argv[])
     }
 
     // check if the service already exists
-    SC_HANDLE scService = OpenService(scManager, serviceName.GetBuffer(), SERVICE_ALL_ACCESS);
+    SC_HANDLE scService = OpenService(scManager, serviceIdentity.name, SERVICE_ALL_ACCESS);
     if (scService != NULL && !reinstall)
     {
 
-        fprintf(stderr, "\nError: Service already exists: %s\n\n", serviceName.GetBuffer());
+        fprintf(stderr, "\nError: Service already exists: %s\n\n", serviceIdentity.name);
         CloseServiceHandle(scService);
         CloseServiceHandle(scManager);
         return false;
@@ -285,25 +249,25 @@ static bool InstallService(int argc, char* argv[])
     if (!reinstall)
     {
         // create new service
-        scService = CreateService(scManager, serviceName.GetBuffer(), displayName.GetBuffer(),
+        scService = CreateService(scManager, serviceIdentity.name, serviceIdentity.displayName,
                       SERVICE_ALL_ACCESS, SERVICE_WIN32_OWN_PROCESS,
                       SERVICE_AUTO_START, SERVICE_ERROR_NORMAL,
                       cmd.GetBuffer(), NULL, NULL, "\0\0", NULL, NULL);
 
         if (scService == NULL)
         {
-            fprintf(stderr, "\nError %u: Cannot create service: %s\n\n", GetLastError(), serviceName.GetBuffer());
+            fprintf(stderr, "\nError %u: Cannot create service: %s\n\n", GetLastError(), serviceIdentity.name);
             CloseServiceHandle(scManager);
             return false;
         }
     }
 
-    fprintf(stderr, "\n%s service created.\n", serviceName.GetBuffer());
-    fprintf(stderr, "Service can be started from the command line via 'net start %s'\n\n", serviceName.GetBuffer());
+    fprintf(stderr, "\n%s service created.\n", serviceIdentity.name);
+    fprintf(stderr, "Service can be started from the command line via 'net start %s'\n\n", serviceIdentity.name);
 
     // set the service description
     SERVICE_DESCRIPTION description;
-    description.lpDescription = (LPTSTR)serviceDescription.GetBuffer();
+    description.lpDescription = (LPTSTR)serviceIdentity.description;
     if (!ChangeServiceConfig2(scService, SERVICE_CONFIG_DESCRIPTION, &description))
     {
         fprintf(stderr, "\nError %u: Could not set service description\n", GetLastError());
@@ -336,7 +300,7 @@ static bool InstallService(int argc, char* argv[])
 static bool RunService()
 {
     SERVICE_TABLE_ENTRY serviceTable[] = {
-        { (LPTSTR)serviceName.GetBuffer(), InitService },
+        { (LPTSTR)serviceIdentity.name, InitService },
         { NULL, NULL }
     };
 
@@ -349,11 +313,12 @@ static bool RunService()
     return true;
 }
 
-bool Service::Main(int argc, char **argv, void (*serviceFunc)())
+bool Service::Main(int argc, char **argv, void (*serviceFunc)(), ServiceIdentity& identity)
 {
     Buffer  lastArg;
 
     serviceCallback = CFunc(serviceFunc);
+    serviceIdentity = identity;
 
     lastArg.Write(argv[argc - 1]);
     if (lastArg.Cmp("--install") == 0 || lastArg.Cmp("--reinstall") == 0)
