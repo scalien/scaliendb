@@ -10,6 +10,7 @@ const char* CrashReporter::GetReport()
 void CrashReporter::SetCallback(Callable callback)
 {
     // TODO:
+    UNUSED(callback);
 }
 
 #endif

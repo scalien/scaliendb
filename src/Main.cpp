@@ -14,15 +14,15 @@
 const char PRODUCT_STRING[] = "ScalienDB v" VERSION_STRING " " PLATFORM_STRING;
 const char BUILD_DATE[]     = "Build date: " __DATE__ " " __TIME__;
 
-void InitLog();
-void ParseArgs(int argc, char** argv);
-void RunMain(int argc, char** argv);
-void RunApplication();
-void ConfigureSystemSettings();
+static void InitLog();
+static void ParseArgs(int argc, char** argv);
+static void RunMain(int argc, char** argv);
+static void RunApplication();
+static void ConfigureSystemSettings();
 bool IsController();
-void InitContextTransport();
-void LogPrintVersion(bool isController);
-void CrashReporterCallback();
+static void InitContextTransport();
+static void LogPrintVersion(bool isController);
+static void CrashReporterCallback();
 
 int main(int argc, char** argv)
 {
