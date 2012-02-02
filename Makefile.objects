@@ -129,7 +129,6 @@ ALL_OBJECTS = \
 	$(BUILD_DIR)/System/IO/Socket_Posix.o \
 	$(BUILD_DIR)/System/IO/Socket_Windows.o \
 	$(BUILD_DIR)/System/Log.o \
-	$(BUILD_DIR)/System/SafeFormatting.o \
 	$(BUILD_DIR)/System/Service_Posix.o \
 	$(BUILD_DIR)/System/Service_Windows.o \
 	$(BUILD_DIR)/System/Stopwatch.o \
