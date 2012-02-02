@@ -189,6 +189,8 @@
     <ClCompile Include="..\src\Framework\Storage\StorageLogManager.cpp" />
     <ClCompile Include="..\src\System\Common.cpp" />
     <ClCompile Include="..\src\System\Config.cpp" />
+    <ClCompile Include="..\src\System\CrashReporter_Posix.cpp" />
+    <ClCompile Include="..\src\System\CrashReporter_Windows.cpp" />
     <ClCompile Include="..\src\System\FileSystem.cpp" />
     <ClCompile Include="..\src\System\Formatting.cpp" />
     <ClCompile Include="..\src\System\Log.cpp" />
@@ -499,6 +501,9 @@
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="ScalienDB.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\src\System\CrashReporter.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

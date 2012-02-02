@@ -567,6 +567,18 @@
     <ClCompile Include="..\src\Application\Client\SDBPPooledShardConnection.cpp">
       <Filter>Application\Client</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\Framework\Storage\StorageLogManager.cpp">
+      <Filter>Framework\Storage</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Test\CrashReporterTest.cpp">
+      <Filter>Test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\System\CrashReporter_Posix.cpp">
+      <Filter>System</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\System\CrashReporter_Windows.cpp">
+      <Filter>System</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\Application\Client\SDBPClient.h">
@@ -1106,6 +1118,12 @@
     </ClInclude>
     <ClInclude Include="..\src\Application\Client\SDBPPooledShardConnection.h">
       <Filter>Application\Client</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Framework\Storage\StorageLogManager.h">
+      <Filter>Framework\Storage</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\System\CrashReporter.h">
+      <Filter>System</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
