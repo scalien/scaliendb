@@ -147,7 +147,6 @@ private:
                              ShardMessage* message, bool ownCommand);
     void                    TryAppend();
     void                    OnResumeAppend();
-    void                    LocalExecute();
     void                    BlockShard();
     void                    OnUnblockShardTimeout();
 
@@ -179,7 +178,6 @@ private:
     Timer                   leaseTimeout;
     YieldTimer              tryAppend;
     YieldTimer              resumeAppend;
-    YieldTimer              localExecute;
 };
 
 #endif
