@@ -13,6 +13,29 @@ static EXCEPTION_POINTERS*      exceptionPointers;
 #define STATUS_HEAP_CORRUPTION  0xC0000374
 #endif
 
+static LONG CALLBACK VectoredExceptionHandler(EXCEPTION_POINTERS* pointers)
+{
+    // Setup the pointers
+    exceptionPointers = pointers;
+    
+    // Call user-provided callback
+    Call(exceptionCallback);
+
+    // Usually exceptionCallback never returns. If it is, continue on other vectored handlers.
+    return EXCEPTION_CONTINUE_EXECUTION;
+}
+
+void CrashReporter::SetCallback(Callable callback)
+{
+    ULONG   firstHandler;
+
+    exceptionCallback = callback;
+    exceptionMessage[0] = 0;
+
+    firstHandler = TRUE;
+    AddVectoredExceptionHandler(firstHandler, VectoredExceptionHandler);
+}
+
 static const char* GetPossibleReason()
 {
     const char* reason;
@@ -112,29 +135,6 @@ const char* CrashReporter::GetReport()
         reason);
 
     return exceptionMessage;
-}
-
-static LONG CALLBACK VectoredExceptionHandler(EXCEPTION_POINTERS* pointers)
-{
-    // Setup the pointers
-    exceptionPointers = pointers;
-    
-    // Call user-provided callback
-    Call(exceptionCallback);
-
-    // Usually exceptionCallback never returns. If it is, continue on other vectored handlers.
-    return EXCEPTION_CONTINUE_EXECUTION;
-}
-
-void CrashReporter::SetCallback(Callable callback)
-{
-    ULONG   firstHandler;
-
-    exceptionCallback = callback;
-    exceptionMessage[0] = 0;
-
-    firstHandler = TRUE;
-    AddVectoredExceptionHandler(firstHandler, VectoredExceptionHandler);
 }
 
 #endif // PLATFORM_WINDOWS
