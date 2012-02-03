@@ -3,8 +3,6 @@
 
 #include "Application/Common/ClientRequest.h"
 
-class SDBPConnection; // forward
-
 /*
 ===============================================================================================
 
@@ -24,7 +22,6 @@ public:
     virtual bool    IsValidClientRequest(ClientRequest* request)                            = 0;
     virtual void    OnClientRequest(ClientRequest* request)                                 = 0;
     virtual void    OnClientClose(ClientSession* session)                                   = 0;
-    // ========================================================================================
 };
 
 #endif
