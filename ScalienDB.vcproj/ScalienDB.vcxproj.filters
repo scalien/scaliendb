@@ -487,6 +487,12 @@
     <ClCompile Include="..\src\Framework\Storage\StorageLogManager.cpp">
       <Filter>Framework\Storage</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\System\CrashReporter_Windows.cpp">
+      <Filter>System</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\System\CrashReporter_Posix.cpp">
+      <Filter>System</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\System\Common.h">
@@ -999,5 +1005,10 @@
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="ScalienDB.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\src\System\CrashReporter.h">
+      <Filter>System</Filter>
+    </None>
   </ItemGroup>
 </Project>

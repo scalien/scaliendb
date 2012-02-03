@@ -76,13 +76,13 @@
 ===============================================================================================
  */
 
-#define STOP_FAIL(code, ...)                                                    \
-do {                                                                            \
-    Log_SetTarget(LOG_TARGET_STDERR|LOG_TARGET_FILE);                           \
-    const char* msg = StaticPrint("" __VA_ARGS__);                              \
-    Log_Message("Exiting (%d)%s%s", code, msg ? ": " : "...", msg ? msg : "");  \
-    IFDEBUG(ASSERT_FAIL());                                                     \
-    _exit(code);                                                                \
+#define STOP_FAIL(code, ...)                                                                \
+do {                                                                                        \
+    Log_SetTarget(Log_GetTarget() | LOG_TARGET_STDERR | LOG_TARGET_FILE);                   \
+    const char* failMsg = StaticPrint("" __VA_ARGS__);                                      \
+    Log_Message("Exiting (%d)%s%s", code, failMsg ? ": " : "...", failMsg ? failMsg : "");  \
+    IFDEBUG(ASSERT_FAIL());                                                                 \
+    _exit(code);                                                                            \
 } while (0)
 
 /*

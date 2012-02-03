@@ -351,10 +351,7 @@ void ShardDatabaseManager::Init(ShardServer* shardServer_)
     asyncGet.active = false;
     asyncGet.manager = this;
 
-    // Initialize async LIST
-    //asyncList.manager = this;
-    //asyncList.request = NULL;
-    //asyncList.total = 0;
+    // Initialize async LIST operations
     for (int i = 0; i < configFile.GetIntValue("database.numAsyncThreads", 10); i++)
     {
         ShardDatabaseAsyncList* asyncList = new ShardDatabaseAsyncList(this);

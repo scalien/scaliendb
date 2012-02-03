@@ -5,6 +5,7 @@
 #include "System/IO/IOProcessor.h"
 #include "System/Service.h"
 #include "System/FileSystem.h"
+#include "System/CrashReporter.h"
 #include "Framework/Storage/BloomFilter.h"
 #include "Application/Common/ContextTransport.h"
 #include "Application/ConfigServer/ConfigServerApp.h"
@@ -13,19 +14,22 @@
 const char PRODUCT_STRING[] = "ScalienDB v" VERSION_STRING " " PLATFORM_STRING;
 const char BUILD_DATE[]     = "Build date: " __DATE__ " " __TIME__;
 
-void InitLog();
-void ParseArgs(int argc, char** argv);
-void RunMain(int argc, char** argv);
-void RunApplication();
-void ConfigureSystemSettings();
-bool IsController();
-void InitContextTransport();
-void LogPrintVersion(bool isController);
+static void InitLog();
+static void ParseArgs(int argc, char** argv);
+static void SetupServiceIdentity(ServiceIdentity& ident);
+static void RunMain(int argc, char** argv);
+static void RunApplication();
+static void ConfigureSystemSettings();
+static bool IsController();
+static void InitContextTransport();
+static void LogPrintVersion(bool isController);
+static void CrashReporterCallback();
 
 int main(int argc, char** argv)
 {
     try
     {
+        CrashReporter::SetCallback(CFunc(CrashReporterCallback));
         RunMain(argc, argv);
     }
     catch (std::bad_alloc&)
@@ -44,8 +48,10 @@ int main(int argc, char** argv)
     return 0;
 }
 
-void RunMain(int argc, char** argv)
+static void RunMain(int argc, char** argv)
 {
+    ServiceIdentity     identity;
+
     if (argc < 2)
         STOP_FAIL(1, "Config file argument not given");
         
@@ -54,13 +60,14 @@ void RunMain(int argc, char** argv)
 
     InitLog();
     ParseArgs(argc, argv);
-    Service::Main(argc, argv, RunApplication);
+    SetupServiceIdentity(identity);
+    Service::Main(argc, argv, RunApplication, identity);
 }
 
-void RunApplication()
+static void RunApplication()
 {
-    Application* app;
-    bool isController;
+    Application*    app;
+    bool            isController;
 
     StartClock();
     ConfigureSystemSettings();
@@ -97,7 +104,24 @@ void RunApplication()
     Log_Shutdown();
 }
 
-void InitLog()
+static void SetupServiceIdentity(ServiceIdentity& identity)
+{
+    // set up service identity based on role
+    if (IsController())
+    {
+        identity.name = "ScalienController";
+        identity.displayName = "Scalien Database Controller";
+        identity.description = "Provides and stores metadata for Scalien Database cluster";
+    }
+    else
+    {
+        identity.name = "ScalienShardServer";
+        identity.displayName = "Scalien Database Shard Server";
+        identity.description = "Provides reliable and replicated data storage for Scalien Database cluster";
+    }
+}
+
+static void InitLog()
 {
     int logTargets;
     bool debug;
@@ -135,7 +159,7 @@ void InitLog()
     Log_SetTraceBufferSize(configFile.GetIntValue("log.traceBufferSize", 0));
 }
 
-void ParseArgs(int argc, char** argv)
+static void ParseArgs(int argc, char** argv)
 {
     for (int i = 1; i < argc; i++)
     {
@@ -158,7 +182,7 @@ void ParseArgs(int argc, char** argv)
     }
 }
 
-void ConfigureSystemSettings()
+static void ConfigureSystemSettings()
 {
     int         memLimitPerc;
     uint64_t    memLimit;
@@ -192,7 +216,7 @@ void ConfigureSystemSettings()
     SetExitOnError(true);
 }
 
-bool IsController()
+static bool IsController()
 {
     const char* role;
     
@@ -206,7 +230,7 @@ bool IsController()
         return false;
 }
 
-void InitContextTransport()
+static void InitContextTransport()
 {
     const char* str;
     Endpoint    endpoint;
@@ -222,7 +246,7 @@ void InitContextTransport()
     CONTEXT_TRANSPORT->Init(endpoint);
 }
 
-void LogPrintVersion(bool isController)
+static void LogPrintVersion(bool isController)
 {
     Log_Message("%s started as %s", PRODUCT_STRING,
      isController ? "CONTROLLER" : "SHARD SERVER");
@@ -232,4 +256,20 @@ void LogPrintVersion(bool isController)
     Log_Debug("Branch: %s", SOURCE_CONTROL_BRANCH);
     Log_Debug("Source control version: %s", SOURCE_CONTROL_VERSION);
     Log_Debug("================================================================");
+}
+
+static void CrashReporterCallback()
+{
+    const char*     msg;
+    
+    // We need to be careful here, because by the time the control gets here the stack and the heap
+    // may already be corrupted. Therefore there must not be any heap allocations here, but unfortunately
+    // stack allocations cannot be avoided.
+
+    // When rotating the log there is heap allocation. To prevent it, we turn off log rotation ASAP.
+    Log_SetMaxSize(0);
+
+    // Generate report and send it to log and standard error
+    msg = CrashReporter::GetReport();
+    STOP_FAIL(1, "%s", msg);
 }

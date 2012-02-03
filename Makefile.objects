@@ -94,8 +94,8 @@ ALL_OBJECTS = \
 	$(BUILD_DIR)/Framework/Storage/StorageFileKeyValue.o \
 	$(BUILD_DIR)/Framework/Storage/StorageHeaderPage.o \
 	$(BUILD_DIR)/Framework/Storage/StorageIndexPage.o \
-	$(BUILD_DIR)/Framework/Storage/StorageLogSegment.o \
 	$(BUILD_DIR)/Framework/Storage/StorageLogManager.o \
+	$(BUILD_DIR)/Framework/Storage/StorageLogSegment.o \
 	$(BUILD_DIR)/Framework/Storage/StorageMemoChunk.o \
 	$(BUILD_DIR)/Framework/Storage/StorageMemoChunkLister.o \
 	$(BUILD_DIR)/Framework/Storage/StorageMemoKeyValue.o \
@@ -113,6 +113,8 @@ ALL_OBJECTS = \
 	$(BUILD_DIR)/System/Buffers/ReadBuffer.o \
 	$(BUILD_DIR)/System/Common.o \
 	$(BUILD_DIR)/System/Config.o \
+	$(BUILD_DIR)/System/CrashReporter_Posix.o \
+	$(BUILD_DIR)/System/CrashReporter_Windows.o \
 	$(BUILD_DIR)/System/DLL.o \
 	$(BUILD_DIR)/System/Events/Countdown.o \
 	$(BUILD_DIR)/System/Events/EventLoop.o \

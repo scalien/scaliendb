@@ -2,10 +2,11 @@
 #include "Service.h"
 #include "Macros.h"
 
-bool Service::Main(int argc, char **argv, void (*serviceFunc)())
+bool Service::Main(int argc, char **argv, void (*serviceFunc)(), ServiceIdentity& ident)
 {
     UNUSED(argc);
     UNUSED(argv);
+    UNUSED(ident);
 
     serviceFunc();
     return true;

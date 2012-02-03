@@ -107,7 +107,7 @@
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>ws2_32.lib;mswsock.lib;winmm.lib;psapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>ws2_32.lib;mswsock.lib;winmm.lib;psapi.lib;dbghelp.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
   </ItemDefinitionGroup>
@@ -142,7 +142,7 @@
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>ws2_32.lib;mswsock.lib;winmm.lib;psapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>ws2_32.lib;mswsock.lib;winmm.lib;psapi.lib;dbghelp.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <OptimizeReferences>true</OptimizeReferences>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -228,6 +228,7 @@
     <ClCompile Include="..\src\Framework\Replication\Quorums\QuorumTransport.cpp" />
     <ClCompile Include="..\src\Framework\Replication\Quorums\TotalQuorum.cpp" />
     <ClCompile Include="..\src\Framework\Replication\ReplicatedLog\ReplicatedLog.cpp" />
+    <ClCompile Include="..\src\Framework\Storage\StorageLogManager.cpp" />
     <ClCompile Include="..\src\Framework\TCP\TCPConnection.cpp" />
     <ClCompile Include="..\src\Framework\Storage\BloomFilter.cpp" />
     <ClCompile Include="..\src\Framework\Storage\FDGuard.cpp" />
@@ -268,6 +269,8 @@
     <ClCompile Include="..\src\Framework\Storage\StorageWriteChunkJob.cpp" />
     <ClCompile Include="..\src\System\Common.cpp" />
     <ClCompile Include="..\src\System\Config.cpp" />
+    <ClCompile Include="..\src\System\CrashReporter_Posix.cpp" />
+    <ClCompile Include="..\src\System\CrashReporter_Windows.cpp" />
     <ClCompile Include="..\src\System\FileSystem.cpp" />
     <ClCompile Include="..\src\System\Formatting.cpp" />
     <ClCompile Include="..\src\System\Log.cpp" />
@@ -296,6 +299,7 @@
     <ClCompile Include="..\src\Test\ClientTest.cpp" />
     <ClCompile Include="..\src\Test\CommonTest.cpp" />
     <ClCompile Include="..\src\Test\ConfigStateTest.cpp" />
+    <ClCompile Include="..\src\Test\CrashReporterTest.cpp" />
     <ClCompile Include="..\src\Test\EndpointTest.cpp" />
     <ClCompile Include="..\src\Test\FileSystemTest.cpp" />
     <ClCompile Include="..\src\Test\FormattingTest.cpp" />
@@ -408,6 +412,7 @@
     <ClInclude Include="..\src\Framework\Replication\Quorums\QuorumTransport.h" />
     <ClInclude Include="..\src\Framework\Replication\Quorums\TotalQuorum.h" />
     <ClInclude Include="..\src\Framework\Replication\ReplicatedLog\ReplicatedLog.h" />
+    <ClInclude Include="..\src\Framework\Storage\StorageLogManager.h" />
     <ClInclude Include="..\src\Framework\TCP\TCPConnection.h" />
     <ClInclude Include="..\src\Framework\TCP\TCPServer.h" />
     <ClInclude Include="..\src\Framework\Storage\BloomFilter.h" />
@@ -452,6 +457,7 @@
     <ClInclude Include="..\src\Framework\Storage\StorageWriteChunkJob.h" />
     <ClInclude Include="..\src\System\Common.h" />
     <ClInclude Include="..\src\System\Config.h" />
+    <ClInclude Include="..\src\System\CrashReporter.h" />
     <ClInclude Include="..\src\System\FileSystem.h" />
     <ClInclude Include="..\src\System\Formatting.h" />
     <ClInclude Include="..\src\System\Log.h" />

@@ -10,6 +10,12 @@ BUILD_DIRS = \
 		$(BUILD_DIR)/Application/Client/CSharp/ScalienClientUnitTesting/TestingFramework \
 		$(BUILD_DIR)/Application/Client/CSharp/ScalienClientUnitTestsVS \
 		$(BUILD_DIR)/Application/Client/CSharp/ScalienClientUnitTestsVS/Properties \
+		$(BUILD_DIR)/Application/Client/CSharp/ScalienClientUtils \
+		$(BUILD_DIR)/Application/Client/CSharp/ScalienClientUtils/Properties \
+		$(BUILD_DIR)/Application/Client/CSharp/ScalienClientWithNativeDLL \
+		$(BUILD_DIR)/Application/Client/CSharp/ScalienClientWithNativeDLL/Properties \
+		$(BUILD_DIR)/Application/Client/CSharp/ScalienClientWithNativeDLLTest \
+		$(BUILD_DIR)/Application/Client/CSharp/ScalienClientWithNativeDLLTest/Properties \
 		$(BUILD_DIR)/Application/Client/Java \
 		$(BUILD_DIR)/Application/Client/PHP \
 		$(BUILD_DIR)/Application/Client/Python \
