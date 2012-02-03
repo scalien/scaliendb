@@ -16,10 +16,11 @@ const char BUILD_DATE[]     = "Build date: " __DATE__ " " __TIME__;
 
 static void InitLog();
 static void ParseArgs(int argc, char** argv);
+static void SetupServiceIdentity(ServiceIdentity& ident);
 static void RunMain(int argc, char** argv);
 static void RunApplication();
 static void ConfigureSystemSettings();
-bool IsController();
+static bool IsController();
 static void InitContextTransport();
 static void LogPrintVersion(bool isController);
 static void CrashReporterCallback();
@@ -49,6 +50,8 @@ int main(int argc, char** argv)
 
 static void RunMain(int argc, char** argv)
 {
+    ServiceIdentity     identity;
+
     if (argc < 2)
         STOP_FAIL(1, "Config file argument not given");
         
@@ -57,13 +60,14 @@ static void RunMain(int argc, char** argv)
 
     InitLog();
     ParseArgs(argc, argv);
-    Service::Main(argc, argv, RunApplication);
+    SetupServiceIdentity(identity);
+    Service::Main(argc, argv, RunApplication, identity);
 }
 
 static void RunApplication()
 {
-    Application* app;
-    bool isController;
+    Application*    app;
+    bool            isController;
 
     StartClock();
     ConfigureSystemSettings();
@@ -98,6 +102,23 @@ static void RunApplication()
     StopClock();
     configFile.Shutdown();
     Log_Shutdown();
+}
+
+static void SetupServiceIdentity(ServiceIdentity& identity)
+{
+    // set up service identity based on role
+    if (IsController())
+    {
+        identity.name = "ScalienController";
+        identity.displayName = "Scalien Database Controller";
+        identity.description = "Provides and stores metadata for Scalien Database cluster";
+    }
+    else
+    {
+        identity.name = "ScalienShardServer";
+        identity.displayName = "Scalien Database Shard Server";
+        identity.description = "Provides reliable and replicated data storage for Scalien Database cluster";
+    }
 }
 
 static void InitLog()
@@ -195,8 +216,7 @@ static void ConfigureSystemSettings()
     SetExitOnError(true);
 }
 
-// this is not static, because it is used somewhere in the server code for printing it out
-bool IsController()
+static bool IsController()
 {
     const char* role;
     
