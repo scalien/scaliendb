@@ -200,6 +200,7 @@ JAVA_INCLUDE = \
 	-I/usr/lib/jvm/java-6-sun/include/linux \
 	-I/usr/lib/jvm/java-6-openjdk/include \
 	-I$(JAVA_HOME)/include \
+	-I$(JAVA_HOME)/include/linux \
 	
 
 JAVA_SOURCE_FILES = \
