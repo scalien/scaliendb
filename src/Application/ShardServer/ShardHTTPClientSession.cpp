@@ -3,6 +3,7 @@
 #include "System/Config.h"
 #include "System/Common.h"
 #include "System/FileSystem.h"
+#include "System/CrashReporter.h"
 #include "System/IO/IOProcessor.h"
 #include "Application/HTTP/HTTPConnection.h"
 #include "Application/Common/ClientRequestCache.h"
@@ -392,6 +393,22 @@ void ShardHTTPClientSession::ProcessDebugCommand()
         char* null = NULL;
         *null = 0;
         // Access violation
+    }
+
+    if (HTTP_GET_OPT_PARAM(params, "timedcrash", param))
+    {
+        uint64_t crashInterval = 0;
+        HTTP_GET_OPT_U64_PARAM(params, "interval", crashInterval);
+        CrashReporter::TimedCrash((unsigned int) crashInterval);
+        session.Print(INLINE_PRINTF("Crash in %u msec", 100, (unsigned int) crashInterval));
+    }
+
+    if (HTTP_GET_OPT_PARAM(params, "randomcrash", param))
+    {
+        uint64_t crashInterval = 0;
+        HTTP_GET_OPT_U64_PARAM(params, "interval", crashInterval);
+        CrashReporter::RandomCrash((unsigned int) crashInterval);
+        session.Print(INLINE_PRINTF("Crash in %u msec", 100, (unsigned int) crashInterval));
     }
 
     if (HTTP_GET_OPT_PARAM(params, "sleep", param))

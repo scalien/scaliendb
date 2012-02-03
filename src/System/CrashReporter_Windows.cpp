@@ -137,4 +137,38 @@ const char* CrashReporter::GetReport()
     return exceptionMessage;
 }
 
+#ifdef DEBUG
+// Crash testing functionality support. Should NOT be included in release versions!
+#include "Threading/ThreadPool.h"
+#include "Time.h"
+
+static unsigned long    crashSleepTime; 
+static ThreadPool*      crashThread;
+
+void CrashThreadFunc()
+{
+    MSleep(crashSleepTime);
+    *((char*) 0) = 0;
+}
+
+// crashes the program by starting a thread that writes deliberately to an invalid address
+// in the specified interval
+void CrashReporter::TimedCrash(unsigned intervalMsec)
+{
+    if (crashThread != NULL)
+        return;     // already running
+
+    crashSleepTime = intervalMsec;
+    crashThread = ThreadPool::Create(1);
+    crashThread->Start();
+    crashThread->Execute(CFunc(CrashThreadFunc));
+}
+
+void CrashReporter::RandomCrash(unsigned intervalMsec)
+{
+    TimedCrash(RandomInt(0, (int) intervalMsec));
+}
+
+#endif // DEBUG
+
 #endif // PLATFORM_WINDOWS

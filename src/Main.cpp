@@ -214,6 +214,8 @@ static void ConfigureSystemSettings()
 
     // set exit on error: this is how ASSERTs are handled in release build
     SetExitOnError(true);
+
+    SeedRandom();
 }
 
 static bool IsController()
@@ -271,5 +273,9 @@ static void CrashReporterCallback()
 
     // Generate report and send it to log and standard error
     msg = CrashReporter::GetReport();
-    STOP_FAIL(1, "%s", msg);
+
+    //STOP_FAIL(1, "%s", msg);
+    Log_SetTarget(Log_GetTarget() | LOG_TARGET_STDERR | LOG_TARGET_FILE);
+    Log_Message("%s", msg);
+    _exit(1);
 }
