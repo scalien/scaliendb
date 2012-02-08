@@ -67,12 +67,12 @@ void PaxosLeaseLearner::OnLeaseTimeout()
 
 void PaxosLeaseLearner::OnLearnChosen(PaxosLeaseMessage& imsg)
 {
-    Log_Trace();
-    
-    if (state.learned && state.expireTime < Now())
-        OnLeaseTimeout();
-
     uint64_t expireTime;
+
+    Log_Trace();
+
+    CheckLease();
+    
     if (imsg.leaseOwner == MY_NODEID)
         expireTime = imsg.localExpireTime; // I'm the master
     else
