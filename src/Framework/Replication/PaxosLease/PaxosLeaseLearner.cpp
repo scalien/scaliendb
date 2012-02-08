@@ -58,7 +58,7 @@ void PaxosLeaseLearner::OnLeaseTimeout()
 {
     Log_Trace();
 
-    EventLoop::Remove(&leaseTimeout);
+    EventLoop::Remove(&leaseTimeout); // because OnLeaseTimeout() is also called explicitly
 
     state.OnLeaseTimeout();
     
@@ -73,6 +73,14 @@ void PaxosLeaseLearner::OnLearnChosen(PaxosLeaseMessage& imsg)
 
     CheckLease();
     
+    if (state.learned && state.leaseOwner != imsg.leaseOwner)
+    {
+        // should not happen
+        // majority of nodes' clocks are ahead of the old lease owner
+        // most likely the old lease owner had his clock reset backwards
+        OnLeaseTimeout();
+    }
+
     if (imsg.leaseOwner == MY_NODEID)
         expireTime = imsg.localExpireTime; // I'm the master
     else
