@@ -23,45 +23,41 @@ class ReplicatedLog; // forward
 
 class PaxosProposer
 {
+    typedef PaxosProposerState State;
+
 public:
     ~PaxosProposer();
     
-    void                        Init(QuorumContext* context);
-    void                        Shutdown();
-    
-    void                        SetUseTimeouts(bool useTimeouts);
-    
-    void                        OnMessage(PaxosMessage& msg);
-    void                        OnPrepareTimeout();
-    void                        OnProposeTimeout();
-    void                        OnRestartTimeout();
-    
-    void                        Propose(Buffer& value);
-    void                        Restart();
-
-    void                        Stop();
-    bool                        IsActive(); 
-
-    uint64_t                    GetMemoryUsage();
+    void            Init(QuorumContext* context);
+    void            Shutdown();
+    void            SetUseTimeouts(bool useTimeouts);
+    void            OnMessage(PaxosMessage& msg);
+    void            OnPrepareTimeout();
+    void            OnProposeTimeout();
+    void            OnRestartTimeout();
+    void            Propose(Buffer& value);
+    void            Restart();
+    void            Stop();
+    bool            IsActive(); 
+    uint64_t        GetMemoryUsage();
 
 private:
-    void                        OnPrepareResponse(PaxosMessage& msg);
-    void                        OnProposeResponse(PaxosMessage& msg);
+    void            OnPrepareResponse(PaxosMessage& msg);
+    void            OnProposeResponse(PaxosMessage& msg);
+    void            BroadcastMessage(PaxosMessage& msg);
+    void            StopPreparing();
+    void            StopProposing();
+    void            StartPreparing();
+    void            StartProposing();
+    void            NewVote();
 
-    void                        BroadcastMessage(PaxosMessage& msg);
-    void                        StopPreparing();
-    void                        StopProposing();
-    void                        StartPreparing();
-    void                        StartProposing();
-    void                        NewVote();
-
-    bool                        useTimeouts;
-    QuorumContext*              context;
-    QuorumVote*                 vote;
-    PaxosProposerState          state;
-    Countdown                   prepareTimeout;
-    Countdown                   proposeTimeout;
-    Countdown                   restartTimeout;
+    bool            useTimeouts;
+    QuorumContext*  context;
+    QuorumVote*     vote;
+    State           state;
+    Countdown       prepareTimeout;
+    Countdown       proposeTimeout;
+    Countdown       restartTimeout;
     
     friend class ReplicatedLog;
 };

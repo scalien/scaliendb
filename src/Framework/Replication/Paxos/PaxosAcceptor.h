@@ -19,37 +19,34 @@ class ReplicatedLog; // forward
 
 class PaxosAcceptor
 {
+    typedef PaxosAcceptorState State;
 public:
     PaxosAcceptor();
         
-    void                        Init(QuorumContext* context);
-    void                        SetAsyncCommit(bool asyncCommit);
-    bool                        GetAsyncCommit();
-    
-    void                        OnMessage(PaxosMessage& msg);
-    void                        OnCatchupComplete();
-    void                        WriteState();
-    void                        Commit(bool sendReply = false);
-    
-    void                        ResetState();
-
-    uint64_t                    GetMemoryUsage();
+    void            Init(QuorumContext* context);
+    void            SetAsyncCommit(bool asyncCommit);
+    bool            GetAsyncCommit();
+    void            OnMessage(PaxosMessage& msg);
+    void            OnCatchupComplete();
+    void            WriteState();
+    void            Commit(bool sendReply = false);
+    void            ResetState();
+    uint64_t        GetMemoryUsage();
 
 private:
-    bool                        OnPrepareRequest(PaxosMessage& msg);
-    bool                        OnProposeRequest(PaxosMessage& msg);
-    void                        OnStateWritten();
+    bool            OnPrepareRequest(PaxosMessage& msg);
+    bool            OnProposeRequest(PaxosMessage& msg);
+    void            OnStateWritten();
+    void            ReadState();
 
-    void                        ReadState();
-
-    bool                        sendReply;
-    bool                        asyncCommit;
-    QuorumContext*              context;
-    PaxosAcceptorState          state;
-    PaxosMessage                omsg;
-    uint64_t                    senderID;
-    uint64_t                    writtenPaxosID;
-    Callable                    onStateWritten;
+    bool            sendReply;
+    bool            asyncCommit;
+    QuorumContext*  context;
+    State           state;
+    PaxosMessage    omsg;
+    uint64_t        senderID;
+    uint64_t        writtenPaxosID;
+    Callable        onStateWritten;
     
     friend class ReplicatedLog;
 };

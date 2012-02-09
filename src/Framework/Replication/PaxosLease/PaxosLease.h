@@ -21,32 +21,32 @@
 
 class PaxosLease
 {
-public:
-    void                    Init(QuorumContext* context);
-    
-    void                    Stop();
-    void                    Continue();
-    
-    void                    OnMessage(PaxosLeaseMessage& msg);
-    
-    void                    AcquireLease();
+    typedef PaxosLeaseProposer Proposer;
+    typedef PaxosLeaseAcceptor Acceptor;
+    typedef PaxosLeaseLearner  Learner;
 
-    bool                    IsLeaseOwner();
-    bool                    IsLeaseKnown();
-    uint64_t                GetLeaseOwner();
+public:
+    void            Init(QuorumContext* context);
+    void            Stop();
+    void            Continue();
+    void            OnMessage(PaxosLeaseMessage& msg);
+    void            AcquireLease();
+    bool            IsLeaseOwner();
+    bool            IsLeaseKnown();
+    uint64_t        GetLeaseOwner();
     
 private:
-    void                    OnStartupTimeout();
-    void                    OnLearnLease();
-    void                    OnLeaseTimeout();
-    void                    OnAcquireLease();
+    void            OnStartupTimeout();
+    void            OnLearnLease();
+    void            OnLeaseTimeout();
+    void            OnAcquireLease();
 
-    QuorumContext*          context;
-    PaxosLeaseProposer      proposer;
-    PaxosLeaseAcceptor      acceptor;
-    PaxosLeaseLearner       learner;
-    Countdown               startupTimeout;
-    bool                    active;
+    QuorumContext*  context;
+    Proposer        proposer;
+    Acceptor        acceptor;
+    Learner         learner;
+    Countdown       startupTimeout;
+    bool            active;
 };
 
 #endif
