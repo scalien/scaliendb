@@ -25,11 +25,6 @@ public:
     void                    Init(QuorumContext* context);
     void                    Shutdown();
 
-    void                    SetUseProposeTimeouts(bool useProposeTimeouts);
-    void                    SetCommitChaining(bool commitChaining);
-    bool                    GetCommitChaining();
-    void                    SetAsyncCommit(bool asyncCommit);
-    bool                    GetAsyncCommit();
     uint64_t                GetLastLearnChosenTime();
     void                    SetAlwaysUseDatabaseCatchup(bool alwaysUseDatabaseCatchup);
 
@@ -84,9 +79,6 @@ private:
     PaxosAcceptor           acceptor;
     
     bool                    waitingOnAppend;
-    bool                    useProposeTimeouts;
-    bool                    commitChaining;
-    bool                    alwaysUseDatabaseCatchup;
     uint64_t                lastRequestChosenTime;
     uint64_t                lastLearnChosenTime;
     Countdown               canaryTimer;

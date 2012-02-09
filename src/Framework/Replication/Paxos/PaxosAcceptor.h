@@ -24,31 +24,28 @@ public:
     PaxosAcceptor();
         
     void            Init(QuorumContext* context);
-    void            SetAsyncCommit(bool asyncCommit);
-    bool            GetAsyncCommit();
-    void            OnMessage(PaxosMessage& msg);
-    void            OnCatchupComplete();
-    void            WriteState();
-    void            Commit(bool sendReply = false);
-    void            ResetState();
-    uint64_t        GetMemoryUsage();
-
-private:
     bool            OnPrepareRequest(PaxosMessage& msg);
     bool            OnProposeRequest(PaxosMessage& msg);
+    void            OnCatchupComplete();
+    void            WriteState();
+    uint64_t        GetMemoryUsage();
+
+    State           state;
+
+private:
+    void            Commit();
     void            OnStateWritten();
     void            ReadState();
+    bool            TestRejection(PaxosMessage& msg);
+    void            AcceptPrepareRequest(PaxosMessage& msg);
+    void            AcceptProposeRequest(PaxosMessage& msg);
 
-    bool            sendReply;
-    bool            asyncCommit;
+    bool            isCommitting;
     QuorumContext*  context;
-    State           state;
     PaxosMessage    omsg;
     uint64_t        senderID;
     uint64_t        writtenPaxosID;
-    Callable        onStateWritten;
-    
-    friend class ReplicatedLog;
+    Callable        onStateWritten;    
 };
 
 #endif

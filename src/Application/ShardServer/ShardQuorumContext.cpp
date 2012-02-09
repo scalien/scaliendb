@@ -28,9 +28,6 @@ void ShardQuorumContext::Init(ConfigQuorum* configQuorum,
      quorumProcessor->GetShardServer()->GetDatabaseManager()->GetQuorumLogShard(quorumID));
     
     replicatedLog.Init(this);
-    replicatedLog.SetUseProposeTimeouts(false);
-    replicatedLog.SetCommitChaining(true);
-    replicatedLog.SetAsyncCommit(true);
     transport.SetQuorumID(quorumID);
     highestPaxosID = 0;
     isReplicationActive = true;
@@ -184,6 +181,26 @@ void ShardQuorumContext::OnAppend(uint64_t paxosID, Buffer& value, bool ownAppen
     nextValue.Clear();
 
     quorumProcessor->OnAppend(paxosID, value, ownAppend);
+}
+
+bool ShardQuorumContext::UseSyncCommit()
+{
+    return false; // async
+}
+
+bool ShardQuorumContext::UseProposeTimeouts()
+{
+    return false;
+}
+
+bool ShardQuorumContext::UseCommitChaining()
+{
+    return true;
+}
+
+bool ShardQuorumContext::AlwaysUseDatabaseCatchup()
+{
+    return false;
 }
 
 bool ShardQuorumContext::IsPaxosBlocked()

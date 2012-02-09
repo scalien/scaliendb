@@ -29,21 +29,22 @@ public:
     ~PaxosProposer();
     
     void            Init(QuorumContext* context);
-    void            Shutdown();
+    void            RemoveTimers();
     void            SetUseTimeouts(bool useTimeouts);
-    void            OnMessage(PaxosMessage& msg);
-    void            OnPrepareTimeout();
-    void            OnProposeTimeout();
-    void            OnRestartTimeout();
+    void            OnPrepareResponse(PaxosMessage& msg);
+    void            OnProposeResponse(PaxosMessage& msg);
     void            Propose(Buffer& value);
     void            Restart();
     void            Stop();
-    bool            IsActive(); 
+    bool            IsActive();
     uint64_t        GetMemoryUsage();
 
+    State           state;
+
 private:
-    void            OnPrepareResponse(PaxosMessage& msg);
-    void            OnProposeResponse(PaxosMessage& msg);
+    void            OnPrepareTimeout();
+    void            OnProposeTimeout();
+    void            OnRestartTimeout();
     void            BroadcastMessage(PaxosMessage& msg);
     void            StopPreparing();
     void            StopProposing();
@@ -54,12 +55,9 @@ private:
     bool            useTimeouts;
     QuorumContext*  context;
     QuorumVote*     vote;
-    State           state;
     Countdown       prepareTimeout;
     Countdown       proposeTimeout;
     Countdown       restartTimeout;
-    
-    friend class ReplicatedLog;
 };
 
 #endif

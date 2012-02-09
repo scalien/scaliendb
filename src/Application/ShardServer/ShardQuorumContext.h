@@ -63,6 +63,10 @@ public:
 
     virtual void                    OnStartProposing();
     virtual void                    OnAppend(uint64_t paxosID, Buffer& value, bool ownAppend);
+    virtual bool                    UseSyncCommit();
+    virtual bool                    UseProposeTimeouts();
+    virtual bool                    UseCommitChaining();
+    virtual bool                    AlwaysUseDatabaseCatchup();
     virtual bool                    IsPaxosBlocked();
     virtual Buffer&                 GetNextValue();
     virtual void                    OnMessage(ReadBuffer msg);

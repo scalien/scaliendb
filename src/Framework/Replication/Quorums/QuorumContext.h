@@ -39,6 +39,10 @@ public:
     virtual QuorumDatabase*     GetDatabase()                                                   = 0;
     virtual QuorumTransport*    GetTransport()                                                  = 0;
     
+    virtual bool                UseSyncCommit()                                                 = 0;
+    virtual bool                UseProposeTimeouts()                                            = 0;
+    virtual bool                UseCommitChaining()                                             = 0;
+    virtual bool                AlwaysUseDatabaseCatchup()                                      = 0;
     virtual bool                IsPaxosBlocked()                                                = 0;
     virtual Buffer&             GetNextValue()                                                  = 0;
 
