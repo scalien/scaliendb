@@ -27,7 +27,6 @@ public:
     char            type;
     uint64_t        nodeID;
     uint64_t        proposalID;
-    
     uint64_t        acceptedProposalID;
     uint64_t        leaseOwner;
     unsigned        duration;
@@ -35,7 +34,6 @@ public:
     uint64_t        paxosID; // so only up-to-date nodes can become masters
     
     void            Init(char type, uint64_t nodeID);
-        
     bool            PrepareRequest(uint64_t nodeID, uint64_t proposalID, uint64_t paxosID);
     bool            PrepareRejected(uint64_t nodeID, uint64_t proposalID);
     bool            PreparePreviouslyAccepted(uint64_t nodeID, uint64_t proposalID,
