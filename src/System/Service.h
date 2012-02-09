@@ -5,6 +5,14 @@
 #define SERVICE_STATUS_RUNNING          0x00000004
 #define SERVICE_STATUS_STOP_PENDING     0x00000003
 
+/*
+===============================================================================================
+
+ ServiceIdentity - a helper class for holding names and description of a service
+
+===============================================================================================
+*/
+
 class ServiceIdentity
 {
 public:
@@ -12,6 +20,14 @@ public:
     const char*     displayName;
     const char*     description;
 };
+
+/*
+===============================================================================================
+
+ Service - utility class for abstracting Windows Services for all platforms
+
+===============================================================================================
+*/
 
 class Service
 {
