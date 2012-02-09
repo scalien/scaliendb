@@ -18,18 +18,19 @@
 
 class PaxosLeaseAcceptor
 {
+    typedef PaxosLeaseAcceptorState AcceptorState;
 public:
-    void                        Init(QuorumContext* context);
-    void                        OnMessage(PaxosLeaseMessage& msg);
+    void            Init(QuorumContext* context);
+    void            OnMessage(PaxosLeaseMessage& msg);
 
 private:
-    void                        OnLeaseTimeout();
-    void                        OnPrepareRequest(PaxosLeaseMessage& msg);
-    void                        OnProposeRequest(PaxosLeaseMessage& msg);
+    void            OnLeaseTimeout();
+    void            OnPrepareRequest(PaxosLeaseMessage& msg);
+    void            OnProposeRequest(PaxosLeaseMessage& msg);
 
-    QuorumContext*              context;
-    PaxosLeaseAcceptorState     state;
-    Timer                       leaseTimeout;
+    QuorumContext*  context;
+    AcceptorState   state;
+    Timer           leaseTimeout;
 };
 
 #endif

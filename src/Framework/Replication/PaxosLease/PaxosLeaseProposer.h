@@ -18,36 +18,33 @@
 
 class PaxosLeaseProposer
 {
+    typedef PaxosLeaseProposerState ProposerState;
 public:
     ~PaxosLeaseProposer();
     
-    void                        Init(QuorumContext* context);
-    
-    void                        OnMessage(PaxosLeaseMessage& msg);
-
-    void                        Start();
-    void                        Stop();
-
-    uint64_t                    GetHighestProposalID();
-    void                        SetHighestProposalID(uint64_t highestProposalID);
+    void            Init(QuorumContext* context);
+    void            OnMessage(PaxosLeaseMessage& msg);
+    void            Start();
+    void            Stop();
+    uint64_t        GetHighestProposalID();
+    void            SetHighestProposalID(uint64_t highestProposalID);
 
 private:
-    void                        OnAcquireLeaseTimeout();
-    void                        OnExtendLeaseTimeout();
-    void                        OnPrepareResponse(PaxosLeaseMessage& msg);
-    void                        OnProposeResponse(PaxosLeaseMessage& msg);
+    void            OnAcquireLeaseTimeout();
+    void            OnExtendLeaseTimeout();
+    void            OnPrepareResponse(PaxosLeaseMessage& msg);
+    void            OnProposeResponse(PaxosLeaseMessage& msg);
+    void            BroadcastMessage(PaxosLeaseMessage& msg);
+    void            StartPreparing();
+    void            StartProposing();
+    void            NewVote();
 
-    void                        BroadcastMessage(PaxosLeaseMessage& msg);
-    void                        StartPreparing();
-    void                        StartProposing();
-    void                        NewVote();
-
-    QuorumContext*              context;
-    QuorumVote*                 vote;
-    PaxosLeaseProposerState     state;
-    Timer                       extendLeaseTimeout;
-    Countdown                   acquireLeaseTimeout;
-    uint64_t                    highestProposalID;  
+    QuorumContext*  context;
+    QuorumVote*     vote;
+    ProposerState   state;
+    Timer           extendLeaseTimeout;
+    Countdown       acquireLeaseTimeout;
+    uint64_t        highestProposalID;  
 };
 
 #endif
