@@ -113,10 +113,10 @@ void PaxosAcceptor::OnStateWritten()
     
     isCommitting = false;
 
-    context->OnMessageProcessed();
-
     if (writtenPaxosID == context->GetPaxosID())
         context->GetTransport()->SendMessage(senderID, omsg);
+
+    context->OnMessageProcessed();
 }
 
 void PaxosAcceptor::ReadState()
