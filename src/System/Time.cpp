@@ -13,7 +13,8 @@
 // independent thread clock support
 static int                  clockStarted = 0;
 static volatile uint64_t    clockMsec = 0;
-static volatile uint64_t    clockUsec = 0;
+ // this is used to make sure clock is always monotonically increasing
+static volatile uint64_t    clockCorrectionMsec = 0;
 static ThreadPool*          clockThread = NULL;
 
 #ifdef _WIN32
@@ -98,7 +99,7 @@ int gettimeofday(struct timeval *tv, void*)
     return (0);
 }
 
-#endif
+#endif // _WIN32
 
 uint64_t Now()
 {
@@ -110,21 +111,8 @@ uint64_t Now()
     now = tv.tv_sec;
     now *= 1000;
     now += tv.tv_usec / 1000;
+    now += clockCorrectionMsec;
 
-    return now;
-}
-
-uint64_t NowMicro()
-{
-    uint64_t now;
-    struct timeval tv;
-    
-    gettimeofday(&tv, NULL);
-    
-    now = tv.tv_sec;
-    now *= 1000000;
-    now += tv.tv_usec;
-    
     return now;
 }
 
@@ -136,41 +124,40 @@ uint64_t NowClock()
     return clockMsec;
 }
 
-uint64_t NowMicroClock()
-{
-    if (!clockStarted)
-        return NowMicro();
-    
-    return clockUsec;
-}
-
 static inline void UpdateClock()
 {
     static struct timeval tv;
     uint64_t	prevMsec;
     uint64_t    msec;
-    uint64_t    usec;
     uint64_t    diff;
 
     prevMsec = clockMsec;
 
     gettimeofday(&tv, NULL);
-    msec = (uint64_t)tv.tv_sec * 1000 + tv.tv_usec / 1000;
-    usec = (uint64_t)tv.tv_sec * 1000000 + tv.tv_usec;
+    msec = (uint64_t)tv.tv_sec * 1000 + tv.tv_usec / 1000 + clockCorrectionMsec;
 
-    AtomicExchange64(clockMsec, msec);
-    AtomicExchange64(clockUsec, usec);
-
-    if (prevMsec != 0 && clockMsec - prevMsec > MAX(2 * CLOCK_RESOLUTION, 100))
+    if (prevMsec != 0)
     {
-        if (clockMsec - prevMsec > 9223372036854775808ULL)
+        if (prevMsec > msec)
         {
-            diff = prevMsec - clockMsec;
+            // system clock went backwards
+            diff = prevMsec - msec;
             Log_Debug("Softclock diff negative, possible system clock adjustment: %U", diff);
+
+            // update correction with diff, plus some more to make time strictly increasing
+            AtomicExchangeU64(clockCorrectionMsec, clockCorrectionMsec + diff + CLOCK_RESOLUTION);
+            
+            // recalculate msec
+            msec = (uint64_t)tv.tv_sec * 1000 + tv.tv_usec / 1000 + clockCorrectionMsec;
         }
-        else
-            Log_Debug("Softclock diff: %U", clockMsec - prevMsec);
+        else if (msec - prevMsec > MAX(2 * CLOCK_RESOLUTION, 100))
+        {
+            // only logging
+            Log_Debug("Softclock diff: %U", msec - prevMsec);
+        }
     }
+
+    AtomicExchangeU64(clockMsec, msec);
 }
 
 static void ClockThread()

@@ -14,10 +14,7 @@
 */
 
 uint64_t    Now();
-uint64_t    NowMicro();
-
 uint64_t    NowClock();
-uint64_t    NowMicroClock();
 
 void        StartClock();
 void        StopClock();
