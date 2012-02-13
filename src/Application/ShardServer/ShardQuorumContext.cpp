@@ -5,6 +5,8 @@
 #include "ShardQuorumProcessor.h"
 #include "ShardServer.h"
 
+#define PAXOS_QUEUE_LENGTH  1000
+
 void ShardQuorumContext::Init(ConfigQuorum* configQuorum,
  ShardQuorumProcessor* quorumProcessor_)
 {
@@ -260,9 +262,16 @@ void ShardQuorumContext::OnMessage(ReadBuffer buffer)
             }
             else
             {
-                message = new Buffer;
-                message->Write(buffer);
-                paxosMessageQueue.Enqueue(message);
+                if (paxosMessageQueue.GetLength() < PAXOS_QUEUE_LENGTH)
+                {
+                    message = new Buffer;
+                    message->Write(buffer);
+                    paxosMessageQueue.Enqueue(message);
+                }
+                else
+                {
+                    Log_Debug("Dropping paxos msg because queue is too long. Queue stuck?");
+                }
             }
             break;
         case CATCHUP_PROTOCOL_ID:           // 'C'

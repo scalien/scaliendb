@@ -134,7 +134,7 @@ void PaxosAcceptor::ReadState()
         state.acceptedProposalID = db->GetAcceptedProposalID();
         db->GetAcceptedValue(context->GetPaxosID(), state.acceptedValue);
         ASSERT(state.acceptedValue.GetLength() > 0);
-    }    
+    }
 }
 
 bool PaxosAcceptor::TestRejection(PaxosMessage& msg)
