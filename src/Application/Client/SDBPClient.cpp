@@ -908,7 +908,7 @@ int Client::Submit()
     Begin();
     CLIENT_MUTEX_GUARD_LOCK();
     
-    while (it = proxy.Pop())
+    while ((it = proxy.Pop()) != NULL)
     {
         submittedRequests.Append(it);
         result->AppendRequest(it);
