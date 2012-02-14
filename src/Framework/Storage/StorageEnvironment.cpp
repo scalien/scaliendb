@@ -276,33 +276,33 @@ bool StorageEnvironment::ShardExists(uint16_t contextID, uint64_t shardID)
     return false;
 }
 
-void StorageEnvironment::GetShardIDs(uint64_t contextID, ShardIDList& shardIDs)
+void StorageEnvironment::GetShardIDs(uint64_t contextID, Buffer& shardIDs)
 {
-    uint64_t            shardID;
-    StorageShard*       itShard;
+    StorageShard*   shard;
     
-    FOREACH (itShard, shards)
+    shardIDs.Allocate(shards.GetLength() * sizeof(uint64_t));
+
+    FOREACH (shard, shards)
     {
-        if (itShard->GetContextID() != contextID)
+        if (shard->GetContextID() != contextID)
             continue;
         
-        shardID = itShard->GetShardID();
-        shardIDs.Append(shardID);
+        shardIDs.AppendLittle64(shard->GetShardID());
     }
 }
 
-void StorageEnvironment::GetShardIDs(uint64_t contextID, uint64_t tableID, ShardIDList& shardIDs)
+void StorageEnvironment::GetShardIDs(uint64_t contextID, uint64_t tableID, Buffer& shardIDs)
 {
-    uint64_t            shardID;
-    StorageShard*       itShard;
+    StorageShard*   shard;
     
-    FOREACH (itShard, shards)
+    shardIDs.Allocate(shards.GetLength() * sizeof(uint64_t));
+
+    FOREACH (shard, shards)
     {
-        if (itShard->GetContextID() != contextID || itShard->GetTableID() != tableID)
+        if (shard->GetContextID() != contextID || shard->GetTableID() != tableID)
             continue;
         
-        shardID = itShard->GetShardID();
-        shardIDs.Append(shardID);
+        shardIDs.AppendLittle64(shard->GetShardID());
     }
 }
 
