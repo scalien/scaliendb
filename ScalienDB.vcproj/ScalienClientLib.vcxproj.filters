@@ -237,6 +237,9 @@
     <ClCompile Include="..\src\Application\Client\SDBPPooledShardConnection.cpp">
       <Filter>Application\Client</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\Application\Client\SDBPRequestProxy.cpp">
+      <Filter>Application\Client</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\Application\Client\SDBPClient.h">
@@ -487,6 +490,9 @@
       <Filter>Application\Client</Filter>
     </ClInclude>
     <ClInclude Include="..\src\Application\Client\SDBPPooledShardConnection.h">
+      <Filter>Application\Client</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Application\Client\SDBPRequestProxy.h">
       <Filter>Application\Client</Filter>
     </ClInclude>
   </ItemGroup>

@@ -81,11 +81,6 @@ static inline uint64_t Key(const ShardConnection* conn)
     return conn->GetNodeID();
 }
 
-static inline const Request* Key(const Request* req)
-{
-    return req;
-}
-
 static inline int KeyCmp(uint64_t a, uint64_t b)
 {
     if (a < b)
@@ -93,16 +88,6 @@ static inline int KeyCmp(uint64_t a, uint64_t b)
     if (a > b)
         return 1;
     return 0;
-}
-
-static int KeyCmp(const Request* a, const Request* b)
-{
-    if (a->tableID < b->tableID)
-        return -1;
-    if (a->tableID > b->tableID)
-        return 1;
-    
-    return Buffer::Cmp(a->key, b->key);
 }
 
 Client::Client()
@@ -156,7 +141,7 @@ int Client::Init(int nodec, const char* nodev[])
     result = NULL;
     batchMode = SDBP_BATCH_DEFAULT;
     batchLimit = DEFAULT_BATCH_LIMIT;
-    proxySize = 0;
+    proxy.Init();
     consistencyMode = SDBP_CONSISTENCY_STRICT;
     highestSeenPaxosID = 0;
     connectivityStatus = SDBP_NOCONNECTION;
@@ -663,7 +648,6 @@ void Client::GetTableNameAt(uint64_t databaseID, unsigned n, Buffer& name)
 
 int Client::Get(uint64_t tableID, const ReadBuffer& key)
 {
-    int         cmpres;
     Request*    req;
     Request*    it;
 
@@ -677,8 +661,8 @@ int Client::Get(uint64_t tableID, const ReadBuffer& key)
     req->Get(NextCommandID(), configState.paxosID, tableID, (ReadBuffer&) key);
 
     // find
-    it = proxiedRequests.Locate(req, cmpres);
-    if (cmpres == 0 && it != NULL)
+    it = proxy.Find(req);
+    if (it)
     {
         delete req;
         if (it->type == CLIENTREQUEST_SET)
@@ -704,47 +688,40 @@ int Client::Get(uint64_t tableID, const ReadBuffer& key)
 
 int Client::Set(uint64_t tableID, const ReadBuffer& key, const ReadBuffer& value)
 {
-    int         cmpres;                             
-    Request*    req;                                
     Request*    it;
+    Request*    req;
 
     if (key.GetLength() == 0)
 		return SDBP_API_ERROR;
 
     VALIDATE_CONTROLLERS();
-    CLIENT_MUTEX_GUARD_DECLARE();                   
+    CLIENT_MUTEX_GUARD_DECLARE();
     
-    req = new Request;                              
-    req->Set(NextCommandID(), configState.paxosID,  
-     tableID, (ReadBuffer&) key, (ReadBuffer&) value);                         
-                                                    
-    if (batchMode == SDBP_BATCH_NOAUTOSUBMIT &&     
-     proxySize + REQUEST_SIZE(req) >= batchLimit)   
-    {                                               
-        delete req;                                 
-        return SDBP_API_ERROR;                      
-    }                                               
-                                                    
-    it = proxiedRequests.Locate(req, cmpres);       
-    if (cmpres == 0 && it != NULL)                  
-    {                                               
-        proxySize -= REQUEST_SIZE(it);              
-        proxiedRequests.Delete(it);
-        ASSERT(proxySize >= 0);                     
-    }                                               
-    proxiedRequests.Insert<const Request*>(req);    
-    proxySize += REQUEST_SIZE(req);                 
-                                                    
-    CLIENT_MUTEX_GUARD_UNLOCK();                    
-                                                    
-    if (batchMode == SDBP_BATCH_SINGLE)             
-        return Submit();                            
-                                                    
-    if (batchMode == SDBP_BATCH_DEFAULT &&          
-     proxySize >= batchLimit)                       
+    req = new Request;
+    req->Set(NextCommandID(), configState.paxosID,
+     tableID, (ReadBuffer&) key, (ReadBuffer&) value);
+    
+    if (batchMode == SDBP_BATCH_NOAUTOSUBMIT &&
+     proxy.GetSize() + REQUEST_SIZE(req) >= batchLimit)
+    {
+        delete req;
+        return SDBP_API_ERROR;
+    }
+
+    it = proxy.RemoveAndAdd(req);
+    if (it)
+        delete it;
+    
+    CLIENT_MUTEX_GUARD_UNLOCK();
+    
+    if (batchMode == SDBP_BATCH_SINGLE)
         return Submit();
                                                     
-    return SDBP_SUCCESS;                            
+    if (batchMode == SDBP_BATCH_DEFAULT &&
+     proxy.GetSize() >= batchLimit)
+        return Submit();
+    
+    return SDBP_SUCCESS;
 }
 
 int Client::Add(uint64_t tableID, const ReadBuffer& key, int64_t number)
@@ -759,9 +736,8 @@ int Client::Add(uint64_t tableID, const ReadBuffer& key, int64_t number)
 
 int Client::Delete(uint64_t tableID, const ReadBuffer& key)
 {
-    int         cmpres;
-    Request*    req;
     Request*    it;
+    Request*    req;
 
     if (key.GetLength() == 0)
 		return SDBP_API_ERROR;
@@ -772,28 +748,22 @@ int Client::Delete(uint64_t tableID, const ReadBuffer& key)
     req->Delete(NextCommandID(), configState.paxosID, tableID, (ReadBuffer&) key);
 
     if (batchMode == SDBP_BATCH_NOAUTOSUBMIT &&
-     proxySize + REQUEST_SIZE(req) >= batchLimit)
+     proxy.GetSize() + REQUEST_SIZE(req) >= batchLimit)
     {
         delete req;
         return SDBP_API_ERROR;
     }
 
-    it = proxiedRequests.Locate(req, cmpres);
-    if (cmpres == 0 && it != NULL)
-    {
-        proxySize -= REQUEST_SIZE(it);
-        proxiedRequests.Delete(it);
-        ASSERT(proxySize >= 0);
-    }
-    proxiedRequests.Insert<const Request*>(req);
-    proxySize += REQUEST_SIZE(req);
+    it = proxy.RemoveAndAdd(req);
+    if (it)
+        delete it;
 
     CLIENT_MUTEX_GUARD_UNLOCK();
 
     if (batchMode == SDBP_BATCH_SINGLE)
         return Submit();
 
-    if (batchMode == SDBP_BATCH_DEFAULT && proxySize >= batchLimit)
+    if (batchMode == SDBP_BATCH_DEFAULT && proxy.GetSize() >= batchLimit)
         return Submit();
 
     return SDBP_SUCCESS;
@@ -929,7 +899,7 @@ int Client::Submit()
     VALIDATE_CONTROLLERS();
     CLIENT_MUTEX_GUARD_DECLARE();
 
-    if (proxiedRequests.GetCount() == 0)
+    if (proxy.GetCount() == 0)
         return SDBP_SUCCESS;
     
     Log_Trace();
@@ -938,20 +908,18 @@ int Client::Submit()
     Begin();
     CLIENT_MUTEX_GUARD_LOCK();
     
-    FOREACH_POP(it, proxiedRequests)
+    while (it = proxy.Pop())
     {
-        requests.Append(it);
+        submittedRequests.Append(it);
         result->AppendRequest(it);
-        proxySize -= REQUEST_SIZE(it);
     }
-	ASSERT(proxySize == 0);
 
     CLIENT_MUTEX_GUARD_UNLOCK();
     EventLoop();
     CLIENT_MUTEX_GUARD_LOCK();
 
     ClearQuorumRequests();
-    requests.ClearMembers();
+    submittedRequests.ClearMembers();
     
     Log_Trace("Submit returning");
     
@@ -967,8 +935,7 @@ int Client::Cancel()
     CLIENT_MUTEX_GUARD_DECLARE();
 
     ClearRequests();
-    proxiedRequests.Clear();
-    proxySize = 0;
+    proxy.Clear();
 
     result->Close();
 
@@ -996,24 +963,16 @@ int Client::ShardRequest(Request* req)
     }
 
     result->Close();
-    FOREACH(itRequest, proxiedRequests)
+
+    itRequest = proxy.Find(req);
+    if (itRequest)
     {
-        if (itRequest->tableID != req->tableID)
-            continue;
-        
-        requestKey.Wrap(itRequest->key);
-        if (ReadBuffer::Cmp(req->key, requestKey) != 0)
-            continue;
-            
-        proxiedRequests.Remove(itRequest);
-        requests.Append(itRequest);
+        proxy.Remove(itRequest);
+        submittedRequests.Append(itRequest);
         result->AppendRequest(itRequest);
-        proxySize -= REQUEST_SIZE(itRequest);
-        ASSERT(proxySize >= 0);
-        break;
     }
 
-    requests.Append(req);
+    submittedRequests.Append(req);
     result->AppendRequest(req);
     CLIENT_MUTEX_GUARD_UNLOCK();
     EventLoop();
@@ -1047,7 +1006,7 @@ int Client::ConfigRequest(Request* req)
         CLIENT_MUTEX_GUARD_LOCK();
     }
 
-    if (proxySize > 0)
+    if (proxy.GetSize() > 0)
     {
         delete req;
         return SDBP_API_ERROR;
@@ -1055,7 +1014,7 @@ int Client::ConfigRequest(Request* req)
 
     req->client = this;
 
-    requests.Append(req);
+    submittedRequests.Append(req);
     numControllerRequests++;
 
     result->Close();
@@ -1071,7 +1030,7 @@ void Client::ClearRequests()
 {
     ShardConnection*    shardConnection;
 
-    requests.Clear();
+    submittedRequests.Clear();
     ClearQuorumRequests();
 
     FOREACH (shardConnection, shardConnections)
@@ -1096,7 +1055,7 @@ void Client::EventLoop()
 
     // avoid race conditions
     isDone.SetWaiting(true);
-    if (requests.GetLength() > 0)
+    if (submittedRequests.GetLength() > 0)
     {
         AssignRequestsToQuorums();
         SendQuorumRequests();
@@ -1235,7 +1194,7 @@ void Client::SetConfigState(ConfigState& configState_)
 
 void Client::AppendDataRequest(Request* req)
 {
-    requests.Append(req);
+    submittedRequests.Append(req);
     result->Close();
     result->AppendRequest(req);
 }
@@ -1273,7 +1232,7 @@ void Client::ReassignRequest(Request* req)
 
     quorum = configState.GetQuorum(quorumID);
     if (!req->IsReadRequest() && quorum && quorum->hasPrimary == false)
-        requests.Append(req);
+        submittedRequests.Append(req);
     else
         AddRequestToQuorum(req);
 }
@@ -1284,13 +1243,13 @@ void Client::AssignRequestsToQuorums()
     Request*        next;
     RequestList     requestsCopy;
     
-    if (requests.GetLength() == 0)
+    if (submittedRequests.GetLength() == 0)
         return;
     
     //Log_Trace("%U", requests.First()->tableID);
 
-    requestsCopy = requests;
-    requests.ClearMembers();
+    requestsCopy = submittedRequests;
+    submittedRequests.ClearMembers();
 
     FOREACH_FIRST (it, requestsCopy)
     {
@@ -1545,7 +1504,7 @@ void Client::InvalidateQuorumRequests(uint64_t quorumID)
         return;
     
     // push back requests to unselected requests' queue
-    requests.PrependList(*qrequests);
+    submittedRequests.PrependList(*qrequests);
 }
 
 void Client::ActivateQuorumMembership(ShardConnection* conn)
@@ -1772,7 +1731,7 @@ void Client::ComputeListResponse()
     request = result->GetRequestCursor();
 
     // compute proxied result into proxyKeys/proxyValues
-    FOREACH(itProxyRequest, proxiedRequests)
+    FOREACH(itProxyRequest, proxy)
     {
         if (itProxyRequest->tableID < request->tableID)
             continue;
@@ -1953,7 +1912,7 @@ uint64_t Client::NumProxiedDeletes(Request* request)
     Request*    itProxyRequest;
     
     count = 0;
-    FOREACH(itProxyRequest, proxiedRequests)
+    FOREACH(itProxyRequest, proxy)
     {
         if (itProxyRequest->tableID < request->tableID)
             continue;

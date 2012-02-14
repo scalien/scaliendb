@@ -16,6 +16,7 @@
 #include "SDBPController.h"
 #include "SDBPResult.h"
 #include "SDBPClientConsts.h"
+#include "SDBPRequestProxy.h"
 
 namespace SDBPClient
 {
@@ -127,10 +128,9 @@ public:
     Client*                 prev;
 
 private:
-    typedef InList<Request>                     RequestList;
-    typedef InTreeMap<Request>                  RequestMap;
-    typedef InTreeMap<ShardConnection>          ShardConnectionMap;
-    typedef HashMap<uint64_t, RequestList*>     RequestListMap;
+    typedef InList<Request>                 RequestList;
+    typedef InTreeMap<ShardConnection>      ShardConnectionMap;
+    typedef HashMap<uint64_t, RequestList*> RequestListMap;
 
     friend class            Controller;
     friend class            ShardConnection;
@@ -189,10 +189,9 @@ private:
     Countdown               masterTimeout;
     ConfigState             configState;
     Result*                 result;
-    RequestList             requests;
-    RequestMap              proxiedRequests;
+    RequestProxy            proxy;
+    RequestList             submittedRequests;
     unsigned                batchLimit;
-    int64_t                 proxySize;
     ShardConnectionMap      shardConnections;
     Controller*             controller;
     RequestListMap          quorumRequests;
