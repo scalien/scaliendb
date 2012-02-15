@@ -216,8 +216,24 @@ void ShardQuorumProcessor::OnReceiveLease(ClusterMessage& message)
     uint64_t*               it;
     ShardLeaseRequest*      lease;
     ShardLeaseRequest*      itLease;
-    
-//    Log_Debug("Received lease for quorum %U with proposalID %U", GetQuorumID(), message.proposalID);
+
+    if (message.nodeID != MY_NODEID)
+    {
+        // somebody else received the lease
+
+        // if I have the lease, drop it
+        // this shouldn't really happen
+        // most likely this node or the controller had his clock set
+        if (IsPrimary())
+            OnLeaseTimeout();
+
+        // update activeNodes
+        activeNodes.Clear();
+        FOREACH (it, message.activeNodes)
+            activeNodes.Add(*it);
+        quorumContext.SetQuorumNodes(activeNodes);
+        return;
+    }
 
     FOREACH (itLease, leaseRequests)
         if (itLease->proposalID == message.proposalID)

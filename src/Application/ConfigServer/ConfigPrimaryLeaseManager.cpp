@@ -145,6 +145,7 @@ unsigned ConfigPrimaryLeaseManager::GetNumPrimaryLeases()
 void ConfigPrimaryLeaseManager::AssignPrimaryLease(ConfigQuorum& quorum, ClusterMessage& message)
 {
     unsigned                duration;
+    uint64_t*               itNodeID;
     PrimaryLease*           primaryLease;
     ClusterMessage          response;
     SortedList<uint64_t>    activeNodes;
@@ -166,7 +167,11 @@ void ConfigPrimaryLeaseManager::AssignPrimaryLease(ConfigQuorum& quorum, Cluster
     quorum.GetVolatileActiveNodes(activeNodes);
     response.ReceiveLease(message.nodeID, message.quorumID,
      message.proposalID, quorum.configID, duration, false, activeNodes, quorum.shards);
-    CONTEXT_TRANSPORT->SendClusterMessage(response.nodeID, response);
+
+    FOREACH(itNodeID, activeNodes)
+        CONTEXT_TRANSPORT->SendClusterMessage(*itNodeID, response);
+    FOREACH(itNodeID, quorum.inactiveNodes)
+        CONTEXT_TRANSPORT->SendClusterMessage(*itNodeID, response);
     
     Log_Debug("Assigning primary lease of quorum %U to node %U with proposalID %U",
      message.quorumID, message.nodeID, message.proposalID);
@@ -175,22 +180,23 @@ void ConfigPrimaryLeaseManager::AssignPrimaryLease(ConfigQuorum& quorum, Cluster
 void ConfigPrimaryLeaseManager::ExtendPrimaryLease(ConfigQuorum& quorum, ClusterMessage& message)
 {
     uint64_t                duration;
-    PrimaryLease*           it;
+    uint64_t*               itNodeID;
+    PrimaryLease*           primaryLease;
     ClusterMessage          response;
     SortedList<uint64_t>    activeNodes;
 
-    FOREACH (it, primaryLeases)
+    FOREACH (primaryLease, primaryLeases)
     {
-        if (it->quorumID == quorum.quorumID)
+        if (primaryLease->quorumID == quorum.quorumID)
             break;
     }
     
-    ASSERT(it != NULL);
+    ASSERT(primaryLease != NULL);
         
-    primaryLeases.Remove(it);
+    primaryLeases.Remove(primaryLease);
     duration = MIN(message.duration, PAXOSLEASE_MAX_LEASE_TIME);
-    it->expireTime = EventLoop::Now() + duration;
-    primaryLeases.Add(it);
+    primaryLease->expireTime = EventLoop::Now() + duration;
+    primaryLeases.Add(primaryLease);
     UpdateTimer();
 
     configServer->GetActivationManager()->OnExtendLease(quorum, message);
@@ -199,10 +205,11 @@ void ConfigPrimaryLeaseManager::ExtendPrimaryLease(ConfigQuorum& quorum, Cluster
     response.ReceiveLease(message.nodeID, message.quorumID,
      message.proposalID, quorum.configID, duration,
      quorum.isWatchingPaxosID, activeNodes, quorum.shards);
-    CONTEXT_TRANSPORT->SendClusterMessage(response.nodeID, response);
 
-//    Log_Debug("Extending primary lease of quorum %U to node %U with proposalID %U",
-//     message.quorumID, message.nodeID, message.proposalID);
+    FOREACH(itNodeID, activeNodes)
+        CONTEXT_TRANSPORT->SendClusterMessage(*itNodeID, response);
+    FOREACH(itNodeID, quorum.inactiveNodes)
+        CONTEXT_TRANSPORT->SendClusterMessage(*itNodeID, response);
 }
 
 void ConfigPrimaryLeaseManager::UpdateTimer()
