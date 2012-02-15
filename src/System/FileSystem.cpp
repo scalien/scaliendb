@@ -96,7 +96,6 @@ bool FS_RecDeleteDir(const char* path)
 #include <stdio.h>
 #include <errno.h>
 #include "System/Containers/List.h"
-#include "System/Containers/ArrayList.h"
 #include "System/Threading/Mutex.h"
 #include "System/Threading/ThreadPool.h"
 

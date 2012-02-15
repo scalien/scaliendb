@@ -57,8 +57,6 @@ class StorageEnvironment
     typedef List<Track> TrackList;
 
 public:
-    typedef ArrayList<uint64_t, 64>     ShardIDList;
-
     StorageEnvironment();
     
     bool                    Open(Buffer& envPath);
@@ -73,8 +71,8 @@ public:
     uint64_t                GetShardID(uint16_t contextID, uint64_t tableID, ReadBuffer& key);
     uint64_t                GetShardIDByLastKey(uint16_t contextID, uint64_t tableID, ReadBuffer& key);
     bool                    ShardExists(uint16_t contextID, uint64_t shardID);
-    void                    GetShardIDs(uint64_t contextID, ShardIDList& shardIDs);
-    void                    GetShardIDs(uint64_t contextID, uint64_t tableID, ShardIDList& shardIDs);
+    void                    GetShardIDs(uint64_t contextID, Buffer& shardIDs);
+    void                    GetShardIDs(uint64_t contextID, uint64_t tableID, Buffer& shardIDs);
 
     bool                    CreateShard(uint64_t trackID,
                              uint16_t contextID, uint64_t shardID, uint64_t tableID,

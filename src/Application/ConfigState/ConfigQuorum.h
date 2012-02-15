@@ -4,7 +4,6 @@
 #include "System/Common.h"
 #include "System/Containers/List.h"
 #include "System/Containers/SortedList.h"
-#include "System/Containers/ArrayList.h"
 #include "System/Buffers/Buffer.h"
 
 /*

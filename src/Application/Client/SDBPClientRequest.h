@@ -2,6 +2,7 @@
 #define SDBPCLIENTREQUEST_H
 
 #include "System/Containers/List.h"
+#include "System/Containers/ArrayList.h"
 #include "System/Containers/InTreeMap.h"
 #include "Application/Common/ClientRequest.h"
 #include "Application/Common/ClientResponse.h"

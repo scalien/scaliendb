@@ -55,6 +55,7 @@ void ShardHTTPClientSession::OnComplete(ClientRequest* request, bool last)
     Buffer          key, value;
     ClientResponse* response;
     Buffer          location;
+    ReadBuffer      param;
 
     response = &request->response;
     switch (response->type)
@@ -68,7 +69,22 @@ void ShardHTTPClientSession::OnComplete(ClientRequest* request, bool last)
         }
         else
         {
-            session.Print("OK");
+            if (HTTP_GET_OPT_PARAM(params, "timing", param) && PARAM_BOOL_VALUE(param) == true)
+            {
+                // this is not the default case because of compatibility reasons
+                // some test programs assume that the result of list commands returns with "OK"
+                uint64_t elapsed = EventLoop::Now() - request->lastChangeTime;
+                if (elapsed < 1000)
+                    tmp.Writef("OK, %U msec", elapsed);
+                else if (elapsed < 10*1000)
+                    tmp.Writef("OK, %U.%U sec", elapsed / 1000, (elapsed % 1000) / 100);
+                else
+                    tmp.Writef("OK, %U sec", elapsed / 1000);
+            }
+            else
+                tmp.Write("OK");
+
+            session.Print(tmp);
         }
         break;
     case CLIENTRESPONSE_NUMBER:
@@ -376,6 +392,7 @@ bool ShardHTTPClientSession::ProcessCommand(ReadBuffer& cmd)
         return false;
 
     request->session = this;
+    request->lastChangeTime = EventLoop::Now();
     shardServer->OnClientRequest(request);
     
     return true;
