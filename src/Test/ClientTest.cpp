@@ -92,7 +92,7 @@ static int SetupDefaultControllerNodes(Client& client)
         nodes[nodeID] = configFile.GetListValue("controllers", (int) nodeID, "");
     }
 
-    ret = client.Init(SIZE(nodes), nodes);
+    ret = client.Init(numControllers, nodes);
     delete[] nodes;
     return ret;
 }
