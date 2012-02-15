@@ -282,6 +282,7 @@ void ShardQuorumProcessor::OnReceiveLease(ClusterMessage& message)
     if (restartReplication)
         quorumContext.RestartReplication();
 }
+
 void ShardQuorumProcessor::OnStartProposing()
 {
     quorumContext.SetQuorumNodes(activeNodes);

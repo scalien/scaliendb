@@ -59,7 +59,7 @@ class StorageEnvironment
 public:
     StorageEnvironment();
     
-    bool                    Open(Buffer& envPath);
+    bool                    Open(Buffer& envPath, StorageConfig config);
     void                    Close();
 
     static void             Sync(FD fd);

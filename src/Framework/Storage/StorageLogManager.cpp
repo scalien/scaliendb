@@ -90,7 +90,7 @@ StorageLogManager::LogSegment* StorageLogManager::GetHead(uint64_t trackID)
                     logSegmentID = 1;
                 filename.Writef("log.%020U.%020U", trackID, logSegmentID);
                 logSegment = Add(track->trackID, logSegmentID, filename);
-                logSegment->Open(env->logPath, track->trackID, logSegmentID, env->config.syncGranularity);
+                logSegment->Open(env->logPath, track->trackID, logSegmentID, env->GetConfig().GetSyncGranularity());
                 return logSegment;
             }
         }

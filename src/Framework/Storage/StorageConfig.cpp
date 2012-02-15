@@ -1,32 +1,81 @@
 #include "StorageConfig.h"
-#include "System/Config.h"
 
-void StorageConfig::Init()
+void StorageConfig::SetChunkSize(uint64_t chunkSize_)
 {
-    uint64_t size;
+    chunkSize = chunkSize_;
+}
 
-    chunkSize = (uint64_t) configFile.GetInt64Value("database.chunkSize", 
-     STORAGE_DEFAULT_CHUNKSIZE);
+void StorageConfig::SetLogSegmentSize(uint64_t logSegmentSize_)
+{
+    logSegmentSize = logSegmentSize_;
+}
 
-    logSegmentSize = (uint64_t) configFile.GetInt64Value("database.logSegmentSize", 
-     STORAGE_DEFAULT_LOGSEGMENTSIZE);
+void StorageConfig::SetFileChunkCacheSize(uint64_t fileChunkCacheSize_)
+{
+    fileChunkCacheSize = fileChunkCacheSize_;
+}
 
-    fileChunkCacheSize = (uint64_t) configFile.GetInt64Value("database.fileChunkCacheSize", 
-     STORAGE_DEFAULT_FILECHUNK_CACHESIZE);
+void StorageConfig::SetMemoChunkCacheSize(uint64_t memoChunkCacheSize_)
+{
+    memoChunkCacheSize = memoChunkCacheSize_;
+}
 
-    memoChunkCacheSize = (uint64_t) configFile.GetInt64Value("database.memoChunkCacheSize", 
-     STORAGE_DEFAULT_MEMOCHUNK_CACHESIZE);
+void StorageConfig::SetLogSize(uint64_t logSize_)
+{
+    numUnbackedLogSegments = logSize_ / logSegmentSize;
+}
 
-    size = (uint64_t) configFile.GetInt64Value("database.logSize", 
-     STORAGE_DEFAULT_LOG_SIZE);
-    numUnbackedLogSegments = size / logSegmentSize;
+void StorageConfig::SetMergeBufferSize(uint64_t mergeBufferSize_)
+{
+    mergeBufferSize = mergeBufferSize_;
+}
 
-    mergeBufferSize = (uint64_t) configFile.GetInt64Value("database.mergeBufferSize", 
-     STORAGE_DEFAULT_MERGEBUFFER_SIZE);
+void StorageConfig::SetSyncGranularity(uint64_t syncGranularity_)
+{
+    syncGranularity = syncGranularity_;
+}
 
-    syncGranularity = (uint64_t) configFile.GetInt64Value("database.syncGranularity", 
-     STORAGE_DEFAULT_SYNC_GRANULARITY);
+void StorageConfig::SetReplicatedLogSize(uint64_t replicatedLogSize)
+{
+    numLogSegmentFileChunks = replicatedLogSize / chunkSize;
+}
 
-    size = configFile.GetInt64Value("database.replicatedLogSize", STORAGE_DEFAULT_REPLICATEDLOG_SIZE);
-    numLogSegmentFileChunks = size / chunkSize;
+uint64_t StorageConfig::GetChunkSize()
+{
+    return chunkSize;
+}
+
+uint64_t StorageConfig::GetLogSegmentSize()
+{
+    return logSegmentSize;
+}
+
+uint64_t StorageConfig::GetFileChunkCacheSize()
+{
+    return fileChunkCacheSize;
+}
+
+uint64_t StorageConfig::GetMemoChunkCacheSize()
+{
+    return memoChunkCacheSize;
+}
+
+uint64_t StorageConfig::GetNumUnbackedLogSegments()
+{
+    return numUnbackedLogSegments;
+}
+
+uint64_t StorageConfig::GetMergeBufferSize()
+{
+    return mergeBufferSize;
+}
+
+uint64_t StorageConfig::GetSyncGranularity()
+{
+    return syncGranularity;
+}
+
+uint64_t StorageConfig::GetNumLogSegmentFileChunks()
+{
+    return numLogSegmentFileChunks;
 }

@@ -332,14 +332,24 @@ ShardDatabaseManager::ShardDatabaseManager()
 
 void ShardDatabaseManager::Init(ShardServer* shardServer_)
 {
-    Buffer  envpath;
-    
-    shardServer = shardServer_;
-
-    EventLoop::Add(&yieldStorageThreadsTimer);
+    Buffer          envpath;
+    StorageConfig   sc;
+       
+    sc.SetChunkSize(            (uint64_t) configFile.GetInt64Value("database.chunkSize",           64*MiB  ));
+    sc.SetLogSegmentSize(       (uint64_t) configFile.GetInt64Value("database.logSegmentSize",      64*MiB  ));
+    sc.SetFileChunkCacheSize(   (uint64_t) configFile.GetInt64Value("database.fileChunkCacheSize",  256*MiB ));
+    sc.SetMemoChunkCacheSize(   (uint64_t) configFile.GetInt64Value("database.memoChunkCacheSize",  1*GiB   ));
+    sc.SetLogSize(              (uint64_t) configFile.GetInt64Value("database.logSize",             20*GiB  ));
+    sc.SetMergeBufferSize(      (uint64_t) configFile.GetInt64Value("database.mergeBufferSize",     10*MiB  ));
+    sc.SetSyncGranularity(      (uint64_t) configFile.GetInt64Value("database.syncGranularity",     16*MiB  ));
+    sc.SetReplicatedLogSize(    (uint64_t) configFile.GetInt64Value("database.replicatedLogSize",   10*GiB  ));
 
     envpath.Writef("%s", configFile.GetValue("database.dir", "db"));
-    environment.Open(envpath);
+    environment.Open(envpath, sc);
+
+    shardServer = shardServer_;
+    
+    EventLoop::Add(&yieldStorageThreadsTimer);
 
     // TODO: replace 1 with symbolic name
     systemShard.Init(&environment, QUORUM_DATABASE_SYSTEM_CONTEXT, 1);

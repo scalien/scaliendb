@@ -83,13 +83,13 @@ StorageEnvironment::StorageEnvironment()
     dumpMemoChunks = false;
 }
 
-bool StorageEnvironment::Open(Buffer& envPath_)
+bool StorageEnvironment::Open(Buffer& envPath_, StorageConfig config_)
 {
     char            lastChar;
     Buffer          tmp;
     StorageRecovery recovery;
 
-    config.Init();
+    config = config_;
 
     commitJobs.Start();
     serializeChunkJobs.Start();
@@ -508,7 +508,7 @@ bool StorageEnvironment::Set(uint16_t contextID, uint64_t shardID, ReadBuffer ke
     {
         // approximate size
         keyValueSize = key.GetLength() + value.GetLength();
-        while (memoChunk->GetSize() + keyValueSize > config.chunkSize && config.numLogSegmentFileChunks == 0)
+        while (memoChunk->GetSize() + keyValueSize > config.GetChunkSize() && config.GetNumLogSegmentFileChunks() == 0)
             memoChunk->RemoveFirst();
     }
     
@@ -766,7 +766,7 @@ bool StorageEnvironment::PushMemoChunk(uint16_t contextID, uint64_t shardID)
     if (shard == NULL)
         return false;
 
-    if (shard->GetStorageType() == STORAGE_SHARD_TYPE_LOG && config.numLogSegmentFileChunks == 0)
+    if (shard->GetStorageType() == STORAGE_SHARD_TYPE_LOG && config.GetNumLogSegmentFileChunks() == 0)
         return false; // never serialize log storage shards if we don't want file chunks
     
     memoChunk = shard->GetMemoChunk();            
@@ -1150,7 +1150,7 @@ void StorageEnvironment::TryFinalizeLogSegments()
         logSegment = logManager.GetHead(track->trackID);
         ASSERT(logSegment);
 
-        if (logSegment->GetOffset() < config.logSegmentSize)
+        if (logSegment->GetOffset() < config.GetLogSegmentSize())
             continue;
 
         logSegment->Close();
@@ -1181,24 +1181,24 @@ void StorageEnvironment::TrySerializeChunks()
         if (memoChunk->GetSize() == 0)
             continue;
 
-        if (shard->GetStorageType() == STORAGE_SHARD_TYPE_LOG && config.numLogSegmentFileChunks == 0)
+        if (shard->GetStorageType() == STORAGE_SHARD_TYPE_LOG && config.GetNumLogSegmentFileChunks() == 0)
             continue; // never serialize log storage shards if we don't want filechunks
         
         logSegment = logManager.GetHead(shard->GetTrackID());
         if (!logSegment)
             continue;
 
-        if (memoChunk->GetSize() > config.chunkSize)
+        if (memoChunk->GetSize() > config.GetChunkSize())
             goto Candidate;
-        if (memoChunksSumSize > config.memoChunkCacheSize)
+        if (memoChunksSumSize > config.GetMemoChunkCacheSize())
             goto Candidate;
         if (dumpMemoChunks)
             goto Candidate;
-        if (logSegment->GetLogSegmentID() <= config.numUnbackedLogSegments)
+        if (logSegment->GetLogSegmentID() <= config.GetNumUnbackedLogSegments())
             continue;
         if (memoChunk->GetMinLogSegmentID() == 0)
             continue;
-        if (memoChunk->GetMinLogSegmentID() >= (logSegment->GetLogSegmentID() - config.numUnbackedLogSegments))
+        if (memoChunk->GetMinLogSegmentID() >= (logSegment->GetLogSegmentID() - config.GetNumUnbackedLogSegments()))
             continue;
 
 Candidate:
@@ -1382,7 +1382,7 @@ bool StorageEnvironment::TryDeleteLogTypeFileChunk(StorageShard* shard)
     StorageFileChunk*   fileChunk;
     StorageChunk*       chunk;
 
-    if (shard->GetChunks().GetLength() <= config.numLogSegmentFileChunks)
+    if (shard->GetChunks().GetLength() <= config.GetNumLogSegmentFileChunks())
         return false;
 
     chunk = *(shard->GetChunks().First());
