@@ -79,7 +79,8 @@ Request* RequestProxy::Pop()
     Request* it;
 
     it = list.First();
-    Remove(it);
+    if (it)
+        Remove(it);
     return it;
 }
 
