@@ -502,6 +502,7 @@ void ShardServer::TryDeleteQuorumProcessor(ShardQuorumProcessor* quorumProcessor
     databaseManager.DeleteDataShards(quorumProcessor->GetQuorumID());
 
     quorumProcessor->Shutdown();
+    quorumProcessors.Remove(quorumProcessor);
     delete quorumProcessor;
 }
 

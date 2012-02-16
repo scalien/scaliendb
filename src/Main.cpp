@@ -274,8 +274,8 @@ static void CrashReporterCallback()
     // Generate report and send it to log and standard error
     msg = CrashReporter::GetReport();
 
-    //STOP_FAIL(1, "%s", msg);
     Log_SetTarget(Log_GetTarget() | LOG_TARGET_STDERR | LOG_TARGET_FILE);
     Log_Message("%s", msg);
+    IFDEBUG(ASSERT_FAIL());
     _exit(1);
 }
