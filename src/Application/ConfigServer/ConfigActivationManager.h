@@ -27,7 +27,9 @@ public:
 
     void            UpdateTimeout();
 
-private:    
+private:
+    void            TryActivateShardServer(ConfigQuorum* quorum, ConfigShardServer* shardServer, bool disregardPrevious, bool force);
+
     Timer           activationTimeout;
     ConfigServer*   configServer;
 };
