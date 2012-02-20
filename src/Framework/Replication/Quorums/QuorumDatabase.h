@@ -47,7 +47,7 @@ public:
     void                GetAcceptedValue(uint64_t paxosID, Buffer& value);
     void                SetAcceptedValue(uint64_t paxosID, ReadBuffer value);
 
-    bool                IsCommiting();
+    bool                IsCommitting();
     
     void                Commit();
     void                Commit(Callable& onCommit);

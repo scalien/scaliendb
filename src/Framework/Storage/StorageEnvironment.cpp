@@ -744,7 +744,7 @@ bool StorageEnvironment::Commit(uint64_t trackID)
     return true;
 }
 
-bool StorageEnvironment::IsCommiting(uint64_t trackID)
+bool StorageEnvironment::IsCommitting(uint64_t trackID)
 {
     Job* job;
 
@@ -1125,6 +1125,25 @@ bool StorageEnvironment::SplitShard(uint16_t contextID,  uint64_t shardID,
     return true;
 }
 
+bool StorageEnvironment::DeleteTrack(uint64_t trackID)
+{
+    // make sure there's no shard in the track
+    StorageShard* shard;
+
+    if (IsCommitting(trackID))
+        return false;
+
+    FOREACH(shard, shards)
+    {
+        if (shard->GetTrackID() == trackID)
+            return false;
+    }
+
+    logManager.DeleteTrack(trackID);
+
+    return true;
+}
+
 void StorageEnvironment::OnCommit(StorageCommitJob* job)
 {
     if (job)
@@ -1277,14 +1296,8 @@ void StorageEnvironment::TryMergeChunks()
 void StorageEnvironment::TryArchiveLogSegments()
 {
     bool                archive;
-    uint64_t            logSegmentID;
-    uint64_t            minLogSegmentID;
-    uint64_t            maxLogSegmentID;
     StorageLogSegment*  logSegment;
     StorageShard*       shard;
-    StorageMemoChunk*   memoChunk;
-    StorageChunk**      chunk;
-    List<uint64_t>      trackIDs;
     Track*              track;
 
     Log_Trace();
@@ -1297,46 +1310,29 @@ void StorageEnvironment::TryArchiveLogSegments()
 
     FOREACH(track, logManager.tracks)
     {
-        if (track->logSegments.GetLength() <= 1)
-            continue;
         logSegment = logManager.GetTail(track->trackID);
         if (!logSegment)
             continue;
+
+        if (track->deleted)
+        {
+            if (logSegment->IsOpen())
+                logSegment->Close();
+
+            archiveLogJobs.Execute(new StorageArchiveLogSegmentJob(this, logSegment, archiveScript));
+            return;
+        }
+
+        if (track->logSegments.GetLength() <= 1)
+            continue;
+
         archive = true;
-        logSegmentID = logSegment->GetLogSegmentID();
         FOREACH (shard, shards)
         {
-            if (shard->GetTrackID() != logSegment->GetTrackID())
-                continue;
-            if (shard->GetStorageType() == STORAGE_SHARD_TYPE_LOG)
-                continue; // log storage shards never hinder log segment archival
-
-            memoChunk = shard->GetMemoChunk();
-
-            if (shard->GetStorageType() == STORAGE_SHARD_TYPE_DUMP)
-            {
-                if (logSegmentID + 1 < memoChunk->GetMaxLogSegmentID())
-                    continue;
-                // dump storage shard has been written to a higher numbered log segment, do not hinder archival
-            }
-
-            minLogSegmentID = memoChunk->GetMinLogSegmentID();
-            maxLogSegmentID = memoChunk->GetMaxLogSegmentID();
-            if (memoChunk->GetSize() > 0 && minLogSegmentID > 0 && minLogSegmentID <= logSegmentID && logSegmentID <= maxLogSegmentID)
+            if (shard->IsBackingLogSegment(logSegment->GetTrackID(), logSegment->GetLogSegmentID()))
             {
                 archive = false;
                 break;
-            }
-
-            FOREACH (chunk, shard->GetChunks())
-            {
-                minLogSegmentID = (*chunk)->GetMinLogSegmentID();
-                maxLogSegmentID = (*chunk)->GetMaxLogSegmentID();
-                if ((*chunk)->GetChunkState() <= StorageChunk::Unwritten && minLogSegmentID <= logSegmentID && logSegmentID <= maxLogSegmentID)
-                {
-                    archive = false;
-                    break;
-                }
             }
         }
 
@@ -1579,7 +1575,7 @@ void StorageEnvironment::OnChunkMerge(StorageMergeChunkJob* job)
 
 void StorageEnvironment::OnLogArchive(StorageArchiveLogSegmentJob* job)
 {
-    logManager.Delete(job->logSegment);
+    logManager.DeleteLogSegment(job->logSegment);
     
     TryArchiveLogSegments();
     delete job;

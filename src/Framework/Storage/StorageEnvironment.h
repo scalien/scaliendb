@@ -81,6 +81,8 @@ public:
     void                    DeleteShard(uint16_t contextID, uint64_t shardID);
     bool                    SplitShard(uint16_t contextID,  uint64_t shardID,
                              uint64_t newShardID, ReadBuffer splitKey);
+
+    bool                    DeleteTrack(uint64_t trackID);
                              
     bool                    Get(uint16_t contextID, uint64_t shardID, ReadBuffer key, ReadBuffer& value);
     bool                    Set(uint16_t contextID, uint64_t shardID, ReadBuffer key, ReadBuffer value);
@@ -100,7 +102,7 @@ public:
     
     bool                    Commit(uint64_t trackID);
     bool                    Commit(uint64_t trackID, Callable& onCommit_);
-    bool                    IsCommiting(uint64_t trackID);
+    bool                    IsCommitting(uint64_t trackID);
     
     bool                    PushMemoChunk(uint16_t contextID, uint64_t shardID);
 
