@@ -6,6 +6,22 @@
 #include "System/Events/EventLoop.h"
 #include "System/IO/IOProcessor.h"
 #include "System/Stopwatch.h"
+#include "System/Config.h"
+
+static StorageConfig    storageConfig;
+static Config           configFile;
+       
+void SetupDefaultStorageConfig()
+{
+    storageConfig.SetChunkSize(            (uint64_t) configFile.GetInt64Value("database.chunkSize",           64*MiB  ));
+    storageConfig.SetLogSegmentSize(       (uint64_t) configFile.GetInt64Value("database.logSegmentSize",      64*MiB  ));
+    storageConfig.SetFileChunkCacheSize(   (uint64_t) configFile.GetInt64Value("database.fileChunkCacheSize",  256*MiB ));
+    storageConfig.SetMemoChunkCacheSize(   (uint64_t) configFile.GetInt64Value("database.memoChunkCacheSize",  1*GiB   ));
+    storageConfig.SetLogSize(              (uint64_t) configFile.GetInt64Value("database.logSize",             20*GiB  ));
+    storageConfig.SetMergeBufferSize(      (uint64_t) configFile.GetInt64Value("database.mergeBufferSize",     10*MiB  ));
+    storageConfig.SetSyncGranularity(      (uint64_t) configFile.GetInt64Value("database.syncGranularity",     16*MiB  ));
+    storageConfig.SetReplicatedLogSize(    (uint64_t) configFile.GetInt64Value("database.replicatedLogSize",   10*GiB  ));
+}
 
 TEST_DEFINE(TestStorageBulkCursor)
 {
@@ -18,8 +34,10 @@ TEST_DEFINE(TestStorageBulkCursor)
     Buffer              dbPath;
     unsigned            i;
     
+    SetupDefaultStorageConfig();
+
     dbPath.Write("test/shard/0/db");
-    env.Open(dbPath);
+    env.Open(dbPath, storageConfig);
     cursor = env.GetBulkCursor(4, 1);
     i = 0;
     FOREACH (it, *cursor)
@@ -67,8 +85,10 @@ TEST_DEFINE(TestStorageAsyncList)
     StorageEnvironment  env;
     Buffer              dbPath;
     
+    SetupDefaultStorageConfig();
+
     dbPath.Write("test/shard/0/db");
-    env.Open(dbPath);
+    env.Open(dbPath, storageConfig);
     
     IOProcessor::Init(1024);
     EventLoop::Init();
@@ -107,9 +127,10 @@ TEST_DEFINE(TestStorageSet)
     IOProcessor::Init(1024);
     EventLoop::Init();
     StartClock();
+    SetupDefaultStorageConfig();
 
     dbPath.Write("test/shard/0/db");
-    env.Open(dbPath);
+    env.Open(dbPath, storageConfig);
 
     // SET test ====================================================================================
     num = 10*1000;

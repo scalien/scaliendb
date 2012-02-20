@@ -527,7 +527,8 @@ void PrintStackTrace()
     line.SizeOfStruct = sizeof(IMAGEHLP_LINE64);
     module.SizeOfStruct = sizeof(IMAGEHLP_MODULE64);
 
-    for (i = 0; i < frames; i++)
+    // skip current function, therefore start from 1
+    for (i = 1; i < frames; i++)
     {
         address = (DWORD64)(stack[i]);
 
