@@ -301,7 +301,7 @@ bool ReplicatedLog::OnLearnChosen(PaxosMessage& imsg)
     Log_Debug("OnLearnChosen begin");
 #endif
 
-    if (context->GetDatabase()->IsCommiting())
+    if (context->GetDatabase()->IsCommitting())
     {
 #ifdef RLOG_DEBUG_MESSAGES
         Log_Debug("Database is commiting, dropping Paxos message");

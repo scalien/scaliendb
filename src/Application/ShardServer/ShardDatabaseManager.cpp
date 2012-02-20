@@ -352,6 +352,10 @@ void ShardDatabaseManager::Init(ShardServer* shardServer_)
     EventLoop::Add(&yieldStorageThreadsTimer);
 
     // TODO: replace 1 with symbolic name
+
+    environment.CreateShard(/* trackID */0, QUORUM_DATABASE_SYSTEM_CONTEXT, 1, 
+     0, "", "", true, STORAGE_SHARD_TYPE_STANDARD);
+
     systemShard.Init(&environment, QUORUM_DATABASE_SYSTEM_CONTEXT, 1);
     REPLICATION_CONFIG->Init(&systemShard);
     if (REPLICATION_CONFIG->GetNodeID() > 0)
@@ -415,43 +419,14 @@ ConfigState* ShardDatabaseManager::GetConfigState()
     return shardServer->GetConfigState();
 }
 
-void ShardDatabaseManager::DeleteQuorumPaxosShard(uint64_t quorumID)
+void ShardDatabaseManager::DeleteQuorum(uint64_t quorumID)
 {
-    StorageShardProxy*  shard;
-    
-    if (quorumPaxosShards.Get(quorumID, shard))
-    {
-        quorumPaxosShards.Remove(quorumID);
-        delete shard;
-    }
-    
-    environment.DeleteShard(QUORUM_DATABASE_QUORUM_LOG_CONTEXT, quorumID);
-}
+    DeleteQuorumPaxosShard(quorumID);
+    DeleteQuorumLogShard(quorumID);
+    DeleteDataShards(quorumID);
 
-void ShardDatabaseManager::DeleteQuorumLogShard(uint64_t quorumID)
-{
-    StorageShardProxy*  shard;
-    
-    if (quorumLogShards.Get(quorumID, shard))
-    {
-        quorumLogShards.Remove(quorumID);
-        delete shard;
-    }
-
-    environment.DeleteShard(QUORUM_DATABASE_QUORUM_PAXOS_CONTEXT, quorumID);
-}
-
-void ShardDatabaseManager::DeleteDataShards(uint64_t quorumID)
-{
-    ConfigQuorum*   configQuorum;
-    uint64_t*       itShardID;
-    
-    configQuorum = shardServer->GetConfigState()->GetQuorum(quorumID);
-    if (!configQuorum)
-        return;
-    
-    FOREACH (itShardID, configQuorum->shards)
-        environment.DeleteShard(QUORUM_DATABASE_DATA_CONTEXT, *itShardID);
+    bool ret = environment.DeleteTrack(quorumID);
+    ASSERT(ret);
 }
 
 void ShardDatabaseManager::SetShards(SortedList<uint64_t>& shards)
@@ -740,6 +715,45 @@ uint64_t ShardDatabaseManager::ExecuteMessage(uint64_t quorumID, uint64_t paxosI
 void ShardDatabaseManager::OnLeaseTimeout()
 {
     sequences.DeleteTree();
+}
+
+void ShardDatabaseManager::DeleteQuorumPaxosShard(uint64_t quorumID)
+{
+    StorageShardProxy*  shard;
+    
+    if (quorumPaxosShards.Get(quorumID, shard))
+    {
+        quorumPaxosShards.Remove(quorumID);
+        delete shard;
+    }
+    
+    environment.DeleteShard(QUORUM_DATABASE_QUORUM_LOG_CONTEXT, quorumID);
+}
+
+void ShardDatabaseManager::DeleteQuorumLogShard(uint64_t quorumID)
+{
+    StorageShardProxy*  shard;
+    
+    if (quorumLogShards.Get(quorumID, shard))
+    {
+        quorumLogShards.Remove(quorumID);
+        delete shard;
+    }
+
+    environment.DeleteShard(QUORUM_DATABASE_QUORUM_PAXOS_CONTEXT, quorumID);
+}
+
+void ShardDatabaseManager::DeleteDataShards(uint64_t quorumID)
+{
+    ConfigQuorum*   configQuorum;
+    uint64_t*       itShardID;
+    
+    configQuorum = shardServer->GetConfigState()->GetQuorum(quorumID);
+    if (!configQuorum)
+        return;
+    
+    FOREACH (itShardID, configQuorum->shards)
+        environment.DeleteShard(QUORUM_DATABASE_DATA_CONTEXT, *itShardID);
 }
 
 void ShardDatabaseManager::OnYieldStorageThreadsTimer()

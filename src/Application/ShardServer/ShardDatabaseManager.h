@@ -121,9 +121,7 @@ public:
     StorageShardProxy*      GetQuorumLogShard(uint64_t quorumID);
     ConfigState*            GetConfigState();
     
-    void                    DeleteQuorumPaxosShard(uint64_t quorumID);
-    void                    DeleteQuorumLogShard(uint64_t quorumID);
-    void                    DeleteDataShards(uint64_t quorumID);
+    void                    DeleteQuorum(uint64_t quorumID);
 
     void                    SetShards(SortedList<uint64_t>& shards);
     void                    SetQuorumShards(uint64_t quorumID);
@@ -137,10 +135,13 @@ public:
     void                    OnLeaseTimeout();
         
 private:
+    void                    DeleteQuorumPaxosShard(uint64_t quorumID);
+    void                    DeleteQuorumLogShard(uint64_t quorumID);
+    void                    DeleteDataShards(uint64_t quorumID);
+
     void                    OnYieldStorageThreadsTimer();
     void                    OnExecuteReads();
     void                    OnExecuteLists();
-    uint64_t                FindNextShard(uint64_t tableID, ReadBuffer firstKey);
 
     ShardServer*            shardServer;
     StorageEnvironment      environment;

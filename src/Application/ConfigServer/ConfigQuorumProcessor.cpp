@@ -304,6 +304,8 @@ void ConfigQuorumProcessor::ActivateNode(uint64_t quorumID, uint64_t nodeID, boo
 {
     ConfigMessage* message;
  
+    /* force is not used, it's legacy, should be removed */
+
     message = new ConfigMessage();
     message->fromClient = false;
     message->ActivateShardServer(quorumID, nodeID, force);

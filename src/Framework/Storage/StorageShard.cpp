@@ -151,6 +151,40 @@ bool StorageShard::IsSplitable()
     return true;
 }
 
+bool StorageShard::IsBackingLogSegment(uint64_t checkTrackID, uint64_t checkLogSegmentID)
+{
+    StorageChunk** chunk;
+
+    if (trackID != checkTrackID)
+        return false;
+
+    if (storageType == STORAGE_SHARD_TYPE_LOG)
+        return false; // log storage shards never hinder log segment archival
+
+    if (storageType == STORAGE_SHARD_TYPE_DUMP)
+    {
+        if (checkLogSegmentID + 1 < memoChunk->GetMaxLogSegmentID())
+            return false;
+            // dump storage shard has been written to a higher numbered log segment, do not hinder archival
+    }
+
+    if (memoChunk->GetSize() > 0)
+    if (memoChunk->GetMinLogSegmentID() > 0)
+    if (memoChunk->GetMinLogSegmentID() <= checkLogSegmentID)
+    if (checkLogSegmentID <= memoChunk->GetMaxLogSegmentID())
+        return true;
+
+    FOREACH (chunk, chunks)
+    {
+        if ((*chunk)->GetChunkState() <= StorageChunk::Unwritten)
+        if ((*chunk)->GetMinLogSegmentID() <= checkLogSegmentID)
+        if (checkLogSegmentID <= (*chunk)->GetMaxLogSegmentID())
+            return true;
+    }
+
+    return false;
+}
+
 bool StorageShard::RangeContains(ReadBuffer key)
 {
     ReadBuffer  firstKey, lastKey;

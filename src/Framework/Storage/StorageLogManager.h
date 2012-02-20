@@ -24,15 +24,20 @@ public:
 
     struct Track
     {
-        uint16_t        trackID;
+        bool            deleted;
+        uint64_t        trackID;
         LogSegmentList  logSegments;
+
+        Track()         { deleted = false; }
     };
 
     ~StorageLogManager();
 
     Track*          CreateTrack(uint64_t trackID);
-    LogSegment*     Add(uint64_t trackID, uint64_t logSegmentID, ReadBuffer filename);
-    void            Delete(LogSegment* logSegment);
+    void            DeleteTrack(uint64_t trackID);
+
+    LogSegment*     CreateLogSegment(uint64_t trackID, uint64_t logSegmentID, ReadBuffer filename);
+    void            DeleteLogSegment(LogSegment* logSegment);
 
     Track*          GetTrack(uint64_t trackID);
     LogSegment*     GetHead(uint64_t trackID);

@@ -16,7 +16,7 @@ StorageLogSegment::StorageLogSegment()
     prevShardID = 0;
     writeShardID = true;
     asyncCommit = false;
-    isCommiting = false;
+    IsCommitting = false;
     commitStatus = false;
 }
 

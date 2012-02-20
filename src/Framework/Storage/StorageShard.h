@@ -55,6 +55,7 @@ public:
     bool                UseBloomFilter();
     char                GetStorageType();
     bool                IsSplitable();
+    bool                IsBackingLogSegment(uint64_t trackID, uint64_t logSegmentID);
     
     bool                RangeContains(ReadBuffer key);
 

@@ -80,6 +80,7 @@ bool StorageRecovery::TryRecovery(StorageEnvironment* env_)
     
     FS_CloseDir(dir);
     DeleteOrphanedChunks();
+    DeleteOrphanedTracks();
     
     return true;
 }
@@ -657,7 +658,7 @@ bool StorageRecovery::ReplayLogSegment(uint64_t trackID, Buffer& filename)
     track = env->logManager.GetTrack(trackID);
     if (!track)
         env->logManager.CreateTrack(trackID);
-    env->logManager.Add(trackID, logSegmentID, filename);
+    env->logManager.CreateLogSegment(trackID, logSegmentID, filename);
     
     fd.Close();
     
@@ -722,6 +723,39 @@ void StorageRecovery::DeleteOrphanedChunks()
     Log_Message("Checking done.");
 
     FS_CloseDir(dir);
+}
+
+void StorageRecovery::DeleteOrphanedTracks()
+{
+    StorageEnvironment::Track*  track;
+    StorageShard*               shard;
+    bool                        found;
+
+    Log_Debug("Checking for orphaned tracks...");
+
+    FOREACH(track, env->logManager.tracks)
+    {
+        // look for shards in this track
+        found = false;
+        FOREACH(shard, env->shards)
+        {
+            if (shard->GetTrackID() == track->trackID)
+            {
+                // shard found
+                found = true;
+                break;
+            }
+        }
+        
+        if (!found)
+        {
+            // if no shard is in track, delete it
+            track->deleted = true;
+            Log_Debug("Deleting orphaned track %U...", track->trackID);
+        }
+    }
+
+    Log_Message("Checking done.");
 }
 
 void StorageRecovery::ExecuteSet(
