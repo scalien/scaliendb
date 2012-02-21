@@ -52,6 +52,8 @@ public:
     uint32_t            GetLogCommandID();
     ReadBuffer          GetFirstKey();
     ReadBuffer          GetLastKey();
+    ReadBuffer          GetMidpoint();
+    uint64_t            GetSize();
     bool                UseBloomFilter();
     char                GetStorageType();
     bool                IsSplitable();

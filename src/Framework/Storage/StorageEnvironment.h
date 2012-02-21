@@ -97,8 +97,6 @@ public:
     void                    DecreaseNumCursors();
 
     uint64_t                GetSize(uint16_t contextID, uint64_t shardID);
-    ReadBuffer              GetMidpoint(uint16_t contextID, uint64_t shardID);
-    bool                    IsSplitable(uint16_t contextID, uint64_t shardID);
     
     bool                    Commit(uint64_t trackID);
     bool                    Commit(uint64_t trackID, Callable& onCommit_);

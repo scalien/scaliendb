@@ -1,5 +1,15 @@
 #include "StorageShard.h"
 
+static inline bool LessThan(ReadBuffer& a, ReadBuffer& b)
+{
+    return ReadBuffer::Cmp(a, b) < 0 ? true : false;
+}
+
+static inline bool operator==(const ReadBuffer& a, const ReadBuffer& b)
+{
+    return ReadBuffer::Cmp(a, b) == 0 ? true : false;
+}
+
 StorageShard::StorageShard()
 {
     prev = next = this;
@@ -120,6 +130,76 @@ ReadBuffer StorageShard::GetLastKey()
     return ReadBuffer(lastKey);
 }
 
+ReadBuffer StorageShard::GetMidpoint()
+{
+    unsigned                i;
+    StorageChunk**          itChunk;
+    ReadBuffer              midpoint;
+    SortedList<ReadBuffer>  midpoints;
+    ReadBuffer*             itMidpoint;
+
+    midpoint = memoChunk->GetMidpoint();
+    if (midpoint.GetLength() > 0)
+        midpoints.Add(midpoint);
+
+    FOREACH (itChunk, chunks)
+    {
+        midpoint = (*itChunk)->GetMidpoint();
+        if (midpoint.GetLength() > 0)
+            midpoints.Add(midpoint);
+    }
+
+    i = 0;
+    FOREACH (itMidpoint, midpoints)
+    {
+        if (i >= (midpoints.GetLength() / 2))
+            return *itMidpoint;
+        i++;
+    }
+    
+    return ReadBuffer();     
+}
+
+uint64_t StorageShard::GetSize()
+{
+    uint64_t            size;
+    StorageFileChunk*   chunk;
+    StorageChunk**      itChunk;
+    ReadBuffer          firstKey;
+    ReadBuffer          lastKey;
+
+    size = memoChunk->GetSize();
+    
+    FOREACH (itChunk, chunks)
+    {
+        if ((*itChunk)->GetChunkState() != StorageChunk::Written)
+        {
+            size += (*itChunk)->GetSize();
+            continue;
+        }
+        
+        chunk = (StorageFileChunk*) *itChunk;
+        firstKey = chunk->GetFirstKey();
+        lastKey = chunk->GetLastKey();
+        
+        if (firstKey.GetLength() > 0 && !RangeContains(firstKey))
+        {
+            size += chunk->GetPartialSize(GetFirstKey(), GetLastKey());
+            continue;
+        }
+
+        if (lastKey.GetLength() > 0 && !RangeContains(lastKey))
+        {
+            size += chunk->GetPartialSize(GetFirstKey(), GetLastKey());
+            continue;
+        }
+
+        size += chunk->GetSize();
+    }
+    
+    return size;
+}
+
 bool StorageShard::UseBloomFilter()
 {
     return useBloomFilter;
@@ -136,7 +216,7 @@ bool StorageShard::IsSplitable()
     ReadBuffer      firstKey;
     ReadBuffer      lastKey;
 
-    FOREACH (itChunk, GetChunks())
+    FOREACH (itChunk, chunks)
     {
         firstKey = (*itChunk)->GetFirstKey();
         lastKey = (*itChunk)->GetLastKey();

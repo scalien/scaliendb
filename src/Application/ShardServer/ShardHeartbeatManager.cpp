@@ -38,6 +38,7 @@ void ShardHeartbeatManager::OnHeartbeatTimeout()
     ConfigState*            configState;
     ConfigQuorum*           configQuorum;
     StorageEnvironment*     env;
+    StorageShard*           shard;
     
     Log_Trace();
     
@@ -75,16 +76,15 @@ void ShardHeartbeatManager::OnHeartbeatTimeout()
         configQuorum = configState->GetQuorum(itQuorumProcessor->GetQuorumID());
         FOREACH (itShardID, configQuorum->shards)
         {
-            bool ret = env->ShardExists(QUORUM_DATABASE_DATA_CONTEXT, *itShardID);
-            
-            if (!ret)
+            shard = env->GetShard(QUORUM_DATABASE_DATA_CONTEXT, *itShardID);
+            if (!shard)
                 continue;
             
             quorumShardInfo.quorumID = itQuorumProcessor->GetQuorumID();
             quorumShardInfo.shardID = *itShardID;
-            quorumShardInfo.isSplitable = env->IsSplitable(QUORUM_DATABASE_DATA_CONTEXT, *itShardID);
-            quorumShardInfo.shardSize = env->GetSize(QUORUM_DATABASE_DATA_CONTEXT, *itShardID);
-            quorumShardInfo.splitKey.Write(env->GetMidpoint(QUORUM_DATABASE_DATA_CONTEXT, *itShardID));
+            quorumShardInfo.isSplitable = shard->IsSplitable();
+            quorumShardInfo.shardSize = shard->GetSize();
+            quorumShardInfo.splitKey.Write(shard->GetMidpoint());
             
             if (SHARD_MIGRATION_WRITER->IsActive() && SHARD_MIGRATION_WRITER->GetShardID() == quorumShardInfo.shardID)
             {

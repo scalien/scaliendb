@@ -601,110 +601,13 @@ void StorageEnvironment::DecreaseNumCursors()
 
 uint64_t StorageEnvironment::GetSize(uint16_t contextID, uint64_t shardID)
 {
-    uint64_t            size;
     StorageShard*       shard;
-    StorageFileChunk*   chunk;
-    StorageChunk**      itChunk;
-    ReadBuffer          firstKey;
-    ReadBuffer          lastKey;
 
     shard = GetShard(contextID, shardID);
     if (!shard)
         return 0;
 
-    size = shard->GetMemoChunk()->GetSize();
-    
-    FOREACH (itChunk, shard->GetChunks())
-    {
-        if ((*itChunk)->GetChunkState() != StorageChunk::Written)
-        {
-            size += (*itChunk)->GetSize();
-            continue;
-        }
-        
-        chunk = (StorageFileChunk*) *itChunk;
-        firstKey = chunk->GetFirstKey();
-        lastKey = chunk->GetLastKey();
-        
-        if (firstKey.GetLength() > 0 && !shard->RangeContains(firstKey))
-        {
-            size += chunk->GetPartialSize(shard->GetFirstKey(), shard->GetLastKey());
-            continue;
-        }
-
-        if (lastKey.GetLength() > 0 && !shard->RangeContains(lastKey))
-        {
-            size += chunk->GetPartialSize(shard->GetFirstKey(), shard->GetLastKey());
-            continue;
-        }
-
-        size += chunk->GetSize();
-    }
-    
-    return size;
-}
-
-ReadBuffer StorageEnvironment::GetMidpoint(uint16_t contextID, uint64_t shardID)
-{
-    unsigned                i;
-    StorageShard*           shard;
-    StorageChunk**          itChunk;
-    ReadBuffer              midpoint;
-    SortedList<ReadBuffer>  midpoints;
-    ReadBuffer*             itMidpoint;
-
-    shard = GetShard(contextID, shardID);
-    if (!shard)
-        return ReadBuffer();
-
-    midpoint = shard->GetMemoChunk()->GetMidpoint();
-    if (midpoint.GetLength() > 0)
-        midpoints.Add(midpoint);
-
-    FOREACH (itChunk, shard->GetChunks())
-    {
-        midpoint = (*itChunk)->GetMidpoint();
-        if (midpoint.GetLength() > 0)
-            midpoints.Add(midpoint);
-    }
-
-    i = 0;
-    FOREACH (itMidpoint, midpoints)
-    {
-        if (i >= (midpoints.GetLength() / 2))
-            return *itMidpoint;
-        i++;
-    }
-    
-    return ReadBuffer();
-}
-
-bool StorageEnvironment::IsSplitable(uint16_t contextID, uint64_t shardID)
-{
-    StorageShard*   shard;
-    StorageChunk**  itChunk;
-    ReadBuffer      firstKey;
-    ReadBuffer      lastKey;
-
-    shard = GetShard(contextID, shardID);
-    if (!shard)
-        return false;
-
-    return shard->IsSplitable();
-    
-    FOREACH (itChunk, shard->GetChunks())
-    {
-        firstKey = (*itChunk)->GetFirstKey();
-        lastKey = (*itChunk)->GetLastKey();
-        
-        if (firstKey.GetLength() > 0 && !shard->RangeContains(firstKey))
-            return false;
-
-        if (lastKey.GetLength() > 0 && !shard->RangeContains(lastKey))
-            return false;
-    }
-    
-    return true;
+    return shard->GetSize();
 }
 
 bool StorageEnvironment::Commit(uint64_t trackID, Callable& onCommit)
@@ -808,12 +711,12 @@ printable.Write(a); if (!printable.IsAsciiPrintable()) { printable.ToHexadecimal
         
         firstKey = shard->GetFirstKey();
         lastKey = shard->GetLastKey();
-        midpoint = GetMidpoint(contextID, shard->GetShardID());
-        isSplitable = IsSplitable(contextID, shard->GetShardID());
+        midpoint = shard->GetMidpoint();
+        isSplitable = shard->IsSplitable();
 
         buffer.Appendf("- shard %U (tableID = %U) \n", shard->GetShardID(), shard->GetTableID());
         buffer.Appendf("   track: %U\n", shard->GetTrackID());
-        buffer.Appendf("   size: %s\n", HUMAN_BYTES(GetSize(shard->GetContextID(), shard->GetShardID())));
+        buffer.Appendf("   size: %s\n", HUMAN_BYTES(shard->GetSize()));
         buffer.Appendf("   isSplitable: %b\n", isSplitable);
 
         MAKE_PRINTABLE(firstKey);
@@ -1431,7 +1334,7 @@ void StorageEnvironment::ConstructShardSizes(InSortedList<ShardSize>& shardSizes
         shardSize = new ShardSize;
         shardSize->contextID = shard->GetContextID();
         shardSize->shardID = shard->GetShardID();
-        shardSize->size = GetSize(shardSize->contextID, shardSize->shardID);
+        shardSize->size = shard->GetSize();
         shardSize->prev = shardSize->next = shardSize;
         shardSizes.Add(shardSize);
     }
