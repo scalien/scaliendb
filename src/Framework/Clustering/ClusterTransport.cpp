@@ -157,6 +157,7 @@ bool ClusterTransport::SetConnectionNodeID(Endpoint& endpoint, uint64_t nodeID)
 
 void ClusterTransport::SendMessage(uint64_t nodeID, Buffer& prefix, Message& msg)
 {
+    bool                ret;
     ClusterConnection*  conn;
     
     conn = GetConnection(nodeID);
@@ -173,7 +174,10 @@ void ClusterTransport::SendMessage(uint64_t nodeID, Buffer& prefix, Message& msg
         return;
     }
     
-    msg.Write(msgBuffer);
+    msgBuffer.Clear();
+    ret = msg.Write(msgBuffer);
+    ASSERT(ret);
+    ASSERT(msgBuffer.GetLength() > 0);
     conn->Write(prefix, msgBuffer);
 }
 
