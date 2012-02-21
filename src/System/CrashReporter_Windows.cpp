@@ -22,7 +22,7 @@ static LONG CALLBACK VectoredExceptionHandler(EXCEPTION_POINTERS* pointers)
     Call(exceptionCallback);
 
     // Usually exceptionCallback never returns. If it is, continue on other vectored handlers.
-    return EXCEPTION_CONTINUE_EXECUTION;
+    return EXCEPTION_CONTINUE_SEARCH;
 }
 
 void CrashReporter::SetCallback(Callable callback)

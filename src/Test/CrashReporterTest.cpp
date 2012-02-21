@@ -10,7 +10,7 @@ void CrashReporterCallback()
     msg = CrashReporter::GetReport();
     Log_Message("%s", msg);
 
-    _exit(TEST_SUCCESS);
+    //_exit(TEST_SUCCESS);
 }
 
 TEST_DEFINE(TestCrashReporterInvalidAccess)
@@ -71,6 +71,15 @@ TEST_DEFINE(TestCrashReporterDoubleFree)
     p = new char[1];
     delete p;
     delete p;
+
+    return TEST_SUCCESS;
+}
+
+TEST_DEFINE(TestCrashReporterAssert)
+{
+    CrashReporter::SetCallback(CFunc(CrashReporterCallback));
+
+    ASSERT_FAIL();
 
     return TEST_SUCCESS;
 }
