@@ -211,8 +211,9 @@ bool ClusterMessage::Read(ReadBuffer& buffer)
             if (!MessageUtil::ReadIDList(activeNodes, buffer))
                 return false;
             READ_SEPARATOR();
-            if (!MessageUtil::ReadIDList(shards, buffer))
-                return false;
+            // HISTORICAL: this is no longer used, remove this after 2.3.0
+            //if (!MessageUtil::ReadIDList(shards, buffer))
+            //    return false;
             return true;
         case CLUSTERMESSAGE_SHARDMIGRATION_INITIATE:
             read = buffer.Readf("%c:%U:%U:%U:%U",
@@ -298,6 +299,7 @@ bool ClusterMessage::Write(Buffer& buffer)
             buffer.Appendf(":");
             MessageUtil::WriteIDList(activeNodes, buffer);
             buffer.Appendf(":");
+            // HISTORICAL: this is no longer used, remove this after 2.3.0
             MessageUtil::WriteIDList(shards, buffer);
             return true;
         case CLUSTERMESSAGE_SHARDMIGRATION_INITIATE:
