@@ -318,35 +318,33 @@ bool StorageShard::IsMergeableType()
 
 bool StorageShard::IsSplitMergeCandidate()
 {
-    unsigned            count;
-    StorageChunk**      itChunk;
+    unsigned        count;
+    StorageChunk**  itChunk;
 
     if (!IsMergeableType())
         return false;
 
-    // paxos shards with tableID == 0 are always splitable, but we should merge them
+    // if it's a splitable data (non-paxos) shard, then we don't need to merge it
     if (IsSplitable() && tableID > 0)
         return false;
     
     count = 0;
     FOREACH (itChunk, chunks)
     {
-        if ((*itChunk)->GetChunkState() != StorageChunk::Written)
-            continue;
-
-        count++;
+        if ((*itChunk)->GetChunkState() == StorageChunk::Written)
+            count++;
     }
 
-    if (count < 2)
+    if (count > 1)
+        return true;
+    else
         return false;
-
-    return true;
 }
 
 bool StorageShard::IsFragmentedMergeCandidate()
 {
-    unsigned            count;
-    StorageChunk**      itChunk;
+    unsigned        count;
+    StorageChunk**  itChunk;
 
     if (!IsMergeableType())
         return false;
@@ -354,28 +352,29 @@ bool StorageShard::IsFragmentedMergeCandidate()
     count = 0;
     FOREACH (itChunk, chunks)
     {
-        if ((*itChunk)->GetChunkState() != StorageChunk::Written)
-            continue;
-
-        count++;
+        if ((*itChunk)->GetChunkState() == StorageChunk::Written)
+            count++;
     }
 
-    if (count < 10)
+    if (count > 10)
+        return true;
+    else
         return false;
-
-    return true;
 }
 
 void StorageShard::GetMergeInputChunks(List<StorageFileChunk*>& inputChunks)
 {
-    StorageFileChunk*       fileChunk;
-    StorageChunk**          itChunk;
+    StorageFileChunk*   fileChunk;
+    StorageChunk**      itChunk;
     
     FOREACH (itChunk, chunks)
     {
-        if ((*itChunk)->GetChunkState() != StorageChunk::Written)
-            continue;
-        fileChunk = (StorageFileChunk*) *itChunk;
-        inputChunks.Append(fileChunk);
+        if ((*itChunk)->GetChunkState() == StorageChunk::Written)
+        {
+            fileChunk = (StorageFileChunk*) *itChunk;
+            inputChunks.Append(fileChunk);
+        }
     }
+
+    ASSERT(inputChunks.GetLength() > 1);
 }

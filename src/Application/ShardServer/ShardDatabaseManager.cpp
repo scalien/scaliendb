@@ -431,19 +431,20 @@ void ShardDatabaseManager::DeleteQuorum(uint64_t quorumID)
 
 void ShardDatabaseManager::SetShards(SortedList<uint64_t>& shards)
 {
-    uint64_t*           sit;
-    ConfigShard*        shard;
+    uint64_t*       itShardID;
+    ConfigShard*    shard;
 
-    FOREACH (sit, shards)
+    FOREACH (itShardID, shards)
     {
-        shard = shardServer->GetConfigState()->GetShard(*sit);
+        shard = shardServer->GetConfigState()->GetShard(*itShardID);
         ASSERT(shard != NULL);
         
         if (shard->state == CONFIG_SHARD_STATE_NORMAL)
         {
-            //Log_Trace("Calling CreateShard() for shardID = %U", *sit);
-            environment.CreateShard(shard->quorumID, QUORUM_DATABASE_DATA_CONTEXT, *sit, shard->tableID,
-             shard->firstKey, shard->lastKey, true, STORAGE_SHARD_TYPE_STANDARD);
+            if (shard->firstKey.GetLength() == 0)
+            if (shard->lastKey.GetLength() == 0)
+               environment.CreateShard(shard->quorumID, QUORUM_DATABASE_DATA_CONTEXT, *itShardID, shard->tableID,
+                shard->firstKey, shard->lastKey, true, STORAGE_SHARD_TYPE_STANDARD);
         }
     }
 }
