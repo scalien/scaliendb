@@ -1172,28 +1172,54 @@ void StorageEnvironment::TryWriteChunks()
 void StorageEnvironment::TryMergeChunks()
 {
     StorageShard*           shard;
-    InSortedList<ShardSize> shardSizes;
+    StorageShard*           smcShard;   // splitMergeCandidate
+    StorageShard*           fmcShard;   // fragmentedMergeCandidate
+    uint64_t                shardSize;
+    uint64_t                smcShardSize;
+    uint64_t                fmcShardSize;
 
     Log_Trace();
 
     if (!mergeEnabled || mergeChunkJobs.IsActive() || numCursors > 0)
         return;
 
-    // construct list of shards as ShardSize objects sorted with ascending size
-    ConstructShardSizes(shardSizes);
+    smcShard = NULL;
+    smcShardSize = 0;
+    fmcShard = NULL;
+    fmcShardSize = 0;
 
-    // find largest shard which has been split and needs merging
-    shard = FindLargestShardCond(shardSizes, &StorageShard::IsSplitMergeCandidate);
+    FOREACH (shard, shards)
+    {
+        shardSize = shard->GetSize();
 
-    // if no shard with a merge job was found so far,
-    // find largest shard which has too many file chunks
-    if (!shard)
-        shard = FindLargestShardCond(shardSizes,  &StorageShard::IsFragmentedMergeCandidate);        
+        // find largest shard which has been split and needs merging
+        if (smcShard == NULL || shardSize > smcShardSize)
+        {
+            if (shard->IsSplitMergeCandidate())
+            {
+                smcShard = shard;
+                smcShardSize = shardSize;
+            }
+        }
 
-    if (shard)
-        MergeChunk(shard);
+        if (smcShard)
+            continue;
 
-    shardSizes.DeleteList();
+        // find largest shard which has too many file chunks
+        if (fmcShard == NULL || shardSize > fmcShardSize)
+        {
+            if (shard->IsFragmentedMergeCandidate())
+            {
+                fmcShard = shard;
+                fmcShardSize = shardSize;
+            }           
+        }
+    }
+
+    if (smcShard)
+        MergeChunk(smcShard);
+    else if (fmcShard)
+        MergeChunk(fmcShard);
 }
 
 void StorageEnvironment::TryArchiveLogSegments()
