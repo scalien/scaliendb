@@ -858,7 +858,7 @@ bool StorageEnvironment::CreateShard(uint64_t trackID,
     LogManager::LogSegment* logSegment;
     LogManager::Track*      track;
 
-    // TODO: check for uncommited stuff    
+    // TODO: check for uncommited stuff
     
     shard = GetShard(contextID, shardID);
 
@@ -968,12 +968,10 @@ bool StorageEnvironment::SplitShard(uint16_t contextID,  uint64_t shardID,
     StorageLogSegment*      logSegment;
 
     shard = GetShard(contextID, newShardID);
-    if (shard != NULL)
-        return false;       // exists
+    ASSERT(shard == NULL); // should not exists
 
     shard = GetShard(contextID, shardID);
-    if (shard == NULL)
-        return false;       // does not exist
+    ASSERT(shard != NULL); // should exist
 
     logSegment = logManager.GetHead(shard->GetTrackID());
     if (!logSegment)
