@@ -18,6 +18,9 @@ static LONG CALLBACK VectoredExceptionHandler(EXCEPTION_POINTERS* pointers)
     // Setup the pointers
     exceptionPointers = pointers;
     
+    // Unregister handler
+    RemoveVectoredExceptionHandler(VectoredExceptionHandler);
+
     // Call user-provided callback
     Call(exceptionCallback);
 
@@ -29,11 +32,22 @@ void CrashReporter::SetCallback(Callable callback)
 {
     ULONG   firstHandler;
 
+    if (exceptionCallback.IsSet())
+        DeleteCallback();
+
     exceptionCallback = callback;
     exceptionMessage[0] = 0;
 
     firstHandler = TRUE;
     AddVectoredExceptionHandler(firstHandler, VectoredExceptionHandler);
+}
+
+void CrashReporter::DeleteCallback()
+{
+    // Unregister handler
+    RemoveVectoredExceptionHandler(VectoredExceptionHandler);
+    
+    exceptionCallback.Unset();
 }
 
 static const char* GetPossibleReason()
@@ -71,6 +85,7 @@ static const char* GetPossibleReason()
 const char* CrashReporter::GetReport()
 {
     char                symbolBuffer[sizeof(SYMBOL_INFO) + MAX_SYM_NAME * sizeof(TCHAR)];
+    char                traceBuffer[8*1024];
     SYMBOL_INFO*        symbol;
     HANDLE              process;
     IMAGEHLP_LINE64     line;
@@ -80,6 +95,7 @@ const char* CrashReporter::GetReport()
     const char*         fileName;
     const char*         symbolName;
     const char*         reason;
+    const char*         stackTrace;
 
     exceptionMessage[0] = 0;
     if (exceptionPointers == NULL)
@@ -122,19 +138,63 @@ const char* CrashReporter::GetReport()
     // Heuristics for possible reasons
     reason = GetPossibleReason();
 
+    // Retrieve stack trace
+    stackTrace = GetStackTrace(traceBuffer, sizeof(traceBuffer), "\t");
+
     // Generate printable exception message
     snprintf(exceptionMessage, sizeof(exceptionMessage),
         "Critical error detected\n"
         "Exception: 0x%08X\n"
+        "Reason: %s\n"
         "Address: 0x%p\n"
         "Location: %s!%s()  Line %u\n"
-        "Reason: %s\n",
+        "Stack trace: \n%s\n",
         exceptionPointers->ExceptionRecord->ExceptionCode,
+        reason,
         exceptionPointers->ExceptionRecord->ExceptionAddress,
         fileName, symbolName, line.LineNumber,
-        reason);
+        stackTrace);
 
     return exceptionMessage;
+}
+
+void CrashReporter::ReportSystemEvent(const char* ident)
+{
+    HANDLE  eventLog;
+    BOOL    ret;
+    WORD    category;
+    DWORD   eventID;
+    WORD    numStrings;
+    DWORD   dataSize;
+    LPCSTR  strings[1];
+
+    eventLog = OpenEventLog(NULL, ident);
+    if (eventLog == NULL)
+    {
+        Log_Errno("Cannot open event log!");
+        return;
+    }
+
+    // this generates the report into exceptionMessage
+    GetReport();
+
+    category = 0;
+    eventID = 0;
+    numStrings = 1;
+    strings[0] = exceptionMessage;
+    dataSize = 0;
+    ret = ReportEvent(eventLog, EVENTLOG_ERROR_TYPE, category, eventID, NULL, 
+     numStrings, dataSize, strings, NULL);
+
+    if (ret == FALSE)
+        Log_Errno("Cannot report to event log!");
+
+    ret = CloseEventLog(eventLog);
+    if (ret == FALSE)
+    {
+        Log_Errno("Cannot close event log!");
+        return;
+    }
 }
 
 #ifdef DEBUG

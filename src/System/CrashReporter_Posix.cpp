@@ -13,6 +13,11 @@ void CrashReporter::SetCallback(Callable callback)
     UNUSED(callback);
 }
 
+void CrashReporter::DeleteCallback()
+{
+    // TODO:
+}
+
 #ifdef DEBUG
 // Crash testing functionality support. Should NOT be included in release versions!
 void CrashReporter::TimedCrash(unsigned intervalMsec)

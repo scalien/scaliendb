@@ -7,6 +7,9 @@ void CrashReporterCallback()
 {
     const char* msg;
 
+    fprintf(stderr, "Crash reporter called\n");
+    CrashReporter::ReportSystemEvent("ScalienTest");
+
     msg = CrashReporter::GetReport();
     Log_Message("%s", msg);
 

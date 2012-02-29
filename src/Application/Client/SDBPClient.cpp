@@ -9,6 +9,7 @@
 #include "System/IO/IOProcessor.h"
 #include "System/Threading/ThreadPool.h"
 #include "System/Threading/LockGuard.h"
+#include "System/CrashReporter.h"
 #include "Framework/Replication/PaxosLease/PaxosLease.h"
 #include "Application/Common/ClientRequest.h"
 #include "Application/Common/ClientResponse.h"
@@ -104,6 +105,11 @@ Client::~Client()
     Shutdown();
 }
 
+static void CrashReporterCallback()
+{
+    CrashReporter::ReportSystemEvent("ScalienClient");
+}
+
 int Client::Init(int nodec, const char* nodev[])
 {
     // sanity check on parameters
@@ -123,6 +129,7 @@ int Client::Init(int nodec, const char* nodev[])
         ioThread->Execute(MFUNC(Client, IOThreadFunc));
         ioThread->Start();
         ioThreadSignal.Wait();
+        CrashReporter::SetCallback(CFunc(CrashReporterCallback));
         Log_Debug("IOThread started");
     }
     numClients++;
@@ -196,6 +203,8 @@ void Client::Shutdown()
         delete ioThread;
         ioThread = NULL;
         Log_Debug("IOThread destroyed");
+
+        CrashReporter::DeleteCallback();
     }
 
     IOProcessor::Shutdown();

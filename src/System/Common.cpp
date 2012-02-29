@@ -497,6 +497,72 @@ bool ChangeUser(const char *user)
 #endif
 }
 
+const char* GetStackTrace(char* buffer, int size, const char* prefix)
+{
+#ifdef _WIN32
+    unsigned int        i;
+    void*               stack[100];
+    unsigned short      frames;
+    char                symbolBuffer[sizeof(SYMBOL_INFO) + MAX_SYM_NAME * sizeof(TCHAR)];
+    SYMBOL_INFO*        symbol;
+    HANDLE              process;
+    IMAGEHLP_LINE64     line;
+    IMAGEHLP_MODULE64   module;
+    DWORD               displacement;
+    const char*         fileName;
+    DWORD64             address;
+    int                 ret;
+    char*               p;
+
+    if (prefix == NULL)
+        prefix = "";
+
+    process = GetCurrentProcess();
+    SymInitialize(process, NULL, TRUE);
+    SymSetOptions(SYMOPT_LOAD_LINES);
+
+    // http://msdn.microsoft.com/en-us/windows/bb204633
+    // Windows Server 2003 and Windows XP:  The sum of the FramesToSkip and FramesToCapture 
+    // parameters must be less than 63.
+    frames = CaptureStackBackTrace(0, 62, stack, NULL);
+    symbol = (SYMBOL_INFO*) symbolBuffer;
+    symbol->MaxNameLen = MAX_SYM_NAME;
+    symbol->SizeOfStruct = sizeof(SYMBOL_INFO);
+
+    line.SizeOfStruct = sizeof(IMAGEHLP_LINE64);
+    module.SizeOfStruct = sizeof(IMAGEHLP_MODULE64);
+
+    p = buffer;
+    // skip current function, therefore start from 1
+    for (i = 2; i < frames; i++)
+    {
+        address = (DWORD64)(stack[i]);
+
+        SymFromAddr(process, address, 0, symbol);
+        SymGetLineFromAddr64(process, address, &displacement, &line);
+        SymGetModuleInfo64(process, address, &module);
+
+        fileName = strrchr(module.ImageName, '\\');
+        fileName = fileName ? fileName + 1 : module.ImageName;
+        
+        ret = snprintf(p, size, "%s%s!%s()  Line %u\n", prefix, fileName, symbol->Name, line.LineNumber);
+        if (ret < 0 || ret == 0)
+            return "";  // error
+
+        if (ret >= size)
+            return buffer;  // truncation
+
+        p += ret;
+        size -= ret;
+    }
+
+    return buffer;
+#else
+    // TODO: 
+    return "";
+#endif
+}
+
 void PrintStackTrace()
 {
 #ifdef _WIN32
@@ -528,24 +594,19 @@ void PrintStackTrace()
     module.SizeOfStruct = sizeof(IMAGEHLP_MODULE64);
 
     // skip current function, therefore start from 1
-    for (i = 1; i < frames; i++)
+    for (i = 2; i < frames; i++)
     {
         address = (DWORD64)(stack[i]);
 
-        if (SymFromAddr(process, address, 0, symbol) == FALSE)
-            break;
-
-        if (SymGetLineFromAddr64(process, address, &displacement, &line) == FALSE)
-            break;
-
-        if (SymGetModuleInfo64(process, address, &module) == FALSE)
-            break;
+        SymFromAddr(process, address, 0, symbol);
+        SymGetLineFromAddr64(process, address, &displacement, &line);
+        SymGetModuleInfo64(process, address, &module);
 
         fileName = strrchr(module.ImageName, '\\');
         fileName = fileName ? fileName + 1 : module.ImageName;
         
         fprintf(stderr, "%s!%s()  Line %u\n", fileName, symbol->Name, line.LineNumber);
-    }
+    }      
 #else
     void*   array[100];
     size_t  size;
