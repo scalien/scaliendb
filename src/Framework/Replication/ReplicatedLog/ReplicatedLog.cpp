@@ -317,6 +317,18 @@ bool ReplicatedLog::OnLearnChosen(PaxosMessage& imsg)
         return true;
     }
 
+    if (imsg.nodeID != MY_NODEID && proposer.state.multi)
+    {
+        Log_Debug("Received learn message from %U, but I'm in multi paxos mode", imsg.nodeID);
+        return true;
+    }
+
+    if (imsg.nodeID != MY_NODEID && context->IsLeaseOwner())
+    {
+        Log_Debug("Received learn message from %U, but I'm the lease owner", imsg.nodeID);
+        return true;
+    }
+
     Log_Trace();
 
     if (imsg.paxosID > paxosID)
@@ -446,12 +458,9 @@ void ReplicatedLog::ProcessLearnChosen(uint64_t nodeID, uint64_t runID)
     ownAppend = proposer.state.multi;
     if (nodeID == MY_NODEID && runID == REPLICATION_CONFIG->GetRunID() && context->IsLeaseOwner())
     {
-        if (!proposer.state.multi)
-        {
-            proposer.state.multi = true;
-            context->OnIsLeader();
-        }
         proposer.state.multi = true;
+        if (!ownAppend)
+            context->OnIsLeader();
         Log_Trace("Multi paxos enabled");
     }
     else
@@ -459,6 +468,8 @@ void ReplicatedLog::ProcessLearnChosen(uint64_t nodeID, uint64_t runID)
         proposer.state.multi = false;
         Log_Trace("Multi paxos disabled");
     }
+
+    ownAppend &= proposer.state.multi;
 
     if (BUFCMP(&learnedValue, &dummy))
         OnAppendComplete();
