@@ -951,6 +951,7 @@ int Client::Cancel()
 int Client::ShardRequest(Request* req)
 {
     Request*    itRequest;
+    Request*    nextRequest;
     ReadBuffer  requestKey;
 
     VALIDATE_CONTROLLERS();
@@ -979,12 +980,16 @@ int Client::ShardRequest(Request* req)
 	CLIENT_MUTEX_GUARD_LOCK();
     if (result->GetCommandStatus() == SDBP_SUCCESS)
     {
-        for (itRequest = result->requests.First(); itRequest != NULL; /* advanced in body */)
+        for (itRequest = result->requests.First(); itRequest != NULL; itRequest = nextRequest)
         {
             if (itRequest->commandID != req->commandID)
-                itRequest = result->requests.Remove(itRequest);
+            {
+                nextRequest = result->requests.Remove(itRequest);
+                delete itRequest;
+                
+            }
             else
-                itRequest = result->requests.Next(itRequest);
+                nextRequest = result->requests.Next(itRequest);
         }
     }
     result->Begin();
