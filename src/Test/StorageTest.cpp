@@ -9,7 +9,7 @@
 #include "System/Config.h"
 
 static StorageConfig    storageConfig;
-static Config           configFile;
+extern Config           configFile;
        
 void SetupDefaultStorageConfig()
 {
