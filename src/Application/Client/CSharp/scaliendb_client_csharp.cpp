@@ -1841,6 +1841,14 @@ SWIGEXPORT void SWIGSTDCALL CSharp_SDBP_SetTrace(unsigned int jarg1) {
 }
 
 
+SWIGEXPORT void SWIGSTDCALL CSharp_SDBP_SetDebug(unsigned int jarg1) {
+  bool arg1 ;
+  
+  arg1 = jarg1 ? true : false; 
+  SDBP_SetDebug(arg1);
+}
+
+
 SWIGEXPORT void SWIGSTDCALL CSharp_SDBP_SetLogFile(char * jarg1) {
   std::string *arg1 = 0 ;
   
@@ -1872,6 +1880,14 @@ SWIGEXPORT void SWIGSTDCALL CSharp_SDBP_LogTrace(char * jarg1) {
   std::string arg1_str(jarg1);
   arg1 = &arg1_str; 
   SDBP_LogTrace((std::string const &)*arg1);
+}
+
+
+SWIGEXPORT void SWIGSTDCALL CSharp_SDBP_SetCrashReporter(unsigned int jarg1) {
+  bool arg1 ;
+  
+  arg1 = jarg1 ? true : false; 
+  SDBP_SetCrashReporter(arg1);
 }
 
 
