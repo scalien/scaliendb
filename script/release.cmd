@@ -8,10 +8,8 @@ SET OUTPUT=release.log
 SET VERBOSITY=minimal
 
 SET BUILDDIR=%BASEDIR%%1
-IF "%1"=="" SET BUILDDIR=%BASEDIR%build
+IF "%1"=="" SET BUILDDIR="%BASEDIR%"build
 
-ECHO %BASEDIR%
-ECHO %SCRIPTDIR%
 CD %BASEDIR%
 
 ECHO.
@@ -26,7 +24,7 @@ CALL ..\script\buildrelease.cmd x64
 IF %ERRORLEVEL% NEQ 0 GOTO ERROR
 CALL ..\script\buildrelease.cmd Win32
 IF %ERRORLEVEL% NEQ 0 GOTO ERROR
-CHDIR /D %BASEDIR%
+CHDIR /D "%BASEDIR%"
 
 ECHO.
 ECHO ============================================
@@ -38,7 +36,7 @@ ECHO.
 CD src\Application\Client\CSharp\ScalienClientWithNativeDLL
 CALL msbuild ScalienClientWithNativeDLL.csproj /v:%VERBOSITY% /t:Rebuild /p:Configuration=Debug
 IF %ERRORLEVEL% NEQ 0 GOTO ERROR
-CHDIR /D %BASEDIR%
+CHDIR /D "%BASEDIR%"
 
 ECHO.
 ECHO ============================================
@@ -48,11 +46,11 @@ ECHO.
 ECHO ============================================
 ECHO.
 CD ScalienDB.vcproj
-CALL ..\script\copyrelease.cmd x64 %BUILDDIR%
+CALL ..\script\copyrelease.cmd x64 "%BUILDDIR%"
 IF %ERRORLEVEL% NEQ 0 GOTO ERROR
-CALL ..\script\copyrelease.cmd Win32 %BUILDDIR%
+CALL ..\script\copyrelease.cmd Win32 "%BUILDDIR%"
 IF %ERRORLEVEL% NEQ 0 GOTO ERROR
-CHDIR /D %BASEDIR%
+CHDIR /D "%BASEDIR%"
 
 ECHO.
 ECHO ============================================
@@ -62,11 +60,11 @@ ECHO.
 ECHO ============================================
 ECHO.
 CD ScalienDB.vcproj
-CALL ..\script\copyreleasedebuginfo.cmd x64 %BUILDDIR%
+CALL ..\script\copyreleasedebuginfo.cmd x64 "%BUILDDIR%"
 IF %ERRORLEVEL% NEQ 0 GOTO ERROR
-CALL ..\script\copyreleasedebuginfo.cmd Win32 %BUILDDIR%
+CALL ..\script\copyreleasedebuginfo.cmd Win32 "%BUILDDIR%"
 IF %ERRORLEVEL% NEQ 0 GOTO ERROR
-CHDIR /D %BASEDIR%
+CHDIR /D "%BASEDIR%"
 
 ECHO.
 ECHO ============================================
@@ -85,5 +83,5 @@ ECHO An error occured!
 ECHO.
 ECHO ============================================
 ECHO.
-CHDIR /D %STARTDIR%
+CHDIR /D "%STARTDIR%"
 EXIT /B 1

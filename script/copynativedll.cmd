@@ -4,7 +4,6 @@ SET TARGET_PATH="%2"
 SET FILENAME=scaliendb_client
 SET EXT=dll
 ECHO Copying Win32 DLL to Properties
-ECHO Copying %BASE_DIR%\bin\Win32\%FILENAME%.%EXT% to "%TARGET_PATH%"\%FILENAME%.x86.%EXT%
 COPY %BASE_DIR%\bin\Win32\%FILENAME%.%EXT% "%TARGET_PATH%"\%FILENAME%.x86.%EXT% /Y
 ECHO Copying x64 DLL to Properties
 COPY %BASE_DIR%\bin\x64\%FILENAME%.%EXT% "%TARGET_PATH%"\%FILENAME%.x64.%EXT% /Y
