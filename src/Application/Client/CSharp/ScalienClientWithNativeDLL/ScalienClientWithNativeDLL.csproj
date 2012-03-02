@@ -122,7 +122,7 @@
     <PostBuildEvent>..\..\..\..\..\..\..\script\copynetdll.cmd  ..\..\..\..\..\..\.. "$(TargetDir)" "$(TargetName)"</PostBuildEvent>
   </PropertyGroup>
   <Target Name="BeforeBuild">
-    <Exec Command="..\..\..\..\..\script\copynativedll.cmd ..\..\..\..\..\ $(ProjectDir)Properties" />
+    <Exec Command="..\..\..\..\..\script\copynativedll.cmd ..\..\..\..\..\ &quot;$(ProjectDir)Properties&quot;" />
   </Target>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
