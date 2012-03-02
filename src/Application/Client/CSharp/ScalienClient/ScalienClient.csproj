@@ -129,6 +129,6 @@
     <PreBuildEvent>..\..\..\..\..\..\..\script\replaceassemblyversion.cmd ..\..\..\..\..\..\.. ..\..\Properties AssemblyInfo.cs</PreBuildEvent>
   </PropertyGroup>
   <PropertyGroup>
-    <PostBuildEvent>..\..\..\..\..\..\..\script\copynetdll.cmd  ..\..\..\..\..\..\.. $(TargetDir) $(TargetName)</PostBuildEvent>
+    <PostBuildEvent>..\..\..\..\..\..\..\script\copynetdll.cmd  ..\..\..\..\..\..\.. "$(TargetDir)" "$(TargetName)"</PostBuildEvent>
   </PropertyGroup>
 </Project>
