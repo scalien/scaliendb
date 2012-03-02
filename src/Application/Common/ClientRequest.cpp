@@ -25,7 +25,6 @@ void ClientRequest::Init()
     configPaxosID = 0;
     priority = 0;
     number = 0;
-    snumber = 0;
     count = 0;
     changeTimeout = 0;
     lastChangeTime = 0;
