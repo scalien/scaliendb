@@ -493,6 +493,9 @@
     <ClCompile Include="..\src\System\CrashReporter_Posix.cpp">
       <Filter>System</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\Application\HTTP\JSONReader.cpp">
+      <Filter>Application\HTTP</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\System\Common.h">
@@ -1001,6 +1004,12 @@
     <ClInclude Include="..\src\SourceControl.h" />
     <ClInclude Include="..\src\Framework\Storage\StorageLogManager.h">
       <Filter>Framework\Storage</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\System\PointerGuard.h">
+      <Filter>System</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Application\HTTP\JSONReader.h">
+      <Filter>Application\HTTP</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

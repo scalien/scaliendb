@@ -3,6 +3,8 @@
 
 JobProcessor::JobProcessor()
 {
+    activeJob = NULL;
+    threadPool = NULL;
     threadFunc = MFUNC(JobProcessor, ThreadFunc);
     onComplete = MFUNC(JobProcessor, OnComplete);
 }
