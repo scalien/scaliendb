@@ -2,6 +2,7 @@
 
 Stopwatch::Stopwatch()
 {
+    started = 0;
     Reset();
 }
 

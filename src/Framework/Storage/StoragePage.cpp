@@ -3,6 +3,7 @@
 StoragePage::StoragePage()
 {
     prev = next = this;
+    offset = 0;
 }
 
 void StoragePage::SetOffset(uint64_t offset_)
