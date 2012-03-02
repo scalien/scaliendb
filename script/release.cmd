@@ -8,17 +8,24 @@ SET OUTPUT=release.log
 SET VERBOSITY=minimal
 
 SET BUILDDIR=%BASEDIR%%1
-IF "%1"=="" SET BUILDDIR="%BASEDIR%"build
+IF "%1"=="" SET BUILDDIR=%BASEDIR%build
 
 CD %BASEDIR%
 
+CLS
 ECHO.
 ECHO ============================================
 ECHO.
 ECHO Building ScalienDB and native client library
 ECHO.
+ECHO Build configuration:
+ECHO.
+ECHO   Base dir: %BASEDIR%
+ECHO   Build dir: %BUILDDIR%
+ECHO.
 ECHO ============================================
 ECHO.
+
 CD ScalienDB.vcproj
 CALL ..\script\buildrelease.cmd x64
 IF %ERRORLEVEL% NEQ 0 GOTO ERROR
