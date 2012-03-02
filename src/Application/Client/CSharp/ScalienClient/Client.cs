@@ -305,6 +305,15 @@ namespace Scalien
         }
 
         /// <summary>
+        /// Turn on crash reporter functionality in in the underlying C++ client library. Off by default.
+        /// </summary>
+        /// <param name="crashReporter">True or false.</param>
+        public static void SetCrashReporter(bool crashReporter)
+        {
+            scaliendb_client.SDBP_SetCrashReporter(crashReporter);
+        }
+
+        /// <summary>
         /// Sets the name of the trace log output file in the underlying C++ client library.
         /// </summary>
         /// <param name="filename">The name of the logfile.</param>
