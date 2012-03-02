@@ -119,7 +119,7 @@
     </PreBuildEvent>
   </PropertyGroup>
   <PropertyGroup>
-    <PostBuildEvent>..\..\..\..\..\..\..\script\copynetdll.cmd  ..\..\..\..\..\..\.. "$(TargetDir)" $(TargetName)</PostBuildEvent>
+    <PostBuildEvent>..\..\..\..\..\..\..\script\copynetdll.cmd  ..\..\..\..\..\..\.. "$(TargetDir)" "$(TargetName)"</PostBuildEvent>
   </PropertyGroup>
   <Target Name="BeforeBuild">
     <Exec Command="..\..\..\..\..\script\copynativedll.cmd ..\..\..\..\..\ $(ProjectDir)Properties" />
