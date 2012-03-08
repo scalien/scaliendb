@@ -329,8 +329,8 @@ bool RangeContains(ReadBuffer firstKey, ReadBuffer lastKey, ReadBuffer key)
     int         cf, cl;
     
 #define NOT_SET     -9999
-#define COMP_CF()   {if (cf == NOT_SET) cf = ReadBuffer::Cmp(firstKey, key); }
-#define COMP_CL()   {if (cl == NOT_SET) cl = ReadBuffer::Cmp(key, lastKey);  }
+#define COMP_CF()   { if (cf == NOT_SET) cf = ReadBuffer::Cmp(firstKey, key); }
+#define COMP_CL()   { if (cl == NOT_SET) cl = ReadBuffer::Cmp(key, lastKey);  }
 
     cf = NOT_SET;
     cl = NOT_SET;
@@ -359,7 +359,6 @@ bool RangeContains(ReadBuffer firstKey, ReadBuffer lastKey, ReadBuffer key)
             return false;
         COMP_CL();
         return (cl < 0);
-//        return (cf <= 0 && cl < 0); // (firstKey <= key < lastKey);
     }
 
 #undef NOT_SET

@@ -727,9 +727,9 @@ printable.Write(a); if (!printable.IsAsciiPrintable()) { printable.ToHexadecimal
 
         MAKE_PRINTABLE(lastKey);
         if (printable.GetLength() == 0)
-            buffer.Appendf("   lastKey: (empty)\n");
+            buffer.Appendf("   lastKey:  (empty)\n");
         else
-            buffer.Appendf("   lastKey: %B\n", &printable);
+            buffer.Appendf("   lastKey:  %B\n", &printable);
 
         MAKE_PRINTABLE(midpoint);
         if (printable.GetLength() == 0)
@@ -751,7 +751,7 @@ printable.Write(a); if (!printable.IsAsciiPrintable()) { printable.ToHexadecimal
         MAKE_PRINTABLE(firstKey);
         buffer.Appendf("       firstKey: %B\n", &printable);
         MAKE_PRINTABLE(lastKey);
-        buffer.Appendf("       lastKey: %B\n", &printable);
+        buffer.Appendf("       lastKey:  %B\n", &printable);
         MAKE_PRINTABLE(midpoint);
         buffer.Appendf("       midpoint: %B\n", &printable);
         buffer.Appendf("       minLogSegmentID: %U\n", memoChunk->GetMinLogSegmentID());
@@ -771,7 +771,7 @@ printable.Write(a); if (!printable.IsAsciiPrintable()) { printable.ToHexadecimal
             MAKE_PRINTABLE(firstKey);
             buffer.Appendf("       firstKey: %B\n", &printable);
             MAKE_PRINTABLE(lastKey);
-            buffer.Appendf("       lastKey: %B\n", &printable);
+            buffer.Appendf("       lastKey:  %B\n", &printable);
             MAKE_PRINTABLE(midpoint);
             buffer.Appendf("       midpoint: %B\n", &printable);
             buffer.Appendf("       minLogSegmentID: %U\n", (*itChunk)->GetMinLogSegmentID());
@@ -789,7 +789,7 @@ printable.Write(a); if (!printable.IsAsciiPrintable()) { printable.ToHexadecimal
     tmp.Write(envPath);
     tmp.NullTerminate();
     buffer.Appendf("Total disk space: %s\n", HUMAN_BYTES(FS_DiskSpace(tmp.GetBuffer())));
-    buffer.Appendf("Free disk space: %s\n", HUMAN_BYTES(FS_FreeDiskSpace(tmp.GetBuffer())));
+    buffer.Appendf("Free disk space:  %s\n", HUMAN_BYTES(FS_FreeDiskSpace(tmp.GetBuffer())));
 }
 
 uint64_t StorageEnvironment::GetShardMemoryUsage()
