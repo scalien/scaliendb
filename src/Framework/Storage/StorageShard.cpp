@@ -267,12 +267,7 @@ bool StorageShard::IsBackingLogSegment(uint64_t checkTrackID, uint64_t checkLogS
 
 bool StorageShard::RangeContains(ReadBuffer key)
 {
-    ReadBuffer  firstKey, lastKey;
-
-    firstKey = GetFirstKey();
-    lastKey = GetLastKey();
-
-    return ::RangeContains(firstKey, lastKey, key);
+    return ::RangeContains(ReadBuffer(firstKey), ReadBuffer(lastKey), key);
 }
 
 void StorageShard::PushMemoChunk(StorageMemoChunk* memoChunk_)

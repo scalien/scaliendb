@@ -326,45 +326,39 @@ void ReplaceInCString(char* s, char src, char dst)
 
 bool RangeContains(ReadBuffer firstKey, ReadBuffer lastKey, ReadBuffer key)
 {
-    int         cf, cl;
+    int cmp;
     
-#define NOT_SET     -9999
-#define COMP_CF()   {if (cf == NOT_SET) cf = ReadBuffer::Cmp(firstKey, key); }
-#define COMP_CL()   {if (cl == NOT_SET) cl = ReadBuffer::Cmp(key, lastKey);  }
+    // check if key in [firstKey, lastKey)
 
-    cf = NOT_SET;
-    cl = NOT_SET;
-    
     if (firstKey.GetLength() == 0)
     {
         if (lastKey.GetLength() == 0)
         {
+            // check if key in [0, inf)
             return true;
         }
         else
         {
-            COMP_CL();
-            return (cl < 0);        // (key < lastKey);
+            // check if key in [0, lastKey)
+            cmp = ReadBuffer::Cmp(key,  lastKey);
+            return (cmp < 0); // (key < lastKey);
         }
     }
     else if (lastKey.GetLength() == 0)
     {
-        COMP_CF();
-        return (cf <= 0);           // (firstKey <= key);
+        // check if key in [firstKey, inf)
+        cmp = ReadBuffer::Cmp( firstKey,   key);
+        return (cmp <= 0); // (firstKey <= key);
     }
     else
     {
-        COMP_CF();
-        if (cf > 0)
+        // check if key in [firstKey, lastKey)
+        cmp = ReadBuffer::Cmp(firstKey,  key);
+        if (cmp > 0)       // firstKey > key
             return false;
-        COMP_CL();
-        return (cl < 0);
-//        return (cf <= 0 && cl < 0); // (firstKey <= key < lastKey);
+        cmp = ReadBuffer::Cmp(key,  lastKey);
+        return (cmp < 0); //  key < lastKey
     }
-
-#undef NOT_SET
-#undef COMP_CF
-#undef COMP_CL
 }
 
 const char* StaticPrint(const char* format, ...)
