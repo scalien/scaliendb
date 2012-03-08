@@ -1493,7 +1493,10 @@ void StorageEnvironment::OnChunkMerge(StorageMergeChunkJob* job)
         job->mergeChunk->AddPagesToCache();
     }
     else
+    {
+        DEBUG_ASSERT(!job->mergeChunk->IsEmpty());
         deleteChunkJobs.Execute(new StorageDeleteFileChunkJob(job->mergeChunk));
+    }
     
     TryMergeChunks();
 
