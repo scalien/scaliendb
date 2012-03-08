@@ -188,6 +188,7 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\src\Application\HTTP\JSONReader.cpp" />
     <ClCompile Include="..\src\Framework\Storage\StorageLogManager.cpp" />
     <ClCompile Include="..\src\System\Common.cpp" />
     <ClCompile Include="..\src\System\Config.cpp" />
@@ -329,6 +330,7 @@
     <ClCompile Include="..\src\Main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\src\Application\HTTP\JSONReader.h" />
     <ClInclude Include="..\src\Framework\Storage\StorageLogManager.h" />
     <ClInclude Include="..\src\SourceControl.h" />
     <ClInclude Include="..\src\System\Common.h" />
@@ -338,6 +340,7 @@
     <ClInclude Include="..\src\System\Log.h" />
     <ClInclude Include="..\src\System\Macros.h" />
     <ClInclude Include="..\src\System\Platform.h" />
+    <ClInclude Include="..\src\System\PointerGuard.h" />
     <ClInclude Include="..\src\System\Service.h" />
     <ClInclude Include="..\src\System\Stopwatch.h" />
     <ClInclude Include="..\src\System\Threading\Atomic.h" />

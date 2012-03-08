@@ -17,32 +17,30 @@
 
 class ReplicationConfig
 {
-public:
-    static ReplicationConfig* Get();
-    
-    void                    Init(StorageShardProxy* shard);
-    void                    Shutdown();
-    
-    void                    SetNodeID(uint64_t nodeID);
-    uint64_t                GetNodeID();
+    typedef StorageShardProxy ShardProxy;
 
-    void                    SetRunID(uint64_t runID);
-    uint64_t                GetRunID();
-    
-    void                    SetClusterID(uint64_t clusterID);
-    uint64_t                GetClusterID();
-    
-    uint64_t                NextProposalID(uint64_t proposalID);
-    
-    void                    Commit();
-    
 private:
     ReplicationConfig();
 
-    StorageShardProxy*      shard;
-    uint64_t                nodeID;
-    uint64_t                runID;
-    uint64_t                clusterID;
+public:
+    static ReplicationConfig* Get();
+    
+    void        Init(StorageShardProxy* shard);
+    void        Shutdown();
+    void        SetNodeID(uint64_t nodeID);
+    uint64_t    GetNodeID();
+    void        SetRunID(uint64_t runID);
+    uint64_t    GetRunID();
+    void        SetClusterID(uint64_t clusterID);
+    uint64_t    GetClusterID();
+    uint64_t    NextProposalID(uint64_t proposalID);
+    void        Commit();
+    
+private:
+    ShardProxy* shard;
+    uint64_t    nodeID;
+    uint64_t    runID;
+    uint64_t    clusterID;
 };
 
 #endif

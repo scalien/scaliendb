@@ -96,7 +96,6 @@ bool FS_RecDeleteDir(const char* path)
 #include <stdio.h>
 #include <errno.h>
 #include "System/Containers/List.h"
-#include "System/Containers/ArrayList.h"
 #include "System/Threading/Mutex.h"
 #include "System/Threading/ThreadPool.h"
 
@@ -883,6 +882,7 @@ int64_t FS_FreeDiskSpace(const char* path)
         last = (char*)strrchr (path, '/');
     
     // find length of prefix, or use entire string if not found
+    len = 0;
     if (last)
         len = last - path;
     if (!last || len == 0)
@@ -909,6 +909,7 @@ int64_t FS_DiskSpace(const char* path)
         last = (char*)strrchr (path, '/');
     
     // find length of prefix, or use entire string if not found
+    len = 0;
     if (last)
         len = last - path;
     if (!last || len == 0)

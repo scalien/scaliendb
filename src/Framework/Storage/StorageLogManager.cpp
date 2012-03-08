@@ -19,7 +19,16 @@ StorageLogManager::Track* StorageLogManager::CreateTrack(uint64_t trackID)
     return tracks.Last();
 }
 
-StorageLogManager::LogSegment* StorageLogManager::Add(uint64_t trackID, uint64_t logSegmentID, ReadBuffer filename)
+void StorageLogManager::DeleteTrack(uint64_t trackID)
+{
+    Track* track;
+    
+    track = GetTrack(trackID);
+
+    track->deleted = true;
+}
+
+StorageLogManager::LogSegment* StorageLogManager::CreateLogSegment(uint64_t trackID, uint64_t logSegmentID, ReadBuffer filename)
 {
     LogSegment*     logSegment;
     Track* track;
@@ -37,7 +46,7 @@ StorageLogManager::LogSegment* StorageLogManager::Add(uint64_t trackID, uint64_t
     return logSegment;
 }
 
-void StorageLogManager::Delete(LogSegment* logSegment)
+void StorageLogManager::DeleteLogSegment(LogSegment* logSegment)
 {
     Track* track;
 
@@ -89,8 +98,8 @@ StorageLogManager::LogSegment* StorageLogManager::GetHead(uint64_t trackID)
                 else
                     logSegmentID = 1;
                 filename.Writef("log.%020U.%020U", trackID, logSegmentID);
-                logSegment = Add(track->trackID, logSegmentID, filename);
-                logSegment->Open(env->logPath, track->trackID, logSegmentID, env->config.syncGranularity);
+                logSegment = CreateLogSegment(track->trackID, logSegmentID, filename);
+                logSegment->Open(env->logPath, track->trackID, logSegmentID, env->GetConfig().GetSyncGranularity());
                 return logSegment;
             }
         }

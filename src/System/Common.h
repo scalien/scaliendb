@@ -75,6 +75,7 @@ void            RandomBuffer(char* buffer, unsigned length);
 
 void            BlockSignals();
 bool            ChangeUser(const char *username);
+const char*     GetStackTrace(char* buffer, int size, const char* prefix);
 void            PrintStackTrace();
 int             ShellExec(const char *cmdline);
 uint64_t        GetProcessID();

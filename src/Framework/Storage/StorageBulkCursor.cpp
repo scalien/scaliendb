@@ -162,7 +162,7 @@ StorageKeyValue* StorageBulkCursor::FromNextBunch(StorageChunk* chunk)
         {
             dataPage.Reset();
             chunk->NextBunch(*this, shard);
-            Log_Debug("NextBunch chunkID = %U", chunkID);
+            //Log_Debug("NextBunch chunkID = %U", chunkID);
             if (dataPage.First())
                 return dataPage.First();
             else    

@@ -7,21 +7,31 @@ SET OUTPUT=release.log
 : Possible values are: quiet, minimal, normal, detailed, diagnostic
 SET VERBOSITY=minimal
 
+SET BUILDDIR=%BASEDIR%%1
+IF "%1"=="" SET BUILDDIR=%BASEDIR%build
+
 CD %BASEDIR%
 
+CLS
 ECHO.
 ECHO ============================================
 ECHO.
 ECHO Building ScalienDB and native client library
 ECHO.
+ECHO Build configuration:
+ECHO.
+ECHO   Base dir: %BASEDIR%
+ECHO   Build dir: %BUILDDIR%
+ECHO.
 ECHO ============================================
 ECHO.
+
 CD ScalienDB.vcproj
 CALL ..\script\buildrelease.cmd x64
 IF %ERRORLEVEL% NEQ 0 GOTO ERROR
 CALL ..\script\buildrelease.cmd Win32
 IF %ERRORLEVEL% NEQ 0 GOTO ERROR
-CHDIR /D %BASEDIR%
+CHDIR /D "%BASEDIR%"
 
 ECHO.
 ECHO ============================================
@@ -33,7 +43,7 @@ ECHO.
 CD src\Application\Client\CSharp\ScalienClientWithNativeDLL
 CALL msbuild ScalienClientWithNativeDLL.csproj /v:%VERBOSITY% /t:Rebuild /p:Configuration=Debug
 IF %ERRORLEVEL% NEQ 0 GOTO ERROR
-CHDIR /D %BASEDIR%
+CHDIR /D "%BASEDIR%"
 
 ECHO.
 ECHO ============================================
@@ -43,11 +53,25 @@ ECHO.
 ECHO ============================================
 ECHO.
 CD ScalienDB.vcproj
-CALL ..\script\copyrelease.cmd x64
+CALL ..\script\copyrelease.cmd x64 "%BUILDDIR%"
 IF %ERRORLEVEL% NEQ 0 GOTO ERROR
-CALL ..\script\copyrelease.cmd Win32
+CALL ..\script\copyrelease.cmd Win32 "%BUILDDIR%"
 IF %ERRORLEVEL% NEQ 0 GOTO ERROR
-CHDIR /D %BASEDIR%
+CHDIR /D "%BASEDIR%"
+
+ECHO.
+ECHO ============================================
+ECHO.
+ECHO Copying symbol files to debug directory
+ECHO.
+ECHO ============================================
+ECHO.
+CD ScalienDB.vcproj
+CALL ..\script\copyreleasedebuginfo.cmd x64 "%BUILDDIR%"
+IF %ERRORLEVEL% NEQ 0 GOTO ERROR
+CALL ..\script\copyreleasedebuginfo.cmd Win32 "%BUILDDIR%"
+IF %ERRORLEVEL% NEQ 0 GOTO ERROR
+CHDIR /D "%BASEDIR%"
 
 ECHO.
 ECHO ============================================
@@ -66,5 +90,5 @@ ECHO An error occured!
 ECHO.
 ECHO ============================================
 ECHO.
-CHDIR /D %STARTDIR%
+CHDIR /D "%STARTDIR%"
 EXIT /B 1

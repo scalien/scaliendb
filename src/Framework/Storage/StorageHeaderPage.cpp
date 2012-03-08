@@ -307,7 +307,7 @@ void StorageHeaderPage::Write(Buffer& writeBuffer)
     writeBuffer.Append(lastKey);
     writeBuffer.AppendLittle32(midpoint.GetLength());
     writeBuffer.Append(midpoint);
-    writeBuffer.Append("%b", merged);
+    writeBuffer.Appendf("%b", merged);
     writeBuffer.SetLength(STORAGE_HEADER_PAGE_SIZE);
     dataPart.Wrap(writeBuffer.GetBuffer() + 8, writeBuffer.GetLength() - 8);
     checksum = dataPart.GetChecksum();

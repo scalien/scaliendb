@@ -31,7 +31,7 @@ bool StorageChunkMerger::Merge(
     readers = new StorageChunkReader[numReaders];
     i = 0;
     numKeys = 0;
-    preloadThreshold = env->GetConfig().mergeBufferSize / numReaders;
+    preloadThreshold = env->GetConfig().GetMergeBufferSize() / numReaders;
     FOREACH (itFilename, filenames)
     {
         readers[i].Open(ReadBuffer(**itFilename), preloadThreshold);
@@ -145,7 +145,7 @@ bool StorageChunkMerger::WriteBuffer()
     
     offset += writeSize;
 
-    syncGranularity = env->GetConfig().syncGranularity;
+    syncGranularity = env->GetConfig().GetSyncGranularity();
     if (syncGranularity != 0 && offset - lastSyncOffset > syncGranularity)
     {
         StorageEnvironment::Sync(fd.GetFD());

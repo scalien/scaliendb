@@ -837,6 +837,7 @@ bool JSONReader::IsValid(ReadBuffer json)
 
 JSONIterator::JSONIterator()
 {
+    isPair = false;
 }
 
 JSONIterator::JSONIterator(const ReadBuffer& data_, bool isPair_)

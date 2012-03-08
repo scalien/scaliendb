@@ -1,5 +1,15 @@
 #include "StorageShard.h"
 
+static inline bool LessThan(ReadBuffer& a, ReadBuffer& b)
+{
+    return ReadBuffer::Cmp(a, b) < 0 ? true : false;
+}
+
+static inline bool operator==(const ReadBuffer& a, const ReadBuffer& b)
+{
+    return ReadBuffer::Cmp(a, b) == 0 ? true : false;
+}
+
 StorageShard::StorageShard()
 {
     prev = next = this;
@@ -120,6 +130,76 @@ ReadBuffer StorageShard::GetLastKey()
     return ReadBuffer(lastKey);
 }
 
+ReadBuffer StorageShard::GetMidpoint()
+{
+    unsigned                i;
+    StorageChunk**          itChunk;
+    ReadBuffer              midpoint;
+    SortedList<ReadBuffer>  midpoints;
+    ReadBuffer*             itMidpoint;
+
+    midpoint = memoChunk->GetMidpoint();
+    if (midpoint.GetLength() > 0)
+        midpoints.Add(midpoint);
+
+    FOREACH (itChunk, chunks)
+    {
+        midpoint = (*itChunk)->GetMidpoint();
+        if (midpoint.GetLength() > 0)
+            midpoints.Add(midpoint);
+    }
+
+    i = 0;
+    FOREACH (itMidpoint, midpoints)
+    {
+        if (i >= (midpoints.GetLength() / 2))
+            return *itMidpoint;
+        i++;
+    }
+    
+    return ReadBuffer();     
+}
+
+uint64_t StorageShard::GetSize()
+{
+    uint64_t            size;
+    StorageFileChunk*   chunk;
+    StorageChunk**      itChunk;
+    ReadBuffer          firstKey;
+    ReadBuffer          lastKey;
+
+    size = memoChunk->GetSize();
+    
+    FOREACH (itChunk, chunks)
+    {
+        if ((*itChunk)->GetChunkState() != StorageChunk::Written)
+        {
+            size += (*itChunk)->GetSize();
+            continue;
+        }
+        
+        chunk = (StorageFileChunk*) *itChunk;
+        firstKey = chunk->GetFirstKey();
+        lastKey = chunk->GetLastKey();
+        
+        if (firstKey.GetLength() > 0 && !RangeContains(firstKey))
+        {
+            size += chunk->GetPartialSize(GetFirstKey(), GetLastKey());
+            continue;
+        }
+
+        if (lastKey.GetLength() > 0 && !RangeContains(lastKey))
+        {
+            size += chunk->GetPartialSize(GetFirstKey(), GetLastKey());
+            continue;
+        }
+
+        size += chunk->GetSize();
+    }
+    
+    return size;
+}
+
 bool StorageShard::UseBloomFilter()
 {
     return useBloomFilter;
@@ -136,7 +216,7 @@ bool StorageShard::IsSplitable()
     ReadBuffer      firstKey;
     ReadBuffer      lastKey;
 
-    FOREACH (itChunk, GetChunks())
+    FOREACH (itChunk, chunks)
     {
         firstKey = (*itChunk)->GetFirstKey();
         lastKey = (*itChunk)->GetLastKey();
@@ -149,6 +229,40 @@ bool StorageShard::IsSplitable()
     }
     
     return true;
+}
+
+bool StorageShard::IsBackingLogSegment(uint64_t checkTrackID, uint64_t checkLogSegmentID)
+{
+    StorageChunk** chunk;
+
+    if (trackID != checkTrackID)
+        return false;
+
+    if (storageType == STORAGE_SHARD_TYPE_LOG)
+        return false; // log storage shards never hinder log segment archival
+
+    if (storageType == STORAGE_SHARD_TYPE_DUMP)
+    {
+        if (checkLogSegmentID + 1 < memoChunk->GetMaxLogSegmentID())
+            return false;
+            // dump storage shard has been written to a higher numbered log segment, do not hinder archival
+    }
+
+    if (memoChunk->GetSize() > 0)
+    if (memoChunk->GetMinLogSegmentID() > 0)
+    if (memoChunk->GetMinLogSegmentID() <= checkLogSegmentID)
+    if (checkLogSegmentID <= memoChunk->GetMaxLogSegmentID())
+        return true;
+
+    FOREACH (chunk, chunks)
+    {
+        if ((*chunk)->GetChunkState() <= StorageChunk::Unwritten)
+        if ((*chunk)->GetMinLogSegmentID() <= checkLogSegmentID)
+        if (checkLogSegmentID <= (*chunk)->GetMaxLogSegmentID())
+            return true;
+    }
+
+    return false;
 }
 
 bool StorageShard::RangeContains(ReadBuffer key)
@@ -204,35 +318,33 @@ bool StorageShard::IsMergeableType()
 
 bool StorageShard::IsSplitMergeCandidate()
 {
-    unsigned            count;
-    StorageChunk**      itChunk;
+    unsigned        count;
+    StorageChunk**  itChunk;
 
     if (!IsMergeableType())
         return false;
 
-    // paxos shards with tableID == 0 are always splitable, but we should merge them
+    // if it's a splitable data (non-paxos) shard, then we don't need to merge it
     if (IsSplitable() && tableID > 0)
         return false;
     
     count = 0;
     FOREACH (itChunk, chunks)
     {
-        if ((*itChunk)->GetChunkState() != StorageChunk::Written)
-            continue;
-
-        count++;
+        if ((*itChunk)->GetChunkState() == StorageChunk::Written)
+            count++;
     }
 
-    if (count < 2)
+    if (count > 1)
+        return true;
+    else
         return false;
-
-    return true;
 }
 
 bool StorageShard::IsFragmentedMergeCandidate()
 {
-    unsigned            count;
-    StorageChunk**      itChunk;
+    unsigned        count;
+    StorageChunk**  itChunk;
 
     if (!IsMergeableType())
         return false;
@@ -240,28 +352,29 @@ bool StorageShard::IsFragmentedMergeCandidate()
     count = 0;
     FOREACH (itChunk, chunks)
     {
-        if ((*itChunk)->GetChunkState() != StorageChunk::Written)
-            continue;
-
-        count++;
+        if ((*itChunk)->GetChunkState() == StorageChunk::Written)
+            count++;
     }
 
-    if (count < 10)
+    if (count > 10)
+        return true;
+    else
         return false;
-
-    return true;
 }
 
 void StorageShard::GetMergeInputChunks(List<StorageFileChunk*>& inputChunks)
 {
-    StorageFileChunk*       fileChunk;
-    StorageChunk**          itChunk;
+    StorageFileChunk*   fileChunk;
+    StorageChunk**      itChunk;
     
     FOREACH (itChunk, chunks)
     {
-        if ((*itChunk)->GetChunkState() != StorageChunk::Written)
-            continue;
-        fileChunk = (StorageFileChunk*) *itChunk;
-        inputChunks.Append(fileChunk);
+        if ((*itChunk)->GetChunkState() == StorageChunk::Written)
+        {
+            fileChunk = (StorageFileChunk*) *itChunk;
+            inputChunks.Append(fileChunk);
+        }
     }
+
+    ASSERT(inputChunks.GetLength() > 1);
 }

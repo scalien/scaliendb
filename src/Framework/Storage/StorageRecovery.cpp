@@ -80,6 +80,7 @@ bool StorageRecovery::TryRecovery(StorageEnvironment* env_)
     
     FS_CloseDir(dir);
     DeleteOrphanedChunks();
+    DeleteOrphanedTracks();
     
     return true;
 }
@@ -657,7 +658,7 @@ bool StorageRecovery::ReplayLogSegment(uint64_t trackID, Buffer& filename)
     track = env->logManager.GetTrack(trackID);
     if (!track)
         env->logManager.CreateTrack(trackID);
-    env->logManager.Add(trackID, logSegmentID, filename);
+    env->logManager.CreateLogSegment(trackID, logSegmentID, filename);
     
     fd.Close();
     
@@ -724,6 +725,39 @@ void StorageRecovery::DeleteOrphanedChunks()
     FS_CloseDir(dir);
 }
 
+void StorageRecovery::DeleteOrphanedTracks()
+{
+    StorageEnvironment::Track*  track;
+    StorageShard*               shard;
+    bool                        found;
+
+    Log_Debug("Checking for orphaned tracks...");
+
+    FOREACH(track, env->logManager.tracks)
+    {
+        // look for shards in this track
+        found = false;
+        FOREACH(shard, env->shards)
+        {
+            if (shard->GetTrackID() == track->trackID)
+            {
+                // shard found
+                found = true;
+                break;
+            }
+        }
+        
+        if (!found)
+        {
+            // if no shard is in track, delete it
+            track->deleted = true;
+            Log_Debug("Deleting orphaned track %U...", track->trackID);
+        }
+    }
+
+    Log_Message("Checking done.");
+}
+
 void StorageRecovery::ExecuteSet(
                          uint64_t logSegmentID, uint32_t logCommandID,
                          uint16_t contextID, uint64_t shardID,
@@ -764,7 +798,7 @@ void StorageRecovery::ExecuteSet(
     if (shard->GetStorageType() == STORAGE_SHARD_TYPE_LOG)
     {
         // remove old entries from the head of the log if its size exceeds chunkSize and we don't want filechunks
-        while (memoChunk->GetSize() > env->GetConfig().chunkSize && env->config.numLogSegmentFileChunks == 0)
+        while (memoChunk->GetSize() > env->GetConfig().GetChunkSize() && env->GetConfig().GetNumLogSegmentFileChunks() == 0)
             memoChunk->RemoveFirst();
     }
 
@@ -829,12 +863,12 @@ void StorageRecovery::TryWriteChunks()
 
     FOREACH (shard, env->shards)
     {
-        if (shard->GetStorageType() == STORAGE_SHARD_TYPE_LOG && env->config.numLogSegmentFileChunks == 0)
+        if (shard->GetStorageType() == STORAGE_SHARD_TYPE_LOG && env->config.GetNumLogSegmentFileChunks() == 0)
             continue; // never serialize log storage shards
         
         memoChunk = shard->GetMemoChunk();
         
-        if (memoChunk->GetSize() > env->config.chunkSize)
+        if (memoChunk->GetSize() > env->config.GetChunkSize())
         {
             Log_Debug("Serializing chunk %U, size: %s", memoChunk->GetChunkID(),
                 HUMAN_BYTES(memoChunk->GetSize()));

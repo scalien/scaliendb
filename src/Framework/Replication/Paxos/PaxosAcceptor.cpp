@@ -10,144 +10,60 @@ PaxosAcceptor::PaxosAcceptor()
 void PaxosAcceptor::Init(QuorumContext* context_)
 {
     context = context_;
-    sendReply = false;
+    isCommitting = false;
     
     ReadState();
 }
 
-void PaxosAcceptor::SetAsyncCommit(bool asyncCommit_)
-{
-    asyncCommit = asyncCommit_;
-}
-
-bool PaxosAcceptor::GetAsyncCommit()
-{
-    return asyncCommit;
-}
-
-void PaxosAcceptor::OnMessage(PaxosMessage& imsg)
-{
-    if (imsg.type == PAXOS_PREPARE_REQUEST)
-        OnPrepareRequest(imsg);
-    else if (imsg.type == PAXOS_PROPOSE_REQUEST)
-        OnProposeRequest(imsg);
-    else
-        ASSERT_FAIL();
-}
-
-void PaxosAcceptor::OnCatchupComplete()
-{
-    ResetState();
-}
-
 bool PaxosAcceptor::OnPrepareRequest(PaxosMessage& imsg)
 {
-    Log_Trace();
-    
-    senderID = imsg.nodeID;
+    bool reject;
 
     Log_Trace("state.promisedProposalID: %U msg.proposalID: %U",
      state.promisedProposalID, imsg.proposalID);
 
-    if (imsg.paxosID != context->GetPaxosID() ||
-     imsg.proposalID < state.promisedProposalID ||
-     context->GetDatabase()->IsCommiting() ||
-     context->IsPaxosBlocked())
+    reject = TestRejection(imsg);
+
+    if (reject)
     {
-        Log_Debug("imsg.paxosID = %U", imsg.paxosID);
-        Log_Debug("context->GetPaxosID() = %U", context->GetPaxosID());
-        Log_Debug("imsg.proposalID = %U", imsg.proposalID);
-        Log_Debug("state.promisedProposalID = %U", state.promisedProposalID);
-        Log_Debug("context->GetDatabase()->IsCommiting() = %b", context->GetDatabase()->IsCommiting());
-        Log_Debug("context->IsPaxosBlocked() = %b", context->IsPaxosBlocked());
         omsg.PrepareRejected(imsg.paxosID, MY_NODEID,
          imsg.proposalID, state.promisedProposalID);
-        context->GetTransport()->SendMessage(senderID, omsg);
-        return true;
+        context->GetTransport()->SendMessage(imsg.nodeID, omsg);
+        return true; // msg processed
     }
 
-    state.promisedProposalID = imsg.proposalID;
-
-    if (!state.accepted)
-    {
-        omsg.PrepareCurrentlyOpen(imsg.paxosID, MY_NODEID, imsg.proposalID);
-    }
-    else
-    {
-        ASSERT(state.acceptedValue.GetLength() > 0);
-        omsg.PreparePreviouslyAccepted(imsg.paxosID, MY_NODEID,
-         imsg.proposalID, state.acceptedProposalID,
-         state.acceptedRunID, state.acceptedValue);
-    }
-    
-    WriteState();
-    Commit(true);
-
-    return false;
+    AcceptPrepareRequest(imsg);
+    return false; // OnMessageProcessed() will be called in OnStateWritten()
 }
 
 bool PaxosAcceptor::OnProposeRequest(PaxosMessage& imsg)
 {
-    Log_Trace();
-    
-    senderID = imsg.nodeID;
+    bool reject;
 
     Log_Trace("state.promisedProposalID: %U msg.proposalID: %U",
      state.promisedProposalID, imsg.proposalID);
     
-    if (imsg.paxosID != context->GetPaxosID() ||
-     imsg.proposalID < state.promisedProposalID ||
-     context->GetDatabase()->IsCommiting() ||
-     context->IsPaxosBlocked())
+    reject = TestRejection(imsg);
+
+    if (reject)
     {
         omsg.ProposeRejected(imsg.paxosID, MY_NODEID, imsg.proposalID);
-        context->GetTransport()->SendMessage(senderID, omsg);
-        return true;
+        context->GetTransport()->SendMessage(imsg.nodeID, omsg);
+        return true; // msg processed
     }
 
-    state.accepted = true;
-    state.acceptedProposalID = imsg.proposalID;
-    state.acceptedRunID = imsg.runID;
-    ASSERT(imsg.value.GetLength() > 0);
-    state.acceptedValue.Write(imsg.value);
-    omsg.ProposeAccepted(imsg.paxosID, MY_NODEID, imsg.proposalID);
-    
+    AcceptProposeRequest(imsg);
+    return false; // OnMessageProcessed() will be called in OnStateWritten()
+}
+
+void PaxosAcceptor::OnCatchupComplete()
+{
+    ASSERT(!isCommitting);
+    ASSERT(!context->GetDatabase()->IsCommitting());
+
+    state.Init();
     WriteState();
-    Commit(true);
-
-    return false;
-}
-
-void PaxosAcceptor::OnStateWritten()
-{
-    Log_Trace();
-    
-    if (!sendReply || writtenPaxosID != context->GetPaxosID())
-        return;
-
-    context->OnMessageProcessed();
-
-    context->GetTransport()->SendMessage(senderID, omsg);
-}
-
-void PaxosAcceptor::ReadState()
-{
-    Log_Trace();
-    
-    QuorumDatabase* db;
-    
-    db = context->GetDatabase();
-
-    context->SetPaxosID(db->GetPaxosID());
-    state.accepted = db->GetAccepted();
-    state.promisedProposalID = db->GetPromisedProposalID();
-    if (state.accepted)
-    {
-        state.acceptedRunID = db->GetAcceptedRunID();
-        state.acceptedProposalID = db->GetAcceptedProposalID();
-        db->GetAcceptedValue(context->GetPaxosID(), state.acceptedValue);
-        ASSERT(state.acceptedValue.GetLength() > 0);
-    }    
+    context->GetDatabase()->Commit();
 }
 
 void PaxosAcceptor::WriteState()
@@ -168,41 +84,120 @@ void PaxosAcceptor::WriteState()
     }
 }
 
-void PaxosAcceptor::Commit(bool sendReply_)
+uint64_t PaxosAcceptor::GetMemoryUsage()
+{
+    return sizeof(PaxosAcceptor) + state.acceptedValue.GetSize();
+}
+
+void PaxosAcceptor::Commit()
+{
+    ASSERT(!isCommitting);
+
+    writtenPaxosID = context->GetPaxosID();
+    isCommitting = true; // reset in OnStateWritten()
+
+    if (context->UseSyncCommit())
+    {
+        context->GetDatabase()->Commit();
+        OnStateWritten();
+    }
+    else
+    {
+        context->GetDatabase()->Commit(onStateWritten);
+    }
+}
+
+void PaxosAcceptor::OnStateWritten()
+{
+    Log_Trace();
+    
+    isCommitting = false;
+
+    if (writtenPaxosID == context->GetPaxosID())
+        context->GetTransport()->SendMessage(senderID, omsg);
+
+    context->OnMessageProcessed();
+}
+
+void PaxosAcceptor::ReadState()
 {
     QuorumDatabase* db;
     
     db = context->GetDatabase();
-    
-    sendReply = sendReply_; // used in OnStateWritten()
-    
-    writtenPaxosID = context->GetPaxosID();
-    
-    if (asyncCommit)
+
+    context->SetPaxosID(db->GetPaxosID());
+    state.accepted = db->GetAccepted();
+    state.promisedProposalID = db->GetPromisedProposalID();
+    if (state.accepted)
     {
-        db->Commit(onStateWritten);
+        state.acceptedRunID = db->GetAcceptedRunID();
+        state.acceptedProposalID = db->GetAcceptedProposalID();
+        db->GetAcceptedValue(context->GetPaxosID(), state.acceptedValue);
+        ASSERT(state.acceptedValue.GetLength() > 0);
+    }
+}
+
+bool PaxosAcceptor::TestRejection(PaxosMessage& msg)
+{
+    bool reject;
+
+    reject = false;
+    if (msg.paxosID != context->GetPaxosID())
+        reject = true;
+    if (msg.proposalID < state.promisedProposalID)
+        reject = true;
+    if (isCommitting)
+        reject = true;
+    if (context->GetDatabase()->IsCommitting())
+        reject = true;
+    if (context->IsPaxosBlocked())
+        reject = true;
+
+    if (reject)
+    {
+        Log_Debug("imsg.paxosID = %U", msg.paxosID);
+        Log_Debug("context->GetPaxosID() = %U", context->GetPaxosID());
+        Log_Debug("imsg.proposalID = %U", msg.proposalID);
+        Log_Debug("state.promisedProposalID = %U", state.promisedProposalID);
+        Log_Debug("context->GetDatabase()->IsCommitting() = %b", context->GetDatabase()->IsCommitting());
+        Log_Debug("context->IsPaxosBlocked() = %b", context->IsPaxosBlocked());
+    }
+
+    return reject;
+}
+
+void PaxosAcceptor::AcceptPrepareRequest(PaxosMessage& imsg)
+{
+    state.promisedProposalID = imsg.proposalID;
+
+    senderID = imsg.nodeID;
+    if (!state.accepted)
+    {
+        omsg.PrepareCurrentlyOpen(imsg.paxosID, MY_NODEID, imsg.proposalID);
     }
     else
     {
-        db->Commit();
-        OnStateWritten();
+        ASSERT(state.acceptedValue.GetLength() > 0);
+        omsg.PreparePreviouslyAccepted(imsg.paxosID, MY_NODEID,
+         imsg.proposalID, state.acceptedProposalID,
+         state.acceptedRunID, state.acceptedValue);
     }
-}
-
-void PaxosAcceptor::ResetState()
-{
-    bool ac;
     
-    state.Init();
-
-    ac = asyncCommit;
-    asyncCommit = false; // force sync commit
     WriteState();
-    Commit(false);
-    asyncCommit = ac;
+    Commit();
 }
 
-uint64_t PaxosAcceptor::GetMemoryUsage()
+void PaxosAcceptor::AcceptProposeRequest(PaxosMessage& imsg)
 {
-    return sizeof(PaxosAcceptor) + state.acceptedValue.GetSize();
+    state.accepted = true;
+    state.acceptedProposalID = imsg.proposalID;
+    state.acceptedRunID = imsg.runID;
+    ASSERT(imsg.value.GetLength() > 0);
+    state.acceptedValue.Write(imsg.value);
+
+    senderID = imsg.nodeID;
+    omsg.ProposeAccepted(imsg.paxosID, MY_NODEID, imsg.proposalID);
+    
+    WriteState();
+    Commit();
 }

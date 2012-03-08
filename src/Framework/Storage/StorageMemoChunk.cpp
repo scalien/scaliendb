@@ -135,17 +135,10 @@ bool StorageMemoChunk::UseBloomFilter()
 
 StorageKeyValue* StorageMemoChunk::Get(ReadBuffer& key)
 {
-    int                     cmpres;
-    StorageMemoKeyValue*    it;
-
     if (keyValues.GetCount() == 0)
         return NULL;
         
-    it = keyValues.Locate<const ReadBuffer&>(key, cmpres);
-    if (cmpres != 0)
-        return NULL;
-
-    return it;
+    return keyValues.Get(key);
 }
 
 void StorageMemoChunk::AsyncGet(StorageAsyncGet* asyncGet)

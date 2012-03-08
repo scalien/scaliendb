@@ -7,7 +7,7 @@ uint64_t StoragePageCache::maxSize = 0;
 
 void StoragePageCache::Init(StorageConfig& config)
 {
-    maxSize = config.fileChunkCacheSize;
+    maxSize = config.GetFileChunkCacheSize();
 }
 
 void StoragePageCache::Shutdown()

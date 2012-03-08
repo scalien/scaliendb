@@ -26,8 +26,6 @@ void ReplicatedLog::Init(QuorumContext* context_)
 
     lastRequestChosenTime = 0;
     lastLearnChosenTime = 0;
-    commitChaining = false;
-    alwaysUseDatabaseCatchup = false;
 
     EventLoop::Add(&canaryTimer);
     
@@ -37,42 +35,12 @@ void ReplicatedLog::Init(QuorumContext* context_)
 void ReplicatedLog::Shutdown()
 {
     EventLoop::Remove(&canaryTimer);
-    proposer.Shutdown();
-}
-
-void ReplicatedLog::SetUseProposeTimeouts(bool useProposeTimeouts_)
-{
-    useProposeTimeouts = useProposeTimeouts_;
-}
-
-void ReplicatedLog::SetCommitChaining(bool commitChaining_)
-{
-    commitChaining = commitChaining_;
-}
-
-bool ReplicatedLog::GetCommitChaining()
-{
-    return commitChaining;
-}
-
-void ReplicatedLog::SetAsyncCommit(bool asyncCommit)
-{
-    acceptor.SetAsyncCommit(asyncCommit);
-}
-
-bool ReplicatedLog::GetAsyncCommit()
-{
-    return acceptor.GetAsyncCommit();
+    proposer.RemoveTimers();
 }
 
 uint64_t ReplicatedLog::GetLastLearnChosenTime()
 {
     return lastLearnChosenTime;
-}
-
-void ReplicatedLog::SetAlwaysUseDatabaseCatchup(bool alwaysUseDatabaseCatchup_)
-{
-    alwaysUseDatabaseCatchup = alwaysUseDatabaseCatchup_;
 }
 
 void ReplicatedLog::Stop()
@@ -122,7 +90,7 @@ void ReplicatedLog::TryAppendNextValue()
     if (value.GetLength() == 0)
         return;
     
-    proposer.SetUseTimeouts(useProposeTimeouts);
+    proposer.SetUseTimeouts(context->UseProposeTimeouts());
     Append(value);
 }
 
@@ -152,14 +120,10 @@ uint64_t ReplicatedLog::GetPaxosID()
 
 void ReplicatedLog::NewPaxosRound()
 {
-    EventLoop::Remove(&(proposer.prepareTimeout));
-    EventLoop::Remove(&(proposer.proposeTimeout));
-    EventLoop::Remove(&(proposer.restartTimeout));
-
     paxosID++;
+    proposer.RemoveTimers();
     proposer.state.OnNewPaxosRound();
     acceptor.state.OnNewPaxosRound();
-    
     lastRequestChosenTime = 0;
 }
 
@@ -235,7 +199,7 @@ void ReplicatedLog::OnAppendComplete()
     if (paxosID < context->GetHighestPaxosID())
         context->GetDatabase()->Commit();
 
-    if (!commitChaining)
+    if (!context->UseCommitChaining())
     {
         acceptor.WriteState();
         context->GetDatabase()->Commit();
@@ -337,7 +301,7 @@ bool ReplicatedLog::OnLearnChosen(PaxosMessage& imsg)
     Log_Debug("OnLearnChosen begin");
 #endif
 
-    if (context->GetDatabase()->IsCommiting())
+    if (context->GetDatabase()->IsCommitting())
     {
 #ifdef RLOG_DEBUG_MESSAGES
         Log_Debug("Database is commiting, dropping Paxos message");
@@ -350,6 +314,18 @@ bool ReplicatedLog::OnLearnChosen(PaxosMessage& imsg)
 #ifdef RLOG_DEBUG_MESSAGES
         Log_Debug("Waiting OnAppend, dropping Paxos message");
 #endif
+        return true;
+    }
+
+    if (imsg.nodeID != MY_NODEID && proposer.state.multi)
+    {
+        Log_Debug("Received learn message from %U, but I'm in multi paxos mode", imsg.nodeID);
+        return true;
+    }
+
+    if (imsg.nodeID != MY_NODEID && context->IsLeaseOwner())
+    {
+        Log_Debug("Received learn message from %U, but I'm the lease owner", imsg.nodeID);
         return true;
     }
 
@@ -409,7 +385,7 @@ bool ReplicatedLog::OnRequestChosen(PaxosMessage& imsg)
     
     // the node is lagging and needs to catch-up
 
-    if (alwaysUseDatabaseCatchup && imsg.paxosID < GetPaxosID())
+    if (context->AlwaysUseDatabaseCatchup() && imsg.paxosID < GetPaxosID())
     {
         omsg.StartCatchup(paxosID, MY_NODEID);
     }
@@ -482,12 +458,9 @@ void ReplicatedLog::ProcessLearnChosen(uint64_t nodeID, uint64_t runID)
     ownAppend = proposer.state.multi;
     if (nodeID == MY_NODEID && runID == REPLICATION_CONFIG->GetRunID() && context->IsLeaseOwner())
     {
-        if (!proposer.state.multi)
-        {
-            proposer.state.multi = true;
-            context->OnIsLeader();
-        }
         proposer.state.multi = true;
+        if (!ownAppend)
+            context->OnIsLeader();
         Log_Trace("Multi paxos enabled");
     }
     else
@@ -495,6 +468,8 @@ void ReplicatedLog::ProcessLearnChosen(uint64_t nodeID, uint64_t runID)
         proposer.state.multi = false;
         Log_Trace("Multi paxos disabled");
     }
+
+    ownAppend &= proposer.state.multi;
 
     if (BUFCMP(&learnedValue, &dummy))
         OnAppendComplete();

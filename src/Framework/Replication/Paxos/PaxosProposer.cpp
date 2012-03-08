@@ -22,7 +22,7 @@ void PaxosProposer::Init(QuorumContext* context_)
     state.Init();
 }
 
-void PaxosProposer::Shutdown()
+void PaxosProposer::RemoveTimers()
 {
     if (prepareTimeout.IsActive())
         EventLoop::Remove(&prepareTimeout);
@@ -37,142 +37,6 @@ void PaxosProposer::Shutdown()
 void PaxosProposer::SetUseTimeouts(bool useTimeouts_)
 {
     useTimeouts = useTimeouts_;
-}
-
-void PaxosProposer::OnMessage(PaxosMessage& imsg)
-{
-    if (imsg.IsPrepareResponse())
-        OnPrepareResponse(imsg);
-    else if (imsg.IsProposeResponse())
-        OnProposeResponse(imsg);
-    else
-        ASSERT_FAIL();
-}
-
-void PaxosProposer::OnPrepareTimeout()
-{
-    Log_Debug("OnPrepareTimeout");
-    Log_Trace();
-    
-    ASSERT(state.preparing);
-
-    if (context->IsPaxosBlocked())
-    {
-        EventLoop::Add(&prepareTimeout);
-        return;
-    }
-    
-    if (useTimeouts || vote->IsRejected())
-        StartPreparing();
-    else
-        EventLoop::Add(&prepareTimeout);
-}
-
-void PaxosProposer::OnProposeTimeout()
-{
-    Log_Debug("OnProposeTimeout");
-    Log_Trace();
-    
-    ASSERT(state.proposing);
-
-    if (context->IsPaxosBlocked())
-    {
-        EventLoop::Add(&proposeTimeout);
-        return;
-    }
-
-    if (useTimeouts || vote->IsRejected())
-        StartPreparing();
-    else
-        EventLoop::Add(&proposeTimeout);
-}
-
-void PaxosProposer::OnRestartTimeout()
-{
-    Log_Debug("OnRestartTimeout");
-    Log_Trace();
-
-    ASSERT(!state.preparing);
-    ASSERT(!state.proposing);
-    ASSERT(!prepareTimeout.IsActive());
-    ASSERT(!proposeTimeout.IsActive());
-
-    if (context->IsPaxosBlocked())
-    {
-        EventLoop::Add(&restartTimeout);
-        return;
-    }
-
-    if (useTimeouts)
-        StartPreparing();
-    else
-        EventLoop::Add(&restartTimeout);
-}
-
-void PaxosProposer::Propose(Buffer& value)
-{
-    Log_Trace();
-    
-    if (IsActive())
-        ASSERT_FAIL();
-
-    state.proposedRunID = REPLICATION_CONFIG->GetRunID();
-    ASSERT(value.GetLength() > 0);
-    state.proposedValue.Write(value);
-
-    if (state.multi && state.numProposals == 0)
-    {
-        state.numProposals++;
-        StartProposing();
-    }
-    else
-        StartPreparing();   
-}
-
-void PaxosProposer::Restart()
-{
-    Timer* timer;
-    
-    if (!state.preparing && !state.proposing)
-        return;
-
-    if (state.preparing)
-        timer = &prepareTimeout;
-    else
-        timer = &proposeTimeout;
-    
-    EventLoop::Remove(timer);
-
-    if (context->IsPaxosBlocked())
-    {
-        if (useTimeouts)
-            EventLoop::Add(timer);
-        return;
-    }        
-
-    StartPreparing();
-}
-
-void PaxosProposer::Stop()
-{
-    state.proposedRunID = 0;
-    state.proposedValue.Clear();
-    state.preparing = false;
-    state.proposing = false;
-    state.multi = false;
-    EventLoop::Remove(&prepareTimeout);
-    EventLoop::Remove(&proposeTimeout);
-    EventLoop::Remove(&restartTimeout);
-}
-
-bool PaxosProposer::IsActive()
-{
-    return (state.preparing || state.proposing || restartTimeout.IsActive());
-}
-
-uint64_t PaxosProposer::GetMemoryUsage()
-{
-    return sizeof(PaxosProposer) + state.proposedValue.GetSize();
 }
 
 void PaxosProposer::OnPrepareResponse(PaxosMessage& imsg)
@@ -246,6 +110,132 @@ void PaxosProposer::OnProposeResponse(PaxosMessage& imsg)
         omsg.LearnProposal(context->GetPaxosID(), MY_NODEID, state.proposalID);
         BroadcastMessage(omsg);
     }
+}
+
+void PaxosProposer::Propose(Buffer& value)
+{
+    Log_Trace();
+    
+    if (IsActive())
+        ASSERT_FAIL();
+
+    state.proposedRunID = REPLICATION_CONFIG->GetRunID();
+    ASSERT(value.GetLength() > 0);
+    state.proposedValue.Write(value);
+
+    if (state.multi && state.numProposals == 0)
+    {
+        state.numProposals++;
+        StartProposing();
+    }
+    else
+        StartPreparing();   
+}
+
+void PaxosProposer::Restart()
+{
+    Timer* timer;
+    
+    if (!state.preparing && !state.proposing)
+        return;
+
+    if (state.preparing)
+        timer = &prepareTimeout;
+    else
+        timer = &proposeTimeout;
+    
+    EventLoop::Remove(timer);
+
+    if (context->IsPaxosBlocked())
+    {
+        if (useTimeouts)
+            EventLoop::Add(timer);
+        return;
+    }        
+
+    StartPreparing();
+}
+
+void PaxosProposer::Stop()
+{
+    state.proposedRunID = 0;
+    state.proposedValue.Clear();
+    state.preparing = false;
+    state.proposing = false;
+    state.multi = false;
+    EventLoop::Remove(&prepareTimeout);
+    EventLoop::Remove(&proposeTimeout);
+    EventLoop::Remove(&restartTimeout);
+}
+
+bool PaxosProposer::IsActive()
+{
+    return (state.preparing || state.proposing || restartTimeout.IsActive());
+}
+
+uint64_t PaxosProposer::GetMemoryUsage()
+{
+    return sizeof(PaxosProposer) + state.proposedValue.GetSize();
+}
+
+void PaxosProposer::OnPrepareTimeout()
+{
+    Log_Debug("OnPrepareTimeout");
+    Log_Trace();
+    
+    ASSERT(state.preparing);
+
+    if (context->IsPaxosBlocked())
+    {
+        EventLoop::Add(&prepareTimeout);
+        return;
+    }
+    
+    if (useTimeouts || vote->IsRejected())
+        StartPreparing();
+    else
+        EventLoop::Add(&prepareTimeout);
+}
+
+void PaxosProposer::OnProposeTimeout()
+{
+    Log_Debug("OnProposeTimeout");
+    Log_Trace();
+    
+    ASSERT(state.proposing);
+
+    if (context->IsPaxosBlocked())
+    {
+        EventLoop::Add(&proposeTimeout);
+        return;
+    }
+
+    if (useTimeouts || vote->IsRejected())
+        StartPreparing();
+    else
+        EventLoop::Add(&proposeTimeout);
+}
+
+void PaxosProposer::OnRestartTimeout()
+{
+    Log_Debug("OnRestartTimeout");
+    Log_Trace();
+
+    ASSERT(!state.preparing);
+    ASSERT(!state.proposing);
+    ASSERT(!prepareTimeout.IsActive());
+    ASSERT(!proposeTimeout.IsActive());
+
+    if (context->IsPaxosBlocked())
+    {
+        EventLoop::Add(&restartTimeout);
+        return;
+    }
+
+    if (useTimeouts)
+        StartPreparing();
+    else
+        EventLoop::Add(&restartTimeout);
 }
 
 void PaxosProposer::BroadcastMessage(PaxosMessage& omsg)

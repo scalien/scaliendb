@@ -30,6 +30,7 @@ private:
     void                    ReplayLogSegments(uint64_t trackID);
     bool                    ReplayLogSegment(uint64_t trackID, Buffer& filename);
     void                    DeleteOrphanedChunks();
+    void                    DeleteOrphanedTracks();
     
     void                    ExecuteSet(
                              uint64_t logSegmentID, uint32_t logCommandID,

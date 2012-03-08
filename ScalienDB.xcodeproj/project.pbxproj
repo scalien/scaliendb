@@ -163,6 +163,7 @@
 		9A90525C14DB075B00261797 /* CrashReporter_Windows.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9A90525714DB075B00261797 /* CrashReporter_Windows.cpp */; };
 		9A90525E14DB079800261797 /* CrashReporterTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9A90525D14DB079800261797 /* CrashReporterTest.cpp */; };
 		9A90527314DB082000261797 /* StorageLogManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9AFEB96E14CF007A00708D1F /* StorageLogManager.cpp */; };
+		9A90558D14EA877E00261797 /* SDBPRequestProxy.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9A90558B14EA877E00261797 /* SDBPRequestProxy.cpp */; };
 		9AABB04C123E55DE003626AC /* ReadBuffer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 546E255011EF5CF700867EE1 /* ReadBuffer.cpp */; };
 		9AABB04D123E55DE003626AC /* Buffer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 546E254C11EF5CF700867EE1 /* Buffer.cpp */; };
 		9AABB04F123E55DE003626AC /* Scheduler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B7F75111BE5EF30076BC62 /* Scheduler.cpp */; };
@@ -628,6 +629,8 @@
 		9A90525714DB075B00261797 /* CrashReporter_Windows.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CrashReporter_Windows.cpp; sourceTree = "<group>"; };
 		9A90525814DB075B00261797 /* CrashReporter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CrashReporter.h; sourceTree = "<group>"; };
 		9A90525D14DB079800261797 /* CrashReporterTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CrashReporterTest.cpp; path = Test/CrashReporterTest.cpp; sourceTree = "<group>"; };
+		9A90558B14EA877E00261797 /* SDBPRequestProxy.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SDBPRequestProxy.cpp; path = Client/SDBPRequestProxy.cpp; sourceTree = "<group>"; };
+		9A90558C14EA877E00261797 /* SDBPRequestProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SDBPRequestProxy.h; path = Client/SDBPRequestProxy.h; sourceTree = "<group>"; };
 		9AABAD3812393327003626AC /* Deferred.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Deferred.h; sourceTree = "<group>"; };
 		9AABB211123EA3AF003626AC /* ScalienDB */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = ScalienDB; sourceTree = BUILT_PRODUCTS_DIR; };
 		9AABB214123EA3AF003626AC /* TestMain */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = TestMain; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -1380,6 +1383,8 @@
 				9ACBF1BB141A4C9E00297EE1 /* SDBPController.cpp */,
 				9AE8177112CE1E550038BDB1 /* SDBPControllerConnection.h */,
 				9AE8177012CE1E550038BDB1 /* SDBPControllerConnection.cpp */,
+				9A90558C14EA877E00261797 /* SDBPRequestProxy.h */,
+				9A90558B14EA877E00261797 /* SDBPRequestProxy.cpp */,
 				9AE8177312CE1E550038BDB1 /* SDBPResult.h */,
 				9AE8177212CE1E550038BDB1 /* SDBPResult.cpp */,
 				9AE8177512CE1E550038BDB1 /* SDBPShardConnection.h */,
@@ -1828,6 +1833,7 @@
 				9A90525C14DB075B00261797 /* CrashReporter_Windows.cpp in Sources */,
 				9A90525E14DB079800261797 /* CrashReporterTest.cpp in Sources */,
 				9A90527314DB082000261797 /* StorageLogManager.cpp in Sources */,
+				9A90558D14EA877E00261797 /* SDBPRequestProxy.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

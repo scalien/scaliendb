@@ -5,6 +5,8 @@
 #include "ShardQuorumProcessor.h"
 #include "ShardServer.h"
 
+#define PAXOS_QUEUE_LENGTH  1000
+
 void ShardQuorumContext::Init(ConfigQuorum* configQuorum,
  ShardQuorumProcessor* quorumProcessor_)
 {
@@ -28,9 +30,6 @@ void ShardQuorumContext::Init(ConfigQuorum* configQuorum,
      quorumProcessor->GetShardServer()->GetDatabaseManager()->GetQuorumLogShard(quorumID));
     
     replicatedLog.Init(this);
-    replicatedLog.SetUseProposeTimeouts(false);
-    replicatedLog.SetCommitChaining(true);
-    replicatedLog.SetAsyncCommit(true);
     transport.SetQuorumID(quorumID);
     highestPaxosID = 0;
     isReplicationActive = true;
@@ -186,6 +185,26 @@ void ShardQuorumContext::OnAppend(uint64_t paxosID, Buffer& value, bool ownAppen
     quorumProcessor->OnAppend(paxosID, value, ownAppend);
 }
 
+bool ShardQuorumContext::UseSyncCommit()
+{
+    return false; // async
+}
+
+bool ShardQuorumContext::UseProposeTimeouts()
+{
+    return false;
+}
+
+bool ShardQuorumContext::UseCommitChaining()
+{
+    return true;
+}
+
+bool ShardQuorumContext::AlwaysUseDatabaseCatchup()
+{
+    return false;
+}
+
 bool ShardQuorumContext::IsPaxosBlocked()
 {
     return quorumProcessor->IsPaxosBlocked();
@@ -243,9 +262,16 @@ void ShardQuorumContext::OnMessage(ReadBuffer buffer)
             }
             else
             {
-                message = new Buffer;
-                message->Write(buffer);
-                paxosMessageQueue.Enqueue(message);
+                if (paxosMessageQueue.GetLength() < PAXOS_QUEUE_LENGTH)
+                {
+                    message = new Buffer;
+                    message->Write(buffer);
+                    paxosMessageQueue.Enqueue(message);
+                }
+                else
+                {
+                    Log_Debug("Dropping paxos msg because queue is too long. Queue stuck?");
+                }
             }
             break;
         case CATCHUP_PROTOCOL_ID:           // 'C'
@@ -299,6 +325,7 @@ void ShardQuorumContext::OnPaxosMessage(ReadBuffer buffer)
         if (!quorum.IsMember(msg.nodeID))
         {
             Log_Debug("Dropping paxos msg from %U because that node is not a quourm member", msg.nodeID);
+            OnMessageProcessed();
             return;
         }
     }

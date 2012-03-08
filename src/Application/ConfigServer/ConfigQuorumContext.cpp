@@ -22,10 +22,6 @@ void ConfigQuorumContext::Init(ConfigQuorumProcessor* quorumProcessor_, unsigned
     database.Init(this, quorumPaxosShard, quorumLogShard);
     
     replicatedLog.Init(this);
-    replicatedLog.SetUseProposeTimeouts(true);
-    replicatedLog.SetCommitChaining(false);
-    replicatedLog.SetAsyncCommit(false);
-    replicatedLog.SetAlwaysUseDatabaseCatchup(true);
     paxosLease.Init(this);
     transport.SetQuorumID(quorumID);
     highestPaxosID = 0; 
@@ -146,6 +142,26 @@ QuorumTransport* ConfigQuorumContext::GetTransport()
     return &transport;
 }
 
+bool ConfigQuorumContext::UseSyncCommit()
+{
+    return true;
+}
+
+bool ConfigQuorumContext::UseProposeTimeouts()
+{
+    return true;
+}
+
+bool ConfigQuorumContext::UseCommitChaining()
+{
+    return false;
+}
+
+bool ConfigQuorumContext::AlwaysUseDatabaseCatchup()
+{
+    return true;
+}
+
 bool ConfigQuorumContext::IsPaxosBlocked()
 {
     return false;
@@ -264,6 +280,7 @@ void ConfigQuorumContext::OnPaxosMessage(ReadBuffer buffer)
         if (!quorum.IsMember(msg.nodeID))
         {
             Log_Debug("Dropping paxos msg from %U because that node is not a quourm member", msg.nodeID);
+            OnMessageProcessed();
             return;
         }
     }

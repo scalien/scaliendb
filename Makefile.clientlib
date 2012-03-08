@@ -6,6 +6,7 @@ CLIENTLIB_OBJECTS = \
 	$(BUILD_DIR)/Application/Client/SDBPControllerConnection.o \
 	$(BUILD_DIR)/Application/Client/SDBPShardConnection.o \
 	$(BUILD_DIR)/Application/Client/SDBPPooledShardConnection.o \
+	$(BUILD_DIR)/Application/Client/SDBPRequestProxy.o \
 	$(BUILD_DIR)/Application/Client/SDBPResult.o \
 	$(BUILD_DIR)/Application/Common/ClientRequest.o \
 	$(BUILD_DIR)/Application/Common/ClientResponse.o \

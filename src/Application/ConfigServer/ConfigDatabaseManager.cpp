@@ -2,15 +2,25 @@
 #include "Application/Common/ContextTransport.h"
 #include "Framework/Replication/Quorums/QuorumDatabase.h"
 #include "Framework/Storage/StoragePageCache.h"
+#include "Framework/Storage/StorageConfig.h"
 #include "System/Config.h"
 
 void ConfigDatabaseManager::Init()
 {
-    Buffer envpath;
+    Buffer          envpath;
+    StorageConfig   sc;
     
+    sc.SetChunkSize(            (uint64_t) configFile.GetInt64Value("database.chunkSize",           64*MiB  ));
+    sc.SetLogSegmentSize(       (uint64_t) configFile.GetInt64Value("database.logSegmentSize",      64*MiB  ));
+    sc.SetFileChunkCacheSize(   (uint64_t) configFile.GetInt64Value("database.fileChunkCacheSize",  256*MiB ));
+    sc.SetMemoChunkCacheSize(   (uint64_t) configFile.GetInt64Value("database.memoChunkCacheSize",  1*GiB   ));
+    sc.SetLogSize(              (uint64_t) configFile.GetInt64Value("database.logSize",             20*GiB  ));
+    sc.SetMergeBufferSize(      (uint64_t) configFile.GetInt64Value("database.mergeBufferSize",     10*MiB  ));
+    sc.SetSyncGranularity(      (uint64_t) configFile.GetInt64Value("database.syncGranularity",     16*MiB  ));
+    sc.SetReplicatedLogSize(    (uint64_t) configFile.GetInt64Value("database.replicatedLogSize",   0       ));
+
     envpath.Writef("%s", configFile.GetValue("database.dir", "db"));
-    environment.Open(envpath);
-    environment.config.numLogSegmentFileChunks = 0;
+    environment.Open(envpath, sc);
 
     environment.CreateShard(1, QUORUM_DATABASE_SYSTEM_CONTEXT, 1, 0, "", "", true, STORAGE_SHARD_TYPE_STANDARD);
     environment.CreateShard(1, QUORUM_DATABASE_QUORUM_PAXOS_CONTEXT, 1, 0, "", "", true, STORAGE_SHARD_TYPE_DUMP);

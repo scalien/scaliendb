@@ -485,6 +485,9 @@ class scaliendb_clientPINVOKE {
   [DllImport("scaliendb_client", EntryPoint="CSharp_SDBP_SetTrace")]
   public static extern void SDBP_SetTrace(bool jarg1);
 
+  [DllImport("scaliendb_client", EntryPoint="CSharp_SDBP_SetDebug")]
+  public static extern void SDBP_SetDebug(bool jarg1);
+
   [DllImport("scaliendb_client", EntryPoint="CSharp_SDBP_SetLogFile")]
   public static extern void SDBP_SetLogFile(string jarg1);
 
@@ -493,6 +496,9 @@ class scaliendb_clientPINVOKE {
 
   [DllImport("scaliendb_client", EntryPoint="CSharp_SDBP_LogTrace")]
   public static extern void SDBP_LogTrace(string jarg1);
+
+  [DllImport("scaliendb_client", EntryPoint="CSharp_SDBP_SetCrashReporter")]
+  public static extern void SDBP_SetCrashReporter(bool jarg1);
 
   [DllImport("scaliendb_client", EntryPoint="CSharp_SDBP_SetShardPoolSize")]
   public static extern void SDBP_SetShardPoolSize(uint jarg1);

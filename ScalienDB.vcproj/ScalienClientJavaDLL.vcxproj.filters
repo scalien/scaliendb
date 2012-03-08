@@ -2,30 +2,26 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <Filter Include="Application">
-      <UniqueIdentifier>{2069ff71-ebb0-4a34-90b8-112bd7778993}</UniqueIdentifier>
+      <UniqueIdentifier>{8fc63ee2-c37b-47b9-86c9-45830b4a8721}</UniqueIdentifier>
     </Filter>
     <Filter Include="Application\Client">
-      <UniqueIdentifier>{ee4d9c94-ae84-4a51-8e86-a637744a68e5}</UniqueIdentifier>
+      <UniqueIdentifier>{e4312d4d-d98e-4b3e-afcf-c3b772a35764}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Application\Client\CSharp">
-      <UniqueIdentifier>{0e3e9f54-0c2f-41e0-a731-0e336e1f56e7}</UniqueIdentifier>
+    <Filter Include="Application\Client\Java">
+      <UniqueIdentifier>{7fbb45a8-9e51-4dc1-b954-b11cb8d33992}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\src\Application\Client\Java\scaliendb_client_java.cpp">
+      <Filter>Application\Client\Java</Filter>
+    </ClCompile>
     <ClCompile Include="..\src\Application\Client\SDBPClientWrapper.cpp">
       <Filter>Application\Client</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\Application\Client\CSharp\scaliendb_client_csharp.cpp">
-      <Filter>Application\Client\CSharp</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\Application\Client\SDBPClientWrapper.h">
       <Filter>Application\Client</Filter>
     </ClInclude>
-    <ClInclude Include="ScalienClientCSharpDLL.resource.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <ResourceCompile Include="ScalienClientCSharpDLL.rc" />
   </ItemGroup>
 </Project>

@@ -19,39 +19,33 @@ class ReplicatedLog; // forward
 
 class PaxosAcceptor
 {
+    typedef PaxosAcceptorState State;
 public:
     PaxosAcceptor();
         
-    void                        Init(QuorumContext* context);
-    void                        SetAsyncCommit(bool asyncCommit);
-    bool                        GetAsyncCommit();
-    
-    void                        OnMessage(PaxosMessage& msg);
-    void                        OnCatchupComplete();
-    void                        WriteState();
-    void                        Commit(bool sendReply = false);
-    
-    void                        ResetState();
+    void            Init(QuorumContext* context);
+    bool            OnPrepareRequest(PaxosMessage& msg);
+    bool            OnProposeRequest(PaxosMessage& msg);
+    void            OnCatchupComplete();
+    void            WriteState();
+    uint64_t        GetMemoryUsage();
 
-    uint64_t                    GetMemoryUsage();
+    State           state;
 
 private:
-    bool                        OnPrepareRequest(PaxosMessage& msg);
-    bool                        OnProposeRequest(PaxosMessage& msg);
-    void                        OnStateWritten();
+    void            Commit();
+    void            OnStateWritten();
+    void            ReadState();
+    bool            TestRejection(PaxosMessage& msg);
+    void            AcceptPrepareRequest(PaxosMessage& msg);
+    void            AcceptProposeRequest(PaxosMessage& msg);
 
-    void                        ReadState();
-
-    bool                        sendReply;
-    bool                        asyncCommit;
-    QuorumContext*              context;
-    PaxosAcceptorState          state;
-    PaxosMessage                omsg;
-    uint64_t                    senderID;
-    uint64_t                    writtenPaxosID;
-    Callable                    onStateWritten;
-    
-    friend class ReplicatedLog;
+    bool            isCommitting;
+    QuorumContext*  context;
+    PaxosMessage    omsg;
+    uint64_t        senderID;
+    uint64_t        writtenPaxosID;
+    Callable        onStateWritten;    
 };
 
 #endif
