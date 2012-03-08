@@ -71,6 +71,7 @@
 #endif
 
 #define ASSERT_FAIL()               ASSERT(false)
+#define DEBUG_ASSERT(expr)          IFDEBUG(ASSERT(expr))
 
 /*
 ===============================================================================================
