@@ -49,6 +49,46 @@ namespace ScalienClientUnitTesting
         }
 
         [TestMethod]
+        public void CheckConfigStateShardConsistency()
+        {
+            Console.WriteLine("\nChecking config state shard consistency...\n");
+
+            var client = new Client(Utils.GetConfigNodes());
+            var jsonConfigState = client.GetJSONConfigState();
+            var configState = Utils.JsonDeserialize<ConfigState>(System.Text.Encoding.UTF8.GetBytes(jsonConfigState));
+            foreach (var table in configState.tables)
+            {
+                System.Console.WriteLine("\nChecking table {0}", table.tableID);
+
+                var shards = ConfigStateHelpers.GetTableShards(table, configState.shards);
+                var shardMap = new Dictionary<string, ConfigState.Shard>();
+                
+                // build a map of shards by firstkey
+                foreach (var shard in shards)
+                {
+                    ConfigState.Shard testShard;
+                    Assert.IsFalse(shardMap.TryGetValue(shard.firstKey, out testShard));
+                    shardMap.Add(shard.firstKey, shard);
+                }
+
+                // walk the map of shards by the last key of the shard
+                var firstKey = "";
+                int count = 0;
+                ConfigState.Shard tmpShard;
+                while (shardMap.TryGetValue(firstKey, out tmpShard))
+                {
+                    count += 1;
+                    if (tmpShard.lastKey == "")
+                        break;
+                    firstKey = tmpShard.lastKey;
+                }
+                
+                Assert.IsTrue(count == shards.Count);
+            }
+        }
+
+
+        [TestMethod]
         public void CheckClusterConsistencyByCount()
         {
             var client = new Client(Utils.GetConfigNodes());
