@@ -139,20 +139,18 @@ void ConfigActivationManager::OnActivationTimeout()
     
     FOREACH (quorum, CONFIG_STATE->quorums)
     {
-        if (quorum->activationExpireTime == 0)
-            continue;
-        if (EventLoop::Now() < quorum->activationExpireTime)
-            continue;
+        if (quorum->isActivatingNode && quorum->activationExpireTime < EventLoop::Now())
+        {
+            ASSERT(quorum->activationExpireTime > 0);
+            ASSERT(!quorum->isReplicatingActivation);
 
-        ASSERT(quorum->isActivatingNode);
-        ASSERT(quorum->isReplicatingActivation);
+            // abort activation
+            Log_Message("Activating shard server %U in quorum %U: Activation failed...",
+                quorum->activatingNodeID, quorum->quorumID);
 
-        // abort activation
-        Log_Message("Activating shard server %U in quorum %U: Activation failed...",
-         quorum->activatingNodeID, quorum->quorumID);
-
-        quorum->ClearActivation();    
-        configServer->OnConfigStateChanged();
+            quorum->ClearActivation();    
+            configServer->OnConfigStateChanged();
+        }
     }
     
     UpdateTimeout();
