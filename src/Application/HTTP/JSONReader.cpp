@@ -6,7 +6,9 @@
 #define JSON_NULL       "null"
 #define JSON_TRUE       "true"
 #define JSON_FALSE      "false"
-#define JSON_ERROR      ""
+
+const char* JSON_ERROR = "";
+
 
 #define JSON_IS_FIRST_CHAR_RETURN(json, chr, ret)   \
 {                                                   \
@@ -143,8 +145,14 @@ ReadBuffer JSON_SkipString(ReadBuffer json)
     
     prev = json.GetCharAt(0);
     json.Advance(1);
-    while (json.GetLength() > 0 && !(json.GetCharAt(0) == '\"' && prev != '\\'))
+    while (json.GetLength() > 0)
+    {
+        if (json.GetCharAt(0) == '\"' && prev != '\\')
+            break;
+
+        prev = json.GetCharAt(0);
         json.Advance(1);
+    }
     
     if (json.GetLength() == 0)
         return JSON_ERROR;
@@ -958,11 +966,18 @@ JSONIterator JSON::First()
 {
     JSONIterator    end;
     ReadBuffer      tmp;
+    ReadBuffer      endBracket;
     ReadBuffer      value;
 
     if (IsArray())
     {
         tmp = JSON_SkipChar(GetReadBuffer(), '[');
+        if (tmp.GetBuffer() == JSON_ERROR)
+            return end;
+        // TODO: error handling
+        endBracket = JSON_SkipChar(tmp, ']');
+        if (endBracket.GetBuffer() != JSON_ERROR)
+            return end;
         if (!JSONReader::GetValue(tmp, value))
             return end;
         
