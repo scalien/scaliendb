@@ -333,6 +333,8 @@ bool StorageShard::IsSplitMergeCandidate()
     {
         if ((*itChunk)->GetChunkState() == StorageChunk::Written)
             count++;
+        else
+            return false;   // don't merge unwritten shards
     }
 
     if (count > 1)
@@ -354,6 +356,8 @@ bool StorageShard::IsFragmentedMergeCandidate()
     {
         if ((*itChunk)->GetChunkState() == StorageChunk::Written)
             count++;
+        else
+            return false;   // don't merge unwritten shards
     }
 
     if (count > 10)
@@ -374,6 +378,8 @@ void StorageShard::GetMergeInputChunks(List<StorageFileChunk*>& inputChunks)
             fileChunk = (StorageFileChunk*) *itChunk;
             inputChunks.Append(fileChunk);
         }
+        else
+            ASSERT_FAIL();
     }
 
     ASSERT(inputChunks.GetLength() > 1);
