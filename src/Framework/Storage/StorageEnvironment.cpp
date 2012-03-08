@@ -973,6 +973,8 @@ bool StorageEnvironment::SplitShard(uint16_t contextID,  uint64_t shardID,
     shard = GetShard(contextID, shardID);
     ASSERT(shard != NULL); // should exist
 
+    ASSERT(shard->RangeContains(splitKey));
+
     logSegment = logManager.GetHead(shard->GetTrackID());
     if (!logSegment)
         ASSERT_FAIL();
