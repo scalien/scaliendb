@@ -283,6 +283,10 @@ static void Log_Write(const char* buf, int size, int flush, bool lockMutex = tru
             fputs(buf, stderr);
 		if (flush)
 			fflush(stderr);
+
+#ifdef _WIN32
+        OutputDebugString(buf);
+#endif
     }
     
     if ((target & LOG_TARGET_FILE) == LOG_TARGET_FILE && logfile)
