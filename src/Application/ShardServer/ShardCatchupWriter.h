@@ -12,7 +12,7 @@ class ShardQuorumProcessor; // forward
 class ShardMessage;         // forward
 
 #define SHARD_CATCHUP_WRITER_DELAY  60*1000 // msec
-#define SHARD_CATCHUP_WRITER_GRAN   10*KiB
+#define SHARD_CATCHUP_WRITER_GRAN   64*KiB
 
 /*
 ===============================================================================================
