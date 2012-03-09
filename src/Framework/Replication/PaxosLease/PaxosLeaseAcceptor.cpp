@@ -34,10 +34,15 @@ void PaxosLeaseAcceptor::OnPrepareRequest(PaxosLeaseMessage& imsg)
     
     Log_Trace("msg.paxosID: %U, my.paxosID: %U", imsg.paxosID, context->GetPaxosID());
 
-    if (imsg.paxosID < context->GetPaxosID() && imsg.nodeID != context->GetLeaseOwner())
-        return; // only up-to-date nodes can become masters
-
-//  RLOG->OnPaxosLeaseMessage(msg.paxosID, msg.nodeID); //TODO
+    if (context->IsLeaseKnown() && imsg.nodeID == context->GetLeaseOwner())
+    {
+        // never drop message from lease owner
+    }
+    else
+    {
+        if (imsg.paxosID < context->GetPaxosID())
+            return; // only up-to-date nodes can become masters, drop message
+    }
     
     if (state.accepted && state.acceptedExpireTime < Now())
     {

@@ -302,7 +302,8 @@ bool ShardServer::IsLeaseKnown(uint64_t quorumID)
     if (!configQuorum->hasPrimary)
         return false;
     
-    // we already checked this case
+    // if the quorumProcessor says we're not the primary
+    // then we're not the primary, even if the config state says so
     if (configQuorum->primaryID == MY_NODEID)
         return false;
     
@@ -327,22 +328,23 @@ uint64_t ShardServer::GetLeaseOwner(uint64_t quorumID)
     
     quorumProcessor = GetQuorumProcessor(quorumID);
     if (quorumProcessor == NULL)
-        return false;
+        return UNDEFINED_NODEID;
     
     if (quorumProcessor->IsPrimary())
         return MY_NODEID;
 
     configQuorum = configState.GetQuorum(quorumID);
     if (configQuorum == NULL)
-        return 0;   
-    
+        return UNDEFINED_NODEID;
+
     if (!configQuorum->hasPrimary)
-        return 0;
-    
-    // we already checked this case
+        return UNDEFINED_NODEID;
+
+    // if the quorumProcessor says we're not the primary
+    // then we're not the primary, even if the config state says so
     if (configQuorum->primaryID == MY_NODEID)
-        return 0;
-    
+        return UNDEFINED_NODEID;
+
     return configQuorum->primaryID;
 }
 
