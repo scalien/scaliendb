@@ -319,6 +319,10 @@ public class scaliendb_client {
     scaliendb_clientJNI.SDBP_SetTrace(trace);
   }
 
+  public static void SDBP_SetDebug(boolean debug) {
+    scaliendb_clientJNI.SDBP_SetDebug(debug);
+  }
+
   public static void SDBP_SetLogFile(String filename) {
     scaliendb_clientJNI.SDBP_SetLogFile(filename);
   }
@@ -329,6 +333,10 @@ public class scaliendb_client {
 
   public static void SDBP_LogTrace(String msg) {
     scaliendb_clientJNI.SDBP_LogTrace(msg);
+  }
+
+  public static void SDBP_SetCrashReporter(boolean crashReporter) {
+    scaliendb_clientJNI.SDBP_SetCrashReporter(crashReporter);
   }
 
   public static void SDBP_SetShardPoolSize(long shardPoolSize) {

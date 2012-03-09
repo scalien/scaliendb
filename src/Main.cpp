@@ -11,7 +11,9 @@
 #include "Application/ConfigServer/ConfigServerApp.h"
 #include "Application/ShardServer/ShardServerApp.h"
 
-const char PRODUCT_STRING[] = "ScalienDB v" VERSION_STRING " " PLATFORM_STRING;
+#define    IDENT            "ScalienDB"
+
+const char PRODUCT_STRING[] = IDENT " v" VERSION_STRING " " PLATFORM_STRING;
 const char BUILD_DATE[]     = "Build date: " __DATE__ " " __TIME__;
 
 static void InitLog();
@@ -25,15 +27,22 @@ static void InitContextTransport();
 static void LogPrintVersion(bool isController);
 static void CrashReporterCallback();
 
+// the application object is global for debugging purposes
+static Application*     app;
+
 int main(int argc, char** argv)
 {
     try
     {
+        // crash reporter messes up the debugging on Windows
+#ifndef DEBUG
         CrashReporter::SetCallback(CFunc(CrashReporterCallback));
+#endif
         RunMain(argc, argv);
     }
-    catch (std::bad_alloc&)
+    catch (std::bad_alloc& e)
     {
+        UNUSED(e);
         STOP_FAIL(1, "Out of memory error");
     }
     catch (std::exception& e)
@@ -66,7 +75,6 @@ static void RunMain(int argc, char** argv)
 
 static void RunApplication()
 {
-    Application*    app;
     bool            isController;
 
     StartClock();
@@ -270,6 +278,8 @@ static void CrashReporterCallback()
 
     // When rotating the log there is heap allocation. To prevent it, we turn off log rotation ASAP.
     Log_SetMaxSize(0);
+
+    CrashReporter::ReportSystemEvent(IDENT);
 
     // Generate report and send it to log and standard error
     msg = CrashReporter::GetReport();
