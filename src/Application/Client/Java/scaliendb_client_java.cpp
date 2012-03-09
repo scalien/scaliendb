@@ -2282,6 +2282,16 @@ SWIGEXPORT void JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_1Se
 }
 
 
+SWIGEXPORT void JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_1SetDebug(JNIEnv *jenv, jclass jcls, jboolean jarg1) {
+  bool arg1 ;
+  
+  (void)jenv;
+  (void)jcls;
+  arg1 = jarg1 ? true : false; 
+  SDBP_SetDebug(arg1);
+}
+
+
 SWIGEXPORT void JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_1SetLogFile(JNIEnv *jenv, jclass jcls, jstring jarg1) {
   std::string *arg1 = 0 ;
   
@@ -2325,6 +2335,16 @@ SWIGEXPORT void JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_1Lo
   arg1 = &arg1_str;
   jenv->ReleaseStringUTFChars(jarg1, arg1_pstr); 
   SDBP_LogTrace((std::string const &)*arg1);
+}
+
+
+SWIGEXPORT void JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_1SetCrashReporter(JNIEnv *jenv, jclass jcls, jboolean jarg1) {
+  bool arg1 ;
+  
+  (void)jenv;
+  (void)jcls;
+  arg1 = jarg1 ? true : false; 
+  SDBP_SetCrashReporter(arg1);
 }
 
 

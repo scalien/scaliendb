@@ -659,6 +659,12 @@ uint64_t ShardDatabaseManager::ExecuteMessage(uint64_t quorumID, uint64_t paxosI
                 RESPONSE_FAIL();
             break;
         case SHARDMESSAGE_SPLIT_SHARD:
+            if (environment.GetShard(contextID, message.newShardID))
+            {
+                Log_Debug("Shard %U already exists, probably due to replayed replication round",
+                 message.newShardID);
+                break;
+            }
             environment.SplitShard(contextID, message.shardID, message.newShardID, message.splitKey);
             Log_Debug("Splitting shard %U into shards %U and %U at key: %B (paxosID: %U)",
              message.shardID, message.shardID, message.newShardID, &message.splitKey, paxosID);

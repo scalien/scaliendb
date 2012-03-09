@@ -267,12 +267,7 @@ bool StorageShard::IsBackingLogSegment(uint64_t checkTrackID, uint64_t checkLogS
 
 bool StorageShard::RangeContains(ReadBuffer key)
 {
-    ReadBuffer  firstKey, lastKey;
-
-    firstKey = GetFirstKey();
-    lastKey = GetLastKey();
-
-    return ::RangeContains(firstKey, lastKey, key);
+    return ::RangeContains(ReadBuffer(firstKey), ReadBuffer(lastKey), key);
 }
 
 void StorageShard::PushMemoChunk(StorageMemoChunk* memoChunk_)
@@ -333,6 +328,8 @@ bool StorageShard::IsSplitMergeCandidate()
     {
         if ((*itChunk)->GetChunkState() == StorageChunk::Written)
             count++;
+        else
+            return false;   // don't merge unwritten shards
     }
 
     if (count > 1)
@@ -354,6 +351,8 @@ bool StorageShard::IsFragmentedMergeCandidate()
     {
         if ((*itChunk)->GetChunkState() == StorageChunk::Written)
             count++;
+        else
+            return false;   // don't merge unwritten shards
     }
 
     if (count > 10)
@@ -374,6 +373,8 @@ void StorageShard::GetMergeInputChunks(List<StorageFileChunk*>& inputChunks)
             fileChunk = (StorageFileChunk*) *itChunk;
             inputChunks.Append(fileChunk);
         }
+        else
+            ASSERT_FAIL();
     }
 
     ASSERT(inputChunks.GetLength() > 1);
