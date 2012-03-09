@@ -179,14 +179,14 @@ namespace Scalien
             // Select different default location when the process is hosted by IIS
             if (HostingEnvironment.IsHosted)
             {
-                location = HostingEnvironment.MapPath("~/bin");
+                location = HostingEnvironment.MapPath(@"~\bin\");
             }
             else
             {
                 location = Assembly.GetExecutingAssembly().Location;
             }
 
-            Debug.WriteLine("Location: {0}", location);
+            Debug.WriteLine(String.Format("Location: {0}", location));
             FileVersionInfo fvi = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location);
 
             string clientPrefix = "ScalienClient.NativeDLL";
