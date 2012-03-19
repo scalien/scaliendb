@@ -1059,7 +1059,7 @@ function createQuorumDiv(configState, quorum)
 	var state;
 	var primaryID = null;
 	explanation = "";
-	if (quorum["hasPrimary"] == "true")
+	if (quorum["hasPrimary"] == true)
 	{
 		if (quorum["inactiveNodes"].length == 0)
 			state = "healthy";
