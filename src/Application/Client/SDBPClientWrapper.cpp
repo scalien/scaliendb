@@ -158,7 +158,7 @@ int64_t SDBP_ResultSignedNumber(ResultObj result_)
 {
     Result*     result = (Result*) result_;
     ReadBuffer  value;
-    int64_t    number;
+    int64_t     number;
     int         status;
     
     if (!result)
@@ -1028,7 +1028,14 @@ void SDBP_SetTrace(bool trace)
 
 void SDBP_SetDebug(bool debug)
 {
+    Log_SetTimestamping(true);
+    Log_SetThreadedOutput(true);
     Log_SetDebug(debug);
+	
+	if (debug)
+		Log_SetTarget(Log_GetTarget() | LOG_TARGET_STDERR);
+	else
+		Log_SetTarget(Log_GetTarget() & ~LOG_TARGET_STDERR);
 }
 
 void SDBP_SetTraceBufferSize(unsigned traceBufferSize)

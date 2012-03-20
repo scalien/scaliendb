@@ -126,6 +126,7 @@ int Client::Init(int nodec, const char* nodev[])
         Log_Debug("IOThread started");
     }
     numClients++;
+	Log_Debug("Number of clients: %u", numClients);
     GLOBAL_MUTEX_GUARD_UNLOCK();
 
     IOProcessor::BlockSignals(IOPROCESSOR_BLOCK_INTERACTIVE);
@@ -1079,6 +1080,10 @@ void Client::EventLoop()
         isDone.Wait(); // wait for IO thread to process ops
     
         CLIENT_MUTEX_GUARD_LOCK();
+
+        EventLoop::Remove(&globalTimeout);
+        EventLoop::Remove(&masterTimeout);
+
     }
     if (PooledShardConnection::GetPoolSize() > 0)
         ReleaseShardConnections();
