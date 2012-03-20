@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Runtime.InteropServices;
+using System.Threading;
 
 namespace Scalien
 {
@@ -50,8 +51,11 @@ namespace Scalien
 
         public void Close()
         {
-            scaliendb_client.SDBP_ResultClose(cptr);
-            cptr = null;
+            var oldPtr = Interlocked.Exchange(ref cptr, null);
+            if (oldPtr != null)
+            {
+                scaliendb_client.SDBP_ResultClose(oldPtr);
+            }
         }
 
         public string GetKey()

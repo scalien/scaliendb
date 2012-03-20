@@ -305,6 +305,24 @@ namespace Scalien
         }
 
         /// <summary>
+        /// Trace buffer is a feature for collecting trace log messages in memory. Off by default.
+        /// </summary>
+        /// <param name="traceBufferSize">Size of the buffer or 0 for no trace buffer</param>
+        public static void SetTraceBufferSize(uint traceBufferSize)
+        {
+            scaliendb_client.SDBP_SetTraceBufferSize(traceBufferSize);
+        }
+
+        /// <summary>
+        /// Turn on additional log debug output in the underlying C++ client library. Off by default.
+        /// </summary>
+        /// <param name="trace">True or false.</param>
+        public static void SetDebug(bool trace)
+        {
+            scaliendb_client.SDBP_SetDebug(trace);
+        }
+
+        /// <summary>
         /// Turn on crash reporter functionality in in the underlying C++ client library. Off by default.
         /// </summary>
         /// <param name="crashReporter">True or false.</param>
@@ -358,6 +376,24 @@ namespace Scalien
         public static void SetMaxConnections(uint maxConnections)
         {
             scaliendb_client.SDBP_SetMaxConnections(maxConnections);
+        }
+
+        /// <summary>
+        /// Returns the version in a string.
+        /// </summary>
+        /// <returns>The version of the library</returns>
+        public static string GetVersionString()
+        {
+            return scaliendb_client.SDBP_GetVersion();
+        }
+
+        /// <summary>
+        /// Return the debug version in a string.
+        /// </summary>
+        /// <returns>The debug version of the library</returns>
+        public static string GetDebugString()
+        {
+            return scaliendb_client.SDBP_GetDebugString();
         }
 
         /// <summary>
