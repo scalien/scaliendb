@@ -1063,6 +1063,7 @@ void Client::EventLoop()
     isDone.SetWaiting(true);
     if (submittedRequests.GetLength() > 0)
     {
+        Log_Trace("Submitting requests, %u", submittedRequests.GetLength());
         AssignRequestsToQuorums();
         SendQuorumRequests();
     }
@@ -1215,8 +1216,13 @@ void Client::ReassignRequest(Request* req)
     ConfigQuorum*   quorum;
     ReadBuffer      key;
     
+    // if there is no master controller, put back the request to submittedRequests
+    // as soon as there is a master, all requests will be assigned to quorums
     if (configState.paxosID == 0)
+    {
+        submittedRequests.Append(req);
         return;
+    }
     
     // handle controller requests
     if (req->IsControllerRequest())
