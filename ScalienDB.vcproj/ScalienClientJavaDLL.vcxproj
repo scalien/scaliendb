@@ -99,7 +99,7 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <AdditionalIncludeDirectories>..\src;..\src\Application\Client\Windows;C:\Program Files\Java\jdk1.7.0_02\include;C:\Program Files\Java\jdk1.7.0_02\include\win32;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\src;..\src\Application\Client\Windows;c:\Program Files\Java\jdk1.6.0_25\include\win32;c:\Program Files\Java\jdk1.6.0_25\include;C:\Program Files\Java\jdk1.7.0_02\include;C:\Program Files\Java\jdk1.7.0_02\include\win32;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;PLATFORM_WINDOWS;IOPROCESSOR_MULTITHREADED;EVENTLOOP_MULTITHREADED;CLIENT_MULTITHREADED;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
@@ -115,7 +115,8 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <AdditionalIncludeDirectories>..\src;..\src\Application\Client\Windows;C:\Program Files\Java\jdk1.7.0_02\include;C:\Program Files\Java\jdk1.7.0_02\include\win32;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\src;..\src\Application\Client\Windows;C:\Program Files\Java\jdk1.6.0_25\include;C:\Program Files\Java\jdk1.6.0_25\include\win32;C:\Program Files\Java\jdk1.7.0_02\include;C:\Program Files\Java\jdk1.7.0_02\include\win32;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;PLATFORM_WINDOWS;IOPROCESSOR_MULTITHREADED;EVENTLOOP_MULTITHREADED;CLIENT_MULTITHREADED;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
