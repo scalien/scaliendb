@@ -1,16 +1,27 @@
 #ifndef PLATFORM_WINDOWS
 #include "CrashReporter.h"
 
+void CrashReporter::SetCallback(Callable callback)
+{
+    // TODO:
+    UNUSED(callback);
+}
+
+void CrashReporter::DeleteCallback()
+{
+    // TODO:
+}
+
 const char* CrashReporter::GetReport()
 {
     // TODO:
     return "";
 }
 
-void CrashReporter::SetCallback(Callable callback)
+void CrashReporter::ReportSystemEvent(const char* ident)
 {
     // TODO:
-    UNUSED(callback);
+    UNUSED(ident);
 }
 
 #ifdef DEBUG

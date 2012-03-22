@@ -139,35 +139,20 @@ void JSONConfigState::WriteQuorum(ConfigQuorum* quorum)
 {
     json->PrintObjectStart();
     
-    json->PrintString("quorumID");
-    json->PrintColon();
-    json->PrintNumber(quorum->quorumID);
+    JSON_NUMBER(quorum, quorumID);
     json->PrintComma();
-
-    json->PrintString("name");
-    json->PrintColon();
-    json->PrintString(quorum->name);
+    JSON_STRING(quorum, name);
     json->PrintComma();
-
-    json->PrintString("hasPrimary");
-    json->PrintColon();
-    if (quorum->hasPrimary)
-        json->PrintString("true");
-    else
-        json->PrintString("false");
+    JSON_BOOL(quorum, hasPrimary);
     json->PrintComma();
-
+    
     if (quorum->hasPrimary)
     {
-        json->PrintString("primaryID");
-        json->PrintColon();
-        json->PrintNumber(quorum->primaryID);
+        JSON_NUMBER(quorum, primaryID);
         json->PrintComma();
     }
-    
-    json->PrintString("paxosID");
-    json->PrintColon();
-    json->PrintNumber(quorum->paxosID);
+
+    JSON_NUMBER(quorum, paxosID);
     json->PrintComma();
 
     json->PrintString("activeNodes");

@@ -262,10 +262,6 @@ void ShardQuorumProcessor::OnReceiveLease(ClusterMessage& message)
         return;
     }
 
-    SortedList<uint64_t>& shards = CONFIG_STATE->GetQuorum(GetQuorumID())->shards;
-    if (shards != message.shards)
-        return;
-    
     if (!isPrimary)
         Log_Debug("Primary for quorum %U", quorumContext.GetQuorumID());
     
@@ -282,8 +278,6 @@ void ShardQuorumProcessor::OnReceiveLease(ClusterMessage& message)
     FOREACH (it, message.activeNodes)
         activeNodes.Add(*it);
         
-    shards = message.shards;
-    
     leaseTimeout.SetExpireTime(lease->expireTime);
     EventLoop::Reset(&leaseTimeout);
     

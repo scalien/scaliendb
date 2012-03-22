@@ -49,6 +49,7 @@ template<class T>
 PointerGuard<T>::PointerGuard(T* ptr_)
 {
     ptr = ptr_;
+    autoCreate = false;
 }
 
 template<class T>

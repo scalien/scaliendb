@@ -439,6 +439,9 @@ uninstall:
 	-rm $(INSTALL_BIN_DIR)/scaliendb
 	-rm $(INSTALL_BIN_DIR)/safe_scaliendb
 
+binrelease: release javalib pythonlib
+	
+
 selfupdate:
 	-script/updatemakefile.sh
 

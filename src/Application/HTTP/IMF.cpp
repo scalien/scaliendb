@@ -30,7 +30,7 @@ static int SkipWhitespace(char* start, int len)
     if (len <= 0)
         return -1;
 
-    while (p && *p && *p <= ' ')
+    while (*p && *p <= ' ')
     {
         p++;
 
@@ -56,7 +56,7 @@ static int SeekWhitespace(char* start, int len)
     if (len <= 0)
         return -1;
     
-    while (p && *p && *p != ' ')
+    while (*p && *p != ' ')
     {
         p++;
 

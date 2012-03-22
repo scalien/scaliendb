@@ -301,7 +301,7 @@ bool ReplicatedLog::OnLearnChosen(PaxosMessage& imsg)
     Log_Debug("OnLearnChosen begin");
 #endif
 
-    if (context->GetDatabase()->IsCommiting())
+    if (context->GetDatabase()->IsCommitting())
     {
 #ifdef RLOG_DEBUG_MESSAGES
         Log_Debug("Database is commiting, dropping Paxos message");
@@ -314,6 +314,18 @@ bool ReplicatedLog::OnLearnChosen(PaxosMessage& imsg)
 #ifdef RLOG_DEBUG_MESSAGES
         Log_Debug("Waiting OnAppend, dropping Paxos message");
 #endif
+        return true;
+    }
+
+    if (imsg.nodeID != MY_NODEID && proposer.state.multi)
+    {
+        Log_Debug("Received learn message from %U, but I'm in multi paxos mode", imsg.nodeID);
+        return true;
+    }
+
+    if (imsg.nodeID != MY_NODEID && context->IsLeaseOwner())
+    {
+        Log_Debug("Received learn message from %U, but I'm the lease owner", imsg.nodeID);
         return true;
     }
 
@@ -446,12 +458,9 @@ void ReplicatedLog::ProcessLearnChosen(uint64_t nodeID, uint64_t runID)
     ownAppend = proposer.state.multi;
     if (nodeID == MY_NODEID && runID == REPLICATION_CONFIG->GetRunID() && context->IsLeaseOwner())
     {
-        if (!proposer.state.multi)
-        {
-            proposer.state.multi = true;
-            context->OnIsLeader();
-        }
         proposer.state.multi = true;
+        if (!ownAppend)
+            context->OnIsLeader();
         Log_Trace("Multi paxos enabled");
     }
     else
@@ -459,6 +468,8 @@ void ReplicatedLog::ProcessLearnChosen(uint64_t nodeID, uint64_t runID)
         proposer.state.multi = false;
         Log_Trace("Multi paxos disabled");
     }
+
+    ownAppend &= proposer.state.multi;
 
     if (BUFCMP(&learnedValue, &dummy))
         OnAppendComplete();

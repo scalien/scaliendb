@@ -175,6 +175,8 @@
     <ClCompile Include="..\src\Application\ConfigServer\JSONConfigState.cpp" />
     <ClCompile Include="..\src\System\Common.cpp" />
     <ClCompile Include="..\src\System\Config.cpp" />
+    <ClCompile Include="..\src\System\CrashReporter_Posix.cpp" />
+    <ClCompile Include="..\src\System\CrashReporter_Windows.cpp" />
     <ClCompile Include="..\src\System\FileSystem.cpp" />
     <ClCompile Include="..\src\System\Formatting.cpp" />
     <ClCompile Include="..\src\System\Log.cpp" />
@@ -248,6 +250,7 @@
     <ClInclude Include="..\src\Application\ConfigServer\JSONConfigState.h" />
     <ClInclude Include="..\src\System\Common.h" />
     <ClInclude Include="..\src\System\Config.h" />
+    <ClInclude Include="..\src\System\CrashReporter.h" />
     <ClInclude Include="..\src\System\FileSystem.h" />
     <ClInclude Include="..\src\System\Formatting.h" />
     <ClInclude Include="..\src\System\Log.h" />

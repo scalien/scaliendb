@@ -121,6 +121,7 @@ static int SetupDefaultClient(Client& client)
     ReadConfig();
 
     Log_SetTrace(configFile.GetBoolValue("log.trace", false));
+    Log_SetDebug(configFile.GetBoolValue("log.debug", false));
 
     client.Shutdown();
     ret = SetupDefaultControllerNodes(client);
@@ -779,7 +780,7 @@ TEST_DEFINE(TestClientAdd)
     Buffer          key;
     ReadBuffer      value;
     int             ret;
-    unsigned        num = 10;
+    unsigned        num = 1;
     
     Log_SetTimestamping(true);
     Log_SetTarget(LOG_TARGET_STDOUT);
@@ -789,9 +790,9 @@ TEST_DEFINE(TestClientAdd)
     if (ret != SDBP_SUCCESS)
         TEST_CLIENT_FAIL();
 
-    ret = client.Set(defaultTableID, "user_id", "0");
-    if (ret != SDBP_SUCCESS)
-        TEST_CLIENT_FAIL();
+//    ret = client.Set(defaultTableID, "user_id", "0");
+//    if (ret != SDBP_SUCCESS)
+//        TEST_CLIENT_FAIL();
     
     for (unsigned i = 0; i < num; i++)
     {
@@ -810,6 +811,7 @@ TEST_DEFINE(TestClientAdd)
     
     result->GetValue(value);
     TEST_LOG("value: %.*s", value.GetLength(), value.GetBuffer());
+    delete result;
 
     client.Shutdown();
     
@@ -1307,7 +1309,7 @@ TEST_DEFINE(TestClientShardConnectionPooling)
 TEST_DEFINE(TestClientMultiThread)
 {
     ThreadPool*     threadPool;
-    unsigned        numThread = 10;
+    unsigned        numThread = 100;
     uint32_t        runCount;
     Stopwatch       sw;
 
@@ -1325,7 +1327,7 @@ TEST_DEFINE(TestClientMultiThread)
 
 		for (unsigned i = 0; i < numThread; i++)
 		{
-            threadPool->Execute(CFunc((void (*)(void)) TestClientMaro));
+            threadPool->Execute(CFunc((void (*)(void)) TestClientAdd));
 		}
     
 		threadPool->Start();

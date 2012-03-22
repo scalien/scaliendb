@@ -59,7 +59,7 @@ bool PaxosAcceptor::OnProposeRequest(PaxosMessage& imsg)
 void PaxosAcceptor::OnCatchupComplete()
 {
     ASSERT(!isCommitting);
-    ASSERT(!context->GetDatabase()->IsCommiting());
+    ASSERT(!context->GetDatabase()->IsCommitting());
 
     state.Init();
     WriteState();
@@ -148,7 +148,7 @@ bool PaxosAcceptor::TestRejection(PaxosMessage& msg)
         reject = true;
     if (isCommitting)
         reject = true;
-    if (context->GetDatabase()->IsCommiting())
+    if (context->GetDatabase()->IsCommitting())
         reject = true;
     if (context->IsPaxosBlocked())
         reject = true;
@@ -159,7 +159,7 @@ bool PaxosAcceptor::TestRejection(PaxosMessage& msg)
         Log_Debug("context->GetPaxosID() = %U", context->GetPaxosID());
         Log_Debug("imsg.proposalID = %U", msg.proposalID);
         Log_Debug("state.promisedProposalID = %U", state.promisedProposalID);
-        Log_Debug("context->GetDatabase()->IsCommiting() = %b", context->GetDatabase()->IsCommiting());
+        Log_Debug("context->GetDatabase()->IsCommitting() = %b", context->GetDatabase()->IsCommitting());
         Log_Debug("context->IsPaxosBlocked() = %b", context->IsPaxosBlocked());
     }
 

@@ -22,6 +22,7 @@ void ClientResponse::Init()
     values = NULL;
     type = CLIENTRESPONSE_NORESPONSE;
     numKeys = 0;
+    snumber = 0;
     number = 0;
     paxosID = 0;
     value.Reset();

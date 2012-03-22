@@ -5,6 +5,10 @@
 #include "ConfigServer.h"
 #include "ConfigQuorumProcessor.h"
 
+#define CONFIG_STATE        (configServer->GetDatabaseManager()->GetConfigState())
+#define QUORUM_PROCESSOR    (configServer->GetQuorumProcessor())
+#define HEARTBEAT_MANAGER   (configServer->GetHeartbeatManager())
+
 void ConfigActivationManager::Init(ConfigServer* configServer_)
 {
     configServer = configServer_;
@@ -14,119 +18,75 @@ void ConfigActivationManager::Init(ConfigServer* configServer_)
 
 void ConfigActivationManager::TryDeactivateShardServer(uint64_t nodeID, bool force)
 {
-    ConfigState*        configState;
-    ConfigQuorum*       itQuorum;
+    ConfigQuorum*       quorum;
     ConfigShardServer*  shardServer;
 
-    configState = configServer->GetDatabaseManager()->GetConfigState();
-
-    FOREACH (itQuorum, configState->quorums)
+    FOREACH (quorum, CONFIG_STATE->quorums)
     {
-        if (itQuorum->isActivatingNode && itQuorum->activatingNodeID == nodeID)
+        if (quorum->isActivatingNode && quorum->activatingNodeID == nodeID)
         {
-            shardServer = configState->GetShardServer(itQuorum->activatingNodeID);
+            shardServer = CONFIG_STATE->GetShardServer(quorum->activatingNodeID);
             ASSERT(shardServer != NULL);
 
-            itQuorum->ClearActivation();
+            quorum->ClearActivation();
             UpdateTimeout();
 
             Log_Message("Activation failed for shard server %U and quorum %U...",
-             itQuorum->quorumID, itQuorum->activatingNodeID);
+             quorum->quorumID, quorum->activatingNodeID);
         }
 
-        if (itQuorum->IsActiveMember(nodeID))
+        if (quorum->IsActiveMember(nodeID))
         {
             // if this node was part of an activation process, cancel it
-            if (itQuorum->isActivatingNode)
+            if (quorum->isActivatingNode)
             {
-                shardServer = configState->GetShardServer(itQuorum->activatingNodeID);
+                shardServer = CONFIG_STATE->GetShardServer(quorum->activatingNodeID);
                 ASSERT(shardServer != NULL);
 
-                itQuorum->ClearActivation();
+                quorum->ClearActivation();
                 UpdateTimeout();
 
                 Log_Message("Activation failed for shard server %U and quorum %U...",
-                 itQuorum->activatingNodeID, itQuorum->quorumID);
+                 quorum->activatingNodeID, quorum->quorumID);
             }
             
-            configServer->GetQuorumProcessor()->DeactivateNode(itQuorum->quorumID, nodeID, force);
+            QUORUM_PROCESSOR->DeactivateNode(quorum->quorumID, nodeID, force);
         }
     }
 }
 
 void ConfigActivationManager::TryActivateShardServer(uint64_t nodeID, bool disregardPrevious, bool force)
 {
-    uint64_t            paxosID;
-    ConfigState*        configState;
-    ConfigQuorum*       itQuorum;
+    ConfigQuorum*       quorum;
     ConfigShardServer*  shardServer;
-    QuorumInfo*         quorumInfo;
-    uint64_t            now;
 
-    if (configServer->GetHeartbeatManager()->HasHeartbeat(nodeID) == false)
+    if (!HEARTBEAT_MANAGER->HasHeartbeat(nodeID))
         return;
 
-    now = EventLoop::Now();
-    
-    Log_Trace();
+    shardServer = CONFIG_STATE->GetShardServer(nodeID);
 
-    configState = configServer->GetDatabaseManager()->GetConfigState();
-    shardServer = configState->GetShardServer(nodeID);
-
-    FOREACH (itQuorum, configState->quorums)
+    FOREACH (quorum, CONFIG_STATE->quorums)
     {
-        Log_Trace("itQuorum->isActivatingNode: %b", itQuorum->isActivatingNode);
-        if (itQuorum->isActivatingNode)
+        Log_Trace("itQuorum->isActivatingNode: %b", quorum->isActivatingNode);
+
+        if (quorum->isActivatingNode)
             continue;
 
-        if (force && itQuorum->IsInactiveMember(nodeID))
-        {
-            itQuorum->paxosID = 1;
-            configServer->GetQuorumProcessor()->ActivateNode(itQuorum->quorumID, nodeID);
-            return;
-        }
-
-        Log_Trace("itQuorum->hasPrimary: %b", itQuorum->hasPrimary);
-        if (!itQuorum->hasPrimary)
+        if (!quorum->IsInactiveMember(nodeID))
             continue;
 
-        if (itQuorum->IsInactiveMember(nodeID))
-        {
-            quorumInfo = QuorumInfo::GetQuorumInfo(shardServer->quorumInfos, itQuorum->quorumID);
-            if (quorumInfo == NULL)
-                continue;
-            paxosID = quorumInfo->paxosID;
-            if (paxosID >= (itQuorum->paxosID - RLOG_REACTIVATION_DIFF) ||
-             itQuorum->paxosID <= RLOG_REACTIVATION_DIFF)
-            {
-                if (!disregardPrevious && !shardServer->tryAutoActivation)
-                    continue;
-
-                // the shard server is "almost caught up", start the activation process
-                itQuorum->OnActivationStart(nodeID, now + ACTIVATION_TIMEOUT);
-                UpdateTimeout();
-                
-                shardServer->tryAutoActivation = false;
-
-                Log_Message("Activation started for shard server %U and quorum %U...",
-                 itQuorum->activatingNodeID, itQuorum->quorumID);
-                configServer->OnConfigStateChanged();
-            }
-        }
+        TryActivateShardServer(quorum, shardServer, disregardPrevious, force);
     }    
 }
 
 void ConfigActivationManager::OnExtendLease(ConfigQuorum& quorum, ClusterMessage& message)
 {
-    ConfigState*        configState;
     ConfigShardServer*  shardServer;
 
     Log_Trace();
 
     if (!quorum.hasPrimary || message.nodeID != quorum.primaryID)
         return;
-
-    configState = configServer->GetDatabaseManager()->GetConfigState();
 
     if (!quorum.isActivatingNode || quorum.isReplicatingActivation ||
      message.configID != quorum.configID)
@@ -158,9 +118,9 @@ void ConfigActivationManager::OnExtendLease(ConfigQuorum& quorum, ClusterMessage
             
             quorum.OnActivationReplication();
             configServer->OnConfigStateChanged();
-            configServer->GetQuorumProcessor()->ActivateNode(quorum.quorumID, quorum.activatingNodeID);
+            QUORUM_PROCESSOR->ActivateNode(quorum.quorumID, quorum.activatingNodeID);
 
-            shardServer = configState->GetShardServer(quorum.activatingNodeID);
+            shardServer = CONFIG_STATE->GetShardServer(quorum.activatingNodeID);
             shardServer->tryAutoActivation = true;
         }
         else
@@ -173,33 +133,22 @@ void ConfigActivationManager::OnExtendLease(ConfigQuorum& quorum, ClusterMessage
 
 void ConfigActivationManager::OnActivationTimeout()
 {
-    uint64_t            now;
-    ConfigState*        configState;
-    ConfigQuorum*       itQuorum;
-    ConfigShardServer*  shardServer;
+    ConfigQuorum* quorum;
     
     Log_Trace();
     
-    now = EventLoop::Now();
-    configState = configServer->GetDatabaseManager()->GetConfigState();
-    
-    FOREACH (itQuorum, configState->quorums)
+    FOREACH (quorum, CONFIG_STATE->quorums)
     {
-        if (itQuorum->activationExpireTime > 0 && itQuorum->activationExpireTime < now)
+        if (quorum->isActivatingNode && quorum->activationExpireTime < EventLoop::Now())
         {
-            // stop activation
-            
-            ASSERT(itQuorum->isActivatingNode == true);
-            ASSERT(itQuorum->isReplicatingActivation == false);
+            ASSERT(quorum->activationExpireTime > 0);
+            ASSERT(!quorum->isReplicatingActivation);
 
-            shardServer = configState->GetShardServer(itQuorum->activatingNodeID);
-            ASSERT(shardServer != NULL);
-
+            // abort activation
             Log_Message("Activating shard server %U in quorum %U: Activation failed...",
-             itQuorum->activatingNodeID, itQuorum->quorumID);
+                quorum->activatingNodeID, quorum->quorumID);
 
-            itQuorum->ClearActivation();
-             
+            quorum->ClearActivation();    
             configServer->OnConfigStateChanged();
         }
     }
@@ -209,19 +158,19 @@ void ConfigActivationManager::OnActivationTimeout()
 
 void ConfigActivationManager::UpdateTimeout()
 {
-    ConfigQuorum*   it;
+    ConfigQuorum*   quorum;
     uint64_t        activationExpireTime;
     
     Log_Trace();
     
+    // find lowest activationExpireTime among quorums
     activationExpireTime = 0;
-    FOREACH (it, configServer->GetDatabaseManager()->GetConfigState()->quorums)
+    FOREACH (quorum, CONFIG_STATE->quorums)
     {
-        if (it->isActivatingNode && !it->isReplicatingActivation)
-        {
-            if (activationExpireTime == 0 || it->activationExpireTime < activationExpireTime)
-                activationExpireTime = it->activationExpireTime;
-        }
+        if (quorum->isActivatingNode)
+        if (!quorum->isReplicatingActivation)
+        if (activationExpireTime == 0 || quorum->activationExpireTime < activationExpireTime)
+            activationExpireTime = quorum->activationExpireTime;
     }
     
     if (activationExpireTime > 0)
@@ -229,4 +178,40 @@ void ConfigActivationManager::UpdateTimeout()
         activationTimeout.SetExpireTime(activationExpireTime);
         EventLoop::Reset(&activationTimeout);
     }
+}
+
+void ConfigActivationManager::TryActivateShardServer(ConfigQuorum* quorum, ConfigShardServer* shardServer, bool disregardPrevious, bool force)
+{
+    QuorumInfo* quorumInfo;
+
+    if (force)
+    {
+        quorum->paxosID = 1;
+        QUORUM_PROCESSOR->ActivateNode(quorum->quorumID, shardServer->nodeID);
+        return;
+    }
+
+    if (!disregardPrevious && !shardServer->tryAutoActivation)
+        return;
+
+    if (!quorum->hasPrimary)
+        return;
+
+    quorumInfo = QuorumInfo::GetQuorumInfo(shardServer->quorumInfos, quorum->quorumID);
+    if (!quorumInfo)
+        return;
+    
+    if (quorum->paxosID >= quorumInfo->paxosID)
+    if (quorum->paxosID - quorumInfo->paxosID > RLOG_REACTIVATION_DIFF)
+        return;
+
+    // the shard server is "almost caught up", start the activation process
+    Log_Message("Activation started for shard server %U and quorum %U...",
+        shardServer->nodeID, quorum->quorumID);
+
+    quorum->OnActivationStart(shardServer->nodeID, EventLoop::Now() + ACTIVATION_TIMEOUT);
+    UpdateTimeout();
+        
+    shardServer->tryAutoActivation = false;
+    configServer->OnConfigStateChanged();
 }

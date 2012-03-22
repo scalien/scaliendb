@@ -302,12 +302,14 @@ bool ConfigState::Write(Buffer& buffer, bool withVolatile)
 
         buffer.Appendf(":");
         if (hasMaster)
+        {
             buffer.Appendf("%c:%U", YES, masterID);
+            // as paxosID is optional from 0.9.8, it is prefixed with P
+            buffer.Appendf(":P%U", paxosID);
+        }
         else
             buffer.Appendf("%c", NO);
 
-        // as paxosID is optional from 0.9.8, it is prefixed with P
-        buffer.Appendf(":P%U", paxosID);
 
         buffer.Appendf(":");        
         if (isMigrating)

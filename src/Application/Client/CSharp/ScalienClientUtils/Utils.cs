@@ -5,6 +5,7 @@ using System.Text;
 using System.IO;
 using System.Net;
 using System.Runtime.Serialization.Json;
+using System.Runtime.InteropServices;
 
 namespace Scalien
 {
@@ -405,6 +406,53 @@ namespace Scalien
         public static string[] GetConfigNodes()
         {
             return new ConfigFile().GetStringArrayValue("controllers");
+        }
+
+        public static byte[] NextKey(byte[] key)
+        {
+            byte[] nextKey = new byte[key.Length];
+
+            Buffer.BlockCopy(key, 0, nextKey, 0, key.Length);
+            if (nextKey[nextKey.Length - 1] == 255)
+            {
+                nextKey = new byte[key.Length + 1];
+                Buffer.BlockCopy(key, 0, nextKey, 0, key.Length);
+                nextKey[nextKey.Length - 1] = 0;
+            }
+            else
+                nextKey[nextKey.Length - 1] += 1;
+
+            return nextKey;
+        }
+
+        public class ByteArrayComparer : IEqualityComparer<byte[]>
+        {
+            public bool Equals(byte[] b1, byte[] b2)
+            {
+                return ByteArrayEquals(b1, b2);
+            }
+
+            public int GetHashCode(byte[] key)
+            {
+                if (key == null)
+                    throw new ArgumentNullException("key");
+                return key.Sum(i => i);
+            }
+        }
+
+        [DllImport("msvcrt.dll")]
+        internal static extern int memcmp(byte[] b1, byte[] b2, long count);
+
+        static bool ByteArrayEquals(byte[] b1, byte[] b2)
+        {
+            // Validate buffers are the same length.
+            // This also ensures that the count does not exceed the length of either buffer.  
+            return b1.Length == b2.Length && memcmp(b1, b2, b1.Length) == 0;
+        }
+
+        public static int ByteArrayCompare(byte[] b1, byte[] b2)
+        {
+            return memcmp(b1, b2, Math.Min(b1.LongLength, b2.LongLength));
         }
     }
 }

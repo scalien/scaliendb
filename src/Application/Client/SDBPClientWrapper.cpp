@@ -2,6 +2,7 @@
 #include "SDBPClient.h"
 #include "SDBPPooledShardConnection.h"
 
+#include "System/CrashReporter.h"
 #include "Application/ConfigServer/JSONConfigState.h"
 #include "Version.h"
 #include "SourceControl.h"
@@ -157,7 +158,7 @@ int64_t SDBP_ResultSignedNumber(ResultObj result_)
 {
     Result*     result = (Result*) result_;
     ReadBuffer  value;
-    int64_t    number;
+    int64_t     number;
     int         status;
     
     if (!result)
@@ -1021,8 +1022,20 @@ void SDBP_SetTrace(bool trace)
 	{
 		Log_SetTrace(false);
         Log_SetDebug(false);
-		Log_SetTarget(LOG_TARGET_NOWHERE);
+        Log_SetTarget(Log_GetTarget() & ~LOG_TARGET_STDERR);
 	}
+}
+
+void SDBP_SetDebug(bool debug)
+{
+    Log_SetTimestamping(true);
+    Log_SetThreadedOutput(true);
+    Log_SetDebug(debug);
+	
+	if (debug)
+		Log_SetTarget(Log_GetTarget() | LOG_TARGET_STDERR);
+	else
+		Log_SetTarget(Log_GetTarget() & ~LOG_TARGET_STDERR);
 }
 
 void SDBP_SetTraceBufferSize(unsigned traceBufferSize)
@@ -1053,6 +1066,23 @@ void SDBP_SetLogFile(const std::string& filename)
 void SDBP_LogTrace(const std::string& msg)
 {
     Log_Trace("Client app: %s", msg.c_str());
+}
+
+static void CrashReporterCallback()
+{
+    Log_Message("%s", CrashReporter::GetReport());
+}
+
+void SDBP_SetCrashReporter(bool crashReporter)
+{
+    if (crashReporter)
+    {
+        CrashReporter::SetCallback(CFunc(CrashReporterCallback));
+    }
+    else
+    {
+        CrashReporter::DeleteCallback();
+    }
 }
 
 void SDBP_SetShardPoolSize(unsigned shardPoolSize)

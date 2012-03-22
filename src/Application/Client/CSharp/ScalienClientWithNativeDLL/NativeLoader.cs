@@ -8,6 +8,7 @@ using System.IO;
 using System.Reflection;
 using Microsoft.Win32.SafeHandles;
 using System.Runtime.ConstrainedExecution;
+using System.Web.Hosting;
 
 namespace Scalien
 {
@@ -67,7 +68,7 @@ namespace Scalien
 
     public class NativeLoader
     {
-        static SafeDLLHandle handle;
+        //static SafeDLLHandle handle;
 
         static NativeLoader()
         {
@@ -88,11 +89,11 @@ namespace Scalien
 
         public static void Cleanup()
         {
-            if (handle == null)
-                return;
+            //if (handle == null)
+            //    return;
 
-            handle.Close();
-            handle = null;
+            //handle.Close();
+            //handle = null;
         }
 
         static string TryExtractDLL(string dirName, string name, string bitness)
@@ -111,9 +112,6 @@ namespace Scalien
 
 
             string dllPath = Path.Combine(dirName, fileName);
-            if (File.Exists(dllPath))
-                return dllPath;
-
             string[] names = Assembly.GetExecutingAssembly().GetManifestResourceNames();
             var assemblyName = Assembly.GetExecutingAssembly().GetName().Name;
             var namespaceName = typeof(NativeLoader).Namespace;
@@ -124,6 +122,17 @@ namespace Scalien
             // embedded resource resides (Properties.) plus the name of the file.
             using (Stream stm = Assembly.GetExecutingAssembly().GetManifestResourceStream(resourceName))
             {
+                // Check if the file exists and it is the correct version
+                if (File.Exists(dllPath))
+                {
+                    FileInfo fi = new FileInfo(dllPath);
+                    if (fi.Length == stm.Length)
+                    {
+                        // TODO: calculate checksum
+                        return dllPath;
+                    }
+                }
+
                 // Copy the assembly to the temporary file
                 try
                 {
@@ -157,7 +166,7 @@ namespace Scalien
             IntPtr dllHandle = NativeMethods.LoadLibrary(dllPath);
             if (dllHandle != IntPtr.Zero)
             {
-                handle = new SafeDLLHandle(dllHandle, dllPath);
+                //handle = new SafeDLLHandle(dllHandle, dllPath);
                 return true;
             }
 
@@ -166,8 +175,19 @@ namespace Scalien
 
         static void ExtractNativeDLL(string name, string bitness)
         {
-            string location = Assembly.GetExecutingAssembly().Location;
-            FileVersionInfo fvi = FileVersionInfo.GetVersionInfo(location);
+            string location;
+            // Select different default location when the process is hosted by IIS
+            if (HostingEnvironment.IsHosted)
+            {
+                location = HostingEnvironment.MapPath(@"~\bin\");
+            }
+            else
+            {
+                location = Assembly.GetExecutingAssembly().Location;
+            }
+
+            Debug.WriteLine(String.Format("Location: {0}", location));
+            FileVersionInfo fvi = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location);
 
             string clientPrefix = "ScalienClient.NativeDLL";
             string separator = "-";

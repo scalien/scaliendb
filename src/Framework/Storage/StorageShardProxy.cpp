@@ -8,6 +8,7 @@ void StorageShardProxy::Init(StorageEnvironment* environment_,
     environment = environment_;
     contextID = contextID_;
     shardID = shardID_;
+    trackID = environment->GetShard(contextID, shardID)->GetTrackID();
 }
 
 bool StorageShardProxy::Get(ReadBuffer key, ReadBuffer& value)
@@ -38,4 +39,9 @@ uint16_t StorageShardProxy::GetContextID()
 uint64_t StorageShardProxy::GetShardID()
 {
     return shardID;
+}
+
+uint64_t StorageShardProxy::GetTrackID()
+{
+    return trackID;
 }

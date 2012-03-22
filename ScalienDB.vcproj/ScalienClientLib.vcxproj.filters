@@ -240,6 +240,12 @@
     <ClCompile Include="..\src\Application\Client\SDBPRequestProxy.cpp">
       <Filter>Application\Client</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\System\CrashReporter_Posix.cpp">
+      <Filter>System</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\System\CrashReporter_Windows.cpp">
+      <Filter>System</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\Application\Client\SDBPClient.h">
@@ -494,6 +500,9 @@
     </ClInclude>
     <ClInclude Include="..\src\Application\Client\SDBPRequestProxy.h">
       <Filter>Application\Client</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\System\CrashReporter.h">
+      <Filter>System</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

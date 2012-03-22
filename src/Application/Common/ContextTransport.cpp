@@ -147,6 +147,8 @@ void ContextTransport::OnQuorumMessage(uint64_t nodeID, ReadBuffer& msg)
     uint64_t        quorumID;
     QuorumContext*  quorumContext;
 
+    UNUSED(nodeID);
+
     nread = msg.Readf("%U:", &quorumID);
     if (nread < 2)
         ASSERT_FAIL();

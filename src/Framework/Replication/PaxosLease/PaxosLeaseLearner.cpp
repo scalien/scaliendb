@@ -2,6 +2,8 @@
 #include "System/Events/EventLoop.h"
 #include "Framework/Replication/ReplicationConfig.h"
 
+#define UNDEFINED_NODEID    ((uint64_t)(-1))
+
 void PaxosLeaseLearner::Init(QuorumContext* context_)
 {
     context = context_;
@@ -33,7 +35,10 @@ uint64_t PaxosLeaseLearner::GetLeaseOwner()
 {
     CheckLease();
     
-    return state.leaseOwner;
+    if (state.learned)
+        return state.leaseOwner;
+    else
+        return UNDEFINED_NODEID;
 }
 
 void PaxosLeaseLearner::SetOnLearnLease(Callable onLearnLeaseCallback_)

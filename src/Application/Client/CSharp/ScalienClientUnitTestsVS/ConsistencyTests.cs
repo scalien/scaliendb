@@ -49,6 +49,46 @@ namespace ScalienClientUnitTesting
         }
 
         [TestMethod]
+        public void CheckConfigStateShardConsistency()
+        {
+            Console.WriteLine("\nChecking config state shard consistency...\n");
+
+            var client = new Client(Utils.GetConfigNodes());
+            var jsonConfigState = client.GetJSONConfigState();
+            var configState = Utils.JsonDeserialize<ConfigState>(System.Text.Encoding.UTF8.GetBytes(jsonConfigState));
+            foreach (var table in configState.tables)
+            {
+                System.Console.WriteLine("\nChecking table {0}", table.tableID);
+
+                var shards = ConfigStateHelpers.GetTableShards(table, configState.shards);
+                var shardMap = new Dictionary<string, ConfigState.Shard>();
+                
+                // build a map of shards by firstkey
+                foreach (var shard in shards)
+                {
+                    ConfigState.Shard testShard;
+                    Assert.IsFalse(shardMap.TryGetValue(shard.firstKey, out testShard));
+                    shardMap.Add(shard.firstKey, shard);
+                }
+
+                // walk the map of shards by the last key of the shard
+                var firstKey = "";
+                int count = 0;
+                ConfigState.Shard tmpShard;
+                while (shardMap.TryGetValue(firstKey, out tmpShard))
+                {
+                    count += 1;
+                    if (tmpShard.lastKey == "")
+                        break;
+                    firstKey = tmpShard.lastKey;
+                }
+                
+                Assert.IsTrue(count == shards.Count);
+            }
+        }
+
+
+        [TestMethod]
         public void CheckClusterConsistencyByCount()
         {
             var client = new Client(Utils.GetConfigNodes());
@@ -95,6 +135,32 @@ namespace ScalienClientUnitTesting
 
                     CompareTableKeysHTTP(shardServers, tableID, startKey, endKey);
                     
+                    System.Console.WriteLine("Shard " + shard.shardID + " is consistent.\n");
+                }
+            }
+        }
+
+        [TestMethod]
+        public void CheckAndFixClusterConsistencyByKeys()
+        {
+            var client = new Client(Utils.GetConfigNodes());
+            var jsonConfigState = client.GetJSONConfigState();
+            var configState = Utils.JsonDeserialize<ConfigState>(System.Text.Encoding.UTF8.GetBytes(jsonConfigState));
+            foreach (var table in configState.tables)
+            {
+                var shards = ConfigStateHelpers.GetTableShards(table, configState.shards);
+                foreach (var shard in shards)
+                {
+                    System.Console.WriteLine("\nComparing shard keys on shard " + shard.shardID);
+
+                    var tableID = shard.tableID;
+                    var startKey = shard.firstKey;
+                    var endKey = shard.lastKey;
+                    var quorum = ConfigStateHelpers.GetQuorum(configState, shard.quorumID);
+                    var shardServers = ConfigStateHelpers.GetQuorumActiveShardServers(configState, quorum);
+
+                    FixConsistency(client, shardServers, tableID, startKey, endKey);
+
                     System.Console.WriteLine("Shard " + shard.shardID + " is consistent.\n");
                 }
             }
@@ -200,6 +266,85 @@ namespace ScalienClientUnitTesting
 
                 startKey = serverKeys[0][serverKeys[0].Length - 1];
                 System.Console.WriteLine("StartKey: " + startKey);
+            }
+        }
+
+        public static void FixDiffs(Client client, List<ConfigState.ShardServer> shardServers, Int64 tableID, List<string> diffs)
+        {
+            var i = 0;
+            foreach (var key in diffs)
+            {
+                i += 1;
+                byte[] startKey = Utils.StringToByteArray(key);
+                byte[] endKey = Utils.NextKey(startKey);
+                var serverKeyValues = ConfigStateHelpers.ParallelFetchTableKeyValuesHTTP(shardServers, tableID, startKey, endKey, true);
+
+                if (Array.TrueForAll(serverKeyValues, val => (val.Count == 1 && Utils.ByteArraysEqual(val.First().Key, serverKeyValues[0].First().Key))))
+                    continue;
+
+                foreach (var keyValue in serverKeyValues)
+                {
+                    if (keyValue == null || keyValue.Count == 0)
+                        continue;
+
+                    if (keyValue.First().Value.Length > 0)
+                    {
+                        Assert.IsTrue(Utils.ByteArraysEqual(Utils.StringToByteArray(key), keyValue.First().Key));
+                        
+                        Console.WriteLine("Setting key {0}", key);
+                        Table table = new Table(client, null, (ulong)tableID, "");
+                        table.Set(startKey, keyValue.First().Value);
+                        client.Submit();
+                    }
+                }
+            }
+
+        }
+
+
+        public static void FixConsistency(Client client, List<ConfigState.ShardServer> shardServers, Int64 tableID, string startKey, string endKey)
+        {
+            if (shardServers.Count <= 1)
+                return;
+
+            var keyDiffs = new HashSet<string>();
+            var serverKeys = new string[shardServers.Count][];
+            var i = 0;
+
+            while (true)
+            {
+                System.Console.WriteLine("StartKey: " + startKey);
+                serverKeys = ConfigStateHelpers.ParallelFetchTableKeysHTTP(shardServers, tableID, startKey, endKey, true);
+
+                for (i = 1; i < serverKeys.Length; i++)
+                {
+                    if (serverKeys[0].Length > 0 && serverKeys[i].Length > 1 &&
+                        serverKeys[0].First().CompareTo(serverKeys[i].Last()) < 0)
+                    {
+                        foreach (var diff in serverKeys[i].Except(serverKeys[0]))
+                            keyDiffs.Add(diff);
+                    }
+
+                    if (serverKeys[0].Length > 1 && serverKeys[i].Length > 0 &&
+                        serverKeys[i].First().CompareTo(serverKeys[0].Last()) < 0)
+                    {
+                        foreach (var diff in serverKeys[0].Except(serverKeys[i]))
+                            keyDiffs.Add(diff);
+                    }
+                }
+
+                if (keyDiffs.Count != 0)
+                {
+                    FixDiffs(client, shardServers, tableID, keyDiffs.ToList());
+                    startKey = keyDiffs.Last();
+                    keyDiffs = new HashSet<string>();
+                    continue;
+                }
+                
+                if (serverKeys[0].Length <= 1)
+                    break;
+
+                startKey = serverKeys[0][serverKeys[0].Length - 1];
             }
         }
 

@@ -601,110 +601,13 @@ void StorageEnvironment::DecreaseNumCursors()
 
 uint64_t StorageEnvironment::GetSize(uint16_t contextID, uint64_t shardID)
 {
-    uint64_t            size;
     StorageShard*       shard;
-    StorageFileChunk*   chunk;
-    StorageChunk**      itChunk;
-    ReadBuffer          firstKey;
-    ReadBuffer          lastKey;
 
     shard = GetShard(contextID, shardID);
     if (!shard)
         return 0;
 
-    size = shard->GetMemoChunk()->GetSize();
-    
-    FOREACH (itChunk, shard->GetChunks())
-    {
-        if ((*itChunk)->GetChunkState() != StorageChunk::Written)
-        {
-            size += (*itChunk)->GetSize();
-            continue;
-        }
-        
-        chunk = (StorageFileChunk*) *itChunk;
-        firstKey = chunk->GetFirstKey();
-        lastKey = chunk->GetLastKey();
-        
-        if (firstKey.GetLength() > 0 && !shard->RangeContains(firstKey))
-        {
-            size += chunk->GetPartialSize(shard->GetFirstKey(), shard->GetLastKey());
-            continue;
-        }
-
-        if (lastKey.GetLength() > 0 && !shard->RangeContains(lastKey))
-        {
-            size += chunk->GetPartialSize(shard->GetFirstKey(), shard->GetLastKey());
-            continue;
-        }
-
-        size += chunk->GetSize();
-    }
-    
-    return size;
-}
-
-ReadBuffer StorageEnvironment::GetMidpoint(uint16_t contextID, uint64_t shardID)
-{
-    unsigned                i;
-    StorageShard*           shard;
-    StorageChunk**          itChunk;
-    ReadBuffer              midpoint;
-    SortedList<ReadBuffer>  midpoints;
-    ReadBuffer*             itMidpoint;
-
-    shard = GetShard(contextID, shardID);
-    if (!shard)
-        return ReadBuffer();
-
-    midpoint = shard->GetMemoChunk()->GetMidpoint();
-    if (midpoint.GetLength() > 0)
-        midpoints.Add(midpoint);
-
-    FOREACH (itChunk, shard->GetChunks())
-    {
-        midpoint = (*itChunk)->GetMidpoint();
-        if (midpoint.GetLength() > 0)
-            midpoints.Add(midpoint);
-    }
-
-    i = 0;
-    FOREACH (itMidpoint, midpoints)
-    {
-        if (i >= (midpoints.GetLength() / 2))
-            return *itMidpoint;
-        i++;
-    }
-    
-    return ReadBuffer();
-}
-
-bool StorageEnvironment::IsSplitable(uint16_t contextID, uint64_t shardID)
-{
-    StorageShard*   shard;
-    StorageChunk**  itChunk;
-    ReadBuffer      firstKey;
-    ReadBuffer      lastKey;
-
-    shard = GetShard(contextID, shardID);
-    if (!shard)
-        return false;
-
-    return shard->IsSplitable();
-    
-    FOREACH (itChunk, shard->GetChunks())
-    {
-        firstKey = (*itChunk)->GetFirstKey();
-        lastKey = (*itChunk)->GetLastKey();
-        
-        if (firstKey.GetLength() > 0 && !shard->RangeContains(firstKey))
-            return false;
-
-        if (lastKey.GetLength() > 0 && !shard->RangeContains(lastKey))
-            return false;
-    }
-    
-    return true;
+    return shard->GetSize();
 }
 
 bool StorageEnvironment::Commit(uint64_t trackID, Callable& onCommit)
@@ -744,7 +647,7 @@ bool StorageEnvironment::Commit(uint64_t trackID)
     return true;
 }
 
-bool StorageEnvironment::IsCommiting(uint64_t trackID)
+bool StorageEnvironment::IsCommitting(uint64_t trackID)
 {
     Job* job;
 
@@ -808,12 +711,12 @@ printable.Write(a); if (!printable.IsAsciiPrintable()) { printable.ToHexadecimal
         
         firstKey = shard->GetFirstKey();
         lastKey = shard->GetLastKey();
-        midpoint = GetMidpoint(contextID, shard->GetShardID());
-        isSplitable = IsSplitable(contextID, shard->GetShardID());
+        midpoint = shard->GetMidpoint();
+        isSplitable = shard->IsSplitable();
 
         buffer.Appendf("- shard %U (tableID = %U) \n", shard->GetShardID(), shard->GetTableID());
         buffer.Appendf("   track: %U\n", shard->GetTrackID());
-        buffer.Appendf("   size: %s\n", HUMAN_BYTES(GetSize(shard->GetContextID(), shard->GetShardID())));
+        buffer.Appendf("   size: %s\n", HUMAN_BYTES(shard->GetSize()));
         buffer.Appendf("   isSplitable: %b\n", isSplitable);
 
         MAKE_PRINTABLE(firstKey);
@@ -824,9 +727,9 @@ printable.Write(a); if (!printable.IsAsciiPrintable()) { printable.ToHexadecimal
 
         MAKE_PRINTABLE(lastKey);
         if (printable.GetLength() == 0)
-            buffer.Appendf("   lastKey: (empty)\n");
+            buffer.Appendf("   lastKey:  (empty)\n");
         else
-            buffer.Appendf("   lastKey: %B\n", &printable);
+            buffer.Appendf("   lastKey:  %B\n", &printable);
 
         MAKE_PRINTABLE(midpoint);
         if (printable.GetLength() == 0)
@@ -848,7 +751,7 @@ printable.Write(a); if (!printable.IsAsciiPrintable()) { printable.ToHexadecimal
         MAKE_PRINTABLE(firstKey);
         buffer.Appendf("       firstKey: %B\n", &printable);
         MAKE_PRINTABLE(lastKey);
-        buffer.Appendf("       lastKey: %B\n", &printable);
+        buffer.Appendf("       lastKey:  %B\n", &printable);
         MAKE_PRINTABLE(midpoint);
         buffer.Appendf("       midpoint: %B\n", &printable);
         buffer.Appendf("       minLogSegmentID: %U\n", memoChunk->GetMinLogSegmentID());
@@ -868,7 +771,7 @@ printable.Write(a); if (!printable.IsAsciiPrintable()) { printable.ToHexadecimal
             MAKE_PRINTABLE(firstKey);
             buffer.Appendf("       firstKey: %B\n", &printable);
             MAKE_PRINTABLE(lastKey);
-            buffer.Appendf("       lastKey: %B\n", &printable);
+            buffer.Appendf("       lastKey:  %B\n", &printable);
             MAKE_PRINTABLE(midpoint);
             buffer.Appendf("       midpoint: %B\n", &printable);
             buffer.Appendf("       minLogSegmentID: %U\n", (*itChunk)->GetMinLogSegmentID());
@@ -886,7 +789,7 @@ printable.Write(a); if (!printable.IsAsciiPrintable()) { printable.ToHexadecimal
     tmp.Write(envPath);
     tmp.NullTerminate();
     buffer.Appendf("Total disk space: %s\n", HUMAN_BYTES(FS_DiskSpace(tmp.GetBuffer())));
-    buffer.Appendf("Free disk space: %s\n", HUMAN_BYTES(FS_FreeDiskSpace(tmp.GetBuffer())));
+    buffer.Appendf("Free disk space:  %s\n", HUMAN_BYTES(FS_FreeDiskSpace(tmp.GetBuffer())));
 }
 
 uint64_t StorageEnvironment::GetShardMemoryUsage()
@@ -955,7 +858,7 @@ bool StorageEnvironment::CreateShard(uint64_t trackID,
     LogManager::LogSegment* logSegment;
     LogManager::Track*      track;
 
-    // TODO: check for uncommited stuff    
+    // TODO: check for uncommited stuff
     
     shard = GetShard(contextID, shardID);
 
@@ -1065,12 +968,12 @@ bool StorageEnvironment::SplitShard(uint16_t contextID,  uint64_t shardID,
     StorageLogSegment*      logSegment;
 
     shard = GetShard(contextID, newShardID);
-    if (shard != NULL)
-        return false;       // exists
+    ASSERT(shard == NULL); // should not exists
 
     shard = GetShard(contextID, shardID);
-    if (shard == NULL)
-        return false;       // does not exist
+    ASSERT(shard != NULL); // should exist
+
+    ASSERT(shard->RangeContains(splitKey));
 
     logSegment = logManager.GetHead(shard->GetTrackID());
     if (!logSegment)
@@ -1122,6 +1025,25 @@ bool StorageEnvironment::SplitShard(uint16_t contextID,  uint64_t shardID,
     
     WriteTOC(); // TODO
     
+    return true;
+}
+
+bool StorageEnvironment::DeleteTrack(uint64_t trackID)
+{
+    // make sure there's no shard in the track
+    StorageShard* shard;
+
+    if (IsCommitting(trackID))
+        return false;
+
+    FOREACH(shard, shards)
+    {
+        if (shard->GetTrackID() == trackID)
+            return false;
+    }
+
+    logManager.DeleteTrack(trackID);
+
     return true;
 }
 
@@ -1250,41 +1172,61 @@ void StorageEnvironment::TryWriteChunks()
 void StorageEnvironment::TryMergeChunks()
 {
     StorageShard*           shard;
-    InSortedList<ShardSize> shardSizes;
+    StorageShard*           smcShard;   // splitMergeCandidate
+    StorageShard*           fmcShard;   // fragmentedMergeCandidate
+    uint64_t                shardSize;
+    uint64_t                smcShardSize;
+    uint64_t                fmcShardSize;
 
     Log_Trace();
 
     if (!mergeEnabled || mergeChunkJobs.IsActive() || numCursors > 0)
         return;
 
-    // construct list of shards as ShardSize objects sorted with ascending size
-    ConstructShardSizes(shardSizes);
+    smcShard = NULL;
+    smcShardSize = 0;
+    fmcShard = NULL;
+    fmcShardSize = 0;
 
-    // find largest shard which has been split and needs merging
-    shard = FindLargestShardCond(shardSizes, &StorageShard::IsSplitMergeCandidate);
+    FOREACH (shard, shards)
+    {
+        shardSize = shard->GetSize();
 
-    // if no shard with a merge job was found so far,
-    // find largest shard which has too many file chunks
-    if (!shard)
-        shard = FindLargestShardCond(shardSizes,  &StorageShard::IsFragmentedMergeCandidate);        
+        // find largest shard which has been split and needs merging
+        if (smcShard == NULL || shardSize > smcShardSize)
+        {
+            if (shard->IsSplitMergeCandidate())
+            {
+                smcShard = shard;
+                smcShardSize = shardSize;
+            }
+        }
 
-    if (shard)
-        MergeChunk(shard);
+        if (smcShard)
+            continue;
 
-    shardSizes.DeleteList();
+        // find largest shard which has too many file chunks
+        if (fmcShard == NULL || shardSize > fmcShardSize)
+        {
+            if (shard->IsFragmentedMergeCandidate())
+            {
+                fmcShard = shard;
+                fmcShardSize = shardSize;
+            }           
+        }
+    }
+
+    if (smcShard)
+        MergeChunk(smcShard);
+    else if (fmcShard)
+        MergeChunk(fmcShard);
 }
 
 void StorageEnvironment::TryArchiveLogSegments()
 {
     bool                archive;
-    uint64_t            logSegmentID;
-    uint64_t            minLogSegmentID;
-    uint64_t            maxLogSegmentID;
     StorageLogSegment*  logSegment;
     StorageShard*       shard;
-    StorageMemoChunk*   memoChunk;
-    StorageChunk**      chunk;
-    List<uint64_t>      trackIDs;
     Track*              track;
 
     Log_Trace();
@@ -1297,46 +1239,29 @@ void StorageEnvironment::TryArchiveLogSegments()
 
     FOREACH(track, logManager.tracks)
     {
-        if (track->logSegments.GetLength() <= 1)
-            continue;
         logSegment = logManager.GetTail(track->trackID);
         if (!logSegment)
             continue;
+
+        if (track->deleted)
+        {
+            if (logSegment->IsOpen())
+                logSegment->Close();
+
+            archiveLogJobs.Execute(new StorageArchiveLogSegmentJob(this, logSegment, archiveScript));
+            return;
+        }
+
+        if (track->logSegments.GetLength() <= 1)
+            continue;
+
         archive = true;
-        logSegmentID = logSegment->GetLogSegmentID();
         FOREACH (shard, shards)
         {
-            if (shard->GetTrackID() != logSegment->GetTrackID())
-                continue;
-            if (shard->GetStorageType() == STORAGE_SHARD_TYPE_LOG)
-                continue; // log storage shards never hinder log segment archival
-
-            memoChunk = shard->GetMemoChunk();
-
-            if (shard->GetStorageType() == STORAGE_SHARD_TYPE_DUMP)
-            {
-                if (logSegmentID + 1 < memoChunk->GetMaxLogSegmentID())
-                    continue;
-                // dump storage shard has been written to a higher numbered log segment, do not hinder archival
-            }
-
-            minLogSegmentID = memoChunk->GetMinLogSegmentID();
-            maxLogSegmentID = memoChunk->GetMaxLogSegmentID();
-            if (memoChunk->GetSize() > 0 && minLogSegmentID > 0 && minLogSegmentID <= logSegmentID && logSegmentID <= maxLogSegmentID)
+            if (shard->IsBackingLogSegment(logSegment->GetTrackID(), logSegment->GetLogSegmentID()))
             {
                 archive = false;
                 break;
-            }
-
-            FOREACH (chunk, shard->GetChunks())
-            {
-                minLogSegmentID = (*chunk)->GetMinLogSegmentID();
-                maxLogSegmentID = (*chunk)->GetMaxLogSegmentID();
-                if ((*chunk)->GetChunkState() <= StorageChunk::Unwritten && minLogSegmentID <= logSegmentID && logSegmentID <= maxLogSegmentID)
-                {
-                    archive = false;
-                    break;
-                }
             }
         }
 
@@ -1435,7 +1360,7 @@ void StorageEnvironment::ConstructShardSizes(InSortedList<ShardSize>& shardSizes
         shardSize = new ShardSize;
         shardSize->contextID = shard->GetContextID();
         shardSize->shardID = shard->GetShardID();
-        shardSize->size = GetSize(shardSize->contextID, shardSize->shardID);
+        shardSize->size = shard->GetSize();
         shardSize->prev = shardSize->next = shardSize;
         shardSizes.Add(shardSize);
     }
@@ -1568,7 +1493,10 @@ void StorageEnvironment::OnChunkMerge(StorageMergeChunkJob* job)
         job->mergeChunk->AddPagesToCache();
     }
     else
+    {
+        DEBUG_ASSERT(!job->mergeChunk->IsEmpty());
         deleteChunkJobs.Execute(new StorageDeleteFileChunkJob(job->mergeChunk));
+    }
     
     TryMergeChunks();
 
@@ -1579,7 +1507,7 @@ void StorageEnvironment::OnChunkMerge(StorageMergeChunkJob* job)
 
 void StorageEnvironment::OnLogArchive(StorageArchiveLogSegmentJob* job)
 {
-    logManager.Delete(job->logSegment);
+    logManager.DeleteLogSegment(job->logSegment);
     
     TryArchiveLogSegments();
     delete job;

@@ -52,9 +52,12 @@ public:
     uint32_t            GetLogCommandID();
     ReadBuffer          GetFirstKey();
     ReadBuffer          GetLastKey();
+    ReadBuffer          GetMidpoint();
+    uint64_t            GetSize();
     bool                UseBloomFilter();
     char                GetStorageType();
     bool                IsSplitable();
+    bool                IsBackingLogSegment(uint64_t trackID, uint64_t logSegmentID);
     
     bool                RangeContains(ReadBuffer key);
 

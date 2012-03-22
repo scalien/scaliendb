@@ -326,7 +326,7 @@ namespace Scalien
         {
             var threads = new BinaryListerThreadState[shardServers.Count];
             var serverKeys = new List<KeyValuePair<byte[], byte[]>>[shardServers.Count];
-
+            byte[] endKey = Utils.NextKey(key);
             var i = 0;
             foreach (var shardServer in shardServers)
             {

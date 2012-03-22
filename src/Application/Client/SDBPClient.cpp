@@ -126,6 +126,7 @@ int Client::Init(int nodec, const char* nodev[])
         Log_Debug("IOThread started");
     }
     numClients++;
+	Log_Debug("Number of clients: %u", numClients);
     GLOBAL_MUTEX_GUARD_UNLOCK();
 
     IOProcessor::BlockSignals(IOPROCESSOR_BLOCK_INTERACTIVE);
@@ -951,6 +952,7 @@ int Client::Cancel()
 int Client::ShardRequest(Request* req)
 {
     Request*    itRequest;
+    Request*    nextRequest;
     ReadBuffer  requestKey;
 
     VALIDATE_CONTROLLERS();
@@ -979,12 +981,16 @@ int Client::ShardRequest(Request* req)
 	CLIENT_MUTEX_GUARD_LOCK();
     if (result->GetCommandStatus() == SDBP_SUCCESS)
     {
-        for (itRequest = result->requests.First(); itRequest != NULL; /* advanced in body */)
+        for (itRequest = result->requests.First(); itRequest != NULL; itRequest = nextRequest)
         {
             if (itRequest->commandID != req->commandID)
-                itRequest = result->requests.Remove(itRequest);
+            {
+                nextRequest = result->requests.Remove(itRequest);
+                delete itRequest;
+                
+            }
             else
-                itRequest = result->requests.Next(itRequest);
+                nextRequest = result->requests.Next(itRequest);
         }
     }
     result->Begin();
@@ -1057,6 +1063,7 @@ void Client::EventLoop()
     isDone.SetWaiting(true);
     if (submittedRequests.GetLength() > 0)
     {
+        Log_Trace("Submitting requests, %u", submittedRequests.GetLength());
         AssignRequestsToQuorums();
         SendQuorumRequests();
     }
@@ -1074,6 +1081,10 @@ void Client::EventLoop()
         isDone.Wait(); // wait for IO thread to process ops
     
         CLIENT_MUTEX_GUARD_LOCK();
+
+        EventLoop::Remove(&globalTimeout);
+        EventLoop::Remove(&masterTimeout);
+
     }
     if (PooledShardConnection::GetPoolSize() > 0)
         ReleaseShardConnections();
@@ -1205,8 +1216,13 @@ void Client::ReassignRequest(Request* req)
     ConfigQuorum*   quorum;
     ReadBuffer      key;
     
+    // if there is no master controller, put back the request to submittedRequests
+    // as soon as there is a master, all requests will be assigned to quorums
     if (configState.paxosID == 0)
+    {
+        submittedRequests.Append(req);
         return;
+    }
     
     // handle controller requests
     if (req->IsControllerRequest())

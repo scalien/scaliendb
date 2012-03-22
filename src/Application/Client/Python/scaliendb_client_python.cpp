@@ -7582,6 +7582,27 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_SDBP_SetDebug(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  bool arg1 ;
+  bool val1 ;
+  int ecode1 = 0 ;
+  PyObject * obj0 = 0 ;
+  
+  if(!PyArg_UnpackTuple(args,(char *)"SDBP_SetDebug",1,1,&obj0)) SWIG_fail;
+  ecode1 = SWIG_AsVal_bool(obj0, &val1);
+  if (!SWIG_IsOK(ecode1)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "SDBP_SetDebug" "', argument " "1"" of type '" "bool""'");
+  } 
+  arg1 = static_cast< bool >(val1);
+  SDBP_SetDebug(arg1);
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *_wrap_SDBP_SetLogFile(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   std::string *arg1 = 0 ;
@@ -7655,6 +7676,27 @@ SWIGINTERN PyObject *_wrap_SDBP_LogTrace(PyObject *SWIGUNUSEDPARM(self), PyObjec
   return resultobj;
 fail:
   if (SWIG_IsNewObj(res1)) delete arg1;
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_SDBP_SetCrashReporter(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  bool arg1 ;
+  bool val1 ;
+  int ecode1 = 0 ;
+  PyObject * obj0 = 0 ;
+  
+  if(!PyArg_UnpackTuple(args,(char *)"SDBP_SetCrashReporter",1,1,&obj0)) SWIG_fail;
+  ecode1 = SWIG_AsVal_bool(obj0, &val1);
+  if (!SWIG_IsOK(ecode1)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "SDBP_SetCrashReporter" "', argument " "1"" of type '" "bool""'");
+  } 
+  arg1 = static_cast< bool >(val1);
+  SDBP_SetCrashReporter(arg1);
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
   return NULL;
 }
 
@@ -7850,9 +7892,11 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"SDBP_Submit", _wrap_SDBP_Submit, METH_VARARGS, NULL},
 	 { (char *)"SDBP_Cancel", _wrap_SDBP_Cancel, METH_VARARGS, NULL},
 	 { (char *)"SDBP_SetTrace", _wrap_SDBP_SetTrace, METH_VARARGS, NULL},
+	 { (char *)"SDBP_SetDebug", _wrap_SDBP_SetDebug, METH_VARARGS, NULL},
 	 { (char *)"SDBP_SetLogFile", _wrap_SDBP_SetLogFile, METH_VARARGS, NULL},
 	 { (char *)"SDBP_SetTraceBufferSize", _wrap_SDBP_SetTraceBufferSize, METH_VARARGS, NULL},
 	 { (char *)"SDBP_LogTrace", _wrap_SDBP_LogTrace, METH_VARARGS, NULL},
+	 { (char *)"SDBP_SetCrashReporter", _wrap_SDBP_SetCrashReporter, METH_VARARGS, NULL},
 	 { (char *)"SDBP_SetShardPoolSize", _wrap_SDBP_SetShardPoolSize, METH_VARARGS, NULL},
 	 { (char *)"SDBP_SetMaxConnections", _wrap_SDBP_SetMaxConnections, METH_VARARGS, NULL},
 	 { (char *)"SDBP_GetVersion", _wrap_SDBP_GetVersion, METH_VARARGS, NULL},

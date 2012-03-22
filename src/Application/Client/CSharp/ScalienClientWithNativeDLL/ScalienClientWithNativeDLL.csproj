@@ -34,6 +34,7 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Web" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -119,10 +120,10 @@
     </PreBuildEvent>
   </PropertyGroup>
   <PropertyGroup>
-    <PostBuildEvent>..\..\..\..\..\..\..\script\copynetdll.cmd  ..\..\..\..\..\..\.. $(TargetPath)</PostBuildEvent>
+    <PostBuildEvent>..\..\..\..\..\..\..\script\copynetdll.cmd  ..\..\..\..\..\..\.. "$(TargetDir)" "$(TargetName)"</PostBuildEvent>
   </PropertyGroup>
   <Target Name="BeforeBuild">
-    <Exec Command="..\..\..\..\..\script\copynativedll.cmd ..\..\..\..\..\ $(ProjectDir)Properties" />
+    <Exec Command="..\..\..\..\..\script\copynativedll.cmd ..\..\..\..\..\ &quot;$(ProjectDir)Properties&quot;" />
   </Target>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

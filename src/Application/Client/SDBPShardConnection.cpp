@@ -5,7 +5,7 @@
 #include "Application/SDBP/SDBPRequestMessage.h"
 #include "Application/SDBP/SDBPResponseMessage.h"
 
-#define CONN_BUFSIZE    4096
+//#define CONN_BUFSIZE    4096
 
 #define CLIENT_MUTEX_GUARD_DECLARE()    MutexGuard mutexGuard(client->mutex)
 #define CLIENT_MUTEX_LOCK()             mutexGuard.Lock()
