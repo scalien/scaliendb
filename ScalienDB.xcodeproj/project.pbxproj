@@ -611,6 +611,7 @@
 		9A07FAA8138E848A00AED738 /* Client.cs */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = Client.cs; path = Client/CSharp/ScalienClient/Client.cs; sourceTree = "<group>"; };
 		9A07FAA9138E848A00AED738 /* Result.cs */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = Result.cs; path = Client/CSharp/ScalienClient/Result.cs; sourceTree = "<group>"; };
 		9A07FAAA138E848A00AED738 /* Status.cs */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = Status.cs; path = Client/CSharp/ScalienClient/Status.cs; sourceTree = "<group>"; };
+		9A2FEB98150F6847003EC62D /* NativeLoader.cs */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = NativeLoader.cs; path = Client/CSharp/ScalienClientWithNativeDLL/NativeLoader.cs; sourceTree = "<group>"; };
 		9A466D5E135F435300108B07 /* JSONBufferWriter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JSONBufferWriter.h; sourceTree = "<group>"; };
 		9A466D5F135F435300108B07 /* JSONBufferWriter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = JSONBufferWriter.cpp; sourceTree = "<group>"; };
 		9A466F431361906800108B07 /* test.php */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.php; name = test.php; path = Client/PHP/test.php; sourceTree = "<group>"; };
@@ -1342,6 +1343,7 @@
 		9A07FAA7138E845100AED738 /* CSharp */ = {
 			isa = PBXGroup;
 			children = (
+				9A2FEB98150F6847003EC62D /* NativeLoader.cs */,
 				9AB1F17613E0754100A463EF /* scaliendb_client_csharp.cpp */,
 				9AB1EEDE13D6F2F200A463EF /* scaliendb_client.cs */,
 				9AB1EEDF13D6F31700A463EF /* scaliendb_clientPINVOKE.cs */,
