@@ -633,7 +633,7 @@ bool StorageEnvironment::Commit(uint64_t trackID)
     Job*                job;
     StorageLogSegment*  logSegment;
 
-    Log_Debug("Commiting in track %U", trackID);
+    Log_Debug("Commiting in track %U (main thread)", trackID);
 
     logSegment = logManager.GetHead(trackID);
     ASSERT(logSegment);
@@ -1050,7 +1050,11 @@ bool StorageEnvironment::DeleteTrack(uint64_t trackID)
 void StorageEnvironment::OnCommit(StorageCommitJob* job)
 {
     if (job)
-        Log_Debug("Commiting done in track %U", job->logSegment->GetTrackID());
+    {
+        Log_Debug("Commiting done in track %U, elapsed: %U msec", 
+          job->logSegment->GetTrackID(),
+          NowClock() - job->startTime);
+    }
 
     TryFinalizeLogSegments();
     TrySerializeChunks();

@@ -191,6 +191,7 @@ void StorageLogSegment::Commit()
     uint64_t    writeSize;
     uint64_t    writeOffset;
     ssize_t     ret;
+    Stopwatch   sw;
     
     commitStatus = true;
 
@@ -211,9 +212,10 @@ void StorageLogSegment::Commit()
     writeBuffer.AppendLittle32(checksum);
     writeBuffer.SetLength(length);
     
+    sw.Start();
     for (writeOffset = 0; writeOffset < length; writeOffset += writeSize)
     {
-        writeSize = MIN(STORAGE_LOGSEGMENT_WRITE_GRANULARITY, length - writeOffset);
+        writeSize = MIN(STORAGE_WRITE_GRANULARITY, length - writeOffset);
         ret = FS_FileWrite(fd, writeBuffer.GetBuffer() + writeOffset, writeSize);
         if (ret < 0 || (uint64_t) ret != writeSize)
         {
@@ -234,6 +236,12 @@ void StorageLogSegment::Commit()
     offset += length;
 
     StorageEnvironment::Sync(fd);
+
+    sw.Stop();
+    Log_Debug("Committed track %U, elapsed: %U, size: %s, bps: %sB/s",
+        trackID,
+        (uint64_t) sw.Elapsed(), HUMAN_BYTES(length),
+        HUMAN_BYTES((uint64_t)(length / (sw.Elapsed() / 1000.0))));
     
     NewRound();
     commitedLogCommandID = logCommandID - 1;
