@@ -7,7 +7,7 @@
 #define DATABASE_KEY_SIZE                       (  1*KiB)
 #define DATABASE_VAL_SIZE                       ( 16*MiB)
 
-#define DATABASE_REPLICATION_SIZE               (  10*MB)
+#define DATABASE_REPLICATION_SIZE               (   1*MB)
 
 #define ACTIVATION_TIMEOUT                      (15*1000) //msec
 
