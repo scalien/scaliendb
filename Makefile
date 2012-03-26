@@ -448,6 +448,10 @@ selfupdate:
 scversion:
 	-script/createscversion.sh
 
+ziprelease: binrelease
+	-script/ziprelease.sh
+
+
 ##############################################################################
 #
 # Clean
