@@ -17,6 +17,7 @@ void ConfigDatabaseManager::Init()
     sc.SetLogSize(              (uint64_t) configFile.GetInt64Value("database.logSize",             20*GiB  ));
     sc.SetMergeBufferSize(      (uint64_t) configFile.GetInt64Value("database.mergeBufferSize",     10*MiB  ));
     sc.SetSyncGranularity(      (uint64_t) configFile.GetInt64Value("database.syncGranularity",     16*MiB  ));
+    sc.SetWriteGranularity(     (uint64_t) configFile.GetInt64Value("database.writeGranularity",    STORAGE_WRITE_GRANULARITY));
     sc.SetReplicatedLogSize(    (uint64_t) configFile.GetInt64Value("database.replicatedLogSize",   0       ));
 
     envpath.Writef("%s", configFile.GetValue("database.dir", "db"));
