@@ -24,32 +24,36 @@ typedef unsigned __int16    uint16_t;
 
 #include "Log.h"
 #include "Formatting.h"
+#include "Time.h"
 #include "System/Threading/Mutex.h"
+#include "System/Threading/ThreadPool.h"
 
 #define LOG_MSG_SIZE    1024
 #define LOG_OLD_EXT     ".old"
 
-static bool     timestamping = false;
-static bool     threadedOutput = false;
-static bool     trace = false;
+static bool         timestamping = false;
+static bool         threadedOutput = false;
+static bool         trace = false;
 #ifdef DEBUG
-static bool     debug = true;
+static bool         debug = true;
 #else
-static bool     debug = false;
+static bool         debug = false;
 #endif
-static int      maxLine = LOG_MSG_SIZE;
-static int      target = LOG_TARGET_NOWHERE;
-static FILE*    logfile = NULL;
-static char*    logfilename = NULL;
-static uint64_t maxSize = 0;
-static uint64_t logFileSize = 0;
-static Mutex    logFileMutex;
-static bool     autoFlush = true;
-static unsigned traceBufferSize = 0;
-static char*    traceBuffer = NULL;
-static char*    traceBufferHead = NULL;
-static char*    traceBufferTail = NULL;
-static Mutex    traceBufferMutex;
+static int          maxLine = LOG_MSG_SIZE;
+static int          target = LOG_TARGET_NOWHERE;
+static FILE*        logfile = NULL;
+static char*        logfilename = NULL;
+static uint64_t     maxSize = 0;
+static uint64_t     logFileSize = 0;
+static Mutex        logFileMutex;
+static bool         autoFlush = true;
+static unsigned     traceBufferSize = 0;
+static char*        traceBuffer = NULL;
+static char*        traceBufferHead = NULL;
+static char*        traceBufferTail = NULL;
+static Mutex        traceBufferMutex;
+static unsigned     flushInterval = 0;
+static ThreadPool*  flusherThread = NULL;
 
 #ifdef _WIN32
 typedef char log_timestamp_t[24];
@@ -209,7 +213,7 @@ static void Log_WriteRotated()
     fputs(buf, logfile);
 }
 
-static void Log_Rotate()
+static void Log_UnprotectedRotate()
 {
     char*   filenameCopy;
     char*   oldFilename;
@@ -267,6 +271,13 @@ static void Log_Rotate()
     delete[] oldOldFilename;
 }
 
+void Log_Rotate()
+{
+    logFileMutex.Lock();
+    Log_UnprotectedRotate();
+    logFileMutex.Unlock();
+}
+
 static void Log_Write(const char* buf, int size, int flush, bool lockMutex = true)
 {
     if ((target & LOG_TARGET_STDOUT) == LOG_TARGET_STDOUT)
@@ -306,7 +317,7 @@ static void Log_Write(const char* buf, int size, int flush, bool lockMutex = tru
             if (logFileSize + size > maxSize / 2)
             {
                 // rotate the logfile
-                Log_Rotate();
+                Log_UnprotectedRotate();
             }
             else
             {
@@ -598,6 +609,50 @@ void Log_SetTraceBufferSize(unsigned traceBufferSize_)
     // put a terminating zero at the end of the buffer
     traceBufferSize -= 1;
     traceBuffer[traceBufferSize] = 0;
+}
+
+static void Log_FlusherThread()
+{
+    unsigned    elapsed;
+
+    elapsed = 0;
+    while (flushInterval > 0)
+    {
+        MSleep(200);
+        if (flushInterval == 0)
+            return;
+
+        elapsed += 200;
+        if (elapsed > flushInterval)
+        {
+            Log_Flush();
+            elapsed = 0;
+        }
+    }
+}
+
+void Log_SetFlushInterval(unsigned flushInterval_)
+{
+    flushInterval = flushInterval_;
+
+    if (flushInterval)
+    {
+        if (flusherThread == NULL)
+        {
+            flusherThread = ThreadPool::Create(1);
+            flusherThread->Execute(CFunc(Log_FlusherThread));
+            flusherThread->Start();
+        }
+    }
+    else
+    {
+        if (flusherThread != NULL)
+        {
+            flusherThread->Stop();
+            delete flusherThread;
+            flusherThread = NULL;
+        }
+    }
 }
 
 void Log_Flush()
