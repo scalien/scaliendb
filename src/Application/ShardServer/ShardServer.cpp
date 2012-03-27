@@ -206,7 +206,7 @@ void ShardServer::OnClusterMessage(uint64_t nodeID, ClusterMessage& message)
             Log_Message("*                                                               *");
             Log_Message("*****************************************************************");
             Log_Message();
-            STOP_FAIL(0, "Abording due to shard server unregistration...");
+            STOP_FAIL(0, "Aborting due to shard server unregistration...");
             break;
         case CLUSTERMESSAGE_SET_CONFIG_STATE:
             OnSetConfigState(message);
