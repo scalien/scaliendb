@@ -165,6 +165,7 @@ static void InitLog()
     Log_SetAutoFlush(configFile.GetBoolValue("log.autoFlush", true));
     Log_SetMaxSize(configFile.GetIntValue("log.maxSize", 100*1000*1000) / (1000 * 1000));
     Log_SetTraceBufferSize(configFile.GetIntValue("log.traceBufferSize", 0));
+    Log_SetFlushInterval(configFile.GetIntValue("log.flushInterval", 0) * 1000);
 }
 
 static void ParseArgs(int argc, char** argv)
@@ -184,6 +185,9 @@ static void ParseArgs(int argc, char** argv)
                 break;
             case 'h':
                 STOP_FAIL(0, "Usage: %s [-t] config-file\n\n", argv[0]);
+                break;
+            case 'v':
+                STOP_FAIL(0, "%s", PRODUCT_STRING);
                 break;
             }
         }
