@@ -386,6 +386,11 @@ bool ShardHTTPClientSession::ProcessCommand(ReadBuffer& cmd)
         ProcessDumpMemoChunks();
         return true;
     }
+    else if (HTTP_MATCH_COMMAND(cmd, "rotatelog"))
+    {
+        Log_Rotate();
+        return true;
+    }
 
     request = ProcessShardServerCommand(cmd);
     if (!request)
@@ -504,6 +509,7 @@ bool ShardHTTPClientSession::ProcessSettings()
     ReadBuffer  param;
     bool        boolValue;
     uint64_t    traceBufferSize;
+    uint64_t    logFlushInterval;
     
     if (HTTP_GET_OPT_PARAM(params, "trace", param))
     {
@@ -542,7 +548,15 @@ bool ShardHTTPClientSession::ProcessSettings()
     {
         ASSERT(false);
     }
-    
+
+    if (HTTP_GET_OPT_PARAM(params, "logFlushInterval", param))
+    {
+        logFlushInterval = 0;
+        HTTP_GET_OPT_U64_PARAM(params, "logFlushInterval", logFlushInterval);
+        Log_SetFlushInterval((unsigned) logFlushInterval);
+        session.PrintPair("LogFlushInterval", INLINE_PRINTF("%u", 100, (unsigned) logFlushInterval));
+    }
+
     session.Flush();
 
     return true;

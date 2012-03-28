@@ -500,6 +500,7 @@ void ConfigHTTPClientSession::ProcessSettings()
     uint64_t    logStatTime;
     uint64_t    shardSplitSize;
     uint64_t    traceBufferSize;
+    uint64_t    logFlushInterval;
     
     if (HTTP_GET_OPT_PARAM(params, "trace", param))
     {
@@ -535,6 +536,14 @@ void ConfigHTTPClientSession::ProcessSettings()
         // we expect logStatTime is in seconds
         configServer->SetLogStatTimeout(logStatTime * 1000);
         session.PrintPair("LogStatTime", INLINE_PRINTF("%u", 100, (unsigned) logStatTime));
+    }
+
+    if (HTTP_GET_OPT_PARAM(params, "logFlushInterval", param))
+    {
+        logFlushInterval = 0;
+        HTTP_GET_OPT_U64_PARAM(params, "logFlushInterval", logFlushInterval);
+        Log_SetFlushInterval((unsigned) logFlushInterval);
+        session.PrintPair("LogFlushInterval", INLINE_PRINTF("%u", 100, (unsigned) logFlushInterval));
     }
 
     if (HTTP_GET_OPT_PARAM(params, "shardSplitSize", param))
@@ -614,6 +623,11 @@ bool ConfigHTTPClientSession::ProcessCommand(ReadBuffer& cmd)
     else if (HTTP_MATCH_COMMAND(cmd, "endbackup"))
     {
         ProcessEndBackup();
+        return true;
+    }
+    else if (HTTP_MATCH_COMMAND(cmd, "rotatelog"))
+    {
+        Log_Rotate();
         return true;
     }
 
