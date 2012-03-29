@@ -542,7 +542,7 @@ void ConfigHTTPClientSession::ProcessSettings()
     {
         logFlushInterval = 0;
         HTTP_GET_OPT_U64_PARAM(params, "logFlushInterval", logFlushInterval);
-        Log_SetFlushInterval((unsigned) logFlushInterval);
+        Log_SetFlushInterval((unsigned) logFlushInterval * 1000);
         session.PrintPair("LogFlushInterval", INLINE_PRINTF("%u", 100, (unsigned) logFlushInterval));
     }
 
