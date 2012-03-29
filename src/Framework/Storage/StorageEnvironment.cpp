@@ -1279,7 +1279,7 @@ void StorageEnvironment::TryArchiveLogSegments()
 
 void StorageEnvironment::TryDeleteFileChunks()
 {
-    StorageShard* shard;
+    StorageShard*   shard;
     
     Log_Trace();
 
@@ -1296,12 +1296,18 @@ void StorageEnvironment::TryDeleteFileChunks()
         if (shard->GetStorageType() == STORAGE_SHARD_TYPE_LOG)
         {
             if (TryDeleteLogTypeFileChunk(shard))
+            {
+                WriteTOC();
                 return;
+            }
         }
         else if (shard->GetStorageType() == STORAGE_SHARD_TYPE_DUMP)
         {
             if (TryDeleteDumpTypeFileChunk(shard))
+            {
+                WriteTOC();
                 return;
+            }
         }
     }
 }

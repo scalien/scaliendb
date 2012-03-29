@@ -29,6 +29,7 @@ static void CrashReporterCallback();
 
 // the application object is global for debugging purposes
 static Application*     app;
+static bool             restoreMode = false;
 
 int main(int argc, char** argv)
 {
@@ -61,6 +62,8 @@ static void RunMain(int argc, char** argv)
 {
     ServiceIdentity     identity;
 
+    ParseArgs(argc, argv);
+
     if (argc < 2)
         STOP_FAIL(1, "Config file argument not given");
         
@@ -68,6 +71,8 @@ static void RunMain(int argc, char** argv)
         STOP_FAIL(1, "Invalid config file (%s)", argv[1]);
 
     InitLog();
+    
+    // HACK: this is called twice, because command line arguments may override log settings
     ParseArgs(argc, argv);
     SetupServiceIdentity(identity);
     Service::Main(argc, argv, RunApplication, identity);
@@ -89,7 +94,7 @@ static void RunApplication()
     if (isController)
         app = new ConfigServerApp;
     else
-        app = new ShardServerApp;
+        app = new ShardServerApp(restoreMode);
     
     Service::SetStatus(SERVICE_STATUS_RUNNING);
     app->Init();
@@ -188,6 +193,9 @@ static void ParseArgs(int argc, char** argv)
                 break;
             case 'v':
                 STOP_FAIL(0, "%s", PRODUCT_STRING);
+                break;
+            case 'r':
+                restoreMode = true;
                 break;
             }
         }

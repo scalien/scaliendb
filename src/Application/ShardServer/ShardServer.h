@@ -24,7 +24,7 @@ class ShardServer : public ClusterContext, public SDBPContext
 public:
     typedef InList<ShardQuorumProcessor> QuorumProcessorList;
 
-    void                    Init(ShardServerApp* app);
+    void                    Init(ShardServerApp* app, bool restoreMode);
     void                    Shutdown();
 
     ShardQuorumProcessor*   GetQuorumProcessor(uint64_t quorumID);

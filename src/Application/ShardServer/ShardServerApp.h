@@ -18,6 +18,8 @@
 class ShardServerApp : public Application
 {
 public:
+    ShardServerApp(bool restoreMode);
+
     // ========================================================================================
     // Application interface:
     //
@@ -34,6 +36,7 @@ private:
     ShardHTTPHandler        httpContext;
 
     SDBPServer              sdbpServer;
+    bool                    restoreMode;
 };
 
 #endif

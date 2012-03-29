@@ -13,7 +13,7 @@ static inline bool LessThan(const uint64_t& a, const uint64_t& b)
     return a < b;
 }
 
-void ShardServer::Init(ShardServerApp* app)
+void ShardServer::Init(ShardServerApp* app, bool restoreMode)
 {
     unsigned        numControllers;
     uint64_t        nodeID;
@@ -28,6 +28,13 @@ void ShardServer::Init(ShardServerApp* app)
     heartbeatManager.Init(this);
     migrationWriter.Init(this);
     REQUEST_CACHE->Init(configFile.GetIntValue("requestCache.size", 100*1000));
+
+    if (restoreMode)
+    {
+        REPLICATION_CONFIG->SetClusterID(0);
+        REPLICATION_CONFIG->SetNodeID(0);
+        REPLICATION_CONFIG->SetRunID(0);
+    }
 
     runID = REPLICATION_CONFIG->GetRunID();
     runID += 1;

@@ -2,6 +2,11 @@
 #include "System/Config.h"
 #include "Application/Common/ContextTransport.h"
 
+ShardServerApp::ShardServerApp(bool restoreMode_)
+{
+    restoreMode = restoreMode_;
+}
+
 void ShardServerApp::Init()
 {
     int     httpPort;
@@ -18,7 +23,7 @@ void ShardServerApp::Init()
     sdbpServer.UseKeepAlive(true);
 
     // start shardServer only after network servers are started
-    shardServer.Init(this);
+    shardServer.Init(this, restoreMode);
     shardServer.GetDatabaseManager()->GetEnvironment()->SetMergeEnabled(
      configFile.GetBoolValue("database.merge", true));
 
