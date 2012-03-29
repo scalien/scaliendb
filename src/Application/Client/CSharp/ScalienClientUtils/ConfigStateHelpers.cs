@@ -227,7 +227,12 @@ namespace Scalien
             var i = 0;
             foreach (var shardServer in shardServers)
             {
-                var url = GetShardServerURL(shardServer) + "listkeys?tableID=" + tableID + "&startKey=" + startKey + "&endKey=" + endKey + "&count=" + listGranularity + "&direction=" + direction;
+                var url = GetShardServerURL(shardServer) + 
+                    "listkeys?tableID=" + tableID + 
+                    "&startKey=" + Uri.EscapeDataString(startKey) + 
+                    "&endKey=" + Uri.EscapeDataString(endKey) + 
+                    "&count=" + listGranularity + 
+                    "&direction=" + direction;
 
                 threads[i] = new ListerThreadState();
                 threads[i].thread = new Thread(new ThreadStart(threads[i].ListerThreadFunc));
