@@ -296,7 +296,7 @@ static void Log_Write(const char* buf, int size, int flush, bool lockMutex = tru
 			fflush(stderr);
 
 #ifdef _WIN32
-        OutputDebugString(buf);
+        IFDEBUG(OutputDebugString(buf));
 #endif
     }
     

@@ -188,14 +188,24 @@ static void ParseArgs(int argc, char** argv)
                 SetExitOnError(false);
                 SetAssertCritical(false);
                 break;
-            case 'h':
-                STOP_FAIL(0, "Usage: %s [-t] config-file\n\n", argv[0]);
-                break;
             case 'v':
-                STOP_FAIL(0, "%s", PRODUCT_STRING);
+                STOP("%s", PRODUCT_STRING);
                 break;
             case 'r':
                 restoreMode = true;
+                break;
+            case 'h':
+                STOP("Usage:\n"
+                     "\n"
+                     "       %s config-file [options]\n"
+                     "\n"
+                     "Options:\n"
+                     "\n"
+                     "       -v: print version number and exit\n"
+                     "       -r: start server in restore mode\n"
+                     "       -t: turn trace mode on\n"
+                     "       -h: print this help\n"
+                     , argv[0]);
                 break;
             }
         }
