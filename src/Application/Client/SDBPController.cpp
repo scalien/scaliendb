@@ -110,7 +110,9 @@ void Controller::SendRequest(Request* request)
     MutexGuard  mutexGuard(mutex);
 
     requests.Append(request);
-    EventLoop::Add(&onSendRequest);
+
+    if (!onSendRequest.IsActive())
+        EventLoop::Add(&onSendRequest);
 }
 
 void Controller::GetConfigState(ConfigState& configState_, bool useLock)
@@ -272,15 +274,15 @@ void Controller::OnSendRequest()
 {
     Request*    request;
 
-    if (HasMaster())
-    {
-        MutexGuard  guard(mutex);
+    if (!HasMaster())
+        return;
 
-        FOREACH_FIRST (request, requests)
-        {
-            requests.Remove(request);
-            controllerConnections[configState.masterID]->SendRequest(request);
-        }
+    MutexGuard  guard(mutex);
+
+    FOREACH_FIRST (request, requests)
+    {
+        requests.Remove(request);
+        controllerConnections[configState.masterID]->SendRequest(request);
     }
 }
 
