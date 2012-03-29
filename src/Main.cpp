@@ -29,6 +29,7 @@ static void CrashReporterCallback();
 
 // the application object is global for debugging purposes
 static Application*     app;
+static bool             restoreMode = false;
 
 int main(int argc, char** argv)
 {
@@ -61,6 +62,8 @@ static void RunMain(int argc, char** argv)
 {
     ServiceIdentity     identity;
 
+    ParseArgs(argc, argv);
+
     if (argc < 2)
         STOP_FAIL(1, "Config file argument not given");
         
@@ -68,6 +71,8 @@ static void RunMain(int argc, char** argv)
         STOP_FAIL(1, "Invalid config file (%s)", argv[1]);
 
     InitLog();
+    
+    // HACK: this is called twice, because command line arguments may override log settings
     ParseArgs(argc, argv);
     SetupServiceIdentity(identity);
     Service::Main(argc, argv, RunApplication, identity);
@@ -89,7 +94,7 @@ static void RunApplication()
     if (isController)
         app = new ConfigServerApp;
     else
-        app = new ShardServerApp;
+        app = new ShardServerApp(restoreMode);
     
     Service::SetStatus(SERVICE_STATUS_RUNNING);
     app->Init();
@@ -165,6 +170,7 @@ static void InitLog()
     Log_SetAutoFlush(configFile.GetBoolValue("log.autoFlush", true));
     Log_SetMaxSize(configFile.GetIntValue("log.maxSize", 100*1000*1000) / (1000 * 1000));
     Log_SetTraceBufferSize(configFile.GetIntValue("log.traceBufferSize", 0));
+    Log_SetFlushInterval(configFile.GetIntValue("log.flushInterval", 0) * 1000);
 }
 
 static void ParseArgs(int argc, char** argv)
@@ -182,8 +188,24 @@ static void ParseArgs(int argc, char** argv)
                 SetExitOnError(false);
                 SetAssertCritical(false);
                 break;
+            case 'v':
+                STOP("%s", PRODUCT_STRING);
+                break;
+            case 'r':
+                restoreMode = true;
+                break;
             case 'h':
-                STOP_FAIL(0, "Usage: %s [-t] config-file\n\n", argv[0]);
+                STOP("Usage:\n"
+                     "\n"
+                     "       %s config-file [options]\n"
+                     "\n"
+                     "Options:\n"
+                     "\n"
+                     "       -v: print version number and exit\n"
+                     "       -r: start server in restore mode\n"
+                     "       -t: turn trace mode on\n"
+                     "       -h: print this help\n"
+                     , argv[0]);
                 break;
             }
         }

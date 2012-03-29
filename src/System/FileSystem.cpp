@@ -530,8 +530,8 @@ FD FS_Open(const char* filename, int flags)
     if ((flags & FS_WRITEONLY) == FS_WRITEONLY)
     {
         dwDesiredAccess = GENERIC_WRITE;
-        //if ((flags & FS_APPEND) == FS_APPEND)
-        //    dwDesiredAccess =  FILE_APPEND_DATA;
+        if ((flags & FS_APPEND) == FS_APPEND)
+           dwDesiredAccess = FILE_APPEND_DATA;
     }
     if ((flags & FS_READWRITE) == FS_READWRITE)
         dwDesiredAccess = GENERIC_READ | GENERIC_WRITE;

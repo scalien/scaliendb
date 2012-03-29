@@ -55,6 +55,7 @@ extern "C" {
 #endif
 
 void Log(const char* file, int line, const char* func, int type, const char* fmt, ...);
+void Log_Rotate();
 bool Log_SetTrace(bool trace);
 bool Log_SetDebug(bool debug);
 bool Log_SetAutoFlush(bool autoFlush);
@@ -66,6 +67,7 @@ void Log_SetTarget(int target);
 int  Log_GetTarget();
 bool Log_SetOutputFile(const char* file, bool truncate);
 void Log_SetMaxSize(unsigned maxSizeMB);    // in MegaBytes
+void Log_SetFlushInterval(unsigned flushInterval);
 void Log_Flush();
 void Log_Shutdown();
 

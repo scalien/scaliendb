@@ -53,7 +53,7 @@ void PaxosProposer::OnPrepareResponse(PaxosMessage& imsg)
     
     if (imsg.type == PAXOS_PREPARE_REJECTED)
     {
-        Log_Debug("Prepare rejected");
+        Log_Debug("Prepare rejected, quorumID: %U", context->GetQuorumID());
         if (imsg.promisedProposalID > state.highestPromisedProposalID)
             state.highestPromisedProposalID = imsg.promisedProposalID;
     }
@@ -92,7 +92,7 @@ void PaxosProposer::OnProposeResponse(PaxosMessage& imsg)
     
     if (imsg.type == PAXOS_PROPOSE_REJECTED)
     {
-        Log_Debug("Propose rejected");
+        Log_Debug("Propose rejected, quorumID: %U", context->GetQuorumID());
         vote->RegisterRejected(imsg.nodeID);
     }
     else
@@ -180,7 +180,7 @@ uint64_t PaxosProposer::GetMemoryUsage()
 
 void PaxosProposer::OnPrepareTimeout()
 {
-    Log_Debug("OnPrepareTimeout");
+    Log_Debug("OnPrepareTimeout, quorumID: %U", context->GetQuorumID());
     Log_Trace();
     
     ASSERT(state.preparing);
@@ -199,7 +199,7 @@ void PaxosProposer::OnPrepareTimeout()
 
 void PaxosProposer::OnProposeTimeout()
 {
-    Log_Debug("OnProposeTimeout");
+    Log_Debug("OnProposeTimeout, quorumID: %U", context->GetQuorumID());
     Log_Trace();
     
     ASSERT(state.proposing);
@@ -218,7 +218,7 @@ void PaxosProposer::OnProposeTimeout()
 
 void PaxosProposer::OnRestartTimeout()
 {
-    Log_Debug("OnRestartTimeout");
+    Log_Debug("OnRestartTimeout, quorumID: %U", context->GetQuorumID());
     Log_Trace();
 
     ASSERT(!state.preparing);

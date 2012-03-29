@@ -11,6 +11,7 @@ StorageCommitJob::StorageCommitJob(StorageEnvironment* env_,
 
 void StorageCommitJob::Execute()
 {
+    startTime = NowClock();
     logSegment->Commit();
 }
 

@@ -440,6 +440,11 @@ void StorageDataPage::Write(Buffer& buffer_)
     buffer_.Write(buffer);
 }
 
+void StorageDataPage::Serialize(Buffer& buffer_)
+{
+    buffer_.Append(buffer);
+}
+
 void StorageDataPage::Unload()
 {
     Reset();

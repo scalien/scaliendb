@@ -35,6 +35,11 @@ void StorageConfig::SetSyncGranularity(uint64_t syncGranularity_)
     syncGranularity = syncGranularity_;
 }
 
+void StorageConfig::SetWriteGranularity(uint64_t writeGranularity_)
+{
+    writeGranularity = writeGranularity_;
+}
+
 void StorageConfig::SetReplicatedLogSize(uint64_t replicatedLogSize)
 {
     numLogSegmentFileChunks = replicatedLogSize / chunkSize;
@@ -73,6 +78,11 @@ uint64_t StorageConfig::GetMergeBufferSize()
 uint64_t StorageConfig::GetSyncGranularity()
 {
     return syncGranularity;
+}
+
+uint64_t StorageConfig::GetWriteGranularity()
+{
+    return writeGranularity;
 }
 
 uint64_t StorageConfig::GetNumLogSegmentFileChunks()
