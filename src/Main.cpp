@@ -197,7 +197,7 @@ static void ParseArgs(int argc, char** argv)
             case 'h':
                 STOP("Usage:\n"
                      "\n"
-                     "       %s config-file [options]\n"
+                     "       %s config-file [options] [service-options]\n"
                      "\n"
                      "Options:\n"
                      "\n"
@@ -205,6 +205,12 @@ static void ParseArgs(int argc, char** argv)
                      "       -r: start server in restore mode\n"
                      "       -t: turn trace mode on\n"
                      "       -h: print this help\n"
+                     "\n"
+                     "Service options (mutually exclusive):\n"
+                     "\n"
+                     "       --install:   install service\n"
+                     "       --reinstall: reinstall service\n"
+                     "       --uninstall: uninstall server\n"
                      , argv[0]);
                 break;
             }
