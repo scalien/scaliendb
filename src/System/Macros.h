@@ -200,4 +200,16 @@ do {                                                                            
 
 #define UNUSED(var)     (void) var
 
+/*
+===============================================================================================
+
+ Calculate throughput in byte per sec, where size is in bytes, elapsed is in millisec
+ 
+===============================================================================================
+ */
+
+#define BYTE_PER_SEC(size, elapsed)      \
+    (uint64_t)(elapsed == 0 ? (size * 1000.0) : (size / (elapsed / 1000.0)))
+
+
 #endif
