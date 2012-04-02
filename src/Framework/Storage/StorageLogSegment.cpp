@@ -4,6 +4,13 @@
 #include "System/Stopwatch.h"
 #include "StorageEnvironment.h"
 
+#define Log_DebugLong(sw, ...)  \
+    if (sw.Elapsed() > 1000)    \
+    do {                        \
+        Log_Debug(__VA_ARGS__); \
+        sw.Reset();             \
+    } while (0)
+
 StorageLogSegment::StorageLogSegment()
 {
     prev = next = this;
@@ -19,13 +26,6 @@ StorageLogSegment::StorageLogSegment()
     IsCommitting = false;
     commitStatus = false;
 }
-
-#define Log_DebugLong(sw, ...)  \
-    if (sw.Elapsed() > 1000)    \
-    do {                        \
-        Log_Debug(__VA_ARGS__); \
-        sw.Reset();             \
-    } while (0)
 
 void StorageLogSegment::Open(Buffer& logPath, uint64_t trackID_, uint64_t logSegmentID_, uint64_t syncGranularity_)
 {
@@ -241,7 +241,7 @@ void StorageLogSegment::Commit()
     Log_Debug("Committed track %U, elapsed: %U, size: %s, bps: %sB/s",
         trackID,
         (uint64_t) sw.Elapsed(), HUMAN_BYTES(length),
-        HUMAN_BYTES((uint64_t)(length / (sw.Elapsed() / 1000.0))));
+        HUMAN_BYTES(BYTE_PER_SEC(length, sw.Elapsed())));
     
     NewRound();
     commitedLogCommandID = logCommandID - 1;
