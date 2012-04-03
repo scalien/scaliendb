@@ -27,6 +27,7 @@ public:
     StorageEnvironment* env;
     StorageLogSegment*  logSegment;
     Callable            onCommit;
+    uint64_t            startTime;
 };
 
 #endif

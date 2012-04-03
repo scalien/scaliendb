@@ -8,6 +8,7 @@
 static Callable                 exceptionCallback;
 static char                     exceptionMessage[16384];
 static EXCEPTION_POINTERS*      exceptionPointers;
+static volatile bool            exceptionActive;
 
 #ifndef STATUS_HEAP_CORRUPTION
 #define STATUS_HEAP_CORRUPTION  0xC0000374
@@ -15,6 +16,13 @@ static EXCEPTION_POINTERS*      exceptionPointers;
 
 static LONG CALLBACK VectoredExceptionHandler(EXCEPTION_POINTERS* pointers)
 {
+    // avoid infinite loops in exception handlers
+    if (exceptionActive)
+    {
+        fprintf(stderr, "ExceptionActive");
+        _exit(1);
+    }
+
     // Setup the pointers
     exceptionPointers = pointers;
     
@@ -23,6 +31,8 @@ static LONG CALLBACK VectoredExceptionHandler(EXCEPTION_POINTERS* pointers)
 
     // Call user-provided callback
     Call(exceptionCallback);
+
+    exceptionActive = true;
 
     // Usually exceptionCallback never returns. If it is, continue on other vectored handlers.
     return EXCEPTION_CONTINUE_SEARCH;
@@ -37,6 +47,7 @@ void CrashReporter::SetCallback(Callable callback)
 
     exceptionCallback = callback;
     exceptionMessage[0] = 0;
+    exceptionActive = false;
 
     firstHandler = TRUE;
     AddVectoredExceptionHandler(firstHandler, VectoredExceptionHandler);

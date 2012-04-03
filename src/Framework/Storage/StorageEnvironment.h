@@ -29,6 +29,15 @@ class StorageArchiveLogSegmentJob;
 
 #define STORAGE_DEFAULT_BACKGROUND_TIMER_DELAY      1  // sec
 
+// TODO: we found that Windows and Linux behaves differently when writing to disk
+// On Linux, it is preferred that you write and sync to disk as often as you can (e.g. pageSize or 64K)
+// On Windows, it is preferred that you write less often but in bigger chunks
+#ifdef PLATFORM_WINDOWS
+#define STORAGE_WRITE_GRANULARITY                   (2*MiB)
+#else
+#define STORAGE_WRITE_GRANULARITY                   (64*KiB)
+#endif
+
 struct ShardSize;
 
 /*

@@ -121,6 +121,7 @@ static int SetupDefaultClient(Client& client)
     ReadConfig();
 
     Log_SetTrace(configFile.GetBoolValue("log.trace", false));
+    Log_SetDebug(configFile.GetBoolValue("log.debug", false));
 
     client.Shutdown();
     ret = SetupDefaultControllerNodes(client);

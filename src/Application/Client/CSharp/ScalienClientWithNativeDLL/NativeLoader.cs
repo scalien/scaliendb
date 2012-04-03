@@ -68,7 +68,7 @@ namespace Scalien
 
     public class NativeLoader
     {
-        static SafeDLLHandle handle;
+        //static SafeDLLHandle handle;
 
         static NativeLoader()
         {
@@ -89,11 +89,11 @@ namespace Scalien
 
         public static void Cleanup()
         {
-            if (handle == null)
-                return;
+            //if (handle == null)
+            //    return;
 
-            handle.Close();
-            handle = null;
+            //handle.Close();
+            //handle = null;
         }
 
         static string TryExtractDLL(string dirName, string name, string bitness)
@@ -166,7 +166,7 @@ namespace Scalien
             IntPtr dllHandle = NativeMethods.LoadLibrary(dllPath);
             if (dllHandle != IntPtr.Zero)
             {
-                handle = new SafeDLLHandle(dllHandle, dllPath);
+                //handle = new SafeDLLHandle(dllHandle, dllPath);
                 return true;
             }
 

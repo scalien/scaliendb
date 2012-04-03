@@ -77,6 +77,19 @@
 ===============================================================================================
  */
 
+#define STOP(...)                                                                           \
+do {                                                                                        \
+    Log_SetTarget(Log_GetTarget() | LOG_TARGET_STDERR | LOG_TARGET_FILE);                   \
+    const char* failMsg = StaticPrint("" __VA_ARGS__);                                      \
+    Log_Message("%s", failMsg ? failMsg : "");                                              \
+    IFDEBUG(ASSERT_FAIL());                                                                 \
+    _exit(0);                                                                               \
+} while (0)
+
+/*
+===============================================================================================
+ */
+
 #define STOP_FAIL(code, ...)                                                                \
 do {                                                                                        \
     Log_SetTarget(Log_GetTarget() | LOG_TARGET_STDERR | LOG_TARGET_FILE);                   \

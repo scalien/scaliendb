@@ -68,6 +68,7 @@ bool StorageChunkWriter::WriteDataPages()
     unsigned            i;
     StorageDataPage*    dataPage;
 
+    writeBuffer.Clear();
     for (i = 0; i < file->numDataPages; i++)
     {
         if (env->shuttingDown)
@@ -76,21 +77,24 @@ bool StorageChunkWriter::WriteDataPages()
             return false;
         }
 
-        // rate control while reading or listing
-        //while (env->yieldThreads)
-        //{
-        //    MSleep(1);
-        //}
-        
         dataPage = file->dataPages[i];
-        writeBuffer.Clear();
-        dataPage->Write(writeBuffer);
-        //ASSERT(writeBuffer.GetLength() == dataPage->GetSize());
+        dataPage->Serialize(writeBuffer);
+        if (writeBuffer.GetLength() > STORAGE_WRITE_GRANULARITY)
+        {
+            if (!WriteBuffer())
+                return false;
+            writeBuffer.Clear();
+        }
+    }
 
+    // write the rest of the buffer to disk
+    if (writeBuffer.GetLength() > 0)
+    {
         if (!WriteBuffer())
             return false;
+        writeBuffer.Clear();
     }
-    
+
     return true;
 }
 
