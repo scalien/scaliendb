@@ -56,6 +56,12 @@ bool PaxosAcceptor::OnProposeRequest(PaxosMessage& imsg)
     return false; // OnMessageProcessed() will be called in OnStateWritten()
 }
 
+void PaxosAcceptor::OnCatchupStarted()
+{
+    state.Init();
+    context->GetDatabase()->Commit();
+}
+
 void PaxosAcceptor::OnCatchupComplete()
 {
     ASSERT(!isCommitting);

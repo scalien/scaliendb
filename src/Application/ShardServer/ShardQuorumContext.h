@@ -72,6 +72,7 @@ public:
     virtual void                    OnMessage(ReadBuffer msg);
     virtual void                    OnMessageProcessed();
     virtual void                    OnStartCatchup();
+    virtual void                    OnCatchupStarted();
     virtual void                    OnCatchupComplete(uint64_t paxosID);
 
     virtual void                    StopReplication();

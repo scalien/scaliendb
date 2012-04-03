@@ -704,6 +704,8 @@ void ConfigQuorumProcessor::OnStartCatchup()
     isCatchingUp = true;
     
     Log_Message("Catchup started from node %U", quorumContext.GetLeaseOwner());
+
+    quorumContext.OnCatchupStarted();
 }
 
 void ConfigQuorumProcessor::OnCatchupMessage(CatchupMessage& imsg)

@@ -226,6 +226,11 @@ void ConfigQuorumContext::OnStartCatchup()
     quorumProcessor->OnStartCatchup();
 }
 
+void ConfigQuorumContext::OnCatchupStarted()
+{
+    replicatedLog.OnCatchupStarted();
+}
+
 void ConfigQuorumContext::OnCatchupComplete(uint64_t paxosID)
 {
     replicatedLog.OnCatchupComplete(paxosID);

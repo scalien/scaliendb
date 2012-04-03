@@ -326,6 +326,8 @@ void ShardQuorumProcessor::OnStartCatchup()
     catchupReader.Begin();
     
     Log_Message("Catchup started from node %U", quorumContext.GetLeaseOwner());
+
+    quorumContext.OnCatchupStarted();
 }
 
 void ShardQuorumProcessor::OnCatchupMessage(CatchupMessage& message)

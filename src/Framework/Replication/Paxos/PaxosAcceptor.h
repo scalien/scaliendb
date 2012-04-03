@@ -20,12 +20,14 @@ class ReplicatedLog; // forward
 class PaxosAcceptor
 {
     typedef PaxosAcceptorState State;
+
 public:
     PaxosAcceptor();
         
     void            Init(QuorumContext* context);
     bool            OnPrepareRequest(PaxosMessage& msg);
     bool            OnProposeRequest(PaxosMessage& msg);
+    void            OnCatchupStarted();
     void            OnCatchupComplete();
     void            WriteState();
     uint64_t        GetMemoryUsage();

@@ -51,6 +51,7 @@ public:
     virtual void                OnMessage(ReadBuffer msg)                                       = 0;
     virtual void                OnMessageProcessed()                                            = 0;
     virtual void                OnStartCatchup()                                                = 0;
+    virtual void                OnCatchupStarted()                                              = 0;
     virtual void                OnCatchupComplete(uint64_t paxosID)                             = 0;
 
     virtual void                StopReplication()                                               = 0;

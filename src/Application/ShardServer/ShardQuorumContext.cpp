@@ -220,6 +220,11 @@ void ShardQuorumContext::OnStartCatchup()
     quorumProcessor->OnStartCatchup();
 }
 
+void ShardQuorumContext::OnCatchupStarted()
+{
+    replicatedLog.OnCatchupStarted();
+}
+
 void ShardQuorumContext::OnCatchupComplete(uint64_t paxosID)
 {
     replicatedLog.OnCatchupComplete(paxosID);
