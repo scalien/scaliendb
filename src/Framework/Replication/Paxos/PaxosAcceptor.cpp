@@ -59,6 +59,7 @@ bool PaxosAcceptor::OnProposeRequest(PaxosMessage& imsg)
 void PaxosAcceptor::OnCatchupStarted()
 {
     state.Init();
+    WriteState();
     context->GetDatabase()->Commit();
 }
 
