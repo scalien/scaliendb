@@ -57,7 +57,7 @@ void RequestProxy::Clear()
     ASSERT(map.GetCount() == list.GetLength());
     ASSERT(size >= 0);
     map.Clear();
-    list.Clear();
+    list.DeleteList();
     size = 0;
 }
 
