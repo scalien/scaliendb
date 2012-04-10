@@ -44,10 +44,8 @@ public:
     void   Add(char c);
     void   Add(char* s);
     void   Add(const char* s);
-    void   Add(int i);
-    void   Add(unsigned u);
-    void   Add(long l);
-    void   Add(unsigned long ul);
+    void   Add(int32_t i);
+    void   Add(uint32_t u);
     void   Add(int64_t i);
     void   Add(uint64_t u);    
     void   Add(float f);
