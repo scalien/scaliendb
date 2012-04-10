@@ -255,7 +255,11 @@ void ShardHTTPClientSession::PrintStatus()
     
     valbuf.Writef("%u", shardServer->GetNumSDBPClients());
     valbuf.NullTerminate();
-    session.PrintPair("Number of clients", valbuf.GetBuffer());  
+    session.PrintPair("Number of clients", valbuf.GetBuffer());
+    
+    valbuf.Writef("%u", shardServer->GetLockManager()->GetNumLocks());
+    valbuf.NullTerminate();
+    session.PrintPair("Number of locks", valbuf.GetBuffer());
 
     session.Flush();
 }

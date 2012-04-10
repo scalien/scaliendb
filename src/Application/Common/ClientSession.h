@@ -1,26 +1,33 @@
 #ifndef CLIENTSESSION_H
 #define CLIENTSESSION_H
 
-class ClientRequest; // forward
+#include "System/Containers/InList.h"
+#include "ClientRequest.h"
 
 /*
 ===============================================================================================
 
  ClientSession
  
- An ADT that represents connections that takes ScalienDB commands.
- Currently: HTTP, SDBP.
-
 ===============================================================================================
 */
 
 class ClientSession
 {
+    typedef InList<ClientRequest> Transaction;
+
 public:
-    virtual ~ClientSession() {}
-    
+    virtual ~ClientSession();
+        
     virtual void    OnComplete(ClientRequest* request, bool last)       = 0;
     virtual bool    IsActive()                                          = 0;
+
+    void            Init();
+    bool            IsTransactional();
+    bool            IsCommitting();
+    
+    Buffer          lockKey;
+    Transaction     transaction;
 };
 
 #endif

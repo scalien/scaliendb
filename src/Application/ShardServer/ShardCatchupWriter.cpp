@@ -123,7 +123,8 @@ void ShardCatchupWriter::Abort()
     Reset();
 }
 
-void ShardCatchupWriter::OnShardMessage(uint64_t paxosID, uint64_t commandID, uint64_t shardID, ShardMessage& shardMessage)
+void ShardCatchupWriter::OnShardMessage(uint64_t /*paxosID*/, uint64_t /*commandID*/,
+ uint64_t shardID, ShardMessage& shardMessage)
 {
     CatchupMessage msg;
 
@@ -145,7 +146,12 @@ void ShardCatchupWriter::OnShardMessage(uint64_t paxosID, uint64_t commandID, ui
 
 void ShardCatchupWriter::OnBlockShard()
 {
-    quorumProcessor->OnBlockShard(shardID);
+    quorumProcessor->SetBlockReplication(true);
+}
+
+void ShardCatchupWriter::OnUnblockShard()
+{
+    quorumProcessor->SetBlockReplication(false);
 }
 
 void ShardCatchupWriter::OnTryCommit()
@@ -192,7 +198,7 @@ void ShardCatchupWriter::SendFirst()
 
     ASSERT(cursor == NULL);
     cursor = environment->GetBulkCursor(QUORUM_DATABASE_DATA_CONTEXT, shardID);
-    cursor->SetOnBlockShard(MFUNC(ShardCatchupWriter, OnBlockShard));
+    cursor->SetOnBlockShard(MFUNC(ShardCatchupWriter, OnBlockShard), MFUNC(ShardCatchupWriter, OnUnblockShard));
     ASSERT(cursor != NULL);
 
     msg.BeginShard(shardID);
@@ -246,7 +252,7 @@ void ShardCatchupWriter::SendNext()
 
     cursor = quorumProcessor->GetShardServer()->GetDatabaseManager()->GetEnvironment()->GetBulkCursor(
      QUORUM_DATABASE_DATA_CONTEXT, shardID);
-    cursor->SetOnBlockShard(MFUNC(ShardCatchupWriter, OnBlockShard));
+    cursor->SetOnBlockShard(MFUNC(ShardCatchupWriter, OnBlockShard), MFUNC(ShardCatchupWriter, OnUnblockShard));
 
     msg.BeginShard(shardID);
     CONTEXT_TRANSPORT->SendQuorumMessage(nodeID, quorumID, msg);

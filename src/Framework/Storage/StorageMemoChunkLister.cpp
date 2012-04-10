@@ -16,7 +16,7 @@ StorageMemoChunkLister::StorageMemoChunkLister() : dataPage(NULL, 0)
 }
 
 void StorageMemoChunkLister::Init(
- StorageMemoChunk* chunk, ReadBuffer& firstKey, ReadBuffer& endKey, ReadBuffer& prefix,
+ StorageMemoChunk* chunk, ReadBuffer& firstKey, ReadBuffer& /*endKey*/, ReadBuffer& prefix,
  unsigned count, bool keysOnly, bool forwardDirection)
 {
     StorageMemoKeyValue*    kv;

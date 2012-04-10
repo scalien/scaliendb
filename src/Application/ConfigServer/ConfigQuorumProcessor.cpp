@@ -742,7 +742,7 @@ void ConfigQuorumProcessor::OnCatchupMessage(CatchupMessage& imsg)
             omsg.Set(0, keyClusterID, value); // shardID is unused here
             CONTEXT_TRANSPORT->SendQuorumMessage(imsg.nodeID, quorumContext.GetQuorumID(), omsg);
             
-            // send COMMIT with the paxosID whose value is in the db
+            // send COMMIT with the paxosID
             omsg.Commit(quorumContext.GetPaxosID() - 1);
             CONTEXT_TRANSPORT->SendQuorumMessage(imsg.nodeID, quorumContext.GetQuorumID(), omsg);
             break;

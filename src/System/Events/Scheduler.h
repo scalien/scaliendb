@@ -16,6 +16,8 @@
 class Scheduler
 {
 public:
+    static void                 TryAdd(Timer* timer);
+    static void                 TryRemove(Timer* timer);
     static void                 Add(Timer* timer);
     static void                 Remove(Timer* timer);
     static void                 Reset(Timer* timer);

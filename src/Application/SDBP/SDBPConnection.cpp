@@ -30,6 +30,7 @@ void SDBPConnection::Init(SDBPServer* server_)
     SDBPResponseMessage sdbpResponse;
     
     MessageConnection::InitConnected();
+    ClientSession::Init();
     
     numCompleted = 0;
     connectTimestamp = NowClock();
@@ -88,7 +89,7 @@ void SDBPConnection::OnWrite()
 void SDBPConnection::OnClose()
 {
     uint64_t    elapsed;
-    
+        
     if (onKeepAlive.GetDelay() > 0)
         EventLoop::Remove(&onKeepAlive);
     
@@ -113,9 +114,6 @@ void SDBPConnection::OnComplete(ClientRequest* request, bool last)
 
     if (last)
         numPending--;
-
-//    if (request->response.type == CLIENTRESPONSE_OK)
-//        Log_Debug("OK, commandID: %U", request->commandID);
 
     if (state == TCPConnection::CONNECTED &&
      request->response.type != CLIENTRESPONSE_NORESPONSE &&

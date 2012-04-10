@@ -7,6 +7,18 @@ InSortedList<Timer> Scheduler::timers;
 Mutex Scheduler::mutex;
 #endif
 
+void Scheduler::TryAdd(Timer* timer)
+{
+    if (!timer->IsActive())
+        Add(timer);
+}
+
+void Scheduler::TryRemove(Timer* timer)
+{
+    if (timer->IsActive())
+        Remove(timer);
+}
+
 void Scheduler::Add(Timer* timer)
 {
 #ifdef EVENTLOOP_MULTITHREADED

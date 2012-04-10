@@ -98,6 +98,11 @@ ShardDatabaseManager* ShardServer::GetDatabaseManager()
     return &databaseManager;
 }
 
+ShardLockManager* ShardServer::GetLockManager()
+{
+    return &lockManager;
+}
+
 ShardMigrationWriter* ShardServer::GetShardMigrationWriter()
 {
     return &migrationWriter;
@@ -136,16 +141,15 @@ void ShardServer::OnClientRequest(ClientRequest* request)
     ConfigShard*            shard;
     ShardQuorumProcessor*   quorumProcessor;
     
-    if (request->type == CLIENTREQUEST_SUBMIT)
+    if (request->IsTransaction())
     {
         quorumProcessor = GetQuorumProcessor(request->quorumID);
         if (!quorumProcessor)
         {
-            request->response.NoResponse();
+            request->response.NoService();
             request->OnComplete();
             return;
         }
-
         quorumProcessor->OnClientRequest(request);
         return;
     }
@@ -158,7 +162,7 @@ void ShardServer::OnClientRequest(ClientRequest* request)
         request->OnComplete();
         return;
     }
-
+    
     quorumProcessor = GetQuorumProcessor(shard->quorumID);
     if (!quorumProcessor)
     {
@@ -166,21 +170,32 @@ void ShardServer::OnClientRequest(ClientRequest* request)
         request->OnComplete();
         return;
     }
-    
-    if (quorumProcessor->GetBlockedShardID() == shard->shardID)
-    {
-        request->response.NoService();
-        request->OnComplete();
-        return;
-    }
-    
+        
     request->shardID = shard->shardID;    
     quorumProcessor->OnClientRequest(request);
 }
 
-void ShardServer::OnClientClose(ClientSession* /*session*/)
+void ShardServer::OnClientClose(ClientSession* session)
 {
-    // nothing
+    ClientRequest* request;
+    
+    if (!session->IsTransactional())
+        return;
+    
+    if (session->IsCommitting())
+        return;
+
+    FOREACH_POP(request, session->transaction)
+    {
+        ASSERT(request->type != CLIENTREQUEST_UNDEFINED);
+        request->response.NoResponse();
+        request->OnComplete();
+    }
+
+    lockManager.Unlock(session->lockKey);
+    Log_Debug("Lock %B released due to disconnect.", &session->lockKey);
+    
+    session->Init();
 }
 
 void ShardServer::OnClusterMessage(uint64_t nodeID, ClusterMessage& message)

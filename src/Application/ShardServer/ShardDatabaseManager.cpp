@@ -1,11 +1,13 @@
 #include "ShardDatabaseManager.h"
 #include "System/Events/EventLoop.h"
-#include "ShardServer.h"
 #include "System/Config.h"
+#include "Application/Common/ClientSession.h"
+#include "ShardServer.h"
 #include "Framework/Replication/ReplicationConfig.h"
 #include "Framework/Storage/StoragePageCache.h"
 
-#define SHARD_MIGRATION_WRITER  (shardServer->GetShardMigrationWriter())
+#define SHARD_MIGRATION_WRITER    (shardServer->GetShardMigrationWriter())
+#define LOCK_MANAGER        (shardServer->GetLockManager())
 
 static void WriteValue(
 Buffer &buffer, uint64_t paxosID, uint64_t commandID, ReadBuffer userValue)
@@ -334,7 +336,7 @@ void ShardDatabaseManager::Init(ShardServer* shardServer_)
 {
     Buffer          envpath;
     StorageConfig   sc;
-       
+    
     sc.SetChunkSize(            (uint64_t) configFile.GetInt64Value("database.chunkSize",           64*MiB  ));
     sc.SetLogSegmentSize(       (uint64_t) configFile.GetInt64Value("database.logSegmentSize",      64*MiB  ));
     sc.SetFileChunkCacheSize(   (uint64_t) configFile.GetInt64Value("database.fileChunkCacheSize",  256*MiB ));
@@ -501,7 +503,6 @@ void ShardDatabaseManager::RemoveDeletedDataShards(SortedList<uint64_t>& myShard
 
 void ShardDatabaseManager::OnClientReadRequest(ClientRequest* request)
 {
-//    readRequests.Add(request);
     readRequests.Append(request);
 
     environment.SetYieldThreads(true);
@@ -600,7 +601,6 @@ uint64_t ShardDatabaseManager::ExecuteMessage(uint64_t quorumID, uint64_t paxosI
         message.clientRequest->response.paxosID = paxosID;
     }
 
-    // TODO: differentiate return status (FAILED, NOSERVICE)
     switch (message.type)
     {
         case SHARDMESSAGE_SET:
@@ -609,6 +609,22 @@ uint64_t ShardDatabaseManager::ExecuteMessage(uint64_t quorumID, uint64_t paxosI
             WriteValue(buffer, paxosID, commandID, message.value);
             if (!environment.Set(contextID, shardID, message.key, buffer))
                 RESPONSE_FAIL();
+            break;
+        case SHARDMESSAGE_DELETE:
+            shardID = environment.GetShardID(contextID, message.tableID, message.key);
+            CHECK_SHARDID();
+            if (!environment.Delete(contextID, shardID, message.key))
+                RESPONSE_FAIL();
+            break;
+        case SHARDMESSAGE_COMMIT_TRANSACTION:
+            if (message.clientRequest)
+            {
+                ASSERT(message.clientRequest->session->IsTransactional());
+                LOCK_MANAGER->Unlock(message.clientRequest->session->lockKey);
+                Log_Debug("Lock %B released due to commit.", &message.clientRequest->session->lockKey);
+                message.clientRequest->session->lockKey.Clear();
+            }
+            // nothing
             break;
         case SHARDMESSAGE_ADD:
         case SHARDMESSAGE_SEQUENCE_ADD:
@@ -653,12 +669,33 @@ uint64_t ShardDatabaseManager::ExecuteMessage(uint64_t quorumID, uint64_t paxosI
                 }
             }
             break;
-        case SHARDMESSAGE_DELETE:
-            shardID = environment.GetShardID(contextID, message.tableID, message.key);
-            CHECK_SHARDID();
-            if (!environment.Delete(contextID, shardID, message.key))
-                RESPONSE_FAIL();
-            break;
+        //case SHARDMESSAGE_APPEND:
+        //    shardID = environment.GetShardID(contextID, message.tableID, message.key);
+        //    CHECK_SHARDID();
+        //    if (!environment.Get(contextID, shardID, message.key, readBuffer))
+        //        RESPONSE_FAIL();
+        //    ReadValue(readBuffer, readPaxosID, readCommandID, userValue);
+        //    CHECK_CMD();
+        //    tmpBuffer.Write(userValue);
+        //    tmpBuffer.Append(message.value);
+        //    WriteValue(buffer, paxosID, commandID, ReadBuffer(tmpBuffer));
+        //    if (!environment.Set(contextID, shardID, message.key, buffer))
+        //        RESPONSE_FAIL();
+        //    break;
+        //case SHARDMESSAGE_REMOVE:
+        //    shardID = environment.GetShardID(contextID, message.tableID, message.key);
+        //    CHECK_SHARDID();
+        //    if (environment.Get(contextID, shardID, message.key, readBuffer))
+        //    {
+        //        ReadValue(readBuffer, readPaxosID, readCommandID, userValue);
+        //        if (message.clientRequest)
+        //            message.clientRequest->response.Value(userValue);
+        //        if (!environment.Delete(contextID, shardID, message.key))
+        //            RESPONSE_FAIL();
+        //    }
+        //    else
+        //        RESPONSE_FAIL();
+        //    break;
         case SHARDMESSAGE_SPLIT_SHARD:
             if (environment.GetShard(contextID, message.newShardID))
             {
@@ -796,7 +833,7 @@ void ShardDatabaseManager::OnExecuteReads()
 
         readRequests.Remove(itRequest);
 
-        // silently drop requests from disconnected clients
+        // drop requests from disconnected clients
         if (!itRequest->session->IsActive())
         {
             itRequest->response.NoResponse();

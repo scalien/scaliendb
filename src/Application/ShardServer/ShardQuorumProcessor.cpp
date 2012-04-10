@@ -2,12 +2,14 @@
 #include "Framework/Replication/ReplicationConfig.h"
 #include "Application/Common/DatabaseConsts.h"
 #include "Application/Common/ContextTransport.h"
+#include "Application/Common/ClientSession.h"
 #include "ShardServer.h"
 
 #define CONFIG_STATE            (shardServer->GetConfigState())
 #define SHARD_MIGRATION_WRITER  (shardServer->GetShardMigrationWriter())
 #define DATABASE_MANAGER        (shardServer->GetDatabaseManager())
 #define HEARTBEAT_MANAGER       (shardServer->GetHeartbeatManager())
+#define LOCK_MANAGER            (shardServer->GetLockManager())
 
 static bool LessThan(uint64_t a, uint64_t b)
 {
@@ -38,12 +40,11 @@ ShardQuorumProcessor::ShardQuorumProcessor()
     activationTimeout.SetCallable(MFUNC(ShardQuorumProcessor, OnActivationTimeout));
     activationTimeout.SetDelay(ACTIVATION_TIMEOUT);
 
-    unblockShardTimeout.SetCallable(MFUNC(ShardQuorumProcessor, OnUnblockShardTimeout));
-    unblockShardTimeout.SetDelay(UNBLOCK_SHARD_TIMEOUT);
-
     leaseTimeout.SetCallable(MFUNC(ShardQuorumProcessor, OnLeaseTimeout));
     tryAppend.SetCallable(MFUNC(ShardQuorumProcessor, TryAppend));
     resumeAppend.SetCallable(MFUNC(ShardQuorumProcessor, OnResumeAppend));
+    resumeBlockedAppend.SetDelay(CLOCK_RESOLUTION);
+    resumeBlockedAppend.SetCallable(MFUNC(ShardQuorumProcessor, OnResumeBlockedAppend));
 }
 
 ShardQuorumProcessor::~ShardQuorumProcessor()
@@ -62,7 +63,7 @@ void ShardQuorumProcessor::Init(ConfigQuorum* configQuorum, ShardServer* shardSe
     migrateShardID = 0;
     migrateNodeID = 0;
     migrateCache = 0;
-    blockedShardID = 0;
+    blockReplication = 0;
     appendState.Reset();
     quorumContext.Init(configQuorum, this);
     CONTEXT_TRANSPORT->AddQuorumContext(&quorumContext);
@@ -87,20 +88,11 @@ void ShardQuorumProcessor::Shutdown()
     }
     shardMessages.DeleteList();
     
-    if (requestLeaseTimeout.IsActive())
-        EventLoop::Remove(&requestLeaseTimeout);
-
-    if (activationTimeout.IsActive())
-        EventLoop::Remove(&activationTimeout);
-
-    if (leaseTimeout.IsActive())
-        EventLoop::Remove(&leaseTimeout);
-
-    if (tryAppend.IsActive())
-        EventLoop::Remove(&tryAppend);
-
-    if (resumeAppend.IsActive())
-        EventLoop::Remove(&resumeAppend);
+    EventLoop::TryRemove(&requestLeaseTimeout);
+    EventLoop::TryRemove(&activationTimeout);
+    EventLoop::TryRemove(&leaseTimeout);
+    EventLoop::TryRemove(&tryAppend);
+    EventLoop::TryRemove(&resumeAppend);
 
     if (catchupReader.IsActive())
         catchupReader.Abort();
@@ -418,6 +410,9 @@ void ShardQuorumProcessor::OnLeaseTimeout()
         
         if (itMessage->clientRequest)
         {
+            if (itMessage->clientRequest->session->IsTransactional())
+                itMessage->clientRequest->session->Init();
+
             itMessage->clientRequest->response.NoService();
             itMessage->clientRequest->OnComplete();
             itMessage->clientRequest = NULL;
@@ -431,7 +426,6 @@ void ShardQuorumProcessor::OnLeaseTimeout()
     migrateShardID = 0;
     migrateNodeID = 0;
     migrateCache = 0;
-    blockedShardID = 0;
 
     DATABASE_MANAGER->OnLeaseTimeout();
 }
@@ -448,6 +442,28 @@ void ShardQuorumProcessor::OnClientRequest(ClientRequest* request)
 
     configQuorum = CONFIG_STATE->GetQuorum(GetQuorumID());
     ASSERT(configQuorum);
+
+    if (request->transactional && !request->session->IsTransactional())
+    {
+        // there was likely a primary failover scenario
+        // and the client is sending me transactional write commands
+        // but I did not see the START_TRANSACTION command
+        // disallow this, as it possibly violates transactional semantics
+        // eg. the client sent the first few SETs to the previous primary
+        request->response.Failed();
+        request->OnComplete();
+        return;
+    }
+
+    if (request->session->IsTransactional() && request->session->IsCommitting())
+    {
+        // client already sent a COMMIT_TRANSACTION command
+        // and it's replicating, and we haven't answered yet
+        // don't allow commands in this state
+        request->response.Failed();
+        request->OnComplete();
+        return;
+    }
 
     // strictly consistent messages can only be served by the leader
     if (request->paxosID == 1 && !quorumContext.IsLeader())
@@ -466,12 +482,6 @@ void ShardQuorumProcessor::OnClientRequest(ClientRequest* request)
         request->OnComplete();
         return;
     }
-
-    if (request->type == CLIENTREQUEST_GET)
-    {
-        DATABASE_MANAGER->OnClientReadRequest(request);        
-        return;
-    }
     
     if (request->IsList())
     {
@@ -479,27 +489,51 @@ void ShardQuorumProcessor::OnClientRequest(ClientRequest* request)
         return;
     }
         
-    if (request->type == CLIENTREQUEST_SUBMIT && quorumContext.GetQuorum()->GetNumNodes() > 1)
-    {
-        if (!tryAppend.IsActive() && shardMessages.GetLength() > 0)
-            EventLoop::Add(&tryAppend);
-        request->response.NoResponse();
-        request->OnComplete();
-        return;
-    }
-
     if (request->type == CLIENTREQUEST_SEQUENCE_NEXT)
     {
         if (DATABASE_MANAGER->OnClientSequenceNext(request))
             return; // DATABASE_MANAGER served it from its cache, we're done
     }
+    
+    if (request->type == CLIENTREQUEST_COMMIT_TRANSACTION)
+    {
+        CommitTransaction(request);
+        return;
+    }
+
+    if (request->type == CLIENTREQUEST_ROLLBACK_TRANSACTION)
+    {
+        RollbackTransaction(request);
+        return;
+    }
 
     if (request->key.GetLength() == 0)
     {
-        // it's not a LIST, so it has to have a key
+        // TODO: move this to a better place
         request->response.Failed();
         request->OnComplete();
         return;
+    }
+
+    if (request->type == CLIENTREQUEST_GET)
+    {
+        DATABASE_MANAGER->OnClientReadRequest(request);        
+        return;
+    }
+
+    if (request->type == CLIENTREQUEST_START_TRANSACTION)
+    {
+        StartTransaction(request);
+        return;
+    }
+        
+    if (request->session->IsTransactional())
+    {
+        if (request->type == CLIENTREQUEST_SET || request->type == CLIENTREQUEST_DELETE)
+        {
+            request->session->transaction.Append(request);
+            return;
+        }
     }
     
     message = messageCache.Acquire();
@@ -508,8 +542,7 @@ void ShardQuorumProcessor::OnClientRequest(ClientRequest* request)
     message->clientRequest = request;
     shardMessages.Append(message);
 
-    if (!tryAppend.IsActive())
-        EventLoop::Add(&tryAppend);
+    EventLoop::TryAdd(&tryAppend);
 }
 
 void ShardQuorumProcessor::OnClientClose(ClientSession* /*session*/)
@@ -558,8 +591,7 @@ void ShardQuorumProcessor::TrySplitShard(uint64_t shardID, uint64_t newShardID, 
     message->clientRequest = NULL;
     shardMessages.Append(message);
 
-    if (!tryAppend.IsActive())
-        EventLoop::Add(&tryAppend);
+    EventLoop::TryAdd(&tryAppend);
 }
 
 void ShardQuorumProcessor::TryTruncateTable(uint64_t tableID, uint64_t newShardID)
@@ -584,8 +616,7 @@ void ShardQuorumProcessor::TryTruncateTable(uint64_t tableID, uint64_t newShardI
     message->clientRequest = NULL;
     shardMessages.Append(message);
 
-    if (!tryAppend.IsActive())
-        EventLoop::Add(&tryAppend);
+    EventLoop::TryAdd(&tryAppend);
 }
 
 void ShardQuorumProcessor::OnActivation()
@@ -705,24 +736,13 @@ void ShardQuorumProcessor::OnShardMigrationClusterMessage(uint64_t nodeID, Clust
         CONTEXT_TRANSPORT->SendClusterMessage(migrateNodeID, pauseMessage);
     }
 
-    if (!tryAppend.IsActive())
-        EventLoop::Add(&tryAppend);
+    EventLoop::TryAdd(&tryAppend);
 }
 
-void ShardQuorumProcessor::OnBlockShard(uint64_t shardID)
+void ShardQuorumProcessor::SetBlockReplication(bool blockReplication_)
 {
-    // we could be in the middle of an async append loop
-    blockedShardID = shardID;
-    
-    EventLoop::Reset(&unblockShardTimeout);
-
-    if (!resumeAppend.IsActive() && !quorumContext.IsAppending())
-        BlockShard();
-}
-
-uint64_t ShardQuorumProcessor::GetBlockedShardID()
-{
-    return blockedShardID;
+    blockReplication = blockReplication_;
+    Log_Debug("Setting blockReplication = %b", blockReplication);
 }
 
 uint64_t ShardQuorumProcessor::GetMessageCacheSize()
@@ -758,50 +778,14 @@ void ShardQuorumProcessor::TransformRequest(ClientRequest* request, ShardMessage
             message->key.Wrap(request->key);
             message->value.Wrap(request->value);
             break;
-        case CLIENTREQUEST_SET_IF_NOT_EXISTS:
-            message->type = SHARDMESSAGE_SET_IF_NOT_EXISTS;
-            message->tableID = request->tableID;
-            message->key.Wrap(request->key);
-            message->value.Wrap(request->value);
-            break;
-        case CLIENTREQUEST_TEST_AND_SET:
-            message->type = SHARDMESSAGE_TEST_AND_SET;
-            message->tableID = request->tableID;
-            message->key.Wrap(request->key);
-            message->test.Wrap(request->test);
-            message->value.Wrap(request->value);
-            break;
-        case CLIENTREQUEST_TEST_AND_DELETE:
-            message->type = SHARDMESSAGE_TEST_AND_DELETE;
-            message->tableID = request->tableID;
-            message->key.Wrap(request->key);
-            message->test.Wrap(request->test);
-            break;
-        case CLIENTREQUEST_GET_AND_SET:
-            message->type = SHARDMESSAGE_GET_AND_SET;
-            message->tableID = request->tableID;
-            message->key.Wrap(request->key);
-            message->value.Wrap(request->value);
-            break;
         case CLIENTREQUEST_ADD:
             message->type = SHARDMESSAGE_ADD;
             message->tableID = request->tableID;
             message->key.Wrap(request->key);
             message->number = request->number;
             break;
-        case CLIENTREQUEST_APPEND:
-            message->type = SHARDMESSAGE_APPEND;
-            message->tableID = request->tableID;
-            message->key.Wrap(request->key);
-            message->value.Wrap(request->value);
-            break;
         case CLIENTREQUEST_DELETE:
             message->type = SHARDMESSAGE_DELETE;
-            message->tableID = request->tableID;
-            message->key.Wrap(request->key);
-            break;
-        case CLIENTREQUEST_REMOVE:
-            message->type = SHARDMESSAGE_REMOVE;
             message->tableID = request->tableID;
             message->key.Wrap(request->key);
             break;
@@ -818,6 +802,9 @@ void ShardQuorumProcessor::TransformRequest(ClientRequest* request, ShardMessage
             message->key.Wrap(request->key);
             message->number = SEQUENCE_GRANULARITY;
             break;
+        case CLIENTREQUEST_COMMIT_TRANSACTION:
+            message->type = SHARDMESSAGE_COMMIT_TRANSACTION;
+            break;
         default:
             ASSERT_FAIL();
     }
@@ -828,6 +815,7 @@ void ShardQuorumProcessor::ExecuteMessage(uint64_t paxosID, uint64_t commandID,
 {
     uint64_t        shardID;
     ClusterMessage  clusterMessage;
+    ClientRequest*  clientRequest;
     
     if (shardMessage->type == SHARDMESSAGE_MIGRATION_BEGIN)
     {
@@ -859,7 +847,8 @@ void ShardQuorumProcessor::ExecuteMessage(uint64_t paxosID, uint64_t commandID,
     else
     {
         shardID = DATABASE_MANAGER->ExecuteMessage(GetQuorumID(), paxosID, commandID, *shardMessage);
-        catchupWriter.OnShardMessage(paxosID, commandID, shardID, *shardMessage);
+        if (shardMessage->type == SHARDMESSAGE_SET || shardMessage->type == SHARDMESSAGE_DELETE)
+            catchupWriter.OnShardMessage(paxosID, commandID, shardID, *shardMessage);
     }
 
     if (!ownCommand)
@@ -869,7 +858,18 @@ void ShardQuorumProcessor::ExecuteMessage(uint64_t paxosID, uint64_t commandID,
     {
         if (shardMessage->clientRequest->type == CLIENTREQUEST_SEQUENCE_NEXT)
             DATABASE_MANAGER->OnClientSequenceNext(shardMessage->clientRequest);
-        else
+        else if (shardMessage->type == SHARDMESSAGE_COMMIT_TRANSACTION)
+        {
+            FOREACH_POP(clientRequest, shardMessage->clientRequest->session->transaction)
+            {
+                ASSERT(clientRequest->type != CLIENTREQUEST_UNDEFINED);
+                if (clientRequest->type != CLIENTREQUEST_COMMIT_TRANSACTION)
+                    clientRequest->OnComplete(); // request deletes itself
+            }
+            shardMessage->clientRequest->session->Init();
+            shardMessage->clientRequest->OnComplete(); // request deletes itself
+        }
+        else if (!shardMessage->clientRequest->session->IsTransactional())
             shardMessage->clientRequest->OnComplete(); // request deletes itself
         shardMessage->clientRequest = NULL;
     }
@@ -879,8 +879,10 @@ void ShardQuorumProcessor::ExecuteMessage(uint64_t paxosID, uint64_t commandID,
 
 void ShardQuorumProcessor::TryAppend()
 {
+    bool            inTransaction;
     unsigned        numMessages;
     ShardMessage*   message;
+    ShardMessage*   prevMessage;
     
     if (shardMessages.GetLength() == 0 || quorumContext.IsAppending())
         return;
@@ -893,6 +895,7 @@ void ShardQuorumProcessor::TryAppend()
     
     numMessages = 0;
     Buffer& nextValue = quorumContext.GetNextValue();
+    prevMessage = NULL;
     FOREACH (message, shardMessages)
     {
         if (message->configPaxosID > CONFIG_STATE->paxosID)
@@ -906,12 +909,29 @@ void ShardQuorumProcessor::TryAppend()
         nextValue.Appendf(" ");
         numMessages++;
 
-        if (message->type == SHARDMESSAGE_SPLIT_SHARD || nextValue.GetLength() >= DATABASE_REPLICATION_SIZE)
-            break;
+        if (message->clientRequest &&
+          message->clientRequest->session->IsTransactional() &&
+          prevMessage != NULL &&
+          prevMessage->clientRequest->session == message->clientRequest->session)
+        {
+                inTransaction = true;
+        }
+        else
+        {
+                inTransaction = false;
+        }
         
-        if (message->clientRequest && SHARD_MIGRATION_WRITER->IsActive() &&
-         SHARD_MIGRATION_WRITER->GetShardID() == message->clientRequest->shardID)
-            break;
+        if (!inTransaction)
+        {
+            if (message->type == SHARDMESSAGE_SPLIT_SHARD || nextValue.GetLength() >= DATABASE_REPLICATION_SIZE)
+                break;
+            
+            if (message->clientRequest && SHARD_MIGRATION_WRITER->IsActive() &&
+             SHARD_MIGRATION_WRITER->GetShardID() == message->clientRequest->shardID)
+                break;
+        }
+
+        prevMessage = message;
     }
 
 //    Log_Debug("numMessages = %u", numMessages);
@@ -932,6 +952,13 @@ void ShardQuorumProcessor::OnResumeAppend()
     ShardMessage    shardMessage;
     ClusterMessage  clusterMessage;
     
+    if (blockReplication)
+    {
+        Log_Debug("Blocking replication...");
+        EventLoop::Add(&resumeBlockedAppend);
+        return;
+    }
+
     start = NowClock();
     while (appendState.value.GetLength() > 0)
     {
@@ -971,46 +998,113 @@ void ShardQuorumProcessor::OnResumeAppend()
     
     appendState.Reset();
     
-    if (!tryAppend.IsActive() && shardMessages.GetLength() > 0)
-        EventLoop::Add(&tryAppend);
+    if (shardMessages.GetLength() > 0)
+        EventLoop::TryAdd(&tryAppend);
 
-    if (blockedShardID != 0)
-        BlockShard();
-    
     quorumContext.OnAppendComplete();
 }
 
-void ShardQuorumProcessor::BlockShard()
+void ShardQuorumProcessor::OnResumeBlockedAppend()
 {
-    ShardMessage*   itMessage;
-    ShardMessage*   nextMessage;
-    ConfigShard*    configShard;
+    Log_Debug("ShardQuorumProcessor::OnResumeBlockedAppend()");
+    OnResumeAppend();
+}
 
-    ASSERT(blockedShardID != 0);
-    
-    Log_Debug("ShardQuorumProcessor::BlockShard()");
-    
-    for (itMessage = shardMessages.First(); itMessage != NULL; itMessage = nextMessage)
+void ShardQuorumProcessor::StartTransaction(ClientRequest* request)
+{
+    if (request->session->IsTransactional())
     {
-        nextMessage = shardMessages.Next(itMessage);
-        if (!itMessage->clientRequest || !itMessage->IsClientWrite())
-            continue;
-        
-        configShard = CONFIG_STATE->GetShard(itMessage->tableID, itMessage->key);
-        if (!configShard || configShard->shardID != blockedShardID)
-            continue;
-        
-        itMessage->clientRequest->response.NoService();
-        itMessage->clientRequest->OnComplete();
-        itMessage->clientRequest = NULL;
-        //shardMessages.Delete(itMessage);
-        shardMessages.Remove(itMessage);
-        messageCache.Release(itMessage);
+        // only allow one transaction at a time
+        request->response.Failed();
+        request->OnComplete();
+    }
+    else if (LOCK_MANAGER->TryLock(request->key))
+    {
+        // lock acquired for major key
+        ASSERT(!request->session->IsTransactional());
+        Log_Debug("Lock %B acquired.", &request->key);        
+        request->session->lockKey.Write(request->key);
+        request->response.OK();
+        request->OnComplete();
+    }
+    else
+    {
+        // unable to acquire lock for major key
+        // TODO: put request into wait queue
+        request->response.Failed();
+        request->OnComplete();
     }
 }
 
-void ShardQuorumProcessor::OnUnblockShardTimeout()
+void ShardQuorumProcessor::CommitTransaction(ClientRequest* request)
 {
-    Log_Debug("ShardQuorumProcessor::OnUnblockShardTimeout()");
-    blockedShardID = 0;
+    ClientRequest*  it;
+    ShardMessage*   message;
+    
+    if (!request->session->IsTransactional())
+    {
+        ASSERT(request->session->transaction.GetLength() == 0);
+        request->response.Failed();
+        request->OnComplete();
+        return;
+    }
+
+    request->session->transaction.Append(request);
+
+    // session->transaction is a list of ClientRequests, like:
+    // Set - Set - Delete - Delete - Set - ... - Commit
+
+    FOREACH(it, request->session->transaction)
+    {
+        ASSERT(it->type == CLIENTREQUEST_SET ||
+               it->type == CLIENTREQUEST_DELETE ||
+               it->type == CLIENTREQUEST_COMMIT_TRANSACTION);
+        message = messageCache.Acquire();
+        TransformRequest(it, message);            
+        message->clientRequest = it;
+        shardMessages.Append(message);
+    }
+
+    EventLoop::TryAdd(&tryAppend);
+}
+
+void ShardQuorumProcessor::RollbackTransaction(ClientRequest* request)
+{
+    ClientRequest* it;
+
+    if (!request->session->IsTransactional())
+    {
+        ASSERT(request->session->transaction.GetLength() == 0);
+        request->response.Failed();
+        request->OnComplete();
+        return;
+    }
+
+    if (request->session->transaction.GetLength() > 0)
+    {
+        if (request->session->transaction.Last()->type == CLIENTREQUEST_COMMIT_TRANSACTION)
+        {
+            // client already sent a commit, and
+            // shard messages are queued for replication
+            // and replication has possibly began
+            request->response.Failed();
+            request->OnComplete();
+            return;
+        }
+    }
+
+    FOREACH_POP(it, request->session->transaction)
+    {
+        ASSERT(it->type != CLIENTREQUEST_UNDEFINED);
+        it->response.NoResponse();
+        it->OnComplete(); // request deletes itself
+    }
+
+    LOCK_MANAGER->Unlock(request->session->lockKey);
+    Log_Debug("Lock %B released due to rollback.", &request->session->lockKey);
+
+    request->session->lockKey.Clear();
+
+    request->response.OK();
+    request->OnComplete();
 }

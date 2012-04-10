@@ -1857,6 +1857,69 @@ SWIGEXPORT int SWIGSTDCALL CSharp_SDBP_Cancel(void * jarg1) {
 }
 
 
+SWIGEXPORT int SWIGSTDCALL CSharp_SDBP_StartTransaction(void * jarg1, unsigned long long jarg2, char * jarg3) {
+  int jresult ;
+  ClientObj arg1 = (ClientObj) 0 ;
+  uint64_t arg2 ;
+  std::string *arg3 = 0 ;
+  int result;
+  
+  arg1 = (ClientObj)jarg1; 
+  arg2 = (uint64_t)jarg2; 
+  if (!jarg3) {
+    SWIG_CSharpSetPendingExceptionArgument(SWIG_CSharpArgumentNullException, "null string", 0);
+    return 0;
+  }
+  std::string arg3_str(jarg3);
+  arg3 = &arg3_str; 
+  result = (int)SDBP_StartTransaction(arg1,arg2,(std::string const &)*arg3);
+  jresult = result; 
+  return jresult;
+}
+
+
+SWIGEXPORT int SWIGSTDCALL CSharp_SDBP_StartTransactionCStr(void * jarg1, unsigned long long jarg2, char * jarg3, int jarg4) {
+  int jresult ;
+  ClientObj arg1 = (ClientObj) 0 ;
+  uint64_t arg2 ;
+  char *arg3 = (char *) 0 ;
+  int arg4 ;
+  int result;
+  
+  arg1 = (ClientObj)jarg1; 
+  arg2 = (uint64_t)jarg2; 
+  arg3 = (char *)jarg3; 
+  arg4 = (int)jarg4; 
+  result = (int)SDBP_StartTransactionCStr(arg1,arg2,arg3,arg4);
+  jresult = result; 
+  return jresult;
+}
+
+
+SWIGEXPORT int SWIGSTDCALL CSharp_SDBP_CommitTransaction(void * jarg1) {
+  int jresult ;
+  ClientObj arg1 = (ClientObj) 0 ;
+  int result;
+  
+  arg1 = (ClientObj)jarg1; 
+  result = (int)SDBP_CommitTransaction(arg1);
+  jresult = result; 
+  return jresult;
+}
+
+
+SWIGEXPORT int SWIGSTDCALL CSharp_SDBP_RollbackTransaction(void * jarg1) {
+  int jresult ;
+  ClientObj arg1 = (ClientObj) 0 ;
+  int result;
+  
+  arg1 = (ClientObj)jarg1; 
+  result = (int)SDBP_RollbackTransaction(arg1);
+  jresult = result; 
+  return jresult;
+}
+
+
 SWIGEXPORT void SWIGSTDCALL CSharp_SDBP_SetTrace(unsigned int jarg1) {
   bool arg1 ;
   

@@ -53,6 +53,7 @@ private:
     void                    SendItem(StorageKeyValue* kv);
     void                    OnWriteReadyness();
     void                    OnBlockShard();
+    void                    OnUnblockShard();
     void                    OnTimeout();
 
     bool                    isActive;

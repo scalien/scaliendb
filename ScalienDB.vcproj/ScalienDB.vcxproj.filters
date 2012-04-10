@@ -493,6 +493,12 @@
     <ClCompile Include="..\src\System\CrashReporter_Posix.cpp">
       <Filter>System</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\Application\Common\ClientSession.cpp">
+      <Filter>Application\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Application\ShardServer\ShardLockManager.cpp">
+      <Filter>Application\ShardServer</Filter>
+    </ClCompile>
     <ClCompile Include="..\src\Application\HTTP\JSONReader.cpp">
       <Filter>Application\HTTP</Filter>
     </ClCompile>
@@ -1004,6 +1010,9 @@
     <ClInclude Include="..\src\SourceControl.h" />
     <ClInclude Include="..\src\Framework\Storage\StorageLogManager.h">
       <Filter>Framework\Storage</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Application\ShardServer\ShardLockManager.h">
+      <Filter>Application\ShardServer</Filter>
     </ClInclude>
     <ClInclude Include="..\src\System\PointerGuard.h">
       <Filter>System</Filter>

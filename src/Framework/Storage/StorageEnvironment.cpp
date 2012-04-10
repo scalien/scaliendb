@@ -615,7 +615,7 @@ bool StorageEnvironment::Commit(uint64_t trackID, Callable& onCommit)
     Job*                job;
     StorageLogSegment*  logSegment;
 
-    Log_Debug("Commiting in track %U", trackID);
+    Log_Debug("Committing in track %U (async thread)", trackID);
     
     logSegment = logManager.GetHead(trackID);
     ASSERT(logSegment);
@@ -633,7 +633,7 @@ bool StorageEnvironment::Commit(uint64_t trackID)
     Job*                job;
     StorageLogSegment*  logSegment;
 
-    Log_Debug("Commiting in track %U (main thread)", trackID);
+    Log_Debug("Committing in track %U (main thread)", trackID);
 
     logSegment = logManager.GetHead(trackID);
     ASSERT(logSegment);
@@ -1453,7 +1453,7 @@ void StorageEnvironment::OnChunkWrite(StorageWriteChunkJob* job)
     WriteTOC();
     TryArchiveLogSegments();
     TryWriteChunks();
-    TryMergeChunks();    
+    TryMergeChunks();
     delete job;
 }
 
@@ -1504,7 +1504,6 @@ void StorageEnvironment::OnChunkMerge(StorageMergeChunkJob* job)
     }
     else
     {
-        DEBUG_ASSERT(!job->mergeChunk->IsEmpty());
         deleteChunkJobs.Execute(new StorageDeleteFileChunkJob(job->mergeChunk));
     }
     

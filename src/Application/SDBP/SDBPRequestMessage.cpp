@@ -3,6 +3,7 @@
 bool SDBPRequestMessage::Read(ReadBuffer& buffer)
 {
     int         read;
+    char        transactional;
     unsigned    i, numNodes;
     uint64_t    nodeID;
     ReadBuffer  optional;
@@ -10,6 +11,13 @@ bool SDBPRequestMessage::Read(ReadBuffer& buffer)
     if (buffer.GetLength() < 1)
         return false;
     
+    read = buffer.Readf("%c:", &transactional);
+    if (read == 2 && transactional == CLIENTREQUEST_TRANSACTIONAL)
+    {
+        request->transactional = true;
+        buffer.Advance(read);
+    }
+
     switch (buffer.GetCharAt(0))
     {
         /* Master query */
@@ -167,7 +175,6 @@ bool SDBPRequestMessage::Read(ReadBuffer& buffer)
              &request->type, &request->commandID, &request->configPaxosID,
              &request->tableID, &request->key);
             break;
-
         case CLIENTREQUEST_SEQUENCE_SET:
             read = buffer.Readf("%c:%U:%U:%U:%#B:%U",
              &request->type, &request->commandID, &request->configPaxosID,
@@ -178,7 +185,6 @@ bool SDBPRequestMessage::Read(ReadBuffer& buffer)
              &request->type, &request->commandID, &request->configPaxosID,
              &request->tableID, &request->key);
             break;
-
         case CLIENTREQUEST_LIST_KEYS:
         case CLIENTREQUEST_LIST_KEYVALUES:
             read = buffer.Readf("%c:%U:%U:%#B:%#B:%#B:%U:%b",
@@ -186,19 +192,25 @@ bool SDBPRequestMessage::Read(ReadBuffer& buffer)
              &request->tableID, &request->key, &request->endKey, &request->prefix,
              &request->count, &request->forwardDirection);
             break;
-
         case CLIENTREQUEST_COUNT:
             read = buffer.Readf("%c:%U:%U:%U:%#B:%#B:%#B:%b",
              &request->type, &request->commandID, &request->configPaxosID,
              &request->tableID, &request->key, &request->endKey, &request->prefix,
              &request->forwardDirection);
             break;
-            
-        case CLIENTREQUEST_SUBMIT:
-            read = buffer.Readf("%c:%U",
-             &request->type, &request->quorumID);
-            break;
         
+        /* Transactions */
+        case CLIENTREQUEST_START_TRANSACTION:
+            read = buffer.Readf("%c:%U:%U:%U:%#B",
+             &request->type, &request->commandID, &request->configPaxosID,
+             &request->quorumID, &request->key);
+            break;
+        case CLIENTREQUEST_COMMIT_TRANSACTION:
+        case CLIENTREQUEST_ROLLBACK_TRANSACTION:
+            read = buffer.Readf("%c:%U:%U",
+             &request->type, &request->commandID, &request->quorumID);
+            break;
+            
         default:
             return false;
     }
@@ -210,6 +222,9 @@ bool SDBPRequestMessage::Write(Buffer& buffer)
 {
     uint64_t*   it;
     
+    if (request->transactional)
+        buffer.Appendf("%c:", CLIENTREQUEST_TRANSACTIONAL);
+
     switch (request->type)
     {
         /* Master query */
@@ -348,13 +363,11 @@ bool SDBPRequestMessage::Write(Buffer& buffer)
              request->type, request->commandID, request->configPaxosID,
              request->tableID, &request->key);
             return true;
-        
         case CLIENTREQUEST_TEST_AND_DELETE:
             buffer.Appendf("%c:%U:%U:%U:%#B:%#B",
              request->type, request->commandID, request->configPaxosID,
              request->tableID, &request->key, &request->test);
             return true;
-
         case CLIENTREQUEST_SEQUENCE_SET:
             buffer.Appendf("%c:%U:%U:%U:%#B:%U",
              request->type, request->commandID, request->configPaxosID,
@@ -365,7 +378,6 @@ bool SDBPRequestMessage::Write(Buffer& buffer)
              request->type, request->commandID, request->configPaxosID,
              request->tableID, &request->key);
             return true;
-
         case CLIENTREQUEST_LIST_KEYS:
         case CLIENTREQUEST_LIST_KEYVALUES:
             buffer.Appendf("%c:%U:%U:%#B:%#B:%#B:%U:%b",
@@ -379,10 +391,18 @@ bool SDBPRequestMessage::Write(Buffer& buffer)
              request->tableID, &request->key, &request->endKey, &request->prefix,
              request->forwardDirection);
             return true;
-            
-        case CLIENTREQUEST_SUBMIT:
-            buffer.Appendf("%c:%U", request->type, request->quorumID);
-            return true;
+        
+        /* Transactions */
+        case CLIENTREQUEST_START_TRANSACTION:
+            buffer.Appendf("%c:%U:%U:%U:%#B",
+             request->type, request->commandID, request->configPaxosID,
+             request->quorumID, &request->key);
+            return true;            
+        case CLIENTREQUEST_COMMIT_TRANSACTION:
+        case CLIENTREQUEST_ROLLBACK_TRANSACTION:
+            buffer.Appendf("%c:%U:%U",
+             request->type, request->commandID, request->quorumID);
+            return true;            
 
         default:
             return false;

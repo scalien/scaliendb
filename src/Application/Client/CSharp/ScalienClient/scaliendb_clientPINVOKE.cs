@@ -506,6 +506,18 @@ class scaliendb_clientPINVOKE {
   [DllImport("scaliendb_client", EntryPoint="CSharp_SDBP_Cancel")]
   public static extern int SDBP_Cancel(HandleRef jarg1);
 
+  [DllImport("scaliendb_client", EntryPoint="CSharp_SDBP_StartTransaction")]
+  public static extern int SDBP_StartTransaction(HandleRef jarg1, ulong jarg2, string jarg3);
+
+  [DllImport("scaliendb_client", EntryPoint="CSharp_SDBP_StartTransactionCStr")]
+  public static extern int SDBP_StartTransactionCStr(HandleRef jarg1, ulong jarg2, IntPtr jarg3, int jarg4);
+
+  [DllImport("scaliendb_client", EntryPoint="CSharp_SDBP_CommitTransaction")]
+  public static extern int SDBP_CommitTransaction(HandleRef jarg1);
+
+  [DllImport("scaliendb_client", EntryPoint="CSharp_SDBP_RollbackTransaction")]
+  public static extern int SDBP_RollbackTransaction(HandleRef jarg1);
+
   [DllImport("scaliendb_client", EntryPoint="CSharp_SDBP_SetTrace")]
   public static extern void SDBP_SetTrace(bool jarg1);
 

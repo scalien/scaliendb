@@ -401,6 +401,27 @@ public class scaliendb_client {
     return ret;
   }
 
+  public unsafe static int SDBP_StartTransaction(SWIGTYPE_p_void client, ulong quorumID, string majorKey) {
+    int ret = scaliendb_clientPINVOKE.SDBP_StartTransaction(SWIGTYPE_p_void.getCPtr(client), quorumID, majorKey);
+    if (scaliendb_clientPINVOKE.SWIGPendingException.Pending) throw scaliendb_clientPINVOKE.SWIGPendingException.Retrieve();
+    return ret;
+  }
+
+  public unsafe static int SDBP_StartTransactionCStr(SWIGTYPE_p_void client, ulong quorumID, IntPtr majorKey, int majorKeyLen) {
+    int ret = scaliendb_clientPINVOKE.SDBP_StartTransactionCStr(SWIGTYPE_p_void.getCPtr(client), quorumID, majorKey, majorKeyLen);
+    return ret;
+  }
+
+  public unsafe static int SDBP_CommitTransaction(SWIGTYPE_p_void client) {
+    int ret = scaliendb_clientPINVOKE.SDBP_CommitTransaction(SWIGTYPE_p_void.getCPtr(client));
+    return ret;
+  }
+
+  public unsafe static int SDBP_RollbackTransaction(SWIGTYPE_p_void client) {
+    int ret = scaliendb_clientPINVOKE.SDBP_RollbackTransaction(SWIGTYPE_p_void.getCPtr(client));
+    return ret;
+  }
+
   public unsafe static void SDBP_SetTrace(bool trace) {
     scaliendb_clientPINVOKE.SDBP_SetTrace(trace);
   }

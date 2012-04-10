@@ -645,6 +645,7 @@ namespace Scalien
                     status = scaliendb_client.SDBP_GetCStr(cptr, tableID, ipKey, key.Length);
                 }
             }
+
             if (status < 0)
             {
                 if (status == Status.SDBP_FAILED)
@@ -668,6 +669,7 @@ namespace Scalien
         internal void Set(ulong tableID, byte[] key, byte[] value)
         {
             int status;
+
             unsafe
             {
                 fixed (byte* pKey = key, pValue = value)
@@ -677,6 +679,7 @@ namespace Scalien
                     status = scaliendb_client.SDBP_SetCStr(cptr, tableID, ipKey, key.Length, ipValue, value.Length);
                 }
             }
+            
             result = new Result(scaliendb_client.SDBP_GetResult(cptr));
             if (status < 0)
             {
@@ -696,6 +699,7 @@ namespace Scalien
         internal long Add(ulong tableID, byte[] key, long value)
         {
             int status;
+
             unsafe
             {
                 fixed (byte* pKey = key)
@@ -704,12 +708,12 @@ namespace Scalien
                     status = scaliendb_client.SDBP_AddCStr(cptr, tableID, ipKey, key.Length, value);
                 }
             }
+            
             result = new Result(scaliendb_client.SDBP_GetResult(cptr));
             if (status < 0)
             {
                 CheckStatus(status);
             }
-
             long number = result.GetSignedNumber();
             result.Close();
             return number;
@@ -723,6 +727,7 @@ namespace Scalien
         internal void Delete(ulong tableID, byte[] key)
         {
             int status;
+            
             unsafe
             {
                 fixed (byte* pKey = key)
@@ -731,6 +736,7 @@ namespace Scalien
                     status = scaliendb_client.SDBP_DeleteCStr(cptr, tableID, ipKey, key.Length);
                 }
             }
+            
             result = new Result(scaliendb_client.SDBP_GetResult(cptr));
             if (status < 0)
             {
@@ -750,6 +756,7 @@ namespace Scalien
         internal void SequenceSet(ulong tableID, byte[] key, ulong value)
         {
             int status;
+
             unsafe
             {
                 fixed (byte* pKey = key)
@@ -758,12 +765,12 @@ namespace Scalien
                     status = scaliendb_client.SDBP_SequenceSetCStr(cptr, tableID, ipKey, key.Length, value);
                 }
             }
+            
             result = new Result(scaliendb_client.SDBP_GetResult(cptr));
             if (status < 0)
             {
                 CheckStatus(status);
             }
-
             result.Close();
         }
 
@@ -775,6 +782,7 @@ namespace Scalien
         internal ulong SequenceNext(ulong tableID, byte[] key)
         {
             int status;
+
             unsafe
             {
                 fixed (byte* pKey = key)
@@ -783,12 +791,12 @@ namespace Scalien
                     status = scaliendb_client.SDBP_SequenceNextCStr(cptr, tableID, ipKey, key.Length);
                 }
             }
+            
             result = new Result(scaliendb_client.SDBP_GetResult(cptr));
             if (status < 0)
             {
                 CheckStatus(status);
             }
-
             ulong number = result.GetNumber();
             result.Close();
             return number;
@@ -813,6 +821,7 @@ namespace Scalien
                     status = scaliendb_client.SDBP_CountCStr(cptr, tableID, ipStartKey, ps.startKey.Length, ipEndKey, ps.endKey.Length, ipPrefix, ps.prefix.Length, ps.forwardDirection);
                 }
             }
+
             CheckResultStatus(status);
             ulong number = result.GetNumber();
             result.Close();
@@ -824,14 +833,14 @@ namespace Scalien
         #region Submit, Cancel
 
         /// <summary>
-        /// Begin a client-side transaction.
+        /// Begin a client-side batch of commands.
         /// </summary>
         /// <remarks>
         /// Return a <see cref="Scalien.Submitter"/> object that will automatically call <see cref="Submit()"/> when it goes out of scope.
         /// </remarks>
         /// <returns>A <see cref="Scalien.Submitter"/> object that will automatically call <see cref="Submit()"/> when it goes out of scope.</returns>
         /// <seealso cref="Submit()"/>
-        /// <seealso cref="Rollback()"/>
+        /// <seealso cref="Cancel()"/>
         public Submitter Begin()
         {
             return new Submitter(this);
@@ -841,7 +850,7 @@ namespace Scalien
         /// Send the batched operations to the ScalienDB server.
         /// </summary>
         /// <seealso cref="Begin()"/>
-        /// <seealso cref="Rollback()"/>
+        /// <seealso cref="Cancel()"/>
         public void Submit()
         {
             int status = scaliendb_client.SDBP_Submit(cptr);
@@ -853,9 +862,100 @@ namespace Scalien
         /// </summary>
         /// <seealso cref="Begin()"/>
         /// <seealso cref="Submit()"/>
-        public void Rollback()
+        public void Cancel()
         {
             int status = scaliendb_client.SDBP_Cancel(cptr);
+            CheckStatus(status);
+        }
+
+        #endregion
+
+        #region Transactions
+
+        /// <summary>
+        /// Start a real, server-side transaction.
+        /// </summary>
+        /// <remarks>
+        /// Return a <see cref="Scalien.Rollbacker"/> object that will automatically call <see cref="RollbackTransaction()"/> when it goes out of scope.
+        /// </remarks>
+        /// <returns>A <see cref="Scalien.Rollbacker"/> object that will automatically call <see cref="RollbackTransaction()"/> when it goes out of scope.</returns>
+        /// <seealso cref="StartTransaction()"/>
+        /// <seealso cref="CommitTransaction()"/>
+        /// <seealso cref="RollbackTransaction()"/>
+        public Rollbacker Transaction(Quorum quorum, string majorKey)
+        {
+            return Transaction(quorum, StringToByteArray(majorKey));
+        }
+
+        /// <summary>
+        /// Start a real, server-side transaction.
+        /// </summary>
+        /// <remarks>
+        /// Return a <see cref="Scalien.Committer"/> object that will automatically call <see cref="Commit()"/> when it goes out of scope.
+        /// </remarks>
+        /// <returns>A <see cref="Scalien.Committer"/> object that will automatically call <see cref="Commit()"/> when it goes out of scope.</returns>
+        /// <seealso cref="Submit()"/>
+        /// <seealso cref="Cancel()"/>
+        public Rollbacker Transaction(Quorum quorum, byte[] majorKey)
+        {
+            return new Rollbacker(this, quorum, majorKey);
+        }
+
+        /// <summary>
+        /// Start  transaction inside the quorum on majorKey
+        /// </summary>
+        /// <seealso cref="CommitTransaction()"/>
+        /// <seealso cref="RollbackTransaction()"/>
+        public void StartTransaction(Quorum quorum, string majorKey)
+        {
+            StartTransaction(quorum, StringToByteArray(majorKey));
+        }
+
+        /// <summary>
+        /// Start  transaction inside the quorum on majorKey
+        /// </summary>
+        /// <seealso cref="CommitTransaction()"/>
+        /// <seealso cref="RollbackTransaction()"/>
+        public void StartTransaction(Quorum quorum, byte[] majorKey)
+        {
+            int status;
+
+            unsafe
+            {
+                fixed (byte* pKey = majorKey)
+                {
+                    IntPtr ipKey = new IntPtr(pKey);
+                    status = scaliendb_client.SDBP_StartTransactionCStr(cptr, quorum.QuorumID, ipKey, majorKey.Length);
+                }
+            }
+
+            result = new Result(scaliendb_client.SDBP_GetResult(cptr));
+            if (status < 0)
+            {
+                CheckStatus(status);
+            }
+            result.Close();
+        }
+
+        /// <summary>
+        /// Commit current transaction
+        /// </summary>
+        /// <seealso cref="StartTransaction()"/>
+        /// <seealso cref="RollbackTransaction()"/>
+        public void CommitTransaction()
+        {
+            int status = scaliendb_client.SDBP_CommitTransaction(cptr);
+            CheckStatus(status);
+        }
+
+        /// <summary>
+        /// Rollback current transaction
+        /// </summary>
+        /// <seealso cref="StartTransaction()"/>
+        /// <seealso cref="CommitTransaction()"/>
+        public void RollbackTransaction()
+        {
+            int status = scaliendb_client.SDBP_RollbackTransaction(cptr);
             CheckStatus(status);
         }
 

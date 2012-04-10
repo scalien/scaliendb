@@ -101,8 +101,8 @@ public:
     //    
     int                     Get(uint64_t tableID, const ReadBuffer& key);
     int                     Set(uint64_t tableID, const ReadBuffer& key, const ReadBuffer& value);
-    int                     Add(uint64_t tableID, const ReadBuffer& key, int64_t number);
     int                     Delete(uint64_t tableID, const ReadBuffer& key);
+    int                     Add(uint64_t tableID, const ReadBuffer& key, int64_t number);
     int                     SequenceSet(uint64_t tableID, const ReadBuffer& key, const uint64_t value);
     int                     SequenceNext(uint64_t tableID, const ReadBuffer& key);
 
@@ -116,10 +116,16 @@ public:
     int                     Filter(uint64_t tableID, const ReadBuffer& startKey, const ReadBuffer& endKey,
                              const ReadBuffer& prefix, unsigned count, uint64_t& commandID);
     int                     Receive(uint64_t commandID);
-    
+
+    // Batching
     int                     Begin();
     int                     Submit();
     int                     Cancel();
+
+    // Transactions
+    int                     StartTransaction(uint64_t quorumID, const ReadBuffer& majorKey);
+    int                     CommitTransaction();
+    int                     RollbackTransaction();
 
     void                    Lock();
     void                    Unlock();
@@ -136,7 +142,8 @@ private:
     friend class            ShardConnection;
     friend class            Table;
     
-    int                     ShardRequest(Request* req);
+    int                     PassthroughRequest(Request* req);
+    int                     ProxiedRequest(Request* req);
     int                     ConfigRequest(Request* req);
 
     void                    ClearRequests();
@@ -181,10 +188,12 @@ private:
     void                    TryWake();
     bool                    IsShuttingDown();
     void                    IOThreadFunc();
+    bool                    InTransaction();
     
     uint64_t                commandID;
     int                     connectivityStatus;
     int                     timeoutStatus;
+    int                     transactionStatus;
     Countdown               globalTimeout;
     Countdown               masterTimeout;
     ConfigState             configState;
@@ -200,6 +209,8 @@ private:
     uint64_t                highestSeenPaxosID;
     YieldTimer              onClientShutdown;
     unsigned                numControllerRequests;
+    int                     numNestedTransactions;
+    uint64_t                transactionQuorumID;
 
 //#ifdef CLIENT_MULTITHREAD
     Signal                  isDone;

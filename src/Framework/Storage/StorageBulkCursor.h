@@ -26,7 +26,7 @@ public:
 
     void                    SetEnvironment(StorageEnvironment* env);
     void                    SetShard(uint64_t contextID_, uint64_t shardID);
-    void                    SetOnBlockShard(Callable onBlockShard);
+    void                    SetOnBlockShard(Callable onBlockShard, Callable onUnblockShard);
     
     StorageKeyValue*        First();
     StorageKeyValue*        Next(StorageKeyValue* it);
@@ -48,10 +48,12 @@ private:
     uint64_t                logSegmentID;
     uint64_t                logCommandID;
     Callable                onBlockShard;
+    Callable                onUnblockShard;
     StorageShard*           shard;
     StorageEnvironment*     env;
     Buffer                  nextKey;
     StorageDataPage         dataPage;
+    int                     blockCounter;
 };
 
 #endif

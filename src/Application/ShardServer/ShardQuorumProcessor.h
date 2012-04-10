@@ -115,8 +115,7 @@ public:
 
     uint64_t                GetMigrateShardID();
     void                    OnShardMigrationClusterMessage(uint64_t nodeID, ClusterMessage& message);
-    void                    OnBlockShard(uint64_t shardID);
-    uint64_t                GetBlockedShardID();
+    void                    SetBlockReplication(bool blockReplication);
     
     uint64_t                GetMessageCacheSize();
     uint64_t                GetMessageListSize();
@@ -147,8 +146,10 @@ private:
                              ShardMessage* message, bool ownCommand);
     void                    TryAppend();
     void                    OnResumeAppend();
-    void                    BlockShard();
-    void                    OnUnblockShardTimeout();
+    void                    OnResumeBlockedAppend();
+    void                    StartTransaction(ClientRequest* request);
+    void                    CommitTransaction(ClientRequest* request);
+    void                    RollbackTransaction(ClientRequest* request);
 
     bool                    isPrimary;
     uint64_t                highestProposalID;
@@ -167,17 +168,17 @@ private:
     uint64_t                migrateNodeID;
     uint64_t                migrateShardID;
     int64_t                 migrateCache; // in bytes
-    uint64_t                blockedShardID;
+    bool                    blockReplication;
     
     ShardCatchupReader      catchupReader;
     ShardCatchupWriter      catchupWriter;
 
     Countdown               requestLeaseTimeout;
     Countdown               activationTimeout;
-    Countdown               unblockShardTimeout;
     Timer                   leaseTimeout;
     YieldTimer              tryAppend;
     YieldTimer              resumeAppend;
+    Countdown               resumeBlockedAppend;
 };
 
 #endif

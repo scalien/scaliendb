@@ -1003,6 +1003,48 @@ int SDBP_Cancel(ClientObj client_)
 /*
 ===============================================================================================
 
+ Grouping commands
+
+===============================================================================================
+*/
+
+int SDBP_StartTransaction(ClientObj client_, uint64_t quorumID, const std::string& majorKey_)
+{
+    Client*     client = (Client*) client_;
+    ReadBuffer  majorKey;
+    
+    majorKey.Wrap((char*) majorKey_.c_str(), majorKey_.length());
+    
+    return client->StartTransaction(quorumID, majorKey);
+}
+
+int SDBP_StartTransactionCStr(ClientObj client_, uint64_t quorumID, char* majorKey_, int majorKeyLen)
+{
+    Client*     client = (Client*) client_;
+    ReadBuffer  majorKey;
+    
+    majorKey.Wrap(majorKey_, majorKeyLen);
+    
+    return client->StartTransaction(quorumID, majorKey);
+}
+
+int SDBP_CommitTransaction(ClientObj client_)
+{
+    Client*     client = (Client*) client_;
+
+    return client->CommitTransaction();
+}
+
+int SDBP_RollbackTransaction(ClientObj client_)
+{
+    Client*     client = (Client*) client_;
+    
+    return client->RollbackTransaction();
+}
+
+/*
+===============================================================================================
+
  Debugging
 
 ===============================================================================================

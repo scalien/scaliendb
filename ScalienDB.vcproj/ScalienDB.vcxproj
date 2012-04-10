@@ -188,6 +188,8 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\src\Application\Common\ClientSession.cpp" />
+    <ClCompile Include="..\src\Application\ShardServer\ShardLockManager.cpp" />
     <ClCompile Include="..\src\Application\HTTP\JSONReader.cpp" />
     <ClCompile Include="..\src\Framework\Storage\StorageLogManager.cpp" />
     <ClCompile Include="..\src\System\Common.cpp" />
@@ -330,6 +332,7 @@
     <ClCompile Include="..\src\Main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\src\Application\ShardServer\ShardLockManager.h" />
     <ClInclude Include="..\src\Application\HTTP\JSONReader.h" />
     <ClInclude Include="..\src\Framework\Storage\StorageLogManager.h" />
     <ClInclude Include="..\src\SourceControl.h" />

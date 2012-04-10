@@ -4,9 +4,9 @@
 #include "System/Containers/List.h"
 #include "System/Buffers/ReadBuffer.h"
 #include "ClientResponse.h"
-#include "ClientSession.h"
 
 #define CLIENTREQUEST_UNDEFINED                         ' '
+#define CLIENTREQUEST_TRANSACTIONAL                     'T'
 #define CLIENTREQUEST_GET_MASTER                        'm'
 #define CLIENTREQUEST_GET_MASTER_HTTP                   'H'
 #define CLIENTREQUEST_GET_CONFIG_STATE                  'A'
@@ -44,7 +44,9 @@
 #define CLIENTREQUEST_COUNT                             'O'
 #define CLIENTREQUEST_SPLIT_SHARD                       'h'
 #define CLIENTREQUEST_MIGRATE_SHARD                     'M'
-#define CLIENTREQUEST_SUBMIT                            '*'
+#define CLIENTREQUEST_START_TRANSACTION                 '<'
+#define CLIENTREQUEST_COMMIT_TRANSACTION                '>'
+#define CLIENTREQUEST_ROLLBACK_TRANSACTION              '~'
 
 class ClientSession; // forward
 
@@ -69,120 +71,123 @@ public:
     bool            IsShardServerRequest();
     bool            IsReadRequest();
     bool            IsList();
+    bool            IsTransaction();
     bool            IsActive();
     
     // Master query
-    bool            GetMaster(
+    void            GetMaster(
                      uint64_t commandID);
-    bool            GetMasterHTTP(
+    void            GetMasterHTTP(
                      uint64_t commandID);
 
     // Get config state: databases, tables, shards, quora
-    bool            GetConfigState(
+    void            GetConfigState(
                      uint64_t commandID, uint64_t changeTimeout = 0);
 
     // Shard servers
-    bool            UnregisterShardServer(
+    void            UnregisterShardServer(
                      uint64_t commandID, uint64_t nodeID);
 
     // Quorum management
-    bool            CreateQuorum(
+    void            CreateQuorum(
                      uint64_t commandID, ReadBuffer& name, List<uint64_t>& nodes);
-    bool            RenameQuorum(
+    void            RenameQuorum(
                      uint64_t commandID, uint64_t quorumID, ReadBuffer& name);
-    bool            DeleteQuorum(
+    void            DeleteQuorum(
                      uint64_t commandID, uint64_t quorumID);
-    bool            AddShardServerToQuorum(
+    void            AddShardServerToQuorum(
                      uint64_t commandID, uint64_t quorumID, uint64_t nodeID);
-    bool            RemoveShardServerFromQuorum(
+    void            RemoveShardServerFromQuorum(
                      uint64_t commandID, uint64_t quorumID, uint64_t nodeID);
-    bool            ActivateShardServer(
+    void            ActivateShardServer(
                      uint64_t commandID, uint64_t nodeID);
-    bool            SetPriority(
+    void            SetPriority(
                      uint64_t commandID, uint64_t quorumID, uint64_t nodeID, uint64_t priority);
     
     // Database management
-    bool            CreateDatabase(
+    void            CreateDatabase(
                      uint64_t commandID, ReadBuffer& name);
-    bool            RenameDatabase(
+    void            RenameDatabase(
                      uint64_t commandID, uint64_t databaseID, ReadBuffer& name);
-    bool            DeleteDatabase(
+    void            DeleteDatabase(
                      uint64_t commandID, uint64_t databaseID);
     
     // Table management
-    bool            CreateTable(
+    void            CreateTable(
                      uint64_t commandID, uint64_t databaseID, uint64_t quorumID, ReadBuffer& name);
-    bool            RenameTable(
+    void            RenameTable(
                      uint64_t commandID, uint64_t tableID, ReadBuffer& name);
-    bool            DeleteTable(
+    void            DeleteTable(
                      uint64_t commandID, uint64_t tableID);
-    bool            TruncateTable(
+    void            TruncateTable(
                      uint64_t commandID, uint64_t tableID);
-    bool            SplitShard(
+    void            SplitShard(
                      uint64_t commandID, uint64_t shardID, ReadBuffer& key);
-    bool            FreezeTable(
+    void            FreezeTable(
                      uint64_t commandID, uint64_t tableID);
-    bool            UnfreezeTable(
+    void            UnfreezeTable(
                      uint64_t commandID, uint64_t tableID);
-    bool            MigrateShard(
+    void            MigrateShard(
                      uint64_t commandID, uint64_t shardID, uint64_t quorumID);
     
     // Data manipulations
-    bool            Get(
+    void            Get(
                      uint64_t commandID, uint64_t configPaxosID,
                      uint64_t tableID, ReadBuffer& key);
-    bool            Set(
+    void            Set(
                      uint64_t commandID, uint64_t configPaxosID,
                      uint64_t tableID, ReadBuffer& key, ReadBuffer& value);
-    bool            SetIfNotExists(
+    void            SetIfNotExists(
                      uint64_t commandID, uint64_t configPaxosID,
                      uint64_t tableID, ReadBuffer& key, ReadBuffer& value);
-    bool            TestAndSet(
+    void            TestAndSet(
                      uint64_t commandID, uint64_t configPaxosID,
                      uint64_t tableID, ReadBuffer& key, ReadBuffer& test, ReadBuffer& value);
-    bool            TestAndDelete(
+    void            TestAndDelete(
                      uint64_t commandID, uint64_t configPaxosID,
                      uint64_t tableID, ReadBuffer& key, ReadBuffer& test);
-    bool            GetAndSet(
+    void            GetAndSet(
                      uint64_t commandID, uint64_t configPaxosID,
                      uint64_t tableID, ReadBuffer& key, ReadBuffer& value);
-    bool            Add(
+    void            Add(
                      uint64_t commandID, uint64_t configPaxosID,
                      uint64_t tableID, ReadBuffer& key, int64_t number);
-    bool            Append(
+    void            Append(
                      uint64_t commandID, uint64_t configPaxosID,
                      uint64_t tableID, ReadBuffer& key, ReadBuffer& value);
-    bool            Delete(
+    void            Delete(
                      uint64_t commandID, uint64_t configPaxosID,
                      uint64_t tableID, ReadBuffer& key);    
-    bool            Remove(
+    void            Remove(
                      uint64_t commandID, uint64_t configPaxosID,
                      uint64_t tableID, ReadBuffer& key);
-    bool            SequenceSet(
+    void            SequenceSet(
                      uint64_t commandID, uint64_t configPaxosID,
                      uint64_t tableID, ReadBuffer& key, uint64_t sequence);
-    bool            SequenceNext(
+    void            SequenceNext(
                      uint64_t commandID, uint64_t configPaxosID,
                      uint64_t tableID, ReadBuffer& key);
-    bool            ListKeys(
+    void            ListKeys(
                      uint64_t commandID, uint64_t configPaxosID,
                      uint64_t tableID, 
                      ReadBuffer& startKey, ReadBuffer& endKey, ReadBuffer& prefix,
                      unsigned count, bool forwardDirection);
-    bool            ListKeyValues(
+    void            ListKeyValues(
                      uint64_t commandID, uint64_t configPaxosID,
                      uint64_t tableID,
                      ReadBuffer& startKey, ReadBuffer& endKey, ReadBuffer& prefix,
                      unsigned count, bool forwardDirection);
-    bool            Count(
+    void            Count(
                      uint64_t commandID, uint64_t configPaxosID,
                      uint64_t tableID,
                      ReadBuffer& startKey, ReadBuffer& endKey, ReadBuffer& prefix,
                      bool forwardDirection);
 
-
-    bool            Submit(
-                     uint64_t quorumID);
+    // Transactions
+    void            StartTransaction(uint64_t commandID, uint64_t configPaxosID,
+                     uint64_t quorumID, ReadBuffer& majorKey);
+    void            CommitTransaction(uint64_t commandID, uint64_t quorumID);
+    void            RollbackTransaction(uint64_t commandID, uint64_t quorumID);
 
     // Variables
     ClientResponse  response;
@@ -193,6 +198,7 @@ public:
 
     bool            forwardDirection;
     bool            findByLastKey;
+    bool            transactional;
     char            type;
     uint64_t        commandID;
     uint64_t        quorumID;
