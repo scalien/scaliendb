@@ -427,6 +427,7 @@ void ShardQuorumProcessor::OnLeaseTimeout()
     migrateNodeID = 0;
     migrateCache = 0;
 
+    LOCK_MANAGER->UnlockAll();
     DATABASE_MANAGER->OnLeaseTimeout();
 }
 
