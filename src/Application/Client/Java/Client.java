@@ -577,8 +577,7 @@ public class Client
      * @see #commitTransaction()
      * @see #rollbackTransaction()
      */
-    public void startTransaction(Quorum quorum, String majorKey) throws SDBPException
-    {
+    public void startTransaction(Quorum quorum, String majorKey) throws SDBPException {
         startTransaction(quorum, stringToByteArray(majorKey));
     }
     
@@ -587,8 +586,7 @@ public class Client
      * @see #commitTransaction()
      * @see #rollbackTransaction()
      */
-    public void startTransaction(Quorum quorum, byte[] majorKey) throws SDBPException
-    {
+    public void startTransaction(Quorum quorum, byte[] majorKey) throws SDBPException {
         int status = scaliendb_client.SDBP_StartTransactionCStr(cptr, quorum.getQuorumID(), majorKey, majorKey.length);
         result = new Result(scaliendb_client.SDBP_GetResult(cptr));
         checkStatus(status);
@@ -599,8 +597,7 @@ public class Client
      * @see #startTransaction()
      * @see #rollbackTransaction()
      */
-    public void commitTransaction() throws SDBPException
-    {
+    public void commitTransaction() throws SDBPException {
         int status = scaliendb_client.SDBP_CommitTransaction(cptr);
         checkStatus(status);
     }
@@ -610,8 +607,7 @@ public class Client
      * @see #startTransaction()
      * @see #commitTransaction()
      */
-    public void rollbackTransaction() throws SDBPException
-    {
+    public void rollbackTransaction() throws SDBPException {
         int status = scaliendb_client.SDBP_RollbackTransaction(cptr);
         checkStatus(status);
     }
