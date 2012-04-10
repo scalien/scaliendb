@@ -227,7 +227,15 @@ void ShardHTTPClientSession::PrintStatus()
         if (paxosID > highestPaxosID)
             highestPaxosID = paxosID;
         elapsed = (EventLoop::Now() - it->GetLastLearnChosenTime()) / 1000.0;
-        valbuf.Writef("primary: %U, paxosID: %U/%U, Seconds since last replication: %U", primaryID, paxosID, highestPaxosID, elapsed);
+        if (it->GetLastLearnChosenTime() > 0)
+        {
+            valbuf.Writef("primary: %U, paxosID: %U/%U, Seconds since last replication: %U", primaryID, paxosID, highestPaxosID, elapsed);
+        }
+        else
+        {
+            valbuf.Writef("primary: %U, paxosID: %U/%U, No replication round seen since start...", primaryID, paxosID, highestPaxosID);
+        }
+
         if (it->IsCatchupActive())
         {
             valbuf.Appendf(", catchup active (sent: %s/%s, aggregate throughput: %s/s)",

@@ -127,10 +127,17 @@ void ConfigHTTPClientSession::PrintStatus()
     buf.NullTerminate();
     session.PrintPair("Round", buf.GetBuffer());
 
-    elapsed = (EventLoop::Now() - configServer->GetQuorumProcessor()->GetLastLearnChosenTime()) / 1000.0;
-    buf.Writef("%U", elapsed);
-    buf.NullTerminate();
-    session.PrintPair("Seconds since last replication", buf.GetBuffer());
+    if (configServer->GetQuorumProcessor()->GetLastLearnChosenTime() > 0)
+    {
+        elapsed = (EventLoop::Now() - configServer->GetQuorumProcessor()->GetLastLearnChosenTime()) / 1000.0;
+        buf.Writef("%U", elapsed);
+        buf.NullTerminate();
+        session.PrintPair("Seconds since last replication", buf.GetBuffer());
+    }
+    else
+    {
+        session.Print("No replication round seen since start...");
+    }
 
     buf.Writef("%u", configServer->GetNumSDBPClients());
     buf.NullTerminate();
