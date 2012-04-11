@@ -140,6 +140,8 @@
 		78CD47AF130C26B40022BC9F /* StorageMemoChunkLister.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 78CD47AD130C26B40022BC9F /* StorageMemoChunkLister.cpp */; };
 		78CD47B2130C26C30022BC9F /* StorageFileChunkLister.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 78CD47B1130C26C30022BC9F /* StorageFileChunkLister.cpp */; };
 		78CD47B3130C26C30022BC9F /* StorageFileChunkLister.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 78CD47B1130C26C30022BC9F /* StorageFileChunkLister.cpp */; };
+		9A2FEBCA1535E18F003EC62D /* StorageFileDeleter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9A2FEBC81535E18F003EC62D /* StorageFileDeleter.cpp */; };
+		9A2FEBCB1535E18F003EC62D /* StorageFileDeleter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9A2FEBC81535E18F003EC62D /* StorageFileDeleter.cpp */; };
 		9A466D60135F435300108B07 /* JSONBufferWriter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9A466D5F135F435300108B07 /* JSONBufferWriter.cpp */; };
 		9A466D61135F435300108B07 /* JSONBufferWriter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9A466D5F135F435300108B07 /* JSONBufferWriter.cpp */; };
 		9A4671891366FEDC00108B07 /* EndpointTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9A4671881366FEDC00108B07 /* EndpointTest.cpp */; };
@@ -618,6 +620,8 @@
 		9A07FAA9138E848A00AED738 /* Result.cs */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = Result.cs; path = Client/CSharp/ScalienClient/Result.cs; sourceTree = "<group>"; };
 		9A07FAAA138E848A00AED738 /* Status.cs */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = Status.cs; path = Client/CSharp/ScalienClient/Status.cs; sourceTree = "<group>"; };
 		9A2FEB98150F6847003EC62D /* NativeLoader.cs */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = NativeLoader.cs; path = Client/CSharp/ScalienClientWithNativeDLL/NativeLoader.cs; sourceTree = "<group>"; };
+		9A2FEBC81535E18F003EC62D /* StorageFileDeleter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = StorageFileDeleter.cpp; sourceTree = "<group>"; };
+		9A2FEBC91535E18F003EC62D /* StorageFileDeleter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StorageFileDeleter.h; sourceTree = "<group>"; };
 		9A466D5E135F435300108B07 /* JSONBufferWriter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JSONBufferWriter.h; sourceTree = "<group>"; };
 		9A466D5F135F435300108B07 /* JSONBufferWriter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = JSONBufferWriter.cpp; sourceTree = "<group>"; };
 		9A466F431361906800108B07 /* test.php */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.php; name = test.php; path = Client/PHP/test.php; sourceTree = "<group>"; };
@@ -922,6 +926,8 @@
 				543DE57812BFBB3D0069786A /* FDGuard.cpp */,
 				543DE58712BFBB3D0069786A /* StorageConfig.h */,
 				543DE58612BFBB3D0069786A /* StorageConfig.cpp */,
+				9A2FEBC91535E18F003EC62D /* StorageFileDeleter.h */,
+				9A2FEBC81535E18F003EC62D /* StorageFileDeleter.cpp */,
 				9AFEB96E14CF007A00708D1F /* StorageLogManager.cpp */,
 				9AFEB96F14CF007A00708D1F /* StorageLogManager.h */,
 				543DE59A12BFBB3D0069786A /* StorageLogSegment.h */,
@@ -1689,6 +1695,7 @@
 				9A90525914DB075B00261797 /* CrashReporter_Posix.cpp in Sources */,
 				9A90525A14DB075B00261797 /* CrashReporter_Windows.cpp in Sources */,
 				542B69F814E558CD00FA8C0A /* ClientSession.cpp in Sources */,
+				9A2FEBCB1535E18F003EC62D /* StorageFileDeleter.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1846,6 +1853,7 @@
 				9A90527314DB082000261797 /* StorageLogManager.cpp in Sources */,
 				9A90554314E5720E00261797 /* ClientSession.cpp in Sources */,
 				9A90558D14EA877E00261797 /* SDBPRequestProxy.cpp in Sources */,
+				9A2FEBCA1535E18F003EC62D /* StorageFileDeleter.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

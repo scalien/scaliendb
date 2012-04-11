@@ -19,6 +19,7 @@ BUILD_DIRS = \
 		$(BUILD_DIR)/Application/Client/Java \
 		$(BUILD_DIR)/Application/Client/PHP \
 		$(BUILD_DIR)/Application/Client/Python \
+		$(BUILD_DIR)/Application/Client/Windows \
 		$(BUILD_DIR)/Application/Common \
 		$(BUILD_DIR)/Application/ConfigServer \
 		$(BUILD_DIR)/Application/ConfigState \

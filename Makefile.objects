@@ -93,6 +93,7 @@ ALL_OBJECTS = \
 	$(BUILD_DIR)/Framework/Storage/StorageEnvironmentWriter.o \
 	$(BUILD_DIR)/Framework/Storage/StorageFileChunk.o \
 	$(BUILD_DIR)/Framework/Storage/StorageFileChunkLister.o \
+	$(BUILD_DIR)/Framework/Storage/StorageFileDeleter.o \
 	$(BUILD_DIR)/Framework/Storage/StorageFileKeyValue.o \
 	$(BUILD_DIR)/Framework/Storage/StorageHeaderPage.o \
 	$(BUILD_DIR)/Framework/Storage/StorageIndexPage.o \
@@ -131,6 +132,7 @@ ALL_OBJECTS = \
 	$(BUILD_DIR)/System/IO/Socket_Posix.o \
 	$(BUILD_DIR)/System/IO/Socket_Windows.o \
 	$(BUILD_DIR)/System/Log.o \
+	$(BUILD_DIR)/System/SafeFormatting.o \
 	$(BUILD_DIR)/System/Service_Posix.o \
 	$(BUILD_DIR)/System/Service_Windows.o \
 	$(BUILD_DIR)/System/Stopwatch.o \
