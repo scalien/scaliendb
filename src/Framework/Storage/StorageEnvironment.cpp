@@ -703,6 +703,8 @@ printable.Write(a); if (!printable.IsAsciiPrintable()) { printable.ToHexadecimal
     Buffer              tmp;
     uint64_t            totalSize;
     
+    UNUSED(contextID);
+    
     buffer.Clear();
     totalSize = 0;
     
