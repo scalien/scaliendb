@@ -179,7 +179,6 @@ public:
     bool                    shuttingDown;
     bool                    writingTOC;
     bool                    mergeEnabled;
-    bool                    deleteEnabled;
     bool                    dumpMemoChunks;
 };
 

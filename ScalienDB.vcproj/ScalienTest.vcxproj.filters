@@ -582,6 +582,15 @@
     <ClCompile Include="..\src\Application\Client\SDBPRequestProxy.cpp">
       <Filter>Application\Client</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\Framework\Storage\StorageFileDeleter.cpp">
+      <Filter>Framework\Storage</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Application\Common\ClientSession.cpp">
+      <Filter>Application\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Application\ShardServer\ShardLockManager.cpp">
+      <Filter>Application\ShardServer</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\Application\Client\SDBPClient.h">
@@ -1130,6 +1139,12 @@
     </ClInclude>
     <ClInclude Include="..\src\Application\Client\SDBPRequestProxy.h">
       <Filter>Application\Client</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Framework\Storage\StorageFileDeleter.h">
+      <Filter>Framework\Storage</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Application\ShardServer\ShardLockManager.h">
+      <Filter>Application\ShardServer</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

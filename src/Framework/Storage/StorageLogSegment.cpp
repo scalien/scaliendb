@@ -3,6 +3,7 @@
 #include "System/IO/IOProcessor.h"
 #include "System/Stopwatch.h"
 #include "StorageEnvironment.h"
+#include "StorageFileDeleter.h"
 
 StorageLogSegment::StorageLogSegment()
 {
@@ -95,7 +96,7 @@ void StorageLogSegment::Close()
 
 void StorageLogSegment::DeleteFile()
 {
-    FS_Delete(filename.GetBuffer());
+    StorageFileDeleter::Delete(filename.GetBuffer());
 }
 
 uint64_t StorageLogSegment::GetTrackID()
