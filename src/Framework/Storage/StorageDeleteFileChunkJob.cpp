@@ -2,6 +2,7 @@
 #include "System/Stopwatch.h"
 #include "System/FileSystem.h"
 #include "StorageFileChunk.h"
+#include "StorageFileDeleter.h"
 
 StorageDeleteFileChunkJob::StorageDeleteFileChunkJob(StorageFileChunk* chunk_)
 {
@@ -19,7 +20,7 @@ void StorageDeleteFileChunkJob::Execute()
     filename.Write(chunk->GetFilename());
     delete chunk;
 
-    FS_Delete(filename.GetBuffer());
+    StorageFileDeleter::Delete(filename.GetBuffer());
 
     sw.Stop();
     Log_Debug("Deleted, elapsed: %U", (uint64_t) sw.Elapsed());

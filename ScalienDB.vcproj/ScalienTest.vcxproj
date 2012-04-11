@@ -162,6 +162,7 @@
     <ClCompile Include="..\src\Application\Common\ClientRequest.cpp" />
     <ClCompile Include="..\src\Application\Common\ClientRequestCache.cpp" />
     <ClCompile Include="..\src\Application\Common\ClientResponse.cpp" />
+    <ClCompile Include="..\src\Application\Common\ClientSession.cpp" />
     <ClCompile Include="..\src\Application\Common\ClusterMessage.cpp" />
     <ClCompile Include="..\src\Application\Common\ContextTransport.cpp" />
     <ClCompile Include="..\src\Application\ConfigState\ConfigController.cpp" />
@@ -205,6 +206,7 @@
     <ClCompile Include="..\src\Application\ShardServer\ShardHeartbeatManager.cpp" />
     <ClCompile Include="..\src\Application\ShardServer\ShardHTTPClientSession.cpp" />
     <ClCompile Include="..\src\Application\ShardServer\ShardHTTPHandler.cpp" />
+    <ClCompile Include="..\src\Application\ShardServer\ShardLockManager.cpp" />
     <ClCompile Include="..\src\Application\ShardServer\ShardMessage.cpp" />
     <ClCompile Include="..\src\Application\ShardServer\ShardMigrationWriter.cpp" />
     <ClCompile Include="..\src\Application\ShardServer\ShardQuorumContext.cpp" />
@@ -229,6 +231,7 @@
     <ClCompile Include="..\src\Framework\Replication\Quorums\QuorumTransport.cpp" />
     <ClCompile Include="..\src\Framework\Replication\Quorums\TotalQuorum.cpp" />
     <ClCompile Include="..\src\Framework\Replication\ReplicatedLog\ReplicatedLog.cpp" />
+    <ClCompile Include="..\src\Framework\Storage\StorageFileDeleter.cpp" />
     <ClCompile Include="..\src\Framework\Storage\StorageLogManager.cpp" />
     <ClCompile Include="..\src\Framework\TCP\TCPConnection.cpp" />
     <ClCompile Include="..\src\Framework\Storage\BloomFilter.cpp" />
@@ -381,6 +384,7 @@
     <ClInclude Include="..\src\Application\ShardServer\ShardHeartbeatManager.h" />
     <ClInclude Include="..\src\Application\ShardServer\ShardHTTPClientSession.h" />
     <ClInclude Include="..\src\Application\ShardServer\ShardHTTPHandler.h" />
+    <ClInclude Include="..\src\Application\ShardServer\ShardLockManager.h" />
     <ClInclude Include="..\src\Application\ShardServer\ShardMessage.h" />
     <ClInclude Include="..\src\Application\ShardServer\ShardMigrationWriter.h" />
     <ClInclude Include="..\src\Application\ShardServer\ShardQuorumContext.h" />
@@ -414,6 +418,7 @@
     <ClInclude Include="..\src\Framework\Replication\Quorums\QuorumTransport.h" />
     <ClInclude Include="..\src\Framework\Replication\Quorums\TotalQuorum.h" />
     <ClInclude Include="..\src\Framework\Replication\ReplicatedLog\ReplicatedLog.h" />
+    <ClInclude Include="..\src\Framework\Storage\StorageFileDeleter.h" />
     <ClInclude Include="..\src\Framework\Storage\StorageLogManager.h" />
     <ClInclude Include="..\src\Framework\TCP\TCPConnection.h" />
     <ClInclude Include="..\src\Framework\TCP\TCPServer.h" />

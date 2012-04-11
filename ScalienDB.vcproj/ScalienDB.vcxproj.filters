@@ -502,6 +502,9 @@
     <ClCompile Include="..\src\Application\HTTP\JSONReader.cpp">
       <Filter>Application\HTTP</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\Framework\Storage\StorageFileDeleter.cpp">
+      <Filter>Framework\Storage</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\System\Common.h">
@@ -1019,6 +1022,9 @@
     </ClInclude>
     <ClInclude Include="..\src\Application\HTTP\JSONReader.h">
       <Filter>Application\HTTP</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Framework\Storage\StorageFileDeleter.h">
+      <Filter>Framework\Storage</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

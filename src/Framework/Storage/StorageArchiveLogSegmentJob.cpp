@@ -3,6 +3,7 @@
 #include "System/Config.h"
 #include "System/Stopwatch.h"
 #include "StorageEnvironment.h"
+#include "StorageFileDeleter.h"
 
 StorageArchiveLogSegmentJob::StorageArchiveLogSegmentJob(StorageEnvironment* env_, 
  StorageLogSegment* logSegment_, const char* script_)
@@ -31,7 +32,7 @@ void StorageArchiveLogSegmentJob::Execute()
     {
         Log_Debug("Deleting archive log segment %U/%U...",
          logSegment->GetTrackID(), logSegment->GetLogSegmentID());
-        FS_Delete(logSegment->filename.GetBuffer());
+        StorageFileDeleter::Delete(logSegment->filename.GetBuffer());
     }
     else
     {

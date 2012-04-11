@@ -16,6 +16,7 @@
 #include "StorageDeleteMemoChunkJob.h"
 #include "StorageDeleteFileChunkJob.h"
 #include "StorageArchiveLogSegmentJob.h"
+#include "StorageFileDeleter.h"
 
 #define SERIALIZECHUNKJOB   ((StorageSerializeChunkJob*)(serializeChunkJobs.GetActiveJob()))
 #define WRITECHUNKJOB       ((StorageWriteChunkJob*)(writeChunkJobs.GetActiveJob()))
@@ -79,7 +80,6 @@ StorageEnvironment::StorageEnvironment()
     writingTOC = false;
     numCursors = 0;
     mergeEnabled = true;
-    deleteEnabled = true;
     dumpMemoChunks = false;
 }
 
@@ -91,6 +91,7 @@ bool StorageEnvironment::Open(Buffer& envPath_, StorageConfig config_)
 
     config = config_;
 
+    StorageFileDeleter::Init();
     commitJobs.Start();
     serializeChunkJobs.Start();
     writeChunkJobs.Start();
@@ -189,6 +190,7 @@ void StorageEnvironment::Close()
     
     shuttingDown = true;
 
+    StorageFileDeleter::Shutdown();
     commitJobs.Stop();
     serializeChunkJobs.Stop();
     writeChunkJobs.Stop();
@@ -228,7 +230,7 @@ void StorageEnvironment::SetMergeEnabled(bool mergeEnabled_)
 
 void StorageEnvironment::SetDeleteEnabled(bool deleteEnabled_)
 {
-    deleteEnabled = deleteEnabled_;
+    StorageFileDeleter::SetEnabled(deleteEnabled_);
 }
 
 uint64_t StorageEnvironment::GetShardID(uint16_t contextID, uint64_t tableID, ReadBuffer& key)
@@ -1235,7 +1237,7 @@ void StorageEnvironment::TryArchiveLogSegments()
 
     Log_Trace();
 
-    if (!deleteEnabled)
+    if (!StorageFileDeleter::IsEnabled())
         return;
 
     if (archiveLogJobs.IsActive())
@@ -1283,7 +1285,7 @@ void StorageEnvironment::TryDeleteFileChunks()
     
     Log_Trace();
 
-    if (!deleteEnabled)
+    if (!StorageFileDeleter::IsEnabled())
         return;
 
     if (deleteChunkJobs.IsActive())
