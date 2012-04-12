@@ -898,7 +898,7 @@ bool StorageEnvironment::CreateShard(uint64_t trackID,
     return true;
 }
 
-void StorageEnvironment::DeleteShard(uint16_t contextID, uint64_t shardID)
+void StorageEnvironment::DeleteShard(uint16_t contextID, uint64_t shardID, bool bulkDelete)
 {
     StorageShard*           shard;
     StorageChunk**          itChunk;
@@ -955,8 +955,13 @@ void StorageEnvironment::DeleteShard(uint16_t contextID, uint64_t shardID)
 
     shards.Remove(shard);
     delete shard;
-    WriteTOC();
-    deleteChunkJobs.Execute();    
+    
+    if (!bulkDelete)
+    {
+        WriteTOC();
+        deleteChunkJobs.Execute();    
+    }
+
     return;
 }
 

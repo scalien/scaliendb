@@ -87,7 +87,7 @@ public:
                              uint16_t contextID, uint64_t shardID, uint64_t tableID,
                              ReadBuffer firstKey, ReadBuffer lastKey,
                              bool useBloomFilter, char storageType);
-    void                    DeleteShard(uint16_t contextID, uint64_t shardID);
+    void                    DeleteShard(uint16_t contextID, uint64_t shardID, bool bulkDelete = false);
     bool                    SplitShard(uint16_t contextID,  uint64_t shardID,
                              uint64_t newShardID, ReadBuffer splitKey);
 

@@ -713,8 +713,9 @@ uint64_t ShardDatabaseManager::ExecuteMessage(uint64_t quorumID, uint64_t paxosI
             while (parse.ReadLittle64(shardID))
             {
                 parse.Advance(sizeof(uint64_t));
-                environment.DeleteShard(contextID, shardID);
+                environment.DeleteShard(contextID, shardID, /* bulkDelete = */ true);
             }
+            environment.WriteTOC();
             environment.CreateShard(
              quorumID, contextID, message.newShardID, message.tableID, "", "", true, STORAGE_SHARD_TYPE_STANDARD);
             break;
