@@ -3,6 +3,7 @@
 #include "System/Threading/Signal.h"
 
 static volatile bool                    enabled = true;
+static volatile bool                    running = false;
 static ThreadPool*                      threadPool = NULL;
 static Mutex                            enabledMutex;
 
@@ -36,9 +37,13 @@ void StorageFileDeleterTask::DeleteFile()
 {
     MutexGuard      enabledGuard(enabledMutex);
 
-    Log_Debug("Deleting %s", filename.GetBuffer());
+    if (running)
+    {
+        Log_Debug("Deleting %s", filename.GetBuffer());
 
-    FS_Delete(filename.GetBuffer());
+        FS_Delete(filename.GetBuffer());
+    }
+
     delete this;
 }
 
@@ -54,6 +59,7 @@ void StorageFileDeleter::Init()
 {
     ASSERT(threadPool == NULL);
 
+    running = true;
     threadPool = ThreadPool::Create(1);
     threadPool->Start();
 }
@@ -62,6 +68,7 @@ void StorageFileDeleter::Shutdown()
 {
     ASSERT(threadPool != NULL);
 
+    running = false;
     if (!enabled)
         enabledMutex.Unlock();
 
