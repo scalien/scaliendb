@@ -255,7 +255,7 @@ void ShardQuorumProcessor::OnReceiveLease(ClusterMessage& message)
     }
 
     if (!isPrimary)
-        Log_Debug("Primary for quorum %U", quorumContext.GetQuorumID());
+        Log_Message("Primary for quorum %U", quorumContext.GetQuorumID());
     
     isPrimary = true;
     configID = message.configID;
@@ -402,7 +402,7 @@ void ShardQuorumProcessor::OnLeaseTimeout()
     
     quorumContext.OnLeaseTimeout();
     
-    Log_Debug("Lease lost for quorum %U, dropping pending requests...", GetQuorumID());
+    Log_Message("Lease lost for quorum %U, dropping pending requests...", GetQuorumID());
     
     for (itMessage = shardMessages.First(); itMessage != NULL; itMessage = nextMessage)
     {

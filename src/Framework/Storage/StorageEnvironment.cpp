@@ -878,7 +878,7 @@ bool StorageEnvironment::CreateShard(uint64_t trackID,
         return false;       // already exists
     }
 
-    Log_Debug("Creating shard %u/%U", contextID, shardID);
+    Log_Message("Creating shard %u/%U", contextID, shardID);
 
     shard = new StorageShard;
     shard->SetTrackID(trackID);
@@ -911,7 +911,7 @@ void StorageEnvironment::DeleteShard(uint16_t contextID, uint64_t shardID, bool 
     if (shard == NULL)
         return;        // does not exists
 
-    Log_Debug("Deleting shard %u/%U", contextID, shardID);
+    Log_Message("Deleting shard %u/%U", contextID, shardID);
 
     if (shard->GetMemoChunk() != NULL)
     {

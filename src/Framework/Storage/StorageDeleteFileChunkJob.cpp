@@ -14,7 +14,7 @@ void StorageDeleteFileChunkJob::Execute()
     Stopwatch   sw;
     Buffer      filename;
     
-    Log_Debug("Deleting file chunk %U from disk, starting", chunk->GetChunkID());
+    Log_Message("Deleting file chunk %U from disk", chunk->GetChunkID());
     sw.Start();
     
     filename.Write(chunk->GetFilename());

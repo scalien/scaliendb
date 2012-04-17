@@ -60,19 +60,19 @@ void ConfigServerApp::SetLogStatTimeout(uint64_t timeout)
 
 void ConfigServerApp::OnLogStatTimer()
 {
-    Log_Debug("=== ConfigServer stats ==>");
-    Log_Debug("SDBP active: %u, inactive: %u", sdbpServer.GetNumActiveConns(), sdbpServer.GetNumInactiveConns());
-    Log_Debug("HTTP active: %u, inactive: %u", httpServer.GetNumActiveConns(), httpServer.GetNumInactiveConns());
-    Log_Debug("Cluster active: %u, write readyness: %u", CONTEXT_TRANSPORT->GetNumConns(), CONTEXT_TRANSPORT->GetNumWriteReadyness());
-    Log_Debug("Heartbeats: %u", configServer.GetHeartbeatManager()->GetNumHeartbeats());
-    Log_Debug("Primary leases: %u", configServer.GetPrimaryLeaseManager()->GetNumPrimaryLeases());
-    Log_Debug("Config messages: %u", configServer.GetQuorumProcessor()->GetNumConfigMessages());
-    Log_Debug("Requests: %u", configServer.GetQuorumProcessor()->GetNumRequests());
-    Log_Debug("Listen requests: %u", configServer.GetQuorumProcessor()->GetNumListenRequests());
-    Log_Debug("Timers: %u", EventLoop::GetNumTimers());
-    Log_Debug("Page cache size: %s, num. pages: %u", HUMAN_BYTES(StoragePageCache::GetSize()), StoragePageCache::GetNumPages());
-    Log_Debug("Request cache free list size: %u", REQUEST_CACHE->GetNumFreeRequests());
-    Log_Debug("=== ConfigServer stats <==");
+    Log_Message("=== ConfigServer stats ==>");
+    Log_Message("SDBP active: %u, inactive: %u", sdbpServer.GetNumActiveConns(), sdbpServer.GetNumInactiveConns());
+    Log_Message("HTTP active: %u, inactive: %u", httpServer.GetNumActiveConns(), httpServer.GetNumInactiveConns());
+    Log_Message("Cluster active: %u, write readyness: %u", CONTEXT_TRANSPORT->GetNumConns(), CONTEXT_TRANSPORT->GetNumWriteReadyness());
+    Log_Message("Heartbeats: %u", configServer.GetHeartbeatManager()->GetNumHeartbeats());
+    Log_Message("Primary leases: %u", configServer.GetPrimaryLeaseManager()->GetNumPrimaryLeases());
+    Log_Message("Config messages: %u", configServer.GetQuorumProcessor()->GetNumConfigMessages());
+    Log_Message("Requests: %u", configServer.GetQuorumProcessor()->GetNumRequests());
+    Log_Message("Listen requests: %u", configServer.GetQuorumProcessor()->GetNumListenRequests());
+    Log_Message("Timers: %u", EventLoop::GetNumTimers());
+    Log_Message("Page cache size: %s, num. pages: %u", HUMAN_BYTES(StoragePageCache::GetSize()), StoragePageCache::GetNumPages());
+    Log_Message("Request cache free list size: %u", REQUEST_CACHE->GetNumFreeRequests());
+    Log_Message("=== ConfigServer stats <==");
     EventLoop::Add(&logStatTimer);
 }
 

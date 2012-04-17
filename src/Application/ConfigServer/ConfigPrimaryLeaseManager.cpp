@@ -37,7 +37,7 @@ void ConfigPrimaryLeaseManager::OnPrimaryLeaseTimeout()
         {
             quorum = CONFIG_STATE->GetQuorum(primaryLease->quorumID);
 
-            Log_Debug("Node %U lost the primary lease for quorum %U",
+            Log_Message("Node %U lost the primary lease for quorum %U",
              primaryLease->nodeID, primaryLease->quorumID);
             
             // look for migration
@@ -173,7 +173,7 @@ void ConfigPrimaryLeaseManager::AssignPrimaryLease(ConfigQuorum& quorum, Cluster
     FOREACH(itNodeID, quorum.inactiveNodes)
         CONTEXT_TRANSPORT->SendClusterMessage(*itNodeID, response);
     
-    Log_Debug("Assigning primary lease of quorum %U to node %U with proposalID %U",
+    Log_Message("Assigning primary lease of quorum %U to node %U with proposalID %U",
      message.quorumID, message.nodeID, message.proposalID);
 }
 

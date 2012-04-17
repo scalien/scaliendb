@@ -37,7 +37,7 @@ void SDBPConnection::Init(SDBPServer* server_)
     server = server_;
     
     socket.GetEndpoint(remoteEndpoint);
-    Log_Debug("[%s] Client connected", remoteEndpoint.ToString());
+    Log_Message("[%s] Client connected", remoteEndpoint.ToString());
     
     resp.Hello();
     sdbpResponse.response = &resp;
@@ -95,7 +95,7 @@ void SDBPConnection::OnClose()
     
     elapsed = NowClock() - connectTimestamp;
 
-    Log_Debug("[%s] Client disconnected (active: %u seconds, served: %u requests)", 
+    Log_Message("[%s] Client disconnected (active: %u seconds, served: %u requests)", 
      remoteEndpoint.ToString(), (unsigned)(elapsed / 1000.0 + 0.5), numCompleted);
     
     context->OnClientClose(this);
@@ -103,7 +103,7 @@ void SDBPConnection::OnClose()
     
     if (numPending == 0)
     {
-        Log_Debug("[%s] Connection deleted", remoteEndpoint.ToString());
+        Log_Message("[%s] Connection deleted", remoteEndpoint.ToString());
         server->DeleteConn(this);
     }
 }
@@ -136,7 +136,7 @@ void SDBPConnection::OnComplete(ClientRequest* request, bool last)
     
     if (numPending == 0 && state == DISCONNECTED)
     {
-        Log_Debug("[%s] Connection deleted", remoteEndpoint.ToString());
+        Log_Message("[%s] Connection deleted", remoteEndpoint.ToString());
         server->DeleteConn(this);
     }
 }
@@ -165,6 +165,6 @@ void SDBPConnection::UseKeepAlive(bool useKeepAlive)
 
 void SDBPConnection::OnKeepAlive()
 {
-    Log_Debug("Keep alive timeout occured");
+    Log_Message("[%s] Keep alive timeout occured", remoteEndpoint.ToString());
     OnClose();
 }

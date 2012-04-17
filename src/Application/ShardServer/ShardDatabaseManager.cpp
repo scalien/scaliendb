@@ -704,7 +704,7 @@ uint64_t ShardDatabaseManager::ExecuteMessage(uint64_t quorumID, uint64_t paxosI
                 break;
             }
             environment.SplitShard(contextID, message.shardID, message.newShardID, message.splitKey);
-            Log_Debug("Splitting shard %U into shards %U and %U at key: %B (paxosID: %U)",
+            Log_Message("Splitting shard %U into shards %U and %U at key: %B (paxosID: %U)",
              message.shardID, message.shardID, message.newShardID, &message.splitKey, paxosID);
             break;
         case SHARDMESSAGE_TRUNCATE_TABLE:

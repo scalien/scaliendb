@@ -238,7 +238,7 @@ bool StorageChunkMerger::WriteDataPages(ReadBuffer /*firstKey*/, ReadBuffer last
     {
         if (env->shuttingDown || mergeChunk->deleted || !env->mergeEnabled)
         {
-            Log_Debug("Aborting merge");
+            Log_Debug("Aborting merge, chunkID: %U", mergeChunk->GetChunkID());
             mergeChunk->writeError = false;
             return false;
         }
@@ -251,7 +251,7 @@ bool StorageChunkMerger::WriteDataPages(ReadBuffer /*firstKey*/, ReadBuffer last
 
             if (env->shuttingDown || mergeChunk->deleted || !env->mergeEnabled)
             {
-                Log_Debug("Aborting merge");
+                Log_Debug("Aborting merge, chunkID: %U", mergeChunk->GetChunkID());
                 mergeChunk->writeError = false;
                 return false;
             }

@@ -80,7 +80,7 @@ void ShardCatchupWriter::Begin(CatchupMessage& request)
     ASSERT(quorumProcessor != NULL);
     ASSERT(cursor == NULL);
 
-    Log_Debug("Disabling database merge for the duration of catchup (sending)");
+    Log_Message("Disabling database merge for the duration of catchup (sending)");
     environment->SetMergeEnabled(false);
 
     isActive = true;
@@ -105,8 +105,7 @@ void ShardCatchupWriter::Abort()
 {
     CatchupMessage msg;
     
-    Log_Message("Catchup aborted");
-    Log_Debug("Enabling database merge");
+    Log_Message("Catchup aborted, enabling database merge");
     environment->SetMergeEnabled(true);
     
     msg.Abort();
@@ -172,7 +171,7 @@ void ShardCatchupWriter::SendCommit()
     paxosID = quorumProcessor->GetPaxosID() - 1;
     msg.Commit(paxosID);
     CONTEXT_TRANSPORT->SendQuorumMessage(nodeID, quorumID, msg);
-    Log_Debug("Sending COMMIT with paxosID = %U", paxosID);
+    Log_Message("Sending COMMIT with paxosID = %U", paxosID);
 
     if (cursor != NULL)
     {
