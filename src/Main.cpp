@@ -55,6 +55,8 @@ int main(int argc, char** argv)
         STOP_FAIL(1, "Unexpected exception happened");
     }
 
+    Log_Message(IDENT " exited normally");
+
     return 0;
 }
 
