@@ -55,8 +55,6 @@ int main(int argc, char** argv)
         STOP_FAIL(1, "Unexpected exception happened");
     }
 
-    Log_Message(IDENT " exited normally");
-
     return 0;
 }
 
@@ -116,6 +114,9 @@ static void RunApplication()
     IOProcessor::Shutdown();
     StopClock();
     configFile.Shutdown();
+
+    // This is here and not the end of main(), because logging may be turned off by then
+    Log_Message(IDENT " exited normally");
     Log_Shutdown();
 }
 
