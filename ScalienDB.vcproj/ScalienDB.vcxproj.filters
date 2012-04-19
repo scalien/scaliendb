@@ -493,8 +493,17 @@
     <ClCompile Include="..\src\System\CrashReporter_Posix.cpp">
       <Filter>System</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\Application\Common\ClientSession.cpp">
+      <Filter>Application\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Application\ShardServer\ShardLockManager.cpp">
+      <Filter>Application\ShardServer</Filter>
+    </ClCompile>
     <ClCompile Include="..\src\Application\HTTP\JSONReader.cpp">
       <Filter>Application\HTTP</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Framework\Storage\StorageFileDeleter.cpp">
+      <Filter>Framework\Storage</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1005,11 +1014,17 @@
     <ClInclude Include="..\src\Framework\Storage\StorageLogManager.h">
       <Filter>Framework\Storage</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\Application\ShardServer\ShardLockManager.h">
+      <Filter>Application\ShardServer</Filter>
+    </ClInclude>
     <ClInclude Include="..\src\System\PointerGuard.h">
       <Filter>System</Filter>
     </ClInclude>
     <ClInclude Include="..\src\Application\HTTP\JSONReader.h">
       <Filter>Application\HTTP</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Framework\Storage\StorageFileDeleter.h">
+      <Filter>Framework\Storage</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

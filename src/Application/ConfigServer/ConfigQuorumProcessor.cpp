@@ -608,7 +608,7 @@ void ConfigQuorumProcessor::OnAppend(uint64_t paxosID, ConfigMessage& message, b
     {
         // TODO: error handling
         success = OnShardMigrationBegin(message);
-        Log_Debug("shard migration begin, shardID: %U, success: %b", message.shardID, success);
+        Log_Message("shard migration begin, shardID: %U, success: %b", message.shardID, success);
     }
 
     if (message.type == CONFIGMESSAGE_SHARD_MIGRATION_COMPLETE)
@@ -640,7 +640,7 @@ void ConfigQuorumProcessor::OnAppend(uint64_t paxosID, ConfigMessage& message, b
             STOP_FAIL(1, "Invalid controller configuration!");
         
         UInt64ToBufferWithBase(hexbuf, sizeof(hexbuf), message.clusterID, 64);
-        Log_Debug("ClusterID set to %s (%U)", hexbuf, message.clusterID);
+        Log_Message("ClusterID set to %s (%U)", hexbuf, message.clusterID);
         CONTEXT_TRANSPORT->SetClusterID(message.clusterID);
         REPLICATION_CONFIG->SetClusterID(message.clusterID);
         REPLICATION_CONFIG->Commit();
@@ -704,6 +704,8 @@ void ConfigQuorumProcessor::OnStartCatchup()
     isCatchingUp = true;
     
     Log_Message("Catchup started from node %U", quorumContext.GetLeaseOwner());
+
+    quorumContext.OnCatchupStarted();
 }
 
 void ConfigQuorumProcessor::OnCatchupMessage(CatchupMessage& imsg)
@@ -740,7 +742,7 @@ void ConfigQuorumProcessor::OnCatchupMessage(CatchupMessage& imsg)
             omsg.Set(0, keyClusterID, value); // shardID is unused here
             CONTEXT_TRANSPORT->SendQuorumMessage(imsg.nodeID, quorumContext.GetQuorumID(), omsg);
             
-            // send COMMIT with the paxosID whose value is in the db
+            // send COMMIT with the paxosID
             omsg.Commit(quorumContext.GetPaxosID() - 1);
             CONTEXT_TRANSPORT->SendQuorumMessage(imsg.nodeID, quorumContext.GetQuorumID(), omsg);
             break;

@@ -46,6 +46,7 @@ public:
     void                    RegisterPaxosID(uint64_t paxosID, uint64_t nodeID);
     
     void                    OnMessage(PaxosMessage& msg);
+    void                    OnCatchupStarted();
     void                    OnCatchupComplete(uint64_t paxosID);
     void                    OnLearnLease();
     void                    OnLeaseTimeout();

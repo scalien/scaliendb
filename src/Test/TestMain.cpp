@@ -33,6 +33,7 @@ TEST_ADD(TestClientMultiThreadMulti);
 TEST_ADD(TestClientSet);
 TEST_ADD(TestClientSetFailover);
 TEST_ADD(TestClientShardConnectionPooling);
+TEST_ADD(TestClientTransactionBasic);
 TEST_ADD(TestClientTruncateTable);
 TEST_ADD(TestCrashReporterAssert);
 TEST_ADD(TestCrashReporterInvalidAccess);

@@ -42,6 +42,7 @@ public:
 
     void                    OnShardMessage(uint64_t paxosID, uint64_t commandID, uint64_t shardID, ShardMessage& shardMessage);
     void                    OnBlockShard();
+    void                    OnUnblockShard();
     void                    OnTryCommit();
     void                    SendCommit();
 

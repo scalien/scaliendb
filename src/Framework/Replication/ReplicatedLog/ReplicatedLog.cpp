@@ -165,6 +165,11 @@ void ReplicatedLog::OnMessage(PaxosMessage& imsg)
         context->OnMessageProcessed();
 }
 
+void ReplicatedLog::OnCatchupStarted()
+{
+    acceptor.OnCatchupStarted();
+}
+
 void ReplicatedLog::OnCatchupComplete(uint64_t paxosID_)
 {
     paxosID = paxosID_;

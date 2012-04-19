@@ -33,14 +33,14 @@ void StorageWriteChunkJob::Execute()
 
     if (ret)
     {
-        Log_Debug("Chunk %U written, elapsed: %U, size: %s, bps: %sB/s",
+        Log_Message("Chunk %U written, elapsed: %U, size: %s, bps: %sB/s",
          writeChunk->GetChunkID(),
          (uint64_t) sw.Elapsed(), HUMAN_BYTES(writeChunk->GetSize()), 
          HUMAN_BYTES((uint64_t)(writeChunk->GetSize() / (sw.Elapsed() / 1000.0))));
     }
     else
     {
-        Log_Debug("Write aborted, chunk %U, elapsed: %U, size: %s, bps: %sB/s, free disk space: %s",
+        Log_Message("Write aborted, chunk %U, elapsed: %U, size: %s, bps: %sB/s, free disk space: %s",
          writeChunk->GetChunkID(),
          (uint64_t) sw.Elapsed(), HUMAN_BYTES(writeChunk->GetSize()),
          HUMAN_BYTES((uint64_t)(writeChunk->GetSize() / (sw.Elapsed() / 1000.0))),

@@ -44,7 +44,7 @@ void StorageMergeChunkJob::Execute()
         filenames.Add(filename);
     }
     
-    Log_Debug("Merging %u chunks into chunk %U...",
+    Log_Message("Merging %u chunks into chunk %U...",
      filenames.GetLength(),
      mergeChunk->GetChunkID());
     sw.Start();
@@ -63,14 +63,14 @@ void StorageMergeChunkJob::Execute()
 
     if (ret)
     {
-        Log_Debug("Done merging chunk %U, elapsed: %U, size: %s, bps: %sB/s",
+        Log_Message("Done merging chunk %U, elapsed: %U, size: %s, bps: %sB/s",
          mergeChunk->GetChunkID(),
          (uint64_t) sw.Elapsed(), HUMAN_BYTES(mergeChunk->GetSize()), 
          HUMAN_BYTES(BYTE_PER_SEC(mergeChunk->GetSize(), sw.Elapsed())));
     }
     else
     {
-        Log_Debug("Merge aborted, chunk %U, elapsed: %U, free disk space: %s",
+        Log_Message("Merge aborted, chunk %U, elapsed: %U, free disk space: %s",
          mergeChunk->GetChunkID(),
          (uint64_t) sw.Elapsed(),
          HUMAN_BYTES(FS_FreeDiskSpace(mergeChunk->GetFilename().GetBuffer())));

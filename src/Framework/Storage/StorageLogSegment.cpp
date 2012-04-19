@@ -3,6 +3,7 @@
 #include "System/IO/IOProcessor.h"
 #include "System/Stopwatch.h"
 #include "StorageEnvironment.h"
+#include "StorageFileDeleter.h"
 
 #define Log_DebugLong(sw, ...)  \
     if (sw.Elapsed() > 1000)    \
@@ -23,7 +24,7 @@ StorageLogSegment::StorageLogSegment()
     prevShardID = 0;
     writeShardID = true;
     asyncCommit = false;
-    IsCommitting = false;
+    isCommitting = false;
     commitStatus = false;
 }
 
@@ -95,7 +96,7 @@ void StorageLogSegment::Close()
 
 void StorageLogSegment::DeleteFile()
 {
-    FS_Delete(filename.GetBuffer());
+    StorageFileDeleter::Delete(filename.GetBuffer());
 }
 
 uint64_t StorageLogSegment::GetTrackID()
@@ -238,7 +239,7 @@ void StorageLogSegment::Commit()
     StorageEnvironment::Sync(fd);
 
     sw.Stop();
-    Log_Debug("Committed track %U, elapsed: %U, size: %s, bps: %sB/s",
+    Log_Message("Committed track %U, elapsed: %U, size: %s, bps: %sB/s",
         trackID,
         (uint64_t) sw.Elapsed(), HUMAN_BYTES(length),
         HUMAN_BYTES(BYTE_PER_SEC(length, sw.Elapsed())));

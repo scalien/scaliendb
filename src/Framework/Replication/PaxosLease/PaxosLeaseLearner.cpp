@@ -83,7 +83,7 @@ void PaxosLeaseLearner::OnLearnChosen(PaxosLeaseMessage& imsg)
         // should not happen
         // majority of nodes' clocks are ahead of the old lease owner
         // most likely the old lease owner had his clock reset backwards
-        Log_Debug("New lease owner does not match state lease owner! System clock reset backwards on one of the nodes?");
+        Log_Message("New lease owner does not match state lease owner! System clock reset backwards on one of the nodes?");
         Log_Debug("state.leaseOwner = %U, imsg.leaseOwner = %U", state.leaseOwner, imsg.leaseOwner);
         OnLeaseTimeout();
     }

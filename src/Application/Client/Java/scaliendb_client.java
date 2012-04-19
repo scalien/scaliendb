@@ -315,6 +315,22 @@ public class scaliendb_client {
     return scaliendb_clientJNI.SDBP_Cancel(SWIGTYPE_p_void.getCPtr(client));
   }
 
+  public static int SDBP_StartTransaction(SWIGTYPE_p_void client, long quorumID, String majorKey) {
+    return scaliendb_clientJNI.SDBP_StartTransaction(SWIGTYPE_p_void.getCPtr(client), quorumID, majorKey);
+  }
+
+  public static int SDBP_StartTransactionCStr(SWIGTYPE_p_void client, long quorumID, byte[] majorKey, int majorKeyLen) {
+    return scaliendb_clientJNI.SDBP_StartTransactionCStr(SWIGTYPE_p_void.getCPtr(client), quorumID, majorKey, majorKeyLen);
+  }
+
+  public static int SDBP_CommitTransaction(SWIGTYPE_p_void client) {
+    return scaliendb_clientJNI.SDBP_CommitTransaction(SWIGTYPE_p_void.getCPtr(client));
+  }
+
+  public static int SDBP_RollbackTransaction(SWIGTYPE_p_void client) {
+    return scaliendb_clientJNI.SDBP_RollbackTransaction(SWIGTYPE_p_void.getCPtr(client));
+  }
+
   public static void SDBP_SetTrace(boolean trace) {
     scaliendb_clientJNI.SDBP_SetTrace(trace);
   }

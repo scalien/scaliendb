@@ -16,6 +16,7 @@
 #include "StorageDeleteMemoChunkJob.h"
 #include "StorageDeleteFileChunkJob.h"
 #include "StorageArchiveLogSegmentJob.h"
+#include "StorageFileDeleter.h"
 
 #define SERIALIZECHUNKJOB   ((StorageSerializeChunkJob*)(serializeChunkJobs.GetActiveJob()))
 #define WRITECHUNKJOB       ((StorageWriteChunkJob*)(writeChunkJobs.GetActiveJob()))
@@ -79,7 +80,6 @@ StorageEnvironment::StorageEnvironment()
     writingTOC = false;
     numCursors = 0;
     mergeEnabled = true;
-    deleteEnabled = true;
     dumpMemoChunks = false;
 }
 
@@ -91,6 +91,7 @@ bool StorageEnvironment::Open(Buffer& envPath_, StorageConfig config_)
 
     config = config_;
 
+    StorageFileDeleter::Init();
     commitJobs.Start();
     serializeChunkJobs.Start();
     writeChunkJobs.Start();
@@ -189,6 +190,7 @@ void StorageEnvironment::Close()
     
     shuttingDown = true;
 
+    StorageFileDeleter::Shutdown();
     commitJobs.Stop();
     serializeChunkJobs.Stop();
     writeChunkJobs.Stop();
@@ -228,7 +230,7 @@ void StorageEnvironment::SetMergeEnabled(bool mergeEnabled_)
 
 void StorageEnvironment::SetDeleteEnabled(bool deleteEnabled_)
 {
-    deleteEnabled = deleteEnabled_;
+    StorageFileDeleter::SetEnabled(deleteEnabled_);
 }
 
 uint64_t StorageEnvironment::GetShardID(uint16_t contextID, uint64_t tableID, ReadBuffer& key)
@@ -615,7 +617,7 @@ bool StorageEnvironment::Commit(uint64_t trackID, Callable& onCommit)
     Job*                job;
     StorageLogSegment*  logSegment;
 
-    Log_Debug("Commiting in track %U", trackID);
+    Log_Debug("Committing in track %U (async thread)", trackID);
     
     logSegment = logManager.GetHead(trackID);
     ASSERT(logSegment);
@@ -633,7 +635,7 @@ bool StorageEnvironment::Commit(uint64_t trackID)
     Job*                job;
     StorageLogSegment*  logSegment;
 
-    Log_Debug("Commiting in track %U (main thread)", trackID);
+    Log_Debug("Committing in track %U (main thread)", trackID);
 
     logSegment = logManager.GetHead(trackID);
     ASSERT(logSegment);
@@ -700,6 +702,8 @@ printable.Write(a); if (!printable.IsAsciiPrintable()) { printable.ToHexadecimal
     Buffer              printable;
     Buffer              tmp;
     uint64_t            totalSize;
+    
+    UNUSED(contextID);
     
     buffer.Clear();
     totalSize = 0;
@@ -874,7 +878,7 @@ bool StorageEnvironment::CreateShard(uint64_t trackID,
         return false;       // already exists
     }
 
-    Log_Debug("Creating shard %u/%U", contextID, shardID);
+    Log_Message("Creating shard %u/%U", contextID, shardID);
 
     shard = new StorageShard;
     shard->SetTrackID(trackID);
@@ -894,7 +898,7 @@ bool StorageEnvironment::CreateShard(uint64_t trackID,
     return true;
 }
 
-void StorageEnvironment::DeleteShard(uint16_t contextID, uint64_t shardID)
+void StorageEnvironment::DeleteShard(uint16_t contextID, uint64_t shardID, bool bulkDelete)
 {
     StorageShard*           shard;
     StorageChunk**          itChunk;
@@ -907,7 +911,7 @@ void StorageEnvironment::DeleteShard(uint16_t contextID, uint64_t shardID)
     if (shard == NULL)
         return;        // does not exists
 
-    Log_Debug("Deleting shard %u/%U", contextID, shardID);
+    Log_Message("Deleting shard %u/%U", contextID, shardID);
 
     if (shard->GetMemoChunk() != NULL)
     {
@@ -951,8 +955,13 @@ void StorageEnvironment::DeleteShard(uint16_t contextID, uint64_t shardID)
 
     shards.Remove(shard);
     delete shard;
-    WriteTOC();
-    deleteChunkJobs.Execute();    
+    
+    if (!bulkDelete)
+    {
+        WriteTOC();
+        deleteChunkJobs.Execute();    
+    }
+
     return;
 }
 
@@ -1235,7 +1244,7 @@ void StorageEnvironment::TryArchiveLogSegments()
 
     Log_Trace();
 
-    if (!deleteEnabled)
+    if (!StorageFileDeleter::IsEnabled())
         return;
 
     if (archiveLogJobs.IsActive())
@@ -1283,7 +1292,7 @@ void StorageEnvironment::TryDeleteFileChunks()
     
     Log_Trace();
 
-    if (!deleteEnabled)
+    if (!StorageFileDeleter::IsEnabled())
         return;
 
     if (deleteChunkJobs.IsActive())
@@ -1453,7 +1462,7 @@ void StorageEnvironment::OnChunkWrite(StorageWriteChunkJob* job)
     WriteTOC();
     TryArchiveLogSegments();
     TryWriteChunks();
-    TryMergeChunks();    
+    TryMergeChunks();
     delete job;
 }
 
@@ -1504,7 +1513,6 @@ void StorageEnvironment::OnChunkMerge(StorageMergeChunkJob* job)
     }
     else
     {
-        DEBUG_ASSERT(!job->mergeChunk->IsEmpty());
         deleteChunkJobs.Execute(new StorageDeleteFileChunkJob(job->mergeChunk));
     }
     

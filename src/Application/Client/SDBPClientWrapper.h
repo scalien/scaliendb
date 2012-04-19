@@ -199,6 +199,21 @@ int             SDBP_Cancel(ClientObj client);
 /*
 ===============================================================================================
 
+ Transaction commands
+
+===============================================================================================
+*/
+
+int             SDBP_StartTransaction(
+                 ClientObj client, uint64_t quorumID, const std::string& majorKey);
+int             SDBP_StartTransactionCStr(
+                 ClientObj client, uint64_t quorumID, char* majorKey, int majorKeyLen);
+int             SDBP_CommitTransaction(ClientObj client);
+int             SDBP_RollbackTransaction(ClientObj client);
+
+/*
+===============================================================================================
+
  Debugging
 
 ===============================================================================================

@@ -908,7 +908,7 @@ void StorageRecovery::TryWriteChunks()
                 STOP_FAIL(1);
             }
 
-            Log_Debug("Chunk %U written, elapsed: %U, size: %s, bps: %sB/s",
+            Log_Message("Chunk %U written, elapsed: %U, size: %s, bps: %sB/s",
              fileChunk->GetChunkID(),
              (uint64_t) sw.Elapsed(), HUMAN_BYTES(fileChunk->GetSize()), 
              HUMAN_BYTES((uint64_t)(fileChunk->GetSize() / (sw.Elapsed() / 1000.0))));

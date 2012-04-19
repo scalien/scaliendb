@@ -4,15 +4,10 @@
 #include "Framework/Messaging/Message.h"
 
 #define SHARDMESSAGE_SET                    'S'
-#define SHARDMESSAGE_SET_IF_NOT_EXISTS      'I'
-#define SHARDMESSAGE_TEST_AND_SET           's'
-#define SHARDMESSAGE_TEST_AND_DELETE        'i'
-#define SHARDMESSAGE_GET_AND_SET            'g'
 #define SHARDMESSAGE_ADD                    'a'
 #define SHARDMESSAGE_SEQUENCE_ADD           'A'
-#define SHARDMESSAGE_APPEND                 'p'
 #define SHARDMESSAGE_DELETE                 'X'
-#define SHARDMESSAGE_REMOVE                 'x'
+#define SHARDMESSAGE_COMMIT_TRANSACTION     '>'
 #define SHARDMESSAGE_SPLIT_SHARD            'z'
 #define SHARDMESSAGE_TRUNCATE_TABLE         'y'
 #define SHARDMESSAGE_MIGRATION_BEGIN        '1'

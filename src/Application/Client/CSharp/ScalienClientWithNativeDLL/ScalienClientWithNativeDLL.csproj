@@ -98,6 +98,9 @@
     <Compile Include="..\ScalienClient\Submitter.cs">
       <Link>Submitter.cs</Link>
     </Compile>
+    <Compile Include="..\ScalienClient\Rollbacker.cs">
+      <Link>Rollbacker.cs</Link>
+    </Compile>
     <Compile Include="..\ScalienClient\SWIGTYPE_p_p_char.cs">
       <Link>SWIGTYPE_p_p_char.cs</Link>
     </Compile>

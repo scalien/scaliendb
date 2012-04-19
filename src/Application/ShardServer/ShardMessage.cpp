@@ -10,15 +10,9 @@ ShardMessage::ShardMessage()
 bool ShardMessage::IsClientWrite()
 {
     return (type == SHARDMESSAGE_SET ||
-            type == SHARDMESSAGE_SET_IF_NOT_EXISTS ||
-            type == SHARDMESSAGE_TEST_AND_SET ||
-            type == SHARDMESSAGE_TEST_AND_DELETE ||
-            type == SHARDMESSAGE_GET_AND_SET ||
             type == SHARDMESSAGE_ADD ||
             type == SHARDMESSAGE_SEQUENCE_ADD ||
-            type == SHARDMESSAGE_APPEND ||
-            type == SHARDMESSAGE_DELETE ||
-            type == SHARDMESSAGE_REMOVE);
+            type == SHARDMESSAGE_DELETE);
 }
 
 void ShardMessage::SplitShard(uint64_t shardID_, uint64_t newShardID_, ReadBuffer& splitKey_)
@@ -81,39 +75,20 @@ int ShardMessage::Read(ReadBuffer& buffer)
             read = buffer.Readf("%c:%U:%#R:%#R",
              &type, &tableID, &key, &value);
             break;
-        case SHARDMESSAGE_SET_IF_NOT_EXISTS:
-            read = buffer.Readf("%c:%U:%#R:%#R",
-             &type, &tableID, &key, &value);
-            break;
-        case SHARDMESSAGE_TEST_AND_SET:
-            read = buffer.Readf("%c:%U:%#R:%#R:%#R",
-             &type, &tableID, &key, &test, &value);
-            break;
-        case SHARDMESSAGE_TEST_AND_DELETE:
-            read = buffer.Readf("%c:%U:%#R:%#R",
-             &type, &tableID, &key, &test);
-            break;
-        case SHARDMESSAGE_GET_AND_SET:
-            read = buffer.Readf("%c:%U:%#R:%#R",
-             &type, &tableID, &key, &value);
-            break;
         case SHARDMESSAGE_ADD:
         case SHARDMESSAGE_SEQUENCE_ADD:
             read = buffer.Readf("%c:%U:%#R:%I",
              &type, &tableID, &key, &number);
             break;
-        case SHARDMESSAGE_APPEND:
-            read = buffer.Readf("%c:%U:%#R:%#R",
-             &type, &tableID, &key, &value);
-            break;
         case SHARDMESSAGE_DELETE:
             read = buffer.Readf("%c:%U:%#R",
              &type, &tableID, &key);
             break;
-        case SHARDMESSAGE_REMOVE:
-            read = buffer.Readf("%c:%U:%#R",
-             &type, &tableID, &key);
-            break;
+        // Transactions
+        case SHARDMESSAGE_COMMIT_TRANSACTION:
+            read = buffer.Readf("%c",
+             &type);
+             break;
         // Shard splitting
         case SHARDMESSAGE_SPLIT_SHARD:
             read = buffer.Readf("%c:%U:%U:%#B",
@@ -156,38 +131,19 @@ bool ShardMessage::Append(Buffer& buffer)
             buffer.Appendf("%c:%U:%#R:%#R",
              type, tableID, &key, &value);
             break;
-        case SHARDMESSAGE_SET_IF_NOT_EXISTS:
-            buffer.Appendf("%c:%U:%#R:%#R",
-             type, tableID, &key, &value);
-            break;
-        case SHARDMESSAGE_TEST_AND_SET:
-            buffer.Appendf("%c:%U:%#R:%#R:%#R",
-             type, tableID, &key, &test, &value);
-            break;
-        case SHARDMESSAGE_TEST_AND_DELETE:
-            buffer.Appendf("%c:%U:%#R:%#R",
-             type, tableID, &key, &test);
-            break;
-        case SHARDMESSAGE_GET_AND_SET:
-            buffer.Appendf("%c:%U:%#R:%#R",
-             type, tableID, &key, &value);
-            break;
         case SHARDMESSAGE_ADD:
         case SHARDMESSAGE_SEQUENCE_ADD:
             buffer.Appendf("%c:%U:%#R:%I",
              type, tableID, &key, number);
             break;
-        case SHARDMESSAGE_APPEND:
-            buffer.Appendf("%c:%U:%#R:%#R",
-             type, tableID, &key, &value);
-            break;
         case SHARDMESSAGE_DELETE:
             buffer.Appendf("%c:%U:%#R",
              type, tableID, &key);
             break;
-        case SHARDMESSAGE_REMOVE:
-            buffer.Appendf("%c:%U:%#R",
-             type, tableID, &key);
+        // Transactions
+        case SHARDMESSAGE_COMMIT_TRANSACTION:
+            buffer.Appendf("%c",
+             type);
             break;
         // Shard splitting
         case SHARDMESSAGE_SPLIT_SHARD:

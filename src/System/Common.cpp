@@ -552,6 +552,9 @@ const char* GetStackTrace(char* buffer, int size, const char* prefix)
 
     return buffer;
 #else
+    UNUSED(buffer);
+    UNUSED(size);
+    UNUSED(prefix);
     // TODO: 
     return "";
 #endif

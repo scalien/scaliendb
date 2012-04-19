@@ -147,7 +147,10 @@ int Client::Init(int nodec, const char* nodev[])
     highestSeenPaxosID = 0;
     connectivityStatus = SDBP_NOCONNECTION;
     timeoutStatus = SDBP_SUCCESS;
+    transactionStatus = SDBP_SUCCESS;
     numControllerRequests = 0;
+    numNestedTransactions = 0;
+    transactionQuorumID = 0;
     next = prev = this;
 
     // create the first result object
@@ -209,6 +212,11 @@ void Client::Shutdown()
 // this is always called from the IO thread with the client lock locked
 void Client::OnClientShutdown()
 {
+    ASSERT(numNestedTransactions >= 0);
+    if (numNestedTransactions > 0)
+        Log_Trace("numNestedTransactions = %d", numNestedTransactions);
+
+    numNestedTransactions = 0;
     ReleaseShardConnections();
     
     EventLoop::Remove(&masterTimeout);
@@ -650,7 +658,7 @@ void Client::GetTableNameAt(uint64_t databaseID, unsigned n, Buffer& name)
 int Client::Get(uint64_t tableID, const ReadBuffer& key)
 {
     Request*    req;
-    Request*    it;
+    Request*    proxiedRequest;
 
     if (key.GetLength() == 0)
 		return SDBP_API_ERROR;
@@ -662,17 +670,17 @@ int Client::Get(uint64_t tableID, const ReadBuffer& key)
     req->Get(NextCommandID(), configState.paxosID, tableID, (ReadBuffer&) key);
 
     // find
-    it = proxy.Find(req);
-    if (it)
+    proxiedRequest = proxy.Find(req);
+    if (proxiedRequest)
     {
         delete req;
-        if (it->type == CLIENTREQUEST_SET)
+        if (proxiedRequest->type == CLIENTREQUEST_SET)
         {
             result->proxied = true;
-            result->proxiedValue.Wrap(it->value);
+            result->proxiedValue.Wrap(proxiedRequest->value);
             return SDBP_SUCCESS;
         }
-        else if (it->type == CLIENTREQUEST_DELETE)
+        else if (proxiedRequest->type == CLIENTREQUEST_DELETE)
         {
             return SDBP_FAILED;
         }
@@ -689,85 +697,56 @@ int Client::Get(uint64_t tableID, const ReadBuffer& key)
 
 int Client::Set(uint64_t tableID, const ReadBuffer& key, const ReadBuffer& value)
 {
-    Request*    it;
-    Request*    req;
+    Request* req;
 
-    if (key.GetLength() == 0)
-		return SDBP_API_ERROR;
-
-    VALIDATE_CONTROLLERS();
-    CLIENT_MUTEX_GUARD_DECLARE();
-    
     req = new Request;
     req->Set(NextCommandID(), configState.paxosID,
      tableID, (ReadBuffer&) key, (ReadBuffer&) value);
-    
-    if (batchMode == SDBP_BATCH_NOAUTOSUBMIT &&
-     proxy.GetSize() + REQUEST_SIZE(req) >= batchLimit)
-    {
-        delete req;
-        return SDBP_API_ERROR;
-    }
 
-    it = proxy.RemoveAndAdd(req);
-    if (it)
-        delete it;
-    
-    CLIENT_MUTEX_GUARD_UNLOCK();
-    
-    if (batchMode == SDBP_BATCH_SINGLE)
-        return Submit();
-                                                    
-    if (batchMode == SDBP_BATCH_DEFAULT &&
-     proxy.GetSize() >= batchLimit)
-        return Submit();
-    
-    return SDBP_SUCCESS;
-}
-
-int Client::Add(uint64_t tableID, const ReadBuffer& key, int64_t number)
-{
-    Request*    req;
-
-    req = new Request;
-    req->Add(NextCommandID(), configState.paxosID, tableID, (ReadBuffer&) key, number);
-
-    return ShardRequest(req);
+    return ProxiedRequest(req);
 }
 
 int Client::Delete(uint64_t tableID, const ReadBuffer& key)
 {
-    Request*    it;
-    Request*    req;
-
-    if (key.GetLength() == 0)
-		return SDBP_API_ERROR;
-
-    CLIENT_MUTEX_GUARD_DECLARE();
+    Request* req;
 
     req = new Request;
-    req->Delete(NextCommandID(), configState.paxosID, tableID, (ReadBuffer&) key);
+    req->Delete(NextCommandID(), configState.paxosID,
+     tableID, (ReadBuffer&) key);
 
-    if (batchMode == SDBP_BATCH_NOAUTOSUBMIT &&
-     proxy.GetSize() + REQUEST_SIZE(req) >= batchLimit)
+    return ProxiedRequest(req);
+}
+
+int Client::Add(uint64_t tableID, const ReadBuffer& key, int64_t number)
+{
+    int         status;
+    Request*    req;
+    ReadBuffer  value;
+    Buffer      newValue;
+    int64_t     oldNumber;
+    int64_t     newNumber;
+
+    if (InTransaction())
     {
-        delete req;
-        return SDBP_API_ERROR;
+        status = Get(tableID, key);
+        if (status != SDBP_SUCCESS)
+            return status;
+        status = result->GetValue(value);
+        if (status != SDBP_SUCCESS)
+            return status;
+        status = value.Readf("%I", &oldNumber);
+        if (status <= 0)
+            return SDBP_FAILED;
+        newNumber = oldNumber + number;
+        newValue.Writef("%I", newNumber);
+        status = Set(tableID, key, newValue);
+        return status;
     }
 
-    it = proxy.RemoveAndAdd(req);
-    if (it)
-        delete it;
+    req = new Request;
+    req->Add(NextCommandID(), configState.paxosID, tableID, (ReadBuffer&) key, number);
 
-    CLIENT_MUTEX_GUARD_UNLOCK();
-
-    if (batchMode == SDBP_BATCH_SINGLE)
-        return Submit();
-
-    if (batchMode == SDBP_BATCH_DEFAULT && proxy.GetSize() >= batchLimit)
-        return Submit();
-
-    return SDBP_SUCCESS;
+    return PassthroughRequest(req);
 }
 
 int Client::SequenceSet(uint64_t tableID, const ReadBuffer& key, const uint64_t value)
@@ -777,7 +756,7 @@ int Client::SequenceSet(uint64_t tableID, const ReadBuffer& key, const uint64_t 
     req = new Request;
     req->SequenceSet(NextCommandID(), configState.paxosID, tableID, (ReadBuffer&) key, value);
 
-    return ShardRequest(req);
+    return PassthroughRequest(req);
 }
 
 int Client::SequenceNext(uint64_t tableID, const ReadBuffer& key)
@@ -787,7 +766,7 @@ int Client::SequenceNext(uint64_t tableID, const ReadBuffer& key)
     req = new Request;
     req->SequenceNext(NextCommandID(), configState.paxosID, tableID, (ReadBuffer&) key);
 
-    return ShardRequest(req);
+    return PassthroughRequest(req);
 }
 
 int Client::ListKeys(
@@ -900,6 +879,9 @@ int Client::Submit()
     VALIDATE_CONTROLLERS();
     CLIENT_MUTEX_GUARD_DECLARE();
 
+    if (InTransaction())
+        return SDBP_SUCCESS;
+
     if (proxy.GetCount() == 0)
         return SDBP_SUCCESS;
     
@@ -943,19 +925,135 @@ int Client::Cancel()
     return SDBP_SUCCESS;
 }
 
+int Client::StartTransaction(uint64_t quorumID, const ReadBuffer& majorKey)
+{    
+    Request*    req;
+
+    Log_Trace("majorKey: %R", &majorKey);
+    
+    CLIENT_MUTEX_GUARD_DECLARE();
+
+    if (proxy.GetCount() > 0)
+        return SDBP_API_ERROR;
+
+    ASSERT(numNestedTransactions >= 0);
+    if (numNestedTransactions >= 1)
+        return SDBP_SUCCESS;
+
+    transactionQuorumID = quorumID;
+    result->Close();
+
+    req = new Request;
+    req->StartTransaction(NextCommandID(), configState.paxosID, 
+      transactionQuorumID, (ReadBuffer&) majorKey);
+    AppendDataRequest(req);
+
+    CLIENT_MUTEX_GUARD_UNLOCK();
+    EventLoop();
+	CLIENT_MUTEX_GUARD_LOCK();
+    
+    if (result->GetCommandStatus() != SDBP_SUCCESS)
+        return result->GetCommandStatus();
+    
+    numNestedTransactions++;
+
+    return SDBP_SUCCESS;
+}
+
+int Client::CommitTransaction()
+{
+    Request*    req;
+    Request*    it;
+
+    Log_Trace();
+
+    CLIENT_MUTEX_GUARD_DECLARE();
+
+    if (!InTransaction())
+        return SDBP_API_ERROR;
+
+    numNestedTransactions--;
+    ASSERT(numNestedTransactions >= 0);
+    if (numNestedTransactions > 0)
+        return SDBP_SUCCESS;
+
+    req = new Request;
+    req->CommitTransaction(NextCommandID(), transactionQuorumID);
+
+    FOREACH_POP(it, proxy)
+    {
+        submittedRequests.Append(it);
+        result->AppendRequest(it);
+    }
+    
+    submittedRequests.Append(req);
+    result->AppendRequest(req);
+	//ASSERT(proxySize == 0);
+
+    CLIENT_MUTEX_GUARD_UNLOCK();
+    EventLoop();
+    CLIENT_MUTEX_GUARD_LOCK();
+
+    ClearQuorumRequests();
+    submittedRequests.ClearMembers();
+    
+    Log_Trace("CommitTransaction returning");
+    
+    return result->GetTransportStatus();
+}
+
+int Client::RollbackTransaction()
+{
+    Request* req;
+
+    Log_Trace();
+
+    CLIENT_MUTEX_GUARD_DECLARE();
+
+    if (!InTransaction())
+        return SDBP_SUCCESS;
+
+    req = new Request;
+    req->RollbackTransaction(NextCommandID(), transactionQuorumID);
+
+    submittedRequests.Append(req);
+    result->AppendRequest(req);
+
+    CLIENT_MUTEX_GUARD_UNLOCK();
+    EventLoop();
+    CLIENT_MUTEX_GUARD_LOCK();
+
+    ClearQuorumRequests();
+    submittedRequests.ClearMembers();
+    
+    numNestedTransactions = 0;
+
+    ClearRequests();
+    proxy.Clear();
+
+    Log_Trace("RollbackTransaction returning");
+    
+    return result->GetTransportStatus();
+}
+
 // =============================================================================================
 //
 // Client public interface ends here
 //    
 // =============================================================================================
 
-int Client::ShardRequest(Request* req)
+int Client::PassthroughRequest(Request* req)
 {
     Request*    itRequest;
     Request*    nextRequest;
     ReadBuffer  requestKey;
 
-    VALIDATE_CONTROLLERS();
+   if (controller == 0)
+   {
+       delete req;
+       return SDBP_API_ERROR;
+   }
+
     CLIENT_MUTEX_GUARD_DECLARE();
 	
     if (req->key.GetLength() == 0)
@@ -995,6 +1093,49 @@ int Client::ShardRequest(Request* req)
     }
     result->Begin();
     return result->GetCommandStatus();
+}
+
+int Client::ProxiedRequest(Request* req)
+{
+    Request* it;
+
+    req->transactional = InTransaction();
+
+    if (controller == 0)
+    {
+        delete req;
+        return SDBP_API_ERROR;
+    }
+
+    if (req->key.GetLength() == 0)
+    {
+        delete req;
+        return SDBP_API_ERROR;
+    }
+
+    CLIENT_MUTEX_GUARD_DECLARE();
+    
+    if ((batchMode == SDBP_BATCH_NOAUTOSUBMIT || InTransaction()) &&
+     proxy.GetSize() + REQUEST_SIZE(req) >= batchLimit)
+    {
+        delete req;
+        return SDBP_API_ERROR;
+    }
+
+    it = proxy.RemoveAndAdd(req);
+    if (it)
+        delete it;
+    
+    CLIENT_MUTEX_GUARD_UNLOCK();
+    
+    if (batchMode == SDBP_BATCH_SINGLE)
+        return Submit();
+                                                    
+    if (batchMode == SDBP_BATCH_DEFAULT &&
+     proxy.GetSize() >= batchLimit)
+        return Submit();
+    
+    return SDBP_SUCCESS;
 }
 
 int Client::ConfigRequest(Request* req)
@@ -1068,6 +1209,7 @@ void Client::EventLoop()
         SendQuorumRequests();
     }
     timeoutStatus = SDBP_SUCCESS;
+    transactionStatus = SDBP_SUCCESS;
     if (!IsDone())
     {
         Log_Trace("Not IsDone");
@@ -1114,6 +1256,9 @@ bool Client::IsDone()
     {
         return true;
     }
+
+    if (transactionStatus != SDBP_SUCCESS)
+        return true;
 
     if (!EventLoop::IsRunning() && EventLoop::IsStarted())
     {
@@ -1231,21 +1376,27 @@ void Client::ReassignRequest(Request* req)
         return;
     }
 
-    // find quorum by key
-    key.Wrap(req->key);
-    if (!GetQuorumID(req->tableID, key, quorumID))
+    if (req->quorumID == 0)
     {
-        ClientResponse  response;
+        // find quorum by key
+        key.Wrap(req->key);
+        if (!GetQuorumID(req->tableID, key, quorumID))
+        {
+            ClientResponse  response;
 
-        response.BadSchema();
-        response.commandID = req->commandID;
-        result->AppendRequestResponse(&response);
-        return;
+            response.BadSchema();
+            response.commandID = req->commandID;
+            result->AppendRequestResponse(&response);
+            return;
+        }
+
+        // reassign the request to the new quorum
+        if (req->quorumID != 0 && InTransaction())
+            transactionStatus = SDBP_FAILED;
+        
+        req->quorumID = quorumID;
     }
-
-    // reassign the request to the new quorum
-    req->quorumID = quorumID;
-
+    
     quorum = configState.GetQuorum(quorumID);
     if (!req->IsReadRequest() && quorum && quorum->hasPrimary == false)
         submittedRequests.Append(req);
@@ -1647,7 +1798,16 @@ void Client::ConfigureShardServers()
 
 void Client::ReleaseShardConnections()
 {
-    ShardConnection*    shardConnection;
+    ShardConnection* shardConnection;
+
+    // do not release connection while in a transaction
+    // because the start_transaction has been sent to the server
+    // and on the server side the lifetime of the tx
+    // is tied to the connection
+    //
+    // this function could run after a GET completes, which goes through the EventLoop even inside a transaction
+    if (InTransaction())
+        return;
 
     FOREACH (shardConnection, shardConnections)
         shardConnection->ReleaseConnection();
@@ -2040,4 +2200,14 @@ bool Client::IsGlobalLocked()
 Mutex& Client::GetGlobalMutex()
 {
     return globalMutex;
+}
+
+bool Client::InTransaction()
+{
+    ASSERT(numNestedTransactions >= 0);
+
+    if (numNestedTransactions > 0)
+        return true;
+    else
+        return false;
 }

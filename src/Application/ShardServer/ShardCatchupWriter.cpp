@@ -80,7 +80,7 @@ void ShardCatchupWriter::Begin(CatchupMessage& request)
     ASSERT(quorumProcessor != NULL);
     ASSERT(cursor == NULL);
 
-    Log_Debug("Disabling database merge for the duration of catchup (sending)");
+    Log_Message("Disabling database merge for the duration of catchup (sending)");
     environment->SetMergeEnabled(false);
 
     isActive = true;
@@ -105,8 +105,7 @@ void ShardCatchupWriter::Abort()
 {
     CatchupMessage msg;
     
-    Log_Message("Catchup aborted");
-    Log_Debug("Enabling database merge");
+    Log_Message("Catchup aborted, enabling database merge");
     environment->SetMergeEnabled(true);
     
     msg.Abort();
@@ -123,7 +122,8 @@ void ShardCatchupWriter::Abort()
     Reset();
 }
 
-void ShardCatchupWriter::OnShardMessage(uint64_t paxosID, uint64_t commandID, uint64_t shardID, ShardMessage& shardMessage)
+void ShardCatchupWriter::OnShardMessage(uint64_t /*paxosID*/, uint64_t /*commandID*/,
+ uint64_t shardID, ShardMessage& shardMessage)
 {
     CatchupMessage msg;
 
@@ -145,7 +145,12 @@ void ShardCatchupWriter::OnShardMessage(uint64_t paxosID, uint64_t commandID, ui
 
 void ShardCatchupWriter::OnBlockShard()
 {
-    quorumProcessor->OnBlockShard(shardID);
+    quorumProcessor->SetBlockReplication(true);
+}
+
+void ShardCatchupWriter::OnUnblockShard()
+{
+    quorumProcessor->SetBlockReplication(false);
 }
 
 void ShardCatchupWriter::OnTryCommit()
@@ -166,7 +171,7 @@ void ShardCatchupWriter::SendCommit()
     paxosID = quorumProcessor->GetPaxosID() - 1;
     msg.Commit(paxosID);
     CONTEXT_TRANSPORT->SendQuorumMessage(nodeID, quorumID, msg);
-    Log_Debug("Sending COMMIT with paxosID = %U", paxosID);
+    Log_Message("Sending COMMIT with paxosID = %U", paxosID);
 
     if (cursor != NULL)
     {
@@ -192,7 +197,7 @@ void ShardCatchupWriter::SendFirst()
 
     ASSERT(cursor == NULL);
     cursor = environment->GetBulkCursor(QUORUM_DATABASE_DATA_CONTEXT, shardID);
-    cursor->SetOnBlockShard(MFUNC(ShardCatchupWriter, OnBlockShard));
+    cursor->SetOnBlockShard(MFUNC(ShardCatchupWriter, OnBlockShard), MFUNC(ShardCatchupWriter, OnUnblockShard));
     ASSERT(cursor != NULL);
 
     msg.BeginShard(shardID);
@@ -246,7 +251,7 @@ void ShardCatchupWriter::SendNext()
 
     cursor = quorumProcessor->GetShardServer()->GetDatabaseManager()->GetEnvironment()->GetBulkCursor(
      QUORUM_DATABASE_DATA_CONTEXT, shardID);
-    cursor->SetOnBlockShard(MFUNC(ShardCatchupWriter, OnBlockShard));
+    cursor->SetOnBlockShard(MFUNC(ShardCatchupWriter, OnBlockShard), MFUNC(ShardCatchupWriter, OnUnblockShard));
 
     msg.BeginShard(shardID);
     CONTEXT_TRANSPORT->SendQuorumMessage(nodeID, quorumID, msg);

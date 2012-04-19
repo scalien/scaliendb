@@ -108,6 +108,10 @@ class scaliendb_clientJNI {
   public final static native int SDBP_Begin(long jarg1);
   public final static native int SDBP_Submit(long jarg1);
   public final static native int SDBP_Cancel(long jarg1);
+  public final static native int SDBP_StartTransaction(long jarg1, long jarg2, String jarg3);
+  public final static native int SDBP_StartTransactionCStr(long jarg1, long jarg2, byte[] jarg3, int jarg4);
+  public final static native int SDBP_CommitTransaction(long jarg1);
+  public final static native int SDBP_RollbackTransaction(long jarg1);
   public final static native void SDBP_SetTrace(boolean jarg1);
   public final static native void SDBP_SetDebug(boolean jarg1);
   public final static native void SDBP_SetLogFile(String jarg1);

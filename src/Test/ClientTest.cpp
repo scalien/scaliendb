@@ -49,6 +49,7 @@ static void TestShutdown();
 // module global variables
 static uint64_t     defaultTableID;
 static uint64_t     defaultDatabaseID;
+static uint64_t     defaultQuorumID;
 static bool         stopOnTestFailure = true;
 static uint32_t     failCount;
 static bool         configRead = false;
@@ -111,10 +112,12 @@ static void ReadConfig()
 
 static int SetupDefaultClient(Client& client)
 {
-    std::string     databaseName = "test";
-    std::string     tableName = "test";
+    std::string     databaseName;
+    std::string     tableName;
+    std::string     quorumName;
     uint64_t        databaseID;
     uint64_t        tableID;
+    uint64_t        quorumID;
     int             ret;
     ClientObj       clientObj;
 
@@ -130,6 +133,7 @@ static int SetupDefaultClient(Client& client)
 
     databaseName = configFile.GetValue("databaseName", "test");
     tableName = configFile.GetValue("tableName", "test");
+    quorumName = configFile.GetValue("quorumName", "quorum 1");
 
     client.SetMasterTimeout((uint64_t)configFile.GetInt64Value("masterTimeout", 10*1000));
     client.SetGlobalTimeout((uint64_t)configFile.GetInt64Value("globalTimeout", 30*1000));
@@ -163,6 +167,11 @@ static int SetupDefaultClient(Client& client)
     if (tableID == 0)
         return TEST_FAILURE;
     defaultTableID = tableID;
+    
+    quorumID = SDBP_GetQuorumIDByName(clientObj, quorumName);
+    if (quorumID == 0)
+        return TEST_FAILURE;
+    defaultQuorumID = quorumID;
 
     return TEST_SUCCESS;
 }
@@ -1346,4 +1355,43 @@ TEST_DEFINE(TestClientMultiThreadMulti)
     for (int i = 0; i < 10; i++)
         TestClientBatchedSetRandom();
     return TEST_SUCCESS;
+}
+
+TEST_DEFINE(TestClientTransactionBasic)
+{
+    Client          client;
+    ReadBuffer      key;
+    ReadBuffer      value;
+    int             ret;
+        
+    ret = SetupDefaultClient(client);
+    if (ret != SDBP_SUCCESS)
+        TEST_CLIENT_FAIL();
+
+    ret = client.StartTransaction(defaultQuorumID, "major");
+    if (ret != SDBP_SUCCESS)
+        TEST_CLIENT_FAIL();
+
+    key.Wrap("a");
+    value.Wrap("a");
+    ret = client.Set(defaultTableID, key, value);
+    if (ret != SDBP_SUCCESS)
+        TEST_CLIENT_FAIL();
+
+    key.Wrap("b");
+    value.Wrap("b");
+    ret = client.Set(defaultTableID, key, value);
+    if (ret != SDBP_SUCCESS)
+        TEST_CLIENT_FAIL();
+    
+    MSleep(10*1000);
+    
+    ret = client.CommitTransaction();
+    if (ret != SDBP_SUCCESS)
+        TEST_CLIENT_FAIL();
+
+    client.Shutdown();
+    
+    return TEST_SUCCESS;
+    
 }

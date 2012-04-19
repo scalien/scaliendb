@@ -226,6 +226,11 @@ void ConfigQuorumContext::OnStartCatchup()
     quorumProcessor->OnStartCatchup();
 }
 
+void ConfigQuorumContext::OnCatchupStarted()
+{
+    replicatedLog.OnCatchupStarted();
+}
+
 void ConfigQuorumContext::OnCatchupComplete(uint64_t paxosID)
 {
     replicatedLog.OnCatchupComplete(paxosID);
@@ -279,7 +284,7 @@ void ConfigQuorumContext::OnPaxosMessage(ReadBuffer buffer)
     {
         if (!quorum.IsMember(msg.nodeID))
         {
-            Log_Debug("Dropping paxos msg from %U because that node is not a quourm member", msg.nodeID);
+            Log_Message("Dropping paxos msg from %U because that node is not a quourm member", msg.nodeID);
             OnMessageProcessed();
             return;
         }

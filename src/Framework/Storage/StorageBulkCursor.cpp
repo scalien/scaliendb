@@ -14,6 +14,7 @@ StorageBulkCursor::StorageBulkCursor()
     logSegmentID = 0;
     logCommandID = 0;
     env = NULL;
+    blockCounter = 0;
 }
 
 StorageBulkCursor::~StorageBulkCursor()
@@ -26,10 +27,11 @@ void StorageBulkCursor::SetEnvironment(StorageEnvironment* env_)
     env = env_;
 }
 
-void StorageBulkCursor::SetOnBlockShard(Callable onBlockShard_)
+void StorageBulkCursor::SetOnBlockShard(Callable onBlockShard_, Callable onUnblockShard_)
 {
     blockShard = true;
     onBlockShard = onBlockShard_;
+    onUnblockShard = onUnblockShard_;
 }
 
 void StorageBulkCursor::SetShard(uint64_t contextID_, uint64_t shardID_)
@@ -78,8 +80,16 @@ StorageKeyValue* StorageBulkCursor::Next(StorageKeyValue* it)
     }
     
     if (!env->ShardExists(contextID, shardID))
+    {
+        if (blockShard && blockCounter > 0)
+        {
+            ASSERT(blockCounter == 1);
+            blockCounter--;
+            Call(onUnblockShard);
+        }
         return NULL;
-        
+    }
+
     FOREACH (itChunk, shard->chunks)
     {
         if ((*itChunk)->GetChunkID() == chunkID)
@@ -101,11 +111,26 @@ StorageKeyValue* StorageBulkCursor::Next(StorageKeyValue* it)
                 ASSERT_FAIL();
             chunk = *(shard->chunks.Last()); // this is the memo chunk we just pushed
             if (chunk->GetSize() < STORAGE_MEMO_BUNCH_GRAN)
-                Call(onBlockShard);
+            {
+                if (blockCounter == 0)
+                {
+                    blockCounter++;
+                    Call(onBlockShard);
+                }
+                else
+                {
+                    ASSERT(blockCounter == 1);
+                }
+            }
         }
         else
         {
-            Call(onBlockShard);
+            if (blockCounter > 0)
+            {
+                ASSERT(blockCounter == 1);
+                blockCounter--;
+                Call(onUnblockShard);
+            }
             return NULL;
         }
     }
@@ -201,7 +226,15 @@ StorageKeyValue* StorageBulkCursor::FromNextBunch(StorageChunk* chunk)
             if (shard->GetMemoChunk()->GetChunkID() == chunkID)
             {
                 if (blockShard)
-                    Call(onBlockShard);
+                {
+                    if (blockCounter > 0)
+                    {
+                        ASSERT(blockCounter == 1);
+                        blockCounter--;
+                        Call(onUnblockShard);
+                    }
+
+                }
                 Log_Debug("End of iteration");
                 return NULL; // end of iteration
             }
@@ -215,11 +248,26 @@ StorageKeyValue* StorageBulkCursor::FromNextBunch(StorageChunk* chunk)
                         ASSERT_FAIL();
                     chunk = *(shard->chunks.Last()); // this is the memo chunk we just pushed
                     if (chunk->GetSize() < STORAGE_MEMO_BUNCH_GRAN)
-                        Call(onBlockShard);
+                    {
+                        if (blockCounter == 0)
+                        {
+                            blockCounter++;
+                            Call(onBlockShard);
+                        }
+                        else
+                        {
+                            ASSERT(blockCounter == 1);
+                        }
+                    }
                 }
                 else
                 {
-                    Call(onBlockShard);
+                    if (blockCounter > 0)
+                    {
+                        ASSERT(blockCounter == 1);
+                        blockCounter--;
+                        Call(onUnblockShard);
+                    }
                     return NULL;
                 }
             }

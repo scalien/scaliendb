@@ -154,7 +154,7 @@ void ShardMigrationWriter::SendFirst()
 
     ASSERT(cursor == NULL);
     cursor = environment->GetBulkCursor(QUORUM_DATABASE_DATA_CONTEXT, srcShardID);
-    cursor->SetOnBlockShard(MFUNC(ShardMigrationWriter, OnBlockShard));
+    cursor->SetOnBlockShard(MFUNC(ShardMigrationWriter, OnBlockShard), MFUNC(ShardMigrationWriter, OnUnblockShard));
 
     msg.ShardMigrationBegin(quorumID, srcShardID, dstShardID);
     CONTEXT_TRANSPORT->SendClusterMessage(nodeID, msg);
@@ -265,7 +265,12 @@ void ShardMigrationWriter::OnBlockShard()
     ASSERT(configShard);
     quorumProcessor = shardServer->GetQuorumProcessor(configShard->quorumID);
     ASSERT(quorumProcessor);
-    quorumProcessor->OnBlockShard(srcShardID);
+    quorumProcessor->SetBlockReplication(true);
+}
+
+void ShardMigrationWriter::OnUnblockShard()
+{
+    quorumProcessor->SetBlockReplication(false);
 }
 
 void ShardMigrationWriter::OnTimeout()

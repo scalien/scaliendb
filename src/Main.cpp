@@ -289,11 +289,11 @@ static void LogPrintVersion(bool isController)
     Log_Message("%s started as %s", PRODUCT_STRING,
      isController ? "CONTROLLER" : "SHARD SERVER");
 
-    Log_Debug("Pid: %U", GetProcessID());
-    Log_Debug("%s", BUILD_DATE);
-    Log_Debug("Branch: %s", SOURCE_CONTROL_BRANCH);
-    Log_Debug("Source control version: %s", SOURCE_CONTROL_VERSION);
-    Log_Debug("================================================================");
+    Log_Message("Pid: %U", GetProcessID());
+    Log_Message("%s", BUILD_DATE);
+    Log_Message("Branch: %s", SOURCE_CONTROL_BRANCH);
+    Log_Message("Source control version: %s", SOURCE_CONTROL_VERSION);
+    Log_Message("================================================================");
 }
 
 static void CrashReporterCallback()

@@ -117,7 +117,7 @@ public class Client
      * You must call close() at the end of the program to clean up after the client instance.
      * Also, close() automatically calls <a href="#submit()">submit()</a> to send off any batched commands.
      * @see #submit()
-     * @see #rollback()
+     * @see #cancel()
      */
     public void close() {
         if (cptr != null) {
@@ -555,7 +555,7 @@ public class Client
     
     /**
      * Send the batched operations to the ScalienDB server.
-     * @see #rollback()
+     * @see #cancel()
      */
     public void submit() throws SDBPException {
         int status = scaliendb_client.SDBP_Submit(cptr);
@@ -567,9 +567,49 @@ public class Client
      * Discard all batched operations.
      * @see #submit()
      */
-    public void rollback() throws SDBPException {
+    public void cancel() throws SDBPException {
         int status = scaliendb_client.SDBP_Cancel(cptr);
         checkStatus(status);        
+    }
+    
+    /**
+     * Start a transaction on quorum which locks major key.
+     * @see #commitTransaction()
+     * @see #rollbackTransaction()
+     */
+    public void startTransaction(Quorum quorum, String majorKey) throws SDBPException {
+        startTransaction(quorum, stringToByteArray(majorKey));
+    }
+    
+    /**
+     * Start a transaction on quorum which locks major key.
+     * @see #commitTransaction()
+     * @see #rollbackTransaction()
+     */
+    public void startTransaction(Quorum quorum, byte[] majorKey) throws SDBPException {
+        int status = scaliendb_client.SDBP_StartTransactionCStr(cptr, quorum.getQuorumID(), majorKey, majorKey.length);
+        result = new Result(scaliendb_client.SDBP_GetResult(cptr));
+        checkStatus(status);
+    }
+
+    /**
+     * Commit a previously started transaction.
+     * @see #startTransaction()
+     * @see #rollbackTransaction()
+     */
+    public void commitTransaction() throws SDBPException {
+        int status = scaliendb_client.SDBP_CommitTransaction(cptr);
+        checkStatus(status);
+    }
+
+    /**
+     * Rollback a previously started transaction.
+     * @see #startTransaction()
+     * @see #commitTransaction()
+     */
+    public void rollbackTransaction() throws SDBPException {
+        int status = scaliendb_client.SDBP_RollbackTransaction(cptr);
+        checkStatus(status);
     }
 
     static byte[] stringToByteArray(String s) throws SDBPException { 

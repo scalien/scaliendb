@@ -105,6 +105,7 @@
     <Compile Include="ByteKeyIterator.cs" />
     <Compile Include="ByteKeyValueIterator.cs" />
     <Compile Include="ByteRangeParams.cs" />
+    <Compile Include="Rollbacker.cs" />
     <Compile Include="Client.cs" />
     <Compile Include="Database.cs" />
     <Compile Include="imaxdiv_t.cs" />

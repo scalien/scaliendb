@@ -88,7 +88,7 @@ void ConfigHeartbeatManager::OnHeartbeatTimeout()
         if (itHeartbeat->expireTime <= now)
         {
             CONTEXT_TRANSPORT->DropConnection(itHeartbeat->nodeID);
-            Log_Debug("Removing node %U from heartbeats list", itHeartbeat->nodeID);
+            Log_Message("Removing node %U from heartbeats list", itHeartbeat->nodeID);
             itShardServer = CONFIG_STATE->GetShardServer(itHeartbeat->nodeID);
             // if the shard server was unregistered, itShardServer is NULL here
             if (itShardServer != NULL)

@@ -553,8 +553,17 @@ class Client:
             raise Error(status, "No request could be served")
         return status
     
-    def rollback(self):
+    def cancel(self):
         return SDBP_Cancel(self._cptr)
+        
+    def start_transaction(self, quorum, major_key):
+        return SDBP_StartTransaction(self._cptr, quorum._quorum_id, major_key)
+    
+    def commit_transaction(self):
+        return SDBP_CommitTransaction(self._cptr)
+    
+    def rollback_transaction(self):
+        return SDBP_RollbackTransaction(self._cptr)
     
     def _data_command(self, func, *args):
         status = func(self._cptr, *args)

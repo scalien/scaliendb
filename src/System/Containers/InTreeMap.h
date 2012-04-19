@@ -1,39 +1,74 @@
-#ifndef INTREEMAP_H
-#define INTREEMAP_H
-
-#include "InTreeMap2.h"
-
-#if 0
+#ifndef INTREEMAP2_H
+#define INTREEMAP2_H
 
 #include <stdlib.h>
 
+#include "System/Macros.h"
+#include "System/Common.h"
+#include "System/Platform.h"
+
+#define FOUND_IN_TREE(it, cmpres) ((cmpres) == 0 && (it) != NULL)
+
 /*
-===============================================================================================
+ ===============================================================================================
+ 
+ Check alignment that makes storing the parent and the color in the same memory possible
+ 
+ ===============================================================================================
+ */
 
+template<typename T>
+struct AligmentCheck
+{
+    char    c;
+    T       t;
+};
+
+template <unsigned A, unsigned S>
+struct AlignmentLogic
+{
+    static const size_t value = A < S ? A : S;
+};
+
+template<typename T>
+struct AlignmentOf 
+{
+    static const size_t value = AlignmentLogic<
+                                 sizeof(AligmentCheck<T>) - sizeof(T), sizeof(T)>::value;
+};
+
+/*
+ ===============================================================================================
+ 
  InTreeNode is the datatype that is stored in InTreeMap
+ 
+ ===============================================================================================
+ */
 
-===============================================================================================
-*/
+#define INTREENODE_COLOR_MASK   0x03
 
 template<typename T>
 class InTreeNode
 {
 public:
+    STATIC_ASSERT((AlignmentOf<T*>::value > sizeof(char)), "Pointers are not aligned, bit packing is not possible!");
+
     enum Color 
     {
-        RED,
-        BLACK
+        NOCOLOR = 0,
+        RED = 2,
+        BLACK = 3
     };
-
-    Color                   color;
-    InTreeNode<T>*          left;
-    InTreeNode<T>*          right;
-    InTreeNode<T>*          parent;
-    T*                      owner;
+    
+    T*                      left;
+    T*                      right;
+    uintptr_t               parent;
     
     InTreeNode();
     
     bool                    IsInTree();
+    T*                      GetParent();
+    int                     GetColor();
 };
 
 template<typename T>
@@ -41,31 +76,44 @@ InTreeNode<T>::InTreeNode()
 {
     left = NULL;
     right = NULL;
-    parent = NULL;
+    parent = 0;
 }
 
 template<typename T>
 bool InTreeNode<T>::IsInTree()
 {
-    if (left == NULL && right == NULL && parent == NULL)
+    if (left == NULL && right == NULL && parent == 0)
         return false;
     return true;
 }
 
+template<typename T>
+T* InTreeNode<T>::GetParent()
+{
+    return (T*)(parent & ~INTREENODE_COLOR_MASK);
+}
+
+template<typename T>
+int InTreeNode<T>::GetColor()
+{
+    return (parent & INTREENODE_COLOR_MASK);
+}
+
+
 /*
-===============================================================================================
-
+ ===============================================================================================
+ 
  InTreeMap is an intrusive associative map, implemented with Red-Black tree
-
-===============================================================================================
-*/
+ 
+ ===============================================================================================
+ */
 
 template<typename T, InTreeNode<T> T::*pnode = &T::treeNode>
 class InTreeMap
 {
 public:
-    typedef InTreeNode<T>   Node;
-
+    typedef InTreeNode<T>   Node;    
+    
     InTreeMap();
     
     unsigned                GetCount();
@@ -75,46 +123,58 @@ public:
     T*                      Mid();
     T*                      Next(T* t);
     T*                      Prev(T* t);
-
+    
     template<typename K>
     T*                      Get(K key);
-
+    
     template<typename K>
     T*                      Locate(K key, int& cmpres);
+
+    template<typename K>
+    T*                      FindGreaterOrEqual(K key);
     
+    template<typename K>
     T*                      Insert(T* t);
     void                    InsertAt(T* t, T* pos, int cmpres);
     
+    T*                      Delete(T* t);
+    T*                      Pop();
     T*                      Remove(T* t);
     
     void                    Clear();
     void                    DeleteTree();
-        
+    
+    bool                    CheckConstraints();
+    bool                    CheckColorConstraint(T* node);
+    
 private:
-    void                    DeleteInner(Node* inner);
-    void                    FixColorsOnRemoval(Node* node, Node* parent);
-    void                    FixColors(Node* node);
-    void                    FixUncleColors(Node* node);
-    void                    FixRotation(Node* node);
-    void                    ReplaceNode(Node* src, Node* dst);
-    void                    RotateLeft(Node* node);
-    void                    RotateRight(Node* node);
+    void                    DeleteInner(T* inner);
+    void                    RemoveInner(T* inner);
+    void                    FixColorsOnRemoval(T* elem, T* parent);
+    void                    FixColors(T* elem);
+    void                    FixUncleColors(T* elem);
+    void                    FixRotation(T* elem);
+    void                    RotateLeft(T* elem);
+    void                    RotateRight(T* elem);
+    void                    ReplaceNode(T* src, T* dst);    
+    void                    MarkNodeRemoved(T* elem);
+    
+    bool                    IsLeftChild(T* elem) const;
+    bool                    IsRightChild(T* elem) const;
+    
+    T*                      GetLeft(T* elem) const;
+    T*                      GetRight(T* elem) const;
+    int                     GetColor(T* elem) const;
+    T*                      GetParent(T* elem) const;
+    T*                      GetUncle(T* elem) const;
+    T*                      GetGrandparent(T* elem) const;
 
-    bool                    IsLeftChild(Node* node);
-    bool                    IsRightChild(Node* node);
+    void                    SetLeft(T* elem, T* left);
+    void                    SetRight(T* elem, T* right);
+    void                    SetParent(T* elem, T* parent);
+    void                    SetColor(T* elem, int color);
     
-    Node*                   Left(Node* node);
-    Node*                   Right(Node* node);
-    Node*                   Parent(Node* node);
-    Node*                   Uncle(Node* node);
-    Node*                   Grandparent(Node* node);
-    
-    Node*                   MaxNode(Node* node);
-    
-    static T*               GetElem(Node* node);
-    static Node*            GetNode(T* t);
-
-    Node*                   root;
+    T*                      root;
     unsigned                count;
 };
 
@@ -135,100 +195,110 @@ unsigned InTreeMap<T, pnode>::GetCount()
 template<typename T, InTreeNode<T> T::*pnode>
 T* InTreeMap<T, pnode>::First()
 {
-    Node*   node;
+    T*  elem;
+    T*  left;
     
     if (root == NULL)
         return NULL;
-
-    node = root;
-    while (node->left)
-        node = node->left;
-
-    return GetElem(node);
+    
+    elem = root;
+    left = GetLeft(elem);
+    while (left)
+    {
+        elem = left;
+        left = GetLeft(elem);
+    }
+    
+    return elem;
 }
 
 template<typename T, InTreeNode<T> T::*pnode>
 T* InTreeMap<T, pnode>::Last()
 {
-    Node*   node;
+    T*  elem;
+    T*  right;
     
     if (root == NULL)
         return NULL;
-
-    node = root;
-    while (node->right)
-        node = node->right;
-
-    return GetElem(node);
+    
+    elem = root;
+    right = GetRight(elem);
+    while (right)
+    {
+        elem = right;
+        right = GetRight(elem);
+    }
+    
+    return elem;
 }
 
 template<typename T, InTreeNode<T> T::*pnode>
 T* InTreeMap<T, pnode>::Mid()
 {
-    return GetElem(root);
+    return root;
 }
 
 template<typename T, InTreeNode<T> T::*pnode>
 T* InTreeMap<T, pnode>::Next(T* t)
 {
-    Node*   node;
-    Node*   parent;
-    
-    node = GetNode(t);
-    if (node->right)
-    {
-        node = node->right;
-        while (node->left)
-            node = node->left;
+    T*  elem;
+    T*  parent;
 
-        return GetElem(node);
+    elem = t;
+    if (GetRight(elem))
+    {
+        elem = GetRight(elem);
+        while (GetLeft(elem))
+            elem = GetLeft(elem);
+        
+        return elem;
     }
     
-    while ((parent = node->parent) && node == parent->right)
-        node = parent;
-        
-    return GetElem(parent);
+    while ((parent = GetParent(elem)) && elem == GetRight(parent))
+        elem = parent;
+    
+    return parent;
 }
 
 template<typename T, InTreeNode<T> T::*pnode>
 T* InTreeMap<T, pnode>::Prev(T* t)
 {
-    Node*   node;
-    Node*   parent;
+    T*  elem;
+    T*  parent;
     
-    node = GetNode(t);
-    if (node->left)
+    elem = t;
+    if (GetLeft(elem))
     {
-        node = node->left;
-        while (node->right)
-            node = node->right;
-
-        return GetElem(node);
+        elem = GetLeft(elem);
+        while (GetRight(elem))
+            elem = GetRight(elem);
+        
+        return elem;
     }
     
-    while ((parent = node->parent) && node == parent->left)
-        node = parent;
-        
-    return GetElem(parent);
+    while ((parent = GetParent(elem)) && elem == GetLeft(parent))
+        elem = parent;
+    
+    return parent;
 }
 
 template<typename T, InTreeNode<T> T::*pnode>
 template<typename K>
 T* InTreeMap<T, pnode>::Get(K key)
 {
-    Node*   node;
+    T*      elem;
     int     result;
     
-    node = root;
-    while (node)
+    elem = root;
+    while (elem)
     {
-        result = KeyCmp(key, Key(node->owner));
+        result = KeyCmp(key, Key(elem));
         if (result < 0)
-            node = Left(node);
+            elem = GetLeft(elem);
         else if (result > 0)
-            node = Right(node);
+            elem = GetRight(elem);
         else
-            return GetElem(node);
+            return elem;
     }
     return NULL;
 }
@@ -237,95 +307,111 @@ template<typename T, InTreeNode<T> T::*pnode>
 template<typename K>
 T* InTreeMap<T, pnode>::Locate(K key, int& cmpres)
 {
-    Node*   node;
+    T*      elem;
     
     cmpres = 0;
-    node = root;
-    while (node)
+    elem = root;
+    while (elem)
     {
-        cmpres = KeyCmp(key, Key(node->owner));
+        cmpres = KeyCmp(key, Key(elem));
         if (cmpres < 0)
         {
-            if (node->left == NULL)
+            if (GetLeft(elem) == NULL)
                 break;
-            node = node->left;
+            elem = GetLeft(elem);
         }
         else if (cmpres > 0)
         {
-            if (node->right == NULL)
+            if (GetRight(elem) == NULL)
                 break;
-            node = node->right;
+            elem = GetRight(elem);
         }
         else
             break;
     }
+    
+    return elem;
+}
 
-    return GetElem(node);
+template<typename T, InTreeNode<T> T::*pnode>
+template<typename K>
+T* InTreeMap<T, pnode>::FindGreaterOrEqual(K key)
+{
+    T*      elem;
+    int     cmpres;
+    
+    elem = Locate(key, cmpres);
+    if (elem != NULL && cmpres > 0)
+        elem = Next(elem);
+    
+    return elem;
 }
 
 template<typename T, InTreeNode<T> T::*pnode>
 void InTreeMap<T, pnode>::InsertAt(T* t, T* pos, int cmpres)
 {
-    Node*   node;
-    Node*   curr;
+    T*      elem;
+    T*      curr;
+
+    ASSERT(!(t->*pnode).IsInTree());
     
-    node = GetNode(t);
-    node->owner = t;
-    node->left = NULL;
-    node->right = NULL;
-    node->parent = NULL;
-    node->color = Node::RED;
+    elem = t;
+    SetLeft(elem, NULL);
+    SetRight(elem, NULL);
+    SetParent(elem, NULL);
+    SetColor(elem, Node::RED);
     if (root == NULL)
     {
         ASSERT(pos == NULL && cmpres == 0);
-        root = node;
+        root = elem;
         count = 1;
         return;
     }
     
-    curr = GetNode(pos);
+    curr = pos;
     if (cmpres < 0)
     {
-        ASSERT(curr->left == NULL);
-        curr->left = node;
+        ASSERT(GetLeft(curr) == NULL);
+        SetLeft(curr, elem);
         count++;
     }
     else if (cmpres > 0)
     {
-        ASSERT(curr->right == NULL);
-        curr->right = node;
+        ASSERT(GetRight(curr) == NULL);
+        SetRight(curr, elem);
         count++;
     }
     else
     {
         // overwrite the node and the owner in place
-        node->color = curr->color;
-        ReplaceNode(curr, node);
-        curr->owner = NULL;
+        SetColor(elem, GetColor(curr));
+        ReplaceNode(curr, elem);
         return;
     }
     
-    node->parent = curr;
-    FixColors(node);
+    SetParent(elem, curr);
+    FixColors(elem);
 }
 
 template<typename T, InTreeNode<T> T::*pnode>
+template<typename K>
 T* InTreeMap<T, pnode>::Insert(T* t)
 {
-    Node*   curr;
-    Node*   node;
-    T*      owner;
+    T*      curr;
+    T*      elem;
     int     result;
-    
-    node = &(t->*pnode);
-    node->owner = t;
-    node->left = NULL;
-    node->right = NULL;
-    node->parent = NULL;
-    node->color = Node::RED;
+
+    ASSERT(!(t->*pnode).IsInTree());
+
+    elem = t;
+    SetLeft(elem, NULL);
+    SetRight(elem, NULL);
+    SetParent(elem, NULL);
+    SetColor(elem, Node::RED);
     if (root == NULL)
     {
-        root = node;
+        root = elem;
+        SetColor(root, Node::BLACK);
         count = 1;
         return NULL;
     }
@@ -333,127 +419,153 @@ T* InTreeMap<T, pnode>::Insert(T* t)
     curr = root;
     while (true)
     {
-        result = KeyCmp(Key(t), Key(curr->owner));
+        K a = Key(t);
+        K b = Key(curr);
+        result = KeyCmp(a, b);
         if (result == 0)
         {
             // replace the old node with the new one
-            node->color = curr->color;
-            ReplaceNode(curr, node);
-            owner = curr->owner;
-            curr->owner = NULL;
-            return owner;
+            SetColor(elem, GetColor(curr));
+            ReplaceNode(curr, elem);
+            MarkNodeRemoved(curr);
+            return curr;
         }
         else if (result < 0)
         {
-            if (curr->left == NULL)
+            if (GetLeft(curr) == NULL)
             {
-                curr->left = node;
+                SetLeft(curr, elem);
                 count++;
                 break;
             }
             else
-                curr = curr->left;
+                curr = GetLeft(curr);
         }
         else /* result > 0 */
         {
-            if (curr->right == NULL)
+            if (GetRight(curr) == NULL)
             {
-                curr->right = node;
+                SetRight(curr, elem);
                 count++;
                 break;
             }
             else
-                curr = curr->right;
+                curr = GetRight(curr);
         }
     }
     
-    node->parent = curr;
-    FixColors(node);
+    SetParent(elem, curr);
+    FixColors(elem);
     
     return NULL;
 }
 
 template<typename T, InTreeNode<T> T::*pnode>
+T* InTreeMap<T, pnode>::Delete(T* t)
+{
+    T* next;
+    
+    next = Remove(t);
+    delete t;
+    return next;
+}
+
+template<typename T, InTreeNode<T> T::*pnode>
+T* InTreeMap<T, pnode>::Pop()
+{
+    T* h;
+    
+    if (GetCount() == 0)
+        return NULL;
+    
+    h = First();
+    Remove(h);
+    return h;
+}
+
+template<typename T, InTreeNode<T> T::*pnode>
 T* InTreeMap<T, pnode>::Remove(T* t)
 {
-    Node*       node;
-    Node*       child;
-    Node*       parent;
-    T*          next;
-    int         color;
+    T*      elem;
+    T*      child;
+    T*      parent;
+    T*      next;
+    int     color;
 
-    node = GetNode(t);
+    ASSERT((t->*pnode).IsInTree());
+    
+    elem = t;
     next = Next(t);
-    if (node->left == NULL)
-        child = node->right;
-    else if (node->right == NULL)
-        child = node->left;
+    if (GetLeft(elem) == NULL)
+        child = GetRight(elem);
+    else if (GetRight(elem) == NULL)
+        child = GetLeft(elem);
     else
     {
-        Node*   old;
-        Node*   left;
+        T*   old;
+        T*   left;
         
-        old = node;
+        old = elem;
         
         // find the smallest bigger node
-        node = node->right;
-        while ((left = node->left) != NULL)
-            node = node->left;
-            
-        if (Parent(old))
+        elem = GetRight(elem);
+        while ((left = GetLeft(elem)) != NULL)
+            elem = GetLeft(elem);
+        
+        if (GetParent(old))
         {
             if (IsLeftChild(old))
-                Parent(old)->left = node;
+                SetLeft(GetParent(old), elem);
             else
-                Parent(old)->right = node;
+                SetRight(GetParent(old), elem);
         }
         else
-            root = node;
+            root = elem;
         
-        child = node->right;
-        parent = node->parent;
-        color = node->color;
+        child = GetRight(elem);
+        parent = GetParent(elem);
+        color = GetColor(elem);
         
         if (parent == old)
-            parent = node;
+            parent = elem;
         else
         {
             if (child)
-                child->parent = parent;
-            parent->left = child;
+                SetParent(child, parent);
+            SetLeft(parent, child);
             
-            node->right = old->right;
-            old->right->parent = node;
+            SetRight(elem, GetRight(old));
+            SetParent(GetRight(old), elem);
         }
         
-        node->parent = old->parent;
-        node->color = old->color;
-        node->left = old->left;
-        old->left->parent = node;
+        SetParent(elem, GetParent(old));
+        SetColor(elem, GetColor(old));
+        SetLeft(elem, GetLeft(old));
+        SetParent(GetLeft(old), elem);
         
         goto color;
     }
     
-    parent = node->parent;
-    color = node->color;
+    parent = GetParent(elem);
+    color = GetColor(elem);
     
     if (child)
-        child->parent = parent;
+        SetParent(child, parent);
     if (parent)
     {
-        if (parent->left == node)
-            parent->left = child;
+        if (GetLeft(parent) == elem)
+            SetLeft(parent, child);
         else
-            parent->right = child;
+            SetRight(parent, child);
     }
     else
         root = child;
-
+    
 color:
     if (color == Node::BLACK)
         FixColorsOnRemoval(child, parent);
-    
-    GetNode(t)->owner = NULL;
+
+    MarkNodeRemoved(t);
     count--;
     return next;
 }
@@ -461,8 +573,7 @@ color:
 template<typename T, InTreeNode<T> T::*pnode>
 void InTreeMap<T, pnode>::Clear()
 {
-    // TODO: Clear recursively like Delete for setting tree nodes to NULL
-    // and providing more info when debuggging
+    RemoveInner(root);
     root = NULL;
     count = 0;
 }
@@ -476,318 +587,450 @@ void InTreeMap<T, pnode>::DeleteTree()
 }
 
 template<typename T, InTreeNode<T> T::*pnode>
-void InTreeMap<T, pnode>::DeleteInner(Node* node)
+bool InTreeMap<T, pnode>::CheckConstraints()
 {
-    T*  t;
-    
-    if (node == NULL)
-        return;
+    // The root is black
+    if (GetColor(root) != Node::BLACK)
+        return false;
+
+    if (!CheckColorConstraint(root))
+        return false;
+
+    return true;
+}
+
+template<typename T, InTreeNode<T> T::*pnode>
+bool InTreeMap<T, pnode>::CheckColorConstraint(T* t)
+{
+    if (t == NULL)
+        return true;
+
+    // Both children of every red node are black.
+    if (GetColor(t) == Node::RED)
+    {
+        if (GetLeft(t) && GetColor(GetLeft(t)) != Node::BLACK)
+            return false;
         
-    DeleteInner(node->left);
-    DeleteInner(node->right);
+        if (GetRight(t) && GetColor(GetRight(t)) != Node::BLACK)
+            return false;
+    }
+
+    // Recursively check all child node
+    if (!CheckColorConstraint(GetLeft(t)))
+        return false;
+
+    if (!CheckColorConstraint(GetRight(t)))
+        return false;
+
+    return true;
+}
+
+template<typename T, InTreeNode<T> T::*pnode>
+void InTreeMap<T, pnode>::DeleteInner(T* t)
+{   
+    if (t == NULL)
+        return;
+
+    DeleteInner(GetLeft(t));
+    DeleteInner(GetRight(t));
     
-    t = GetElem(node);
     delete t;
 }
 
 template<typename T, InTreeNode<T> T::*pnode>
-void InTreeMap<T, pnode>::FixColorsOnRemoval(Node* node, Node* parent)
+void InTreeMap<T, pnode>::RemoveInner(T* t)
 {
-    Node*   other;
+    if (t == NULL)
+        return;
     
-    while ((node == NULL || node->color == Node::BLACK) && node != root)
+    RemoveInner(GetLeft(t));
+    RemoveInner(GetRight(t));
+    
+    MarkNodeRemoved(t);
+}
+
+template<typename T, InTreeNode<T> T::*pnode>
+void InTreeMap<T, pnode>::FixColorsOnRemoval(T* elem, T* parent)
+{
+    T*  other;
+    
+    while ((elem == NULL || GetColor(elem) == Node::BLACK) && elem != root)
     {
-        if (parent->left == node)
+        if (GetLeft(parent) == elem)
         {
-            other = parent->right;
-            if (other->color == Node::RED)
+            other = GetRight(parent);
+            if (GetColor(other) == Node::RED)
             {
-                other->color = Node::BLACK;
-                parent->color = Node::RED;
+                SetColor(other, Node::BLACK);
+                SetColor(parent, Node::RED);
                 RotateLeft(parent);
-                other = parent->right;
+                other = GetRight(parent);
             }
-            if ((other->left == NULL || other->left->color == Node::BLACK) &&
-                (other->right == NULL || other->right->color == Node::BLACK))
+            if ((GetLeft(other) == NULL || GetColor(GetLeft(other)) == Node::BLACK) &&
+                (GetRight(other) == NULL || GetColor(GetRight(other)) == Node::BLACK))
             {
-                other->color = Node::RED;
-                node = parent;
-                parent = node->parent;
+                SetColor(other, Node::RED);
+                elem = parent;
+                parent = GetParent(elem);
             }
             else
             {
-                if (other->right == NULL || other->right->color == Node::BLACK)
+                if (GetRight(other) == NULL || GetColor(GetRight(other)) == Node::BLACK)
                 {
-                    other->left->color = Node::BLACK;
-                    other->color = Node::RED;
+                    SetColor(GetLeft(other), Node::BLACK);
+                    SetColor(other, Node::RED);
                     RotateRight(other);
-                    other = parent->right;
+                    other = GetRight(parent);
                 }
-                other->color = parent->color;
-                parent->color = Node::BLACK;
-                other->right->color = Node::BLACK;
+                SetColor(other, GetColor(parent));
+                SetColor(parent, Node::BLACK);
+                SetColor(GetRight(other), Node::BLACK);
                 RotateLeft(parent);
-                node = root;
+                elem = root;
                 break;
             }
         }
         else
         {
-            other = parent->left;
-            if (other->color == Node::RED)
+            other = GetLeft(parent);
+            if (GetColor(other) == Node::RED)
             {
-                other->color = Node::BLACK;
-                parent->color = Node::RED;
+                SetColor(other, Node::BLACK);
+                SetColor(parent, Node::RED);
                 RotateRight(parent);
-                other = parent->left;
+                other = GetLeft(parent);
             }
-            if ((other->left == NULL || other->left->color == Node::BLACK) &&
-                (other->right == NULL || other->right->color == Node::BLACK))
+            if ((GetLeft(other) == NULL || GetColor(GetLeft(other)) == Node::BLACK) &&
+                (GetRight(other) == NULL || GetColor(GetRight(other)) == Node::BLACK))
             {
-                other->color = Node::RED;
-                node = parent;
-                parent = node->parent;
+                SetColor(other, Node::RED);
+                elem = parent;
+                parent = GetParent(elem);
             }
             else
             {
-                if (other->left == NULL || other->left->color == Node::BLACK)
+                if (GetLeft(other) == NULL || GetColor(GetLeft(other)) == Node::BLACK)
                 {
-                    other->right->color = Node::BLACK;
-                    other->color = Node::RED;
+                    SetColor(GetRight(other), Node::BLACK);
+                    SetColor(other, Node::RED);
                     RotateLeft(other);
-                    other = parent->left;
+                    other = GetLeft(parent);
                 }
-                other->color = parent->color;
-                parent->color = Node::BLACK;
-                other->left->color = Node::BLACK;
+                SetColor(other, GetColor(parent));
+                SetColor(parent, Node::BLACK);
+                SetColor(GetLeft(other), Node::BLACK);
                 RotateRight(parent);
-                node = root;
+                elem = root;
                 break;
             }
         }
     }
-    if (node)
-        node->color = Node::BLACK;
+    if (elem)
+        SetColor(elem, Node::BLACK);
 }
 
+//template<typename T, InTreeNode<T> T::*pnode>
+//void InTreeMap<T, pnode>::FixColorsOnInsert(T* elem)
+//{
+//    T*  parent;
+//    T*  grandparent;
+//    
+//    while ((parent = GetParent(elem)) && GetColor(parent) == Node::RED)
+//    {
+//        grandparent = GetParent(parent);
+//        if (parent == GetLeft(grandparent))
+//        {
+//            {
+//                T*  uncle = GetRight(grandparent);
+//                if (uncle != NULL && GetColor(uncle) == Node::RED)
+//                {
+//                    SetColor(uncle, Node::BLACK);
+//                    SetColor(parent, Node::BLACK);
+//                    SetColor(grandparent, Node::RED);
+//                    elem = grandparent;
+//                    continue;   // while
+//                }
+//            }
+//            
+//            if (GetRight(parent) == elem)
+//            {
+//                T*  tmp;
+//                RotateLeft(parent);
+//                tmp = parent;
+//                parent = elem;
+//                elem = tmp;
+//            }
+//            
+//            SetColor(parent, Node::BLACK);
+//            SetColor(grandparent, Node::RED);
+//            RotateRight(grandparent);
+//        }
+//        else    // parent == GetRight(grandparent)
+//        {
+//            {
+//                T*  uncle = GetLeft(grandparent);
+//                if (uncle != NULL && GetColor(uncle) == Node::RED)
+//                {
+//                    SetColor(uncle, Node::BLACK);
+//                    SetColor(parent, Node::BLACK);
+//                    SetColor(grandparent, Node::RED);
+//                    elem = grandparent;
+//                    continue;   // while                    
+//                }
+//            }
+//            
+//            if (GetLeft(parent) == elem)
+//            {
+//                T*  tmp;
+//                RotateRight(parent);
+//                tmp = parent;
+//                parent = elem;
+//                elem = tmp;
+//            }
+//            
+//            SetColor(parent, Node::BLACK);
+//            SetColor(grandparent, Node::RED);
+//            RotateLeft(grandparent);
+//        }
+//    }
+//    
+//    SetColor(root, Node::BLACK);
+//}
+
 template<typename T, InTreeNode<T> T::*pnode>
-void InTreeMap<T, pnode>::FixColors(Node* node)
+void InTreeMap<T, pnode>::FixColors(T* elem)
 {
     // root of the tree
-    if (node->parent == NULL)
+    if (GetParent(elem) == NULL)
     {
-        node->color = Node::BLACK;
+        SetColor(elem, Node::BLACK);
         return;
     }
     
-    if (Parent(node)->color == Node::BLACK)
+    if (GetColor(GetParent(elem)) == Node::BLACK)
         return;
     
-    FixUncleColors(node);
+    FixUncleColors(elem);
 }
 
 template<typename T, InTreeNode<T> T::*pnode>
-void InTreeMap<T, pnode>::FixUncleColors(Node* node)
+void InTreeMap<T, pnode>::FixUncleColors(T* elem)
 {
-    Node*   uncle;
+    T*      uncle;
     
-    uncle = Uncle(node);
-
-    if (uncle != NULL && Uncle(node)->color == Node::RED)
+    uncle = GetUncle(elem);
+    
+    if (uncle != NULL && GetColor(uncle) == Node::RED)
     {
-        Parent(node)->color = Node::BLACK;
-        Uncle(node)->color = Node::BLACK;
-        Grandparent(node)->color = Node::RED;
-        FixColors(Grandparent(node));
+        SetColor(GetParent(elem), Node::BLACK);
+        SetColor(GetUncle(elem), Node::BLACK);
+        SetColor(GetGrandparent(elem), Node::RED);
+        FixColors(GetGrandparent(elem));
     }
     else
-        FixRotation(node);
+        FixRotation(elem);
 }
 
 template<typename T, InTreeNode<T> T::*pnode>
-void InTreeMap<T, pnode>::FixRotation(Node* node)
+void InTreeMap<T, pnode>::FixRotation(T* elem)
 {
-    Node*   parent;
-    Node*   grandparent;
+    T*   parent;
+    T*   grandparent;
     
-    parent = Parent(node);
-    if (IsRightChild(node) && parent && IsLeftChild(parent))
+    parent = GetParent(elem);
+    if (IsRightChild(elem) && parent && IsLeftChild(parent))
     {
         RotateLeft(parent);
-        node = Left(node);
+        elem = GetLeft(elem);
     }
-    else if (IsLeftChild(node) && parent && IsRightChild(parent))
+    else if (IsLeftChild(elem) && parent && IsRightChild(parent))
     {
         RotateRight(parent);
-        node = Right(node);
+        elem = GetRight(elem);
     }
     
-    parent = Parent(node);
+    parent = GetParent(elem);
     grandparent = NULL;
     if (parent)
     {
-        parent->color = Node::BLACK;
-        grandparent = Parent(parent);
+        SetColor(parent, Node::BLACK);
+        grandparent = GetParent(parent);
         if (!grandparent)
             return;
-        grandparent->color = Node::RED;
+        SetColor(grandparent, Node::RED);
     }
     else
         ASSERT(false);
-
-    if (IsLeftChild(node) && parent && IsLeftChild(parent))
+    
+    if (IsLeftChild(elem) && parent && IsLeftChild(parent))
     {
         RotateRight(grandparent);
     }
     else
     {
-        ASSERT(IsRightChild(node) && parent && IsRightChild(parent));
+        ASSERT(IsRightChild(elem) && parent && IsRightChild(parent));
         RotateLeft(grandparent);
     }
 }
 
 template<typename T, InTreeNode<T> T::*pnode>
-void InTreeMap<T, pnode>::RotateLeft(Node* node)
+void InTreeMap<T, pnode>::RotateLeft(T* elem)
 {
-    Node*   right;
-
-    right = Right(node);
-    ReplaceNode(node, right);
-    node->right = right->left;
-    if (right->left != NULL)
-        Left(right)->parent = node;
-    right->left = node;
-    node->parent = right;
-}
-
-template<typename T, InTreeNode<T> T::*pnode>
-void InTreeMap<T, pnode>::RotateRight(Node* node)
-{
-    Node*   left;
+    T*   right;
     
-    left = Left(node);
-    ReplaceNode(node, left);
-    node->left = left->right;
-    if (left->right != NULL)
-        Right(left)->parent = node;
-    left->right = node;
-    node->parent = left;
+    right = GetRight(elem);
+    ReplaceNode(elem, right);
+    SetRight(elem, GetLeft(right));
+    if (GetLeft(right) != NULL)
+        SetParent(GetLeft(right), elem);
+    SetLeft(right, elem);
+    SetParent(elem, right);
 }
 
 template<typename T, InTreeNode<T> T::*pnode>
-bool InTreeMap<T, pnode>::IsLeftChild(Node* node)
+void InTreeMap<T, pnode>::RotateRight(T* elem)
 {
-    Node*   parent;
+    T*   left;
     
-    parent = Parent(node);
-    if (parent == NULL)
-        return false;
-    if (node == Left(parent))
-        return true;
-    return false;
+    left = GetLeft(elem);
+    ReplaceNode(elem, left);
+    SetLeft(elem, GetRight(left));
+    if (GetRight(left) != NULL)
+        SetParent(GetRight(left), elem);
+    SetRight(left, elem);
+    SetParent(elem, left);
 }
 
 template<typename T, InTreeNode<T> T::*pnode>
-bool InTreeMap<T, pnode>::IsRightChild(Node* node)
+void InTreeMap<T, pnode>::ReplaceNode(T* src, T* dst)
 {
-    Node*   parent;
-    
-    parent = Parent(node);
-    if (parent == NULL)
-        return false;
-    if (node == Right(parent))
-        return true;
-    return false;
-}
-
-template<typename T, InTreeNode<T> T::*pnode>
-InTreeNode<T>* InTreeMap<T, pnode>::Left(Node* node)
-{
-    return node->left;
-}
-
-template<typename T, InTreeNode<T> T::*pnode>
-InTreeNode<T>* InTreeMap<T, pnode>::Right(Node* node)
-{
-    return node->right;
-}
-
-template<typename T, InTreeNode<T> T::*pnode>
-InTreeNode<T>* InTreeMap<T, pnode>::Parent(Node* node)
-{
-    return node->parent;
-}
-
-template<typename T, InTreeNode<T> T::*pnode>
-InTreeNode<T>* InTreeMap<T, pnode>::Uncle(Node* node)
-{
-    Node*   parent;
-    Node*   grandparent;
-    
-    parent = Parent(node);
-    if (parent == NULL)
-        return NULL;
-        
-    grandparent = Grandparent(node);
-    if (grandparent == NULL)
-        return NULL;
-        
-    if (IsLeftChild(parent))
-        return Right(grandparent);
-    else
-        return Left(grandparent);
-}
-
-template<typename T, InTreeNode<T> T::*pnode>
-InTreeNode<T>* InTreeMap<T, pnode>::Grandparent(Node* node)
-{
-    Node*   parent;
-    
-    parent = Parent(node);
-    if (parent == NULL)
-        return NULL;
-        
-    return Parent(parent);
-}
-
-template<typename T, InTreeNode<T> T::*pnode>
-void InTreeMap<T, pnode>::ReplaceNode(Node* src, Node* dst)
-{
-    if (src->parent == NULL)
+    if (GetParent(src) == NULL)
         root = dst;
     else
     {
-        if (src == src->parent->left)
-            Parent(src)->left = dst;
+        if (src == GetLeft(GetParent(src)))
+            SetLeft(GetParent(src), dst);
         else
-            Parent(src)->right = dst;
+            SetRight(GetParent(src), dst);
     }
     if (dst != NULL)
-        dst->parent = src->parent;
+        SetParent(dst, GetParent(src));
+}
+                    
+template<typename T, InTreeNode<T> T::*pnode>
+void InTreeMap<T, pnode>::MarkNodeRemoved(T* elem)
+{
+    SetLeft(elem, NULL);
+    SetRight(elem, NULL);
+    SetParent(elem, NULL);
+    SetColor(elem, Node::NOCOLOR);
+}               
+                
+template<typename T, InTreeNode<T> T::*pnode>
+bool InTreeMap<T, pnode>::IsLeftChild(T* elem) const
+{
+    T*   parent;
+    
+    parent = GetParent(elem);
+    if (parent == NULL)
+        return false;
+    if (elem == GetLeft(parent))
+        return true;
+    return false;
 }
 
 template<typename T, InTreeNode<T> T::*pnode>
-InTreeNode<T>* InTreeMap<T, pnode>::MaxNode(Node* node)
+bool InTreeMap<T, pnode>::IsRightChild(T* elem) const
 {
-    while (node->right != NULL)
-        node = node->right;
-    return node;
+    T*   parent;
+    
+    parent = GetParent(elem);
+    if (parent == NULL)
+        return false;
+    if (elem == GetRight(parent))
+        return true;
+    return false;
 }
 
 template<typename T, InTreeNode<T> T::*pnode>
-T* InTreeMap<T, pnode>::GetElem(Node* node)
+T* InTreeMap<T, pnode>::GetLeft(T* elem) const
 {
-    if (node == NULL)
+    return (elem->*pnode).left;
+}
+
+template<typename T, InTreeNode<T> T::*pnode>
+T* InTreeMap<T, pnode>::GetRight(T* elem) const
+{
+    return (elem->*pnode).right;
+}
+
+template<typename T, InTreeNode<T> T::*pnode>
+T* InTreeMap<T, pnode>::GetParent(T* elem) const
+{
+    return (T*)((elem->*pnode).parent & ~INTREENODE_COLOR_MASK);
+}
+
+template<typename T, InTreeNode<T> T::*pnode>
+int InTreeMap<T, pnode>::GetColor(T* elem) const
+{
+    return (int)((elem->*pnode).parent & INTREENODE_COLOR_MASK);
+}
+
+template<typename T, InTreeNode<T> T::*pnode>
+T* InTreeMap<T, pnode>::GetUncle(T* elem) const
+{
+    T*   parent;
+    T*   grandparent;
+
+    parent = GetParent(elem);
+    if (parent == NULL)
         return NULL;
-    return node->owner;
+
+    grandparent = GetGrandparent(elem);
+    if (grandparent == NULL)
+        return NULL;
+
+    if (IsLeftChild(parent))
+        return GetRight(grandparent);
+    else
+        return GetLeft(grandparent);
+}
+                
+template<typename T, InTreeNode<T> T::*pnode>
+T* InTreeMap<T, pnode>::GetGrandparent(T* elem) const
+{
+    T*   parent;
+    
+    parent = GetParent(elem);
+    if (parent == NULL)
+        return NULL;
+    
+    return GetParent(parent);
+}
+    
+template<typename T, InTreeNode<T> T::*pnode>
+void InTreeMap<T, pnode>::SetLeft(T* elem, T* left)
+{
+    (elem->*pnode).left = left;
 }
 
 template<typename T, InTreeNode<T> T::*pnode>
-InTreeNode<T>* InTreeMap<T, pnode>::GetNode(T* t)
+void InTreeMap<T, pnode>::SetRight(T* elem, T* right)
 {
-    return &(t->*pnode);
+    (elem->*pnode).right = right;
+}
+
+template<typename T, InTreeNode<T> T::*pnode>
+void InTreeMap<T, pnode>::SetParent(T* elem, T* parent)
+{
+    (elem->*pnode).parent = ((elem->*pnode).parent & INTREENODE_COLOR_MASK) | (uintptr_t) parent;
+}
+
+template<typename T, InTreeNode<T> T::*pnode>
+void InTreeMap<T, pnode>::SetColor(T*elem, int color)
+{
+    (elem->*pnode).parent = ((elem->*pnode).parent & ~INTREENODE_COLOR_MASK) | color;
 }
 
 
-#endif
 #endif

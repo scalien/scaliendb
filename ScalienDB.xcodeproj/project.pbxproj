@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		542B69F814E558CD00FA8C0A /* ClientSession.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 542B69F714E558CD00FA8C0A /* ClientSession.cpp */; };
 		5431208F1361B64A0029D6A8 /* StorageCommitJob.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5431208E1361B64A0029D6A8 /* StorageCommitJob.cpp */; };
 		5431209A1361B80C0029D6A8 /* StorageSerializeChunkJob.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 543120991361B80C0029D6A8 /* StorageSerializeChunkJob.cpp */; };
 		543120A31361B9B70029D6A8 /* StorageWriteChunkJob.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 543120A21361B9B70029D6A8 /* StorageWriteChunkJob.cpp */; };
@@ -110,6 +111,7 @@
 		546E255211EF5CF700867EE1 /* Buffer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 546E254C11EF5CF700867EE1 /* Buffer.cpp */; };
 		546E255411EF5CF700867EE1 /* ReadBuffer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 546E255011EF5CF700867EE1 /* ReadBuffer.cpp */; };
 		546E269911EF712900867EE1 /* Stopwatch.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 546E269811EF712900867EE1 /* Stopwatch.cpp */; };
+		546F856314D1AFEB00B911BD /* ShardLockManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 546F856214D1AFEB00B911BD /* ShardLockManager.cpp */; };
 		548DEBD6130E8B7E00E3A86A /* ShardMigrationWriter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 548DEBD5130E8B7E00E3A86A /* ShardMigrationWriter.cpp */; };
 		548F50A012157A050035ADDB /* Formatting.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 548F509F12157A050035ADDB /* Formatting.cpp */; };
 		54973F4B13685AFB00A54A90 /* StorageDeleteMemoChunkJob.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54973F4913685AFB00A54A90 /* StorageDeleteMemoChunkJob.cpp */; };
@@ -138,6 +140,8 @@
 		78CD47AF130C26B40022BC9F /* StorageMemoChunkLister.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 78CD47AD130C26B40022BC9F /* StorageMemoChunkLister.cpp */; };
 		78CD47B2130C26C30022BC9F /* StorageFileChunkLister.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 78CD47B1130C26C30022BC9F /* StorageFileChunkLister.cpp */; };
 		78CD47B3130C26C30022BC9F /* StorageFileChunkLister.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 78CD47B1130C26C30022BC9F /* StorageFileChunkLister.cpp */; };
+		9A2FEBCA1535E18F003EC62D /* StorageFileDeleter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9A2FEBC81535E18F003EC62D /* StorageFileDeleter.cpp */; };
+		9A2FEBCB1535E18F003EC62D /* StorageFileDeleter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9A2FEBC81535E18F003EC62D /* StorageFileDeleter.cpp */; };
 		9A466D60135F435300108B07 /* JSONBufferWriter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9A466D5F135F435300108B07 /* JSONBufferWriter.cpp */; };
 		9A466D61135F435300108B07 /* JSONBufferWriter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9A466D5F135F435300108B07 /* JSONBufferWriter.cpp */; };
 		9A4671891366FEDC00108B07 /* EndpointTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9A4671881366FEDC00108B07 /* EndpointTest.cpp */; };
@@ -163,6 +167,7 @@
 		9A90525C14DB075B00261797 /* CrashReporter_Windows.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9A90525714DB075B00261797 /* CrashReporter_Windows.cpp */; };
 		9A90525E14DB079800261797 /* CrashReporterTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9A90525D14DB079800261797 /* CrashReporterTest.cpp */; };
 		9A90527314DB082000261797 /* StorageLogManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9AFEB96E14CF007A00708D1F /* StorageLogManager.cpp */; };
+		9A90554314E5720E00261797 /* ClientSession.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 542B69F714E558CD00FA8C0A /* ClientSession.cpp */; };
 		9A90558D14EA877E00261797 /* SDBPRequestProxy.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9A90558B14EA877E00261797 /* SDBPRequestProxy.cpp */; };
 		9AABB04C123E55DE003626AC /* ReadBuffer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 546E255011EF5CF700867EE1 /* ReadBuffer.cpp */; };
 		9AABB04D123E55DE003626AC /* Buffer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 546E254C11EF5CF700867EE1 /* Buffer.cpp */; };
@@ -312,6 +317,7 @@
 
 /* Begin PBXFileReference section */
 		541D826411C7A17D00A6CB16 /* Callable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Callable.h; sourceTree = "<group>"; };
+		542B69F714E558CD00FA8C0A /* ClientSession.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ClientSession.cpp; sourceTree = "<group>"; };
 		5431208D1361B64A0029D6A8 /* StorageCommitJob.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StorageCommitJob.h; sourceTree = "<group>"; };
 		5431208E1361B64A0029D6A8 /* StorageCommitJob.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = StorageCommitJob.cpp; sourceTree = "<group>"; };
 		543120981361B80C0029D6A8 /* StorageSerializeChunkJob.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StorageSerializeChunkJob.h; sourceTree = "<group>"; };
@@ -541,6 +547,8 @@
 		546E255111EF5CF700867EE1 /* ReadBuffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReadBuffer.h; sourceTree = "<group>"; };
 		546E269811EF712900867EE1 /* Stopwatch.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Stopwatch.cpp; sourceTree = "<group>"; };
 		546E26E811EF737A00867EE1 /* InSortedList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = InSortedList.h; sourceTree = "<group>"; };
+		546F856114D1AFEB00B911BD /* ShardLockManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ShardLockManager.h; sourceTree = "<group>"; };
+		546F856214D1AFEB00B911BD /* ShardLockManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ShardLockManager.cpp; sourceTree = "<group>"; };
 		54731C1E13D0367400125619 /* StringKeyIterator.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; name = StringKeyIterator.java; path = Client/Java/StringKeyIterator.java; sourceTree = "<group>"; };
 		54731C9113D048F000125619 /* ByteKeyIterator.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; name = ByteKeyIterator.java; path = Client/Java/ByteKeyIterator.java; sourceTree = "<group>"; };
 		54731C9E13D04A4000125619 /* ByteArrayComparator.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; name = ByteArrayComparator.java; path = Client/Java/ByteArrayComparator.java; sourceTree = "<group>"; };
@@ -598,7 +606,7 @@
 		54FA68F811C2429A00FF4EF6 /* Countdown.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Countdown.cpp; sourceTree = "<group>"; };
 		54FA690A11C2435300FF4EF6 /* Timer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Timer.cpp; sourceTree = "<group>"; };
 		54FA6B0711C26CAB00FF4EF6 /* Main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Main.cpp; sourceTree = "<group>"; };
-		78BCDFEE12D9EF5500438DA5 /* InTreeMap2.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = InTreeMap2.h; sourceTree = "<group>"; };
+		78BCDFEE12D9EF5500438DA5 /* InTreeMap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = InTreeMap.h; sourceTree = "<group>"; };
 		78CD47AC130C26B40022BC9F /* StorageMemoChunkLister.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StorageMemoChunkLister.h; sourceTree = "<group>"; };
 		78CD47AD130C26B40022BC9F /* StorageMemoChunkLister.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = StorageMemoChunkLister.cpp; sourceTree = "<group>"; };
 		78CD47B0130C26C30022BC9F /* StorageFileChunkLister.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StorageFileChunkLister.h; sourceTree = "<group>"; };
@@ -612,6 +620,8 @@
 		9A07FAA9138E848A00AED738 /* Result.cs */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = Result.cs; path = Client/CSharp/ScalienClient/Result.cs; sourceTree = "<group>"; };
 		9A07FAAA138E848A00AED738 /* Status.cs */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = Status.cs; path = Client/CSharp/ScalienClient/Status.cs; sourceTree = "<group>"; };
 		9A2FEB98150F6847003EC62D /* NativeLoader.cs */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = NativeLoader.cs; path = Client/CSharp/ScalienClientWithNativeDLL/NativeLoader.cs; sourceTree = "<group>"; };
+		9A2FEBC81535E18F003EC62D /* StorageFileDeleter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = StorageFileDeleter.cpp; sourceTree = "<group>"; };
+		9A2FEBC91535E18F003EC62D /* StorageFileDeleter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StorageFileDeleter.h; sourceTree = "<group>"; };
 		9A466D5E135F435300108B07 /* JSONBufferWriter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JSONBufferWriter.h; sourceTree = "<group>"; };
 		9A466D5F135F435300108B07 /* JSONBufferWriter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = JSONBufferWriter.cpp; sourceTree = "<group>"; };
 		9A466F431361906800108B07 /* test.php */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.php; name = test.php; path = Client/PHP/test.php; sourceTree = "<group>"; };
@@ -625,7 +635,6 @@
 		9A46BE48120850FB00D453E0 /* HashMap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HashMap.h; sourceTree = "<group>"; };
 		9A5709B813F475E200B822D4 /* Signal_Windows.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Signal_Windows.cpp; sourceTree = "<group>"; };
 		9A67257213007D5200C3E6F6 /* Quorum.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; name = Quorum.java; path = Client/Java/Quorum.java; sourceTree = "<group>"; };
-		9A87370C1222DC77000B1319 /* InTreeMap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = InTreeMap.h; sourceTree = "<group>"; };
 		9A90525614DB075B00261797 /* CrashReporter_Posix.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CrashReporter_Posix.cpp; sourceTree = "<group>"; };
 		9A90525714DB075B00261797 /* CrashReporter_Windows.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CrashReporter_Windows.cpp; sourceTree = "<group>"; };
 		9A90525814DB075B00261797 /* CrashReporter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CrashReporter.h; sourceTree = "<group>"; };
@@ -917,6 +926,8 @@
 				543DE57812BFBB3D0069786A /* FDGuard.cpp */,
 				543DE58712BFBB3D0069786A /* StorageConfig.h */,
 				543DE58612BFBB3D0069786A /* StorageConfig.cpp */,
+				9A2FEBC91535E18F003EC62D /* StorageFileDeleter.h */,
+				9A2FEBC81535E18F003EC62D /* StorageFileDeleter.cpp */,
 				9AFEB96E14CF007A00708D1F /* StorageLogManager.cpp */,
 				9AFEB96F14CF007A00708D1F /* StorageLogManager.h */,
 				543DE59A12BFBB3D0069786A /* StorageLogSegment.h */,
@@ -977,6 +988,7 @@
 				543DE63B12BFBB420069786A /* ClientResponse.h */,
 				543DE63A12BFBB420069786A /* ClientResponse.cpp */,
 				543DE63C12BFBB420069786A /* ClientSession.h */,
+				542B69F714E558CD00FA8C0A /* ClientSession.cpp */,
 				543DE63D12BFBB420069786A /* ClusterContext.h */,
 				543DE63F12BFBB420069786A /* ClusterMessage.h */,
 				543DE63E12BFBB420069786A /* ClusterMessage.cpp */,
@@ -1114,6 +1126,8 @@
 				543DE69D12BFBB420069786A /* ShardServerApp.cpp */,
 				9A467ACC13734CF500108B07 /* ShardExtension.h */,
 				9A467AD0137350ED00108B07 /* ShardExtension.cpp */,
+				546F856114D1AFEB00B911BD /* ShardLockManager.h */,
+				546F856214D1AFEB00B911BD /* ShardLockManager.cpp */,
 			);
 			path = ShardServer;
 			sourceTree = "<group>";
@@ -1251,8 +1265,7 @@
 				546E26E811EF737A00867EE1 /* InSortedList.h */,
 				54B7F74B11BE5EF30076BC62 /* InQueue.h */,
 				546E190411E4D61300867EE1 /* InPriorityQueue.h */,
-				9A87370C1222DC77000B1319 /* InTreeMap.h */,
-				78BCDFEE12D9EF5500438DA5 /* InTreeMap2.h */,
+				78BCDFEE12D9EF5500438DA5 /* InTreeMap.h */,
 				9AABC18D124EA494003626AC /* ArrayList.h */,
 				5452854313C36DD200B6A374 /* InCache.h */,
 			);
@@ -1678,8 +1691,11 @@
 				9AE543801431CF260002D500 /* Service_Windows.cpp in Sources */,
 				9ABFE522147124ED0085B06B /* Signal_Posix.cpp in Sources */,
 				9AFEB97014CF007A00708D1F /* StorageLogManager.cpp in Sources */,
+				546F856314D1AFEB00B911BD /* ShardLockManager.cpp in Sources */,
 				9A90525914DB075B00261797 /* CrashReporter_Posix.cpp in Sources */,
 				9A90525A14DB075B00261797 /* CrashReporter_Windows.cpp in Sources */,
+				542B69F814E558CD00FA8C0A /* ClientSession.cpp in Sources */,
+				9A2FEBCB1535E18F003EC62D /* StorageFileDeleter.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1835,7 +1851,9 @@
 				9A90525C14DB075B00261797 /* CrashReporter_Windows.cpp in Sources */,
 				9A90525E14DB079800261797 /* CrashReporterTest.cpp in Sources */,
 				9A90527314DB082000261797 /* StorageLogManager.cpp in Sources */,
+				9A90554314E5720E00261797 /* ClientSession.cpp in Sources */,
 				9A90558D14EA877E00261797 /* SDBPRequestProxy.cpp in Sources */,
+				9A2FEBCA1535E18F003EC62D /* StorageFileDeleter.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

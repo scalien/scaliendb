@@ -24,6 +24,7 @@ CLIENTLIB_OBJECTS = \
 	$(BUILD_DIR)/Framework/Messaging/MessageConnection.o \
 	$(BUILD_DIR)/Framework/TCP/TCPConnection.o \
 	$(BUILD_DIR)/System/Common.o \
+	$(BUILD_DIR)/System/CrashReporter_Posix.o \
 	$(BUILD_DIR)/System/Formatting.o \
 	$(BUILD_DIR)/System/Config.o \
 	$(BUILD_DIR)/System/Log.o \

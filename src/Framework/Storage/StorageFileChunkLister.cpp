@@ -20,7 +20,7 @@ void StorageFileChunkLister::Load()
 {
 }
 
-void StorageFileChunkLister::SetDirection(bool forwardDirection_)
+void StorageFileChunkLister::SetDirection(bool /*forwardDirection_*/)
 {
 }
 

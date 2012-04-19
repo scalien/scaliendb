@@ -7,6 +7,7 @@
 #include "ShardQuorumProcessor.h"
 #include "ShardDatabaseManager.h"
 #include "ShardHeartbeatManager.h"
+#include "ShardLockManager.h"
 #include "ShardMigrationWriter.h"
 
 class ShardServerApp;
@@ -30,6 +31,7 @@ public:
     ShardQuorumProcessor*   GetQuorumProcessor(uint64_t quorumID);
     QuorumProcessorList*    GetQuorumProcessors();
     ShardDatabaseManager*   GetDatabaseManager();
+    ShardLockManager*       GetLockManager();
     ShardMigrationWriter*   GetShardMigrationWriter();
     ShardHeartbeatManager*  GetHeartbeatManager();
     ConfigState*            GetConfigState();
@@ -76,6 +78,7 @@ private:
     QuorumProcessorList     quorumProcessors;
     ShardHeartbeatManager   heartbeatManager;
     ShardDatabaseManager    databaseManager;
+    ShardLockManager        lockManager;
     ShardMigrationWriter    migrationWriter;
     ShardServerApp*         shardServerApp;
 };
