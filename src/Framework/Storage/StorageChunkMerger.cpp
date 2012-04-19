@@ -182,8 +182,7 @@ bool StorageChunkMerger::WriteEmptyHeaderPage()
 bool StorageChunkMerger::WriteHeaderPage()
 {
     mergeChunk->headerPage.SetOffset(0);
-    
-//    mergeChunk->headerPage.SetChunkID(memoChunk->GetChunkID());
+   
     mergeChunk->headerPage.SetMinLogSegmentID(minLogSegmentID);
     mergeChunk->headerPage.SetMaxLogSegmentID(maxLogSegmentID);
     mergeChunk->headerPage.SetMaxLogCommandID(maxLogCommandID);
@@ -219,20 +218,21 @@ bool StorageChunkMerger::WriteDataPages(ReadBuffer /*firstKey*/, ReadBuffer last
     typedef PointerGuard<StorageDataPage>   StorageDataPageGuard;
     
     uint32_t                index;
-    unsigned                nit;
     StorageFileKeyValue*    it;
     StorageDataPage*        dataPage;
     StorageDataPageGuard    dataPageGuard;
     ReadBuffer              key;
+    uint64_t                pageOffset;
 
-    // although numKeys is counted in Merge(), but it is only an approximation
+    // although numKeys is counted in Merge(), it is only an approximation
     numKeys = 0;
 
-    nit = 0;
     index = 0;
+    pageOffset = offset;
     dataPage = new StorageDataPage(mergeChunk, index);
-    dataPage->SetOffset(offset);
+    dataPage->SetOffset(pageOffset);
     dataPageGuard.Set(dataPage);
+    writeBuffer.Clear();
 
     while(!IsDone())
     {
@@ -277,7 +277,7 @@ bool StorageChunkMerger::WriteDataPages(ReadBuffer /*firstKey*/, ReadBuffer last
         if (dataPage->GetNumKeys() == 0)
         {
             dataPage->Append(it);
-            mergeChunk->indexPage->Append(it->GetKey(), index, offset);
+            mergeChunk->indexPage->Append(it->GetKey(), index, pageOffset);
         }
         else
         {
@@ -289,19 +289,27 @@ bool StorageChunkMerger::WriteDataPages(ReadBuffer /*firstKey*/, ReadBuffer last
             {
                 dataPage->Finalize();
                 
-                writeBuffer.Clear();
-                dataPage->Write(writeBuffer);
-                ASSERT(writeBuffer.GetLength() == dataPage->GetSize());
-                if (!WriteBuffer())
-                    return false;
+                //writeBuffer.Clear();
+                //dataPage->Write(writeBuffer);
+                //ASSERT(writeBuffer.GetLength() == dataPage->GetSize());
+                //if (!WriteBuffer())
+                //    return false;
                 
+                pageOffset += dataPage->Serialize(writeBuffer);
+                if (writeBuffer.GetLength() > env->GetConfig().GetWriteGranularity())
+                {
+                    if (!WriteBuffer())
+                        return false;
+                    writeBuffer.Clear();
+                }
+
                 mergeChunk->AppendDataPage(NULL);
                 index++;
                 dataPage = new StorageDataPage(mergeChunk, index);
                 dataPageGuard.Set(dataPage);
-                dataPage->SetOffset(offset);
+                dataPage->SetOffset(pageOffset);
                 dataPage->Append(it);
-                mergeChunk->indexPage->Append(it->GetKey(), index, offset);
+                mergeChunk->indexPage->Append(it->GetKey(), index, pageOffset);
             }
         }
     }
@@ -311,16 +319,24 @@ bool StorageChunkMerger::WriteDataPages(ReadBuffer /*firstKey*/, ReadBuffer last
     {
         dataPage->Finalize();
 
-        writeBuffer.Clear();
-        dataPage->Write(writeBuffer);
-        ASSERT(writeBuffer.GetLength() == dataPage->GetSize());
-        if (!WriteBuffer())
-            return false;
+        //writeBuffer.Clear();
+        //dataPage->Write(writeBuffer);
+        //ASSERT(writeBuffer.GetLength() == dataPage->GetSize());
+        //if (!WriteBuffer())
+        //    return false;
+        dataPage->Serialize(writeBuffer);
 
         mergeChunk->AppendDataPage(NULL);
         index++;
 
-        // dataPage is deleted automatically
+        // dataPage is deleted automatically because it is contained in a guard
+    }
+
+    if (writeBuffer.GetLength() > 0)
+    {
+        if (!WriteBuffer())
+            return false;
+        writeBuffer.Clear();
     }
     
     mergeChunk->indexPage->Finalize();

@@ -518,11 +518,13 @@ void ShardHTTPClientSession::ProcessDumpMemoChunks()
 
 bool ShardHTTPClientSession::ProcessSettings()
 {
-    ReadBuffer  param;
-    bool        boolValue;
-    uint64_t    traceBufferSize;
-    uint64_t    logFlushInterval;
-    
+    ReadBuffer              param;
+    bool                    boolValue;
+    uint64_t                traceBufferSize;
+    uint64_t                logFlushInterval;
+    uint64_t                replicationLimit;
+    ShardQuorumProcessor*   quorumProcessor;
+
     if (HTTP_GET_OPT_PARAM(params, "trace", param))
     {
         boolValue = PARAM_BOOL_VALUE(param);
@@ -567,6 +569,17 @@ bool ShardHTTPClientSession::ProcessSettings()
         HTTP_GET_OPT_U64_PARAM(params, "logFlushInterval", logFlushInterval);
         Log_SetFlushInterval((unsigned) logFlushInterval * 1000);
         session.PrintPair("LogFlushInterval", INLINE_PRINTF("%u", 100, (unsigned) logFlushInterval));
+    }
+
+    if (HTTP_GET_OPT_PARAM(params, "replicationLimit", param))
+    {
+        replicationLimit = 0;
+        HTTP_GET_OPT_U64_PARAM(params, "replicationLimit", replicationLimit);
+        FOREACH (quorumProcessor, *shardServer->GetQuorumProcessors())
+        {
+            quorumProcessor->SetReplicationLimit((unsigned) replicationLimit);
+        }
+        session.PrintPair("ReplicationLimit", INLINE_PRINTF("%u", 100, (unsigned) replicationLimit));
     }
 
     session.Flush();

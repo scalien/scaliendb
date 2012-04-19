@@ -5,13 +5,6 @@
 #include "StorageEnvironment.h"
 #include "StorageFileDeleter.h"
 
-#define Log_DebugLong(sw, ...)  \
-    if (sw.Elapsed() > 1000)    \
-    do {                        \
-        Log_Debug(__VA_ARGS__); \
-        sw.Reset();             \
-    } while (0)
-
 StorageLogSegment::StorageLogSegment()
 {
     prev = next = this;
@@ -27,6 +20,13 @@ StorageLogSegment::StorageLogSegment()
     isCommitting = false;
     commitStatus = false;
 }
+
+#define Log_DebugLong(sw, ...)  \
+    if (sw.Elapsed() > 1000)    \
+    do {                        \
+        Log_Debug(__VA_ARGS__); \
+        sw.Reset();             \
+    } while (0)
 
 void StorageLogSegment::Open(Buffer& logPath, uint64_t trackID_, uint64_t logSegmentID_, uint64_t syncGranularity_)
 {
@@ -243,7 +243,7 @@ void StorageLogSegment::Commit()
         trackID,
         (uint64_t) sw.Elapsed(), HUMAN_BYTES(length),
         HUMAN_BYTES(BYTE_PER_SEC(length, sw.Elapsed())));
-    
+
     NewRound();
     commitedLogCommandID = logCommandID - 1;
     

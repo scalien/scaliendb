@@ -556,6 +556,7 @@ void ShardServer::ConfigureQuorum(ConfigQuorum* configQuorum)
         
         quorumProcessor = new ShardQuorumProcessor;
         quorumProcessor->Init(configQuorum, this);
+        quorumProcessor->SetReplicationLimit(configFile.GetIntValue("replicationLimit", 0));
         quorumProcessors.Append(quorumProcessor);
     }
 

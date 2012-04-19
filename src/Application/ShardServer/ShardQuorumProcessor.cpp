@@ -65,6 +65,8 @@ void ShardQuorumProcessor::Init(ConfigQuorum* configQuorum, ShardServer* shardSe
     migrateCache = 0;
     blockReplication = 0;
     appendState.Reset();
+    appendDelay = 0;
+    prevAppendTime = 0;
     quorumContext.Init(configQuorum, this);
     CONTEXT_TRANSPORT->AddQuorumContext(&quorumContext);
     messageCache.Init(100*1000);
@@ -746,6 +748,11 @@ void ShardQuorumProcessor::SetBlockReplication(bool blockReplication_)
     Log_Debug("Setting blockReplication = %b", blockReplication);
 }
 
+void ShardQuorumProcessor::SetReplicationLimit(unsigned replicationLimit)
+{
+    appendDelay = (unsigned)(replicationLimit == 0 ? 0 : 1000.0 / replicationLimit);
+}
+
 uint64_t ShardQuorumProcessor::GetMessageCacheSize()
 {
     return messageCache.GetMemorySize();
@@ -893,6 +900,14 @@ void ShardQuorumProcessor::TryAppend()
         EventLoop::Add(&tryAppend);
         return;
     }
+
+    // rate control
+    if (EventLoop::Now() < prevAppendTime + appendDelay)
+    {
+        tryAppend.SetExpireTime(prevAppendTime + appendDelay);
+        EventLoop::Add(&tryAppend);
+        return;
+    }
     
     numMessages = 0;
     Buffer& nextValue = quorumContext.GetNextValue();
@@ -934,6 +949,11 @@ void ShardQuorumProcessor::TryAppend()
 
         prevMessage = message;
     }
+
+    // replication and disk write rate control
+    prevAppendTime = EventLoop::Now();
+    tryAppend.SetExpireTime(EventLoop::Now() + appendDelay);
+    Log_Debug("Next append time: %U", tryAppend.GetExpireTime());
 
 //    Log_Debug("numMessages = %u", numMessages);
 //    Log_Debug("length = %s", HUMAN_BYTES(appendValue.GetLength()));

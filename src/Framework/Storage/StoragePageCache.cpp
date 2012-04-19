@@ -37,7 +37,7 @@ void StoragePageCache::Clear()
 
     size = 0;
     
-    Log_Debug("Cache cleared");
+    Log_Message("Page cache cleared");
 }
 
 uint64_t StoragePageCache::GetSize()

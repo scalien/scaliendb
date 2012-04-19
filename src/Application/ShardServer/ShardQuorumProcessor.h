@@ -116,6 +116,7 @@ public:
     uint64_t                GetMigrateShardID();
     void                    OnShardMigrationClusterMessage(uint64_t nodeID, ClusterMessage& message);
     void                    SetBlockReplication(bool blockReplication);
+    void                    SetReplicationLimit(unsigned replicationLimit);
     
     uint64_t                GetMessageCacheSize();
     uint64_t                GetMessageListSize();
@@ -154,6 +155,8 @@ private:
     bool                    isPrimary;
     uint64_t                highestProposalID;
     uint64_t                configID;
+    uint64_t                prevAppendTime;
+    unsigned                appendDelay;
 
     ShardAppendState        appendState;
 
@@ -176,7 +179,7 @@ private:
     Countdown               requestLeaseTimeout;
     Countdown               activationTimeout;
     Timer                   leaseTimeout;
-    YieldTimer              tryAppend;
+    Timer                   tryAppend;
     YieldTimer              resumeAppend;
     Countdown               resumeBlockedAppend;
 };

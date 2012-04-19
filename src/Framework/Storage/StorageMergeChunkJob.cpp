@@ -74,7 +74,7 @@ void StorageMergeChunkJob::Execute()
          mergeChunk->GetChunkID(),
          (uint64_t) sw.Elapsed(),
          HUMAN_BYTES(FS_FreeDiskSpace(mergeChunk->GetFilename().GetBuffer())));
-    }
+    } 
 }
 
 void StorageMergeChunkJob::OnComplete()
