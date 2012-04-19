@@ -51,8 +51,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 2,3,1,0
- PRODUCTVERSION 2,3,1,0
+ FILEVERSION 2,3,4,0
+ PRODUCTVERSION 2,3,4,0
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -69,12 +69,12 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "Scalien Software"
             VALUE "FileDescription", "Scalien Native Client Library"
-            VALUE "FileVersion", "2.3.1"
+            VALUE "FileVersion", "2.3.4"
             VALUE "InternalName", "Scalien Native Client Library"
             VALUE "LegalCopyright", "Copyright (C) 2009-2011 Scalien"
             VALUE "OriginalFilename", "scaliendb_client.dll"
             VALUE "ProductName", "Scalien Native Client Library"
-            VALUE "ProductVersion", "2.3.1"
+            VALUE "ProductVersion", "2.3.4"
         END
     END
     BLOCK "VarFileInfo"
