@@ -66,7 +66,7 @@ void StorageMergeChunkJob::Execute()
         Log_Message("Done merging chunk %U, elapsed: %U, size: %s, bps: %sB/s",
          mergeChunk->GetChunkID(),
          (uint64_t) sw.Elapsed(), HUMAN_BYTES(mergeChunk->GetSize()), 
-         HUMAN_BYTES((uint64_t)(mergeChunk->GetSize() / (sw.Elapsed() / 1000.0))));
+         HUMAN_BYTES(BYTE_PER_SEC(mergeChunk->GetSize(), sw.Elapsed())));
     }
     else
     {
@@ -74,7 +74,7 @@ void StorageMergeChunkJob::Execute()
          mergeChunk->GetChunkID(),
          (uint64_t) sw.Elapsed(),
          HUMAN_BYTES(FS_FreeDiskSpace(mergeChunk->GetFilename().GetBuffer())));
-    }
+    } 
 }
 
 void StorageMergeChunkJob::OnComplete()

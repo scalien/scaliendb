@@ -35,6 +35,8 @@ void StorageFileChunk::Close()
 {
     unsigned    i;
     
+    //Log_Debug("Closing chunk %U", headerPage.GetChunkID());
+
     if (fd != INVALID_FD)
         FS_FileClose(fd);
     
@@ -108,7 +110,7 @@ Buffer& StorageFileChunk::GetFilename()
 
 bool StorageFileChunk::OpenForReading()
 {
-    Log_Message("Opening chunk file %s", filename.GetBuffer());
+    Log_Debug("Opening chunk file %s", filename.GetBuffer());
     
     fd = FS_Open(filename.GetBuffer(), FS_READONLY);
     if (fd != INVALID_FD)
