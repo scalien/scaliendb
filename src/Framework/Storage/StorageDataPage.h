@@ -53,7 +53,7 @@ public:
     bool                    Read(Buffer& buffer, bool keysOnly = false);
     void                    Write(Buffer& buffer);
     // Serialize differs from Write in that it appends to the buffer
-    void                    Serialize(Buffer& buffer);
+    unsigned                Serialize(Buffer& buffer);
 
     void                    Unload();
 

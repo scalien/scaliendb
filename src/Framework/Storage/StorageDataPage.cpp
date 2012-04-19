@@ -440,9 +440,10 @@ void StorageDataPage::Write(Buffer& buffer_)
     buffer_.Write(buffer);
 }
 
-void StorageDataPage::Serialize(Buffer& buffer_)
+unsigned StorageDataPage::Serialize(Buffer& buffer_)
 {
     buffer_.Append(buffer);
+    return buffer.GetLength();
 }
 
 void StorageDataPage::Unload()
