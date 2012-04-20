@@ -38,7 +38,7 @@ namespace Scalien
                             string keyPart = kvParts[0].Trim();
                             string valuePart = kvParts[1].Trim();
 
-                            conf.Add(keyPart, valuePart);
+                            conf.Add(keyPart.ToLower(), valuePart);
                             counter++;
                         }
                     }
@@ -51,6 +51,7 @@ namespace Scalien
 
         public string GetStringValue(string key, string defaultValue = null)
         {
+            key = key.ToLower();
             if (conf.ContainsKey(key))
                 return conf[key];
             else
@@ -59,6 +60,7 @@ namespace Scalien
 
         public string[] GetStringArrayValue(string key, string[] defaultValue = null)
         {
+            key = key.ToLower();
             if (conf.ContainsKey(key))
             {
                 string stringValue = conf[key];
@@ -67,5 +69,39 @@ namespace Scalien
             else
                 return defaultValue;
         }
+
+        public int GetIntValue(string key, int defaultValue = 0)
+        {
+            string stringValue = GetStringValue(key, "" + defaultValue);
+            return Convert.ToInt32(stringValue);
+        }
+
+        public Int64 GetInt64Value(string key, Int64 defaultValue = 0)
+        {
+            string stringValue = GetStringValue(key, "" + defaultValue);
+            return Convert.ToInt64(stringValue);
+        }
+
+        public UInt64 GetUInt64Value(string key, UInt64 defaultValue = 0)
+        {
+            string stringValue = GetStringValue(key, "" + defaultValue);
+            return Convert.ToUInt64(stringValue);
+        }
+
+        public bool GetBoolValue(string key, bool defaultValue)
+        {
+            string stringValue = GetStringValue(key);
+            if (stringValue == null)
+                return defaultValue;
+            
+            if (stringValue == "true" || stringValue == "yes" || stringValue == "on")
+                return true;
+            
+            if (stringValue == "false" || stringValue == "no" || stringValue == "off")
+                return false;
+
+            throw new FormatException();
+        }
+
     }
 }
