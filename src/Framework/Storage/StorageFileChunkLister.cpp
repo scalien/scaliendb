@@ -13,7 +13,6 @@ void StorageFileChunkLister::Init(
     reader.SetPrefix(prefix);
     reader.SetEndKey(endKey);
     reader.SetCount(count);
-    Log_Debug("FileChunkLister preloadBufferSize: %s", HUMAN_BYTES(preloadBufferSize_));
 }
 
 void StorageFileChunkLister::Load()

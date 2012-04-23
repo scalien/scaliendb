@@ -158,6 +158,7 @@ private:
     //ShardDatabaseAsyncList  asyncList;
     ShardDatabaseAsyncListList inactiveAsyncLists;
     Sequences               sequences;
+    uint64_t                nextRequestID;
 };
 
 #endif

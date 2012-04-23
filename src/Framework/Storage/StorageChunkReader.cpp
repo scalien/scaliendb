@@ -87,7 +87,7 @@ StorageFileKeyValue* StorageChunkReader::First(ReadBuffer& firstKey)
         isLocated = true;
         if (fileChunk.indexPage == NULL)
         {
-            Log_Message("indexPage was not loaded");
+            Log_Debug("indexPage was not loaded");
             fileChunk.ReadHeaderPage();
             fileChunk.LoadIndexPage();
         }

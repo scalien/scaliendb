@@ -64,6 +64,7 @@ void StorageAsyncList::Init()
     numListers = 0;
     lastResult = NULL;
     env = NULL;
+    requestID = 0;
 }
 
 void StorageAsyncList::Clear()
@@ -92,7 +93,7 @@ void StorageAsyncList::ExecuteAsyncList()
     StorageChunk::ChunkState        chunkState;
     bool                            keysOnly;
     
-    Log_Debug("StorageAsyncList START");
+    Log_Debug("List[%U] StorageAsyncList START", requestID);
     keysOnly = (type == KEY || type == COUNT);
 
     if (!forwardDirection && prefix.GetLength() > 0 && !startKey.BeginsWith(prefix) && count > 0)
@@ -139,7 +140,7 @@ void StorageAsyncList::ExecuteAsyncList()
         stage = MEMO_CHUNK;
     }
 
-    Log_Debug("StorageAsyncList MEMO_CHUNK");
+    Log_Debug("List[%U] StorageAsyncList MEMO_CHUNK", requestID);
 
     if (stage == MEMO_CHUNK)
     {
@@ -147,7 +148,7 @@ void StorageAsyncList::ExecuteAsyncList()
         stage = FILE_CHUNK;
     }
     
-    Log_Debug("StorageAsyncList FILE_CHUNK");
+    Log_Debug("List[%U] StorageAsyncList FILE_CHUNK", requestID);
     
     if (stage == FILE_CHUNK)
     {
@@ -174,7 +175,7 @@ void StorageAsyncList::AsyncLoadChunks()
 
     for (i = 0; i < numListers; i++)
     {
-        Log_Debug("AsyncLoadChunks: Setting iterator to firstKey %R", &startKey);
+        Log_Debug("List[%U] Setting iterator to firstKey %R", requestID, &startKey);
         iterators[i] = listers[i]->First(startKey);
     }
     
@@ -187,7 +188,7 @@ void StorageAsyncList::AsyncMergeResult()
     StorageFileKeyValue*    it;
     StorageAsyncListResult* result;
 
-    Log_Debug("starting AsyncMergeResult");
+    Log_Debug("List[%U] Starting AsyncMergeResult", requestID);
 
     result = new StorageAsyncListResult(this);
 
@@ -238,7 +239,7 @@ void StorageAsyncList::AsyncMergeResult()
         }
     }
     
-    Log_Debug("finished AsyncMergeResult");
+    Log_Debug("List[%U] Finished AsyncMergeResult", requestID);
     
     result->final = true;
     OnResult(result);

@@ -89,6 +89,7 @@ public:
     unsigned                numListers;
     StorageAsyncListResult* lastResult;
     StorageEnvironment*     env;
+    uint64_t                requestID;
 
     StorageAsyncList();
     

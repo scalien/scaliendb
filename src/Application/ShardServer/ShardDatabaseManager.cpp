@@ -141,12 +141,12 @@ void ShardDatabaseAsyncList::OnShardComplete()
     // possibly an error happened or already disconnected
     if (!lastResult || !request || !request->IsActive())
     {
-        Log_Debug("OnShardComplete error");
+        Log_Debug("List[%U] OnShardComplete error", requestID);
         OnRequestComplete();
         return;
     }
 
-    Log_Debug("OnShardComplete, final: %b", lastResult->final);
+    Log_Debug("List[%U] OnShardComplete, final: %b", requestID, lastResult->final);
 
     numKeys = lastResult->numKeys;
     total += numKeys;
@@ -154,7 +154,7 @@ void ShardDatabaseAsyncList::OnShardComplete()
     if (numKeys > 0 && (type == KEY || type == KEYVALUE))
     {
         ReadBuffer fk = lastResult->dataPage.First()->GetKey();
-        Log_Debug("numKeys: %u, firstKey: %R", numKeys, &fk);
+        Log_Debug("List[%U] numKeys: %u, firstKey: %R", requestID, numKeys, &fk);
     }
 
     // create results if necessary
@@ -187,7 +187,7 @@ void ShardDatabaseAsyncList::OnShardComplete()
     // found all items given by 'count'
     if (lastResult->final && request->count != 0 && total == request->count)
     {
-        Log_Debug("OnShardComplete count found");
+        Log_Debug("List[%U] OnShardComplete count found", requestID);
         OnRequestComplete();
         return;
     }
@@ -216,6 +216,8 @@ void ShardDatabaseAsyncList::OnRequestComplete()
         request->OnComplete();
         request = NULL;
         manager->inactiveAsyncLists.Append(this);
+        if (!manager->executeLists.IsActive())
+            EventLoop::Add(&manager->executeLists);
         return;
     }
     
@@ -267,7 +269,7 @@ void ShardDatabaseAsyncList::TryNextShard()
     else
         rbShardLastKey.Wrap(shardFirstKey);
 
-    Log_Debug("TryNextShard: shardLastKey: %R", &rbShardLastKey);
+    Log_Debug("List[%U] TryNextShard: shardLastKey: %R", requestID, &rbShardLastKey);
     
     // check if this was the last shard
     if (rbShardLastKey.GetLength() == 0)
@@ -334,8 +336,9 @@ ShardDatabaseManager::ShardDatabaseManager()
 
 void ShardDatabaseManager::Init(ShardServer* shardServer_)
 {
-    Buffer          envpath;
-    StorageConfig   sc;
+    Buffer                      envPath;
+    StorageConfig               sc;
+    ShardDatabaseAsyncList*     asyncList;
     
     sc.SetChunkSize(            (uint64_t) configFile.GetInt64Value("database.chunkSize",           64*MiB  ));
     sc.SetLogSegmentSize(       (uint64_t) configFile.GetInt64Value("database.logSegmentSize",      64*MiB  ));
@@ -347,8 +350,8 @@ void ShardDatabaseManager::Init(ShardServer* shardServer_)
     sc.SetWriteGranularity(     (uint64_t) configFile.GetInt64Value("database.writeGranularity",    STORAGE_WRITE_GRANULARITY));
     sc.SetReplicatedLogSize(    (uint64_t) configFile.GetInt64Value("database.replicatedLogSize",   10*GiB  ));
 
-    envpath.Writef("%s", configFile.GetValue("database.dir", "db"));
-    environment.Open(envpath, sc);
+    envPath.Writef("%s", configFile.GetValue("database.dir", "db"));
+    environment.Open(envPath, sc);
 
     shardServer = shardServer_;
     
@@ -371,9 +374,12 @@ void ShardDatabaseManager::Init(ShardServer* shardServer_)
     // Initialize async LIST operations
     for (int i = 0; i < configFile.GetIntValue("database.numAsyncThreads", 10); i++)
     {
-        ShardDatabaseAsyncList* asyncList = new ShardDatabaseAsyncList(this);
+        asyncList = new ShardDatabaseAsyncList(this);
         inactiveAsyncLists.Append(asyncList);
     }
+
+    // Used for identifying async requests
+    nextRequestID = 0;
 }
 
 void ShardDatabaseManager::Shutdown()
@@ -910,6 +916,7 @@ void ShardDatabaseManager::OnExecuteLists()
     ConfigShard*                configShard;
     ShardDatabaseAsyncList*     asyncList;
 
+    Log_Trace("numRequests: %u, numThreads: %u", listRequests.GetLength(), inactiveAsyncLists.GetLength());
     if (inactiveAsyncLists.GetLength() == 0)
         return;
     
@@ -985,6 +992,7 @@ void ShardDatabaseManager::OnExecuteLists()
             ASSERT_FAIL();
 
         // set parameters
+        asyncList->requestID = nextRequestID++;
         asyncList->SetTotal(0);
         asyncList->num = 0;
         asyncList->SetRequest(request);
@@ -998,8 +1006,10 @@ void ShardDatabaseManager::OnExecuteLists()
         asyncList->shardLastKey.Write(configShard->lastKey);
         asyncList->onComplete = MFunc<ShardDatabaseAsyncList, &ShardDatabaseAsyncList::OnShardComplete>(asyncList);
         
+        Log_Debug("List[%U] shard: shardFirstKey: %B, shardLastKey: %B", 
+         asyncList->requestID, &asyncList->shardFirstKey, &asyncList->shardLastKey);
+
         // try to execute the list command asynchronously
-        Log_Debug("Listing shard: shardFirstKey: %B, shardLastKey: %B", &asyncList->shardFirstKey, &asyncList->shardLastKey);
         environment.AsyncList(contextID, shardID, asyncList);
  
         if (!asyncList->IsActive())
