@@ -140,30 +140,12 @@ static int SetupDefaultClient(Client& client)
     //client.SetConsistencyMode(SDBP_CONSISTENCY_RYW);
 
     clientObj = (ClientObj) &client;
-    databaseID = 0;
-    for (unsigned i = 0; i < SDBP_GetNumDatabases(clientObj); i++)
-    {
-        if (SDBP_GetDatabaseNameAt(clientObj, i) == databaseName)
-        {
-            databaseID = SDBP_GetDatabaseIDAt(clientObj, i);
-            break;
-        }
-    }
-
+    databaseID = SDBP_GetDatabaseIDByName(clientObj, databaseName);
     if (databaseID == 0)
         return TEST_FAILURE;
     defaultDatabaseID = databaseID;
 
-    tableID = 0;
-    for (unsigned i = 0; i < SDBP_GetNumTables(clientObj, defaultDatabaseID); i++)
-    {
-        if (SDBP_GetTableNameAt(clientObj, defaultDatabaseID, i) == tableName)
-        {
-            tableID = SDBP_GetTableIDAt(clientObj, defaultDatabaseID, i);
-            break;
-        }
-    }
-
+    tableID = SDBP_GetTableIDByName(clientObj, databaseID, tableName);
     if (tableID == 0)
         return TEST_FAILURE;
     defaultTableID = tableID;
@@ -1108,6 +1090,46 @@ TEST_DEFINE(TestClientDistributeList)
     return TEST_SUCCESS;
 }
 
+TEST_DEFINE(TestClientPrintableList)
+{
+    Client                      client;
+    Result*                     result;
+    ReadBuffer                  startKey;
+    char                        buffer[16];
+    const char                  printableChars[] = "0123456789ABCDEF";
+    uint64_t                    currentCounter;
+    static volatile uint64_t    counter;
+    static uint64_t             prevTimestamp;
+    uint64_t                    elapsed;
+
+    if (prevTimestamp == 0)
+        prevTimestamp = Now();
+
+    TEST(SetupDefaultClient(client));
+
+    startKey.Wrap(buffer, sizeof(buffer) - 1);
+    client.SetConsistencyMode(SDBP_CONSISTENCY_ANY);
+    while (true)
+    {
+        RandomBufferSet(buffer, sizeof(buffer) - 1, printableChars, sizeof(printableChars) - 1);
+        TEST(client.ListKeys(defaultTableID, startKey, "", "", 1, true, false));
+        result = client.GetResult();
+        delete result;
+        
+        currentCounter = AtomicIncrementU64(counter);
+        if (currentCounter % 1000 == 0)
+        {
+            elapsed = Now() - prevTimestamp;
+            prevTimestamp = Now();
+            Log_Message("%U: %u rps", currentCounter, (int)(1000.0 / elapsed * 1000));
+        }
+    }
+
+    client.Shutdown();
+
+    return TEST_SUCCESS;
+}
+
 TEST_DEFINE(TestClientGetSetGetSetSubmit)
 {
     Client          client;
@@ -1318,7 +1340,7 @@ TEST_DEFINE(TestClientShardConnectionPooling)
 TEST_DEFINE(TestClientMultiThread)
 {
     ThreadPool*     threadPool;
-    unsigned        numThread = 100;
+    unsigned        numThread = 20;
     uint32_t        runCount;
     Stopwatch       sw;
 
@@ -1336,7 +1358,7 @@ TEST_DEFINE(TestClientMultiThread)
 
 		for (unsigned i = 0; i < numThread; i++)
 		{
-            threadPool->Execute(CFunc((void (*)(void)) TestClientAdd));
+            threadPool->Execute(CFunc((void (*)(void)) TestClientPrintableList));
 		}
     
 		threadPool->Start();
