@@ -122,7 +122,7 @@ void MessageConnection::OnRead()
 
     sw.Start();
     
-    Log_Trace("Read buffer: %B", tcpread.buffer);
+    Log_Trace("Buffer length: %u, Read buffer: %B", tcpread.buffer->GetLength(), tcpread.buffer);
     
     tcpread.requested = IO_READ_ANY;
     pos = 0;
