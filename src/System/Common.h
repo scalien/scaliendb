@@ -72,6 +72,7 @@ void            SeedRandom();
 void            SeedRandomWith(uint64_t seed);
 int             RandomInt(int min, int max);
 void            RandomBuffer(char* buffer, unsigned length);
+void            RandomBufferSet(char* buffer, unsigned length, const char* set, unsigned setSize);
 
 void            BlockSignals();
 bool            ChangeUser(const char *username);

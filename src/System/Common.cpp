@@ -447,6 +447,12 @@ void RandomBuffer(char* buffer, unsigned length)
 {
     const char set[] = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
     const size_t setsize = sizeof(set) - 1;
+
+    RandomBufferSet(buffer, length, set, setsize);
+}
+
+void RandomBufferSet(char* buffer, unsigned length, const char* set, unsigned setSize)
+{
     unsigned int i;
     static uint64_t d = GenerateGUID();
     
@@ -454,7 +460,7 @@ void RandomBuffer(char* buffer, unsigned length)
             // more about why these numbers were chosen:
             // http://en.wikipedia.org/wiki/Linear_congruential_generator
             d = (d * 1103515245UL + 12345UL) >> 2;
-            buffer[i] = set[d % setsize];
+            buffer[i] = set[d % setSize];
     }
 }
 
