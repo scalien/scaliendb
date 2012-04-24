@@ -1397,7 +1397,7 @@ void Client::ReassignRequest(Request* req)
         req->quorumID = quorumID;
     }
     
-    quorum = configState.GetQuorum(quorumID);
+    quorum = configState.GetQuorum(req->quorumID);
     if (!req->IsReadRequest() && quorum && quorum->hasPrimary == false)
         submittedRequests.Append(req);
     else
@@ -1515,6 +1515,7 @@ void Client::SendQuorumRequest(ShardConnection* conn, uint64_t quorumID)
     // load balancing in relaxed consistency levels
     maxRequests = GetMaxQuorumRequests(qrequests, conn, quorum);
 
+    flushNeeded = false;
     numServed = 0;
     Log_Trace("quorumID: %U, numRequests: %u, maxRequests: %u, nodeID: %U", quorumID, qrequests->GetLength(), maxRequests, conn->GetNodeID());
     while (qrequests->GetLength() > 0)
