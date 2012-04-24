@@ -635,6 +635,8 @@ bool ConfigHTTPClientSession::ProcessCommand(ReadBuffer& cmd)
     else if (HTTP_MATCH_COMMAND(cmd, "rotatelog"))
     {
         Log_Rotate();
+        session.Print("Log rotated");
+        session.Flush();
         return true;
     }
 
