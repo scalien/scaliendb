@@ -1123,12 +1123,14 @@ void StorageEnvironment::TrySerializeChunks()
         if (!logSegment)
             continue;
 
-        if (memoChunk->GetSize() > config.GetChunkSize())
-            goto Candidate;
-        if (memoChunksSumSize > config.GetMemoChunkCacheSize())
-            goto Candidate;
+        // force dumping memoChunk
         if (dumpMemoChunks)
             goto Candidate;
+
+        if (memoChunk->GetSize() <= config.GetChunkSize())
+            continue;
+        if (memoChunksSumSize <= config.GetMemoChunkCacheSize())
+            continue;
         if (logSegment->GetLogSegmentID() <= config.GetNumUnbackedLogSegments())
             continue;
         if (memoChunk->GetMinLogSegmentID() == 0)
@@ -1138,7 +1140,9 @@ void StorageEnvironment::TrySerializeChunks()
 
 Candidate:
         if (!candidateShard || memoChunk->GetSize() > candidateShard->GetMemoChunk()->GetSize())
+        {
             candidateShard = shard;
+        }
     }
 
     if (!candidateShard)
