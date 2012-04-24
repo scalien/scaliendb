@@ -45,7 +45,6 @@ Controller* Controller::GetController(Client* client, int nodec, const char* nod
     {
         // TODO:
         UNUSED(client);
-        //controller->AddClient(client);
         return controller;
     }
 
@@ -57,7 +56,6 @@ Controller* Controller::GetController(Client* client, int nodec, const char* nod
     }
 
     controllers.Insert<const Buffer&>(controller);
-    //controller->AddClient(client);
 
     return controller;
 }
@@ -84,10 +82,10 @@ void Controller::TerminateClients()
 
     FOREACH_FIRST (controller, controllers)
     {
+        controllers.Remove(controller);
         guard.Unlock();
         controller->isShuttingDown = true;
         controller->OnConfigStateChanged();
-        controllers.Remove(controller);
         delete controller;
         guard.Lock();
     }
