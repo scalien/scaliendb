@@ -176,6 +176,27 @@ static void InitLog()
     Log_SetFlushInterval(configFile.GetIntValue("log.flushInterval", 0) * 1000);
 }
 
+static void ParseDebugArgs(char* arg)
+{
+    bool    pause = false;
+
+    switch (arg[0])
+    {
+    case 'X':
+        // Do not exit on error or assert
+        SetExitOnError(false);
+        SetAssertCritical(false);
+        break;
+    case 'P':
+        // Pause execution while debugger is attaching
+        // Once the debugger is attached, change the value of pause to false
+        pause = true;
+        while (pause)
+            MSleep(1000);   // <- Put debugger breakpoint this line
+        break;
+    }
+}
+
 static void ParseArgs(int argc, char** argv)
 {
     for (int i = 1; i < argc; i++)
@@ -187,9 +208,9 @@ static void ParseArgs(int argc, char** argv)
             case 't':
                 Log_SetTrace(true);
                 break;
-            case 'X':
-                SetExitOnError(false);
-                SetAssertCritical(false);
+            case 'D':
+                // Debugging options
+                ParseDebugArgs(&argv[i][2]);
                 break;
             case 'v':
                 STOP("%s", PRODUCT_STRING);

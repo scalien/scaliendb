@@ -24,6 +24,7 @@ void ShardServer::Init(ShardServerApp* app, bool restoreMode)
 
     shardServerApp = app;
 
+    startTimestamp = Now();
     databaseManager.Init(this); 
     heartbeatManager.Init(this);
     migrationWriter.Init(this);
@@ -443,6 +444,11 @@ void ShardServer::GetMemoryUsageBuffer(Buffer& buffer)
 unsigned ShardServer::GetNumSDBPClients()
 {
     return shardServerApp->GetNumSDBPClients();
+}
+
+uint64_t ShardServer::GetStartTimestamp()
+{
+    return startTimestamp;
 }
 
 void ShardServer::OnSetConfigState(ClusterMessage& message)

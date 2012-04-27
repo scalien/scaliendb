@@ -12,6 +12,14 @@
 ===============================================================================================
 */
 
+static volatile FS_Stat  fsStat = {0, 0, 0, 0, 0, 0, 0};
+
+void FS_GetStats(FS_Stat* stat_)
+{
+    // copy struct
+    memcpy(stat_, (const void*)(&fsStat), sizeof(FS_Stat));
+}
+
 bool FS_IsSpecial(const char* path)
 {
     size_t  len;
@@ -555,6 +563,7 @@ FD FS_Open(const char* filename, int flags)
     
     globalMutex.Lock();
     fileHandles.Append(fd.handle);
+    fsStat.numFileOpens++;
     globalMutex.Unlock();
 
     return fd;
@@ -566,6 +575,7 @@ void FS_FileClose(FD fd)
 
     globalMutex.Lock();
     fileHandles.Remove(fd.handle);
+    fsStat.numFileCloses++;
     globalMutex.Unlock();
 
     ret = CloseHandle((HANDLE)fd.handle);
@@ -645,12 +655,16 @@ ssize_t FS_FileWrite(FD fd, const void* buf, size_t count)
     BOOL    ret;
     DWORD   numWritten;
     
+    fsStat.numWrites++;
+
     ret = WriteFile((HANDLE)fd.handle, buf, (DWORD) count, &numWritten, NULL);
     if (!ret)
     {
         Log_Errno();
         return -1;
     }
+
+    fsStat.numBytesWritten += numWritten;
     
     return (ssize_t) numWritten;
 }
@@ -659,13 +673,18 @@ ssize_t FS_FileRead(FD fd, void* buf, size_t count)
 {
     BOOL    ret;
     DWORD   numRead;
-    
+
+    fsStat.numReads++;
+
     ret = ReadFile((HANDLE)fd.handle, buf, (DWORD) count, &numRead, NULL);
     if (!ret)
     {
         Log_Errno();
         return -1;
     }
+
+    fsStat.numBytesRead += numRead;
+
     return (ssize_t) numRead;
 }
 
@@ -674,7 +693,9 @@ ssize_t FS_FileWriteOffs(FD fd, const void* buf, size_t count, uint64_t offset)
     BOOL        ret;
     DWORD       numWritten;
     OVERLAPPED  overlapped;
-    
+
+    fsStat.numWrites++;
+
     overlapped.hEvent = NULL;
     overlapped.Internal = 0;
     overlapped.InternalHigh = 0;
@@ -686,6 +707,8 @@ ssize_t FS_FileWriteOffs(FD fd, const void* buf, size_t count, uint64_t offset)
         Log_Errno();
         return -1;
     }
+
+    fsStat.numBytesWritten += numWritten;
     
     return (ssize_t) numWritten;
 }
@@ -695,7 +718,9 @@ ssize_t FS_FileReadOffs(FD fd, void* buf, size_t count, uint64_t offset)
     BOOL        ret;
     DWORD       numRead;
     OVERLAPPED  overlapped;
-    
+
+    fsStat.numReads++;
+
     overlapped.hEvent = NULL;
     overlapped.Internal = 0;
     overlapped.InternalHigh = 0;
@@ -707,6 +732,9 @@ ssize_t FS_FileReadOffs(FD fd, void* buf, size_t count, uint64_t offset)
         Log_Errno();
         return -1;
     }
+
+    fsStat.numBytesRead += numRead;
+
     return (ssize_t) numRead;
 }
 
@@ -714,6 +742,8 @@ bool FS_Delete(const char* filename)
 {
     BOOL    ret;
     
+    fsStat.numFileDeletes++;
+
     ret = DeleteFile(filename);
     if (!ret)
     {

@@ -56,6 +56,8 @@ public:
     uint64_t            GetOffset();
     uint64_t            GetWriteBufferSize();
 
+    void                SetOffset(uint64_t offset);
+
     StorageLogSegment*  prev;
     StorageLogSegment*  next;
 

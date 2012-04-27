@@ -133,6 +133,12 @@ public:
     uint64_t                ExecuteMessage(uint64_t quorumID, uint64_t paxosID, uint64_t commandID, ShardMessage& message);
 
     void                    OnLeaseTimeout();
+
+    unsigned                GetNumReadRequests();
+    unsigned                GetNumBlockingReadRequests();
+    unsigned                GetNumListRequests();
+    unsigned                GetNumInactiveListThreads();
+    uint64_t                GetNextRequestID();
         
 private:
     void                    DeleteQuorumPaxosShard(uint64_t quorumID);

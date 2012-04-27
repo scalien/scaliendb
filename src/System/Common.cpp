@@ -538,8 +538,11 @@ const char* GetStackTrace(char* buffer, int size, const char* prefix)
     {
         address = (DWORD64)(stack[i]);
 
+        symbol->Name[0] = 0;
         SymFromAddr(process, address, 0, symbol);
+        line.LineNumber = 0;
         SymGetLineFromAddr64(process, address, &displacement, &line);
+        module.ImageName[0] = 0;
         SymGetModuleInfo64(process, address, &module);
 
         fileName = strrchr(module.ImageName, '\\');
@@ -601,8 +604,11 @@ void PrintStackTrace()
     {
         address = (DWORD64)(stack[i]);
 
+        symbol->Name[0] = 0;
         SymFromAddr(process, address, 0, symbol);
+        line.LineNumber = 0;
         SymGetLineFromAddr64(process, address, &displacement, &line);
+        module.ImageName[0] = 0;
         SymGetModuleInfo64(process, address, &module);
 
         fileName = strrchr(module.ImageName, '\\');

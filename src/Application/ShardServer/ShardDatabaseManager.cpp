@@ -769,6 +769,31 @@ void ShardDatabaseManager::OnLeaseTimeout()
     sequences.DeleteTree();
 }
 
+unsigned ShardDatabaseManager::GetNumReadRequests()
+{
+    return readRequests.GetLength();
+}
+
+unsigned ShardDatabaseManager::GetNumBlockingReadRequests()
+{
+    return blockingReadRequests.GetLength();
+}
+
+unsigned ShardDatabaseManager::GetNumListRequests()
+{
+    return listRequests.GetLength();
+}
+
+unsigned ShardDatabaseManager::GetNumInactiveListThreads()
+{
+    return inactiveAsyncLists.GetLength();
+}
+
+uint64_t ShardDatabaseManager::GetNextRequestID()
+{
+    return nextRequestID;
+}
+
 void ShardDatabaseManager::DeleteQuorumPaxosShard(uint64_t quorumID)
 {
     StorageShardProxy*  shard;

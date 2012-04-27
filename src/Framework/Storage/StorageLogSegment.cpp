@@ -13,6 +13,9 @@ StorageLogSegment::StorageLogSegment()
     fd = INVALID_FD;
     logCommandID = 1;
     commitedLogCommandID = 0;
+    syncGranularity = 0;
+    offset = 0;
+    lastSyncOffset = 0;
     prevContextID = 0;
     prevShardID = 0;
     writeShardID = true;
@@ -269,6 +272,12 @@ uint64_t StorageLogSegment::GetOffset()
 uint64_t StorageLogSegment::GetWriteBufferSize()
 {
     return writeBuffer.GetSize();
+}
+
+void StorageLogSegment::SetOffset(uint64_t offset_)
+{
+    ASSERT(fd == INVALID_FD);
+    offset = offset_;
 }
 
 void StorageLogSegment::NewRound()

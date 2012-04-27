@@ -508,27 +508,31 @@ bool StorageRecovery::ReplayLogSegment(uint64_t trackID, Buffer& filename)
     // look at that shard's computed max., if the log is bigger, then execute the command
     // against the MemoChunk
 
-    bool                usePrevious;
-    char                type;
-    uint16_t            contextID, klen;
-    uint32_t            checksum, /*compChecksum,*/ vlen, version;
-    uint64_t            logSegmentID, shardID, logCommandID, size, rest;
-    ReadBuffer          parse, dataPart, key, value;
-    Buffer              buffer;
-    FDGuard             fd;
-    uint64_t            uncompressedLength;
-    ssize_t             ret;
-    StorageLogManager::Track*  track;
-    
+    bool                        usePrevious;
+    char                        type;
+    uint16_t                    contextID, klen;
+    uint32_t                    checksum, /*compChecksum,*/ vlen, version;
+    uint64_t                    logSegmentID, shardID, logCommandID, size, rest;
+    ReadBuffer                  parse, dataPart, key, value;
+    Buffer                      buffer;
+    FDGuard                     fd;
+    uint64_t                    uncompressedLength;
+    uint64_t                    fileSize;
+    ssize_t                     ret;
+    StorageLogSegment*          logSegment;
+    StorageLogManager::Track*   track;
+
     Log_Message("Replaying log segment %B...", &filename);
     
     filename.NullTerminate();
-    
+
     if (fd.Open(filename.GetBuffer(), FS_READONLY) == INVALID_FD)
     {
         Log_Message("Unable to open log file: %s", filename.GetBuffer());
         STOP_FAIL(1);
     }
+
+    fileSize = FS_FileSize(fd.GetFD());
     
     size = 4 + 8;
     buffer.Allocate(size);
@@ -658,7 +662,9 @@ bool StorageRecovery::ReplayLogSegment(uint64_t trackID, Buffer& filename)
     track = env->logManager.GetTrack(trackID);
     if (!track)
         env->logManager.CreateTrack(trackID);
-    env->logManager.CreateLogSegment(trackID, logSegmentID, filename);
+    
+    logSegment = env->logManager.CreateLogSegment(trackID, logSegmentID, filename);
+    logSegment->SetOffset(fileSize);
     
     fd.Close();
     

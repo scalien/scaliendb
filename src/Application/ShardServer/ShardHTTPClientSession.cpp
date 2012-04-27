@@ -286,8 +286,11 @@ void ShardHTTPClientSession::PrintStorage()
 
 void ShardHTTPClientSession::PrintStatistics()
 {
-    Buffer          buffer;
-    IOProcessorStat iostat;
+    Buffer                  buffer;
+    IOProcessorStat         iostat;
+    FS_Stat                 fsStat;
+    ShardDatabaseManager*   databaseManager;
+    ShardQuorumProcessor*   quorumProcessor;
     
     IOProcessor::GetStats(&iostat);
     
@@ -300,6 +303,36 @@ void ShardHTTPClientSession::PrintStatistics()
     buffer.Appendf("numCompletions: %U\n", iostat.numCompletions);
     buffer.Appendf("totalPollTime: %U\n", iostat.totalPollTime);
     buffer.Appendf("totalNumEvents: %U\n", iostat.totalNumEvents);
+
+    FS_GetStats(&fsStat);
+    buffer.Append("\nFileSystem stats\n");
+    buffer.Appendf("numReads: %U\n", fsStat.numReads);
+    buffer.Appendf("numWrites: %U\n", fsStat.numWrites);
+    buffer.Appendf("numBytesRead: %s\n", HUMAN_BYTES(fsStat.numBytesRead));
+    buffer.Appendf("numBytesWritten: %s\n", HUMAN_BYTES(fsStat.numBytesWritten));
+    buffer.Appendf("numFileOpens: %U\n", fsStat.numFileOpens);
+    buffer.Appendf("numFileCloses: %U\n", fsStat.numFileCloses);
+    buffer.Appendf("numFileDeletes: %U\n", fsStat.numFileDeletes);
+
+    databaseManager = shardServer->GetDatabaseManager();
+    buffer.Append("\nShardServer stats\n");
+    buffer.Appendf("uptime: %U sec\n", (Now() - shardServer->GetStartTimestamp()) / 1000);
+    buffer.Appendf("pendingReadRequests: %u\n", databaseManager->GetNumReadRequests());
+    buffer.Appendf("pendingBlockingReadRequests: %u\n", databaseManager->GetNumBlockingReadRequests());
+    buffer.Appendf("pendingListRequests: %u\n", databaseManager->GetNumListRequests());
+    buffer.Appendf("inactiveListThreads: %u\n", databaseManager->GetNumInactiveListThreads());
+    buffer.Appendf("nextRequestID: %U\n", databaseManager->GetNextRequestID());
+
+    buffer.Append("\nReplication stats\n");
+    FOREACH (quorumProcessor, *shardServer->GetQuorumProcessors())
+    {
+        buffer.Appendf("quorum[%U].messageListSize: %u\n", quorumProcessor->GetQuorumID(), 
+         quorumProcessor->GetMessageListSize());
+        buffer.Appendf("quorum[%U].shardAppendStateSize: %u\n", quorumProcessor->GetQuorumID(), 
+         quorumProcessor->GetShardAppendStateSize());
+        buffer.Appendf("quorum[%U].contextSize: %u\n", quorumProcessor->GetQuorumID(), 
+         quorumProcessor->GetQuorumContextSize());
+    }
 
     session.Print(buffer);
     session.Flush();

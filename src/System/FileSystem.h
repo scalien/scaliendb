@@ -26,9 +26,22 @@
 #define FS_INVALID_DIR          0
 #define FS_INVALID_DIR_ENTRY    0
 
+struct FS_Stat
+{
+    uint64_t    numReads;
+    uint64_t    numWrites;
+    uint64_t    numBytesRead;
+    uint64_t    numBytesWritten;
+    uint64_t    numFileOpens;
+    uint64_t    numFileCloses;
+    uint64_t    numFileDeletes;
+};
+
 typedef intptr_t FS_Dir;
 typedef intptr_t FS_DirEntry;
 
+
+void        FS_GetStats(FS_Stat* stat);
 FD          FS_Open(const char* filename, int mode);
 void        FS_FileClose(FD fd);
 int64_t     FS_FileSeek(FD fd, uint64_t offset, int whence);

@@ -63,6 +63,7 @@ public:
     unsigned                GetSDBPPort();
     void                    GetMemoryUsageBuffer(Buffer& buffer);
     unsigned                GetNumSDBPClients();
+    uint64_t                GetStartTimestamp();
 
 private:
     void                    OnSetConfigState(ClusterMessage& message);
@@ -81,6 +82,7 @@ private:
     ShardLockManager        lockManager;
     ShardMigrationWriter    migrationWriter;
     ShardServerApp*         shardServerApp;
+    uint64_t                startTimestamp;
 };
 
 #endif
