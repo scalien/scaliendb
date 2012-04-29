@@ -68,7 +68,7 @@ inline bool LessThan(ShardSize& a, ShardSize& b)
 StorageEnvironment::StorageEnvironment()
 {
     logManager.env = this;
-    asyncThread = NULL;
+    asyncListThread = NULL;
     asyncGetThread = NULL;
 
     onBackgroundTimer = MFUNC(StorageEnvironment, OnBackgroundTimer);
@@ -99,8 +99,8 @@ bool StorageEnvironment::Open(Buffer& envPath_, StorageConfig config_)
     archiveLogJobs.Start();
     deleteChunkJobs.Start();
 
-    asyncThread = ThreadPool::Create(configFile.GetIntValue("database.numAsyncThreads", 10));
-    asyncThread->Start();
+    asyncListThread = ThreadPool::Create(configFile.GetIntValue("database.numAsyncThreads", 10));
+    asyncListThread->Start();
 
     asyncGetThread = ThreadPool::Create(1);
     asyncGetThread->Start();
@@ -199,8 +199,8 @@ void StorageEnvironment::Close()
     deleteChunkJobs.Stop();
     
     asyncGetThread->Stop();
-    asyncThread->Stop();
-    delete asyncThread;
+    asyncListThread->Stop();
+    delete asyncListThread;
     delete asyncGetThread;
     
     shards.DeleteList();
@@ -473,7 +473,7 @@ void StorageEnvironment::AsyncList(uint16_t contextID, uint64_t shardID, Storage
     asyncList->env = this;
     asyncList->shard = shard;
     asyncList->stage = StorageAsyncList::START;
-    asyncList->threadPool = asyncThread;
+    asyncList->threadPool = asyncListThread;
     asyncList->ExecuteAsyncList();
 }
 
@@ -587,7 +587,7 @@ StorageAsyncBulkCursor* StorageEnvironment::GetAsyncBulkCursor(uint16_t contextI
 
     abc->SetEnvironment(this);
     abc->SetShard(contextID, shardID);
-    abc->SetThreadPool(asyncThread);
+    abc->SetThreadPool(asyncListThread);
     abc->SetOnComplete(onResult);
     
     numCursors++;

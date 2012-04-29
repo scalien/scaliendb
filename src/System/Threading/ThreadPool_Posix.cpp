@@ -37,7 +37,7 @@ protected:
     pthread_t*          threads;
     pthread_mutex_t     mutex;
     pthread_cond_t      cond;
-    int                 numStarted;
+    unsigned            numStarted;
     bool                finished;
     
     static void*        thread_function(void *param);
@@ -128,9 +128,9 @@ void ThreadPool_Pthread::ThreadFunction()
     }
 }
 
-ThreadPool_Pthread::ThreadPool_Pthread(int numThread_)
+ThreadPool_Pthread::ThreadPool_Pthread(int numThreads_)
 {
-    numThread = numThread_;
+    numThreads = numThreads_;
     numPending = 0;
     numActive = 0;
     numStarted = 0;
@@ -141,7 +141,7 @@ ThreadPool_Pthread::ThreadPool_Pthread(int numThread_)
     pthread_mutex_init(&mutex, NULL);
     pthread_cond_init(&cond, NULL);
     
-    threads = new pthread_t[numThread];
+    threads = new pthread_t[numThreads];
 }
 
 ThreadPool_Pthread::~ThreadPool_Pthread()
@@ -152,7 +152,7 @@ ThreadPool_Pthread::~ThreadPool_Pthread()
 
 void ThreadPool_Pthread::Start()
 {
-    int             i;
+    unsigned        i;
     int             ret;
     pthread_attr_t  attr;
     
@@ -160,19 +160,19 @@ void ThreadPool_Pthread::Start()
         return;
     
     running = true;
-    numActive = numThread;
+    numActive = numThreads;
     
     pthread_attr_init(&attr);
     if (stackSize != 0)
         pthread_attr_setstacksize(&attr, stackSize);
     
-    for (i = 0; i < numThread; i++)
+    for (i = 0; i < numThreads; i++)
     {
         ret = pthread_create(&threads[i], &attr, thread_function, this);
         if (ret < 0)
         {
             Log_Errno("Could not start thread!");
-            numThread = i;
+            numThreads = i;
         }
     }
         
@@ -181,7 +181,7 @@ void ThreadPool_Pthread::Start()
 
 void ThreadPool_Pthread::Stop()
 {
-    int i;
+    unsigned i;
     
     if (!running)
         return;
@@ -192,7 +192,7 @@ void ThreadPool_Pthread::Stop()
     pthread_cond_broadcast(&cond);
     pthread_mutex_unlock(&mutex);
 
-    for (i = 0; i < numThread; i++)
+    for (i = 0; i < numThreads; i++)
     {
         pthread_join(threads[i], NULL);
         pthread_detach(threads[i]);
@@ -203,13 +203,13 @@ void ThreadPool_Pthread::Stop()
 
 void ThreadPool_Pthread::WaitStop()
 {
-    int i;
+    unsigned i;
     
     if (!running)
         return;
     
     pthread_mutex_lock(&mutex);
-    while (numStarted < numThread)
+    while (numStarted < numThreads)
         pthread_cond_wait(&cond, &mutex);
 
     finished = true;
@@ -217,7 +217,7 @@ void ThreadPool_Pthread::WaitStop()
     pthread_cond_broadcast(&cond);
     pthread_mutex_unlock(&mutex);
 
-    for (i = 0; i < numThread; i++)
+    for (i = 0; i < numThreads; i++)
     {
         pthread_join(threads[i], NULL);
         pthread_detach(threads[i]);

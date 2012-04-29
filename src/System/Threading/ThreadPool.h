@@ -16,7 +16,7 @@
 class ThreadPool
 {
 public:
-    static ThreadPool* Create(int numThread);
+    static ThreadPool* Create(int numThreads);
 
     virtual ~ThreadPool() {}
 
@@ -26,9 +26,10 @@ public:
 
     virtual void        Execute(const Callable &callable) = 0;
     
-    int                 GetNumPending();
-    int                 GetNumActive();
-    int                 GetNumTotal();
+    unsigned            GetNumThreads();
+    unsigned            GetNumPending();
+    unsigned            GetNumActive();
+    unsigned            GetNumTotal();
     void                SetStackSize(unsigned stackSize);
     
     static uint64_t     GetThreadID();
@@ -36,9 +37,9 @@ public:
     
 protected:
     List<Callable>      callables;
-    int                 numPending;
-    int                 numActive;
-    int                 numThread;
+    unsigned            numPending;
+    unsigned            numActive;
+    unsigned            numThreads;
     bool                running;
     unsigned            stackSize;
 };
@@ -47,17 +48,22 @@ protected:
 ===============================================================================
 */
 
-inline int ThreadPool::GetNumPending()
+inline unsigned ThreadPool::GetNumThreads()
+{
+    return numThreads;
+}
+
+inline unsigned ThreadPool::GetNumPending()
 {
     return numPending;
 }
 
-inline int ThreadPool::GetNumActive()
+inline unsigned ThreadPool::GetNumActive()
 {
     return numActive;
 }
 
-inline int ThreadPool::GetNumTotal()
+inline unsigned ThreadPool::GetNumTotal()
 {
     return numPending + numActive; /* atomicity */
 }
