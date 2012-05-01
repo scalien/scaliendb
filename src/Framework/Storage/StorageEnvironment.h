@@ -164,7 +164,7 @@ public:
     JobProcessor            mergeChunkJobs;
     JobProcessor            archiveLogJobs;
     JobProcessor            deleteChunkJobs;
-    ThreadPool*             asyncThread;
+    ThreadPool*             asyncListThread;
     ThreadPool*             asyncGetThread;
 
     Buffer                  envPath;

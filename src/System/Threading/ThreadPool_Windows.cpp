@@ -37,8 +37,8 @@ private:
     HANDLE                      startEvent;
     HANDLE                      messageEvent;
     HANDLE                      stopEvent;
-    int                         numStarted;
-    int                         numStopped;
+    unsigned                    numStarted;
+    unsigned                    numStopped;
     bool                        finished;
 
     static DWORD __stdcall      ThreadFunc(void* arg);

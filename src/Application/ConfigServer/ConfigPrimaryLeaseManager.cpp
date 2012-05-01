@@ -131,10 +131,9 @@ void ConfigPrimaryLeaseManager::OnRequestPrimaryLease(ClusterMessage& message)
     {
         if (quorum->primaryID == message.nodeID)
             ExtendPrimaryLease(*quorum, message);
-        return;
     }
-
-    AssignPrimaryLease(*quorum, message);
+    else
+        AssignPrimaryLease(*quorum, message);
 }
 
 unsigned ConfigPrimaryLeaseManager::GetNumPrimaryLeases()
