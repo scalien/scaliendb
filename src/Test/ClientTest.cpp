@@ -1099,8 +1099,10 @@ TEST_DEFINE(TestClientPrintableList)
     const char                  printableChars[] = "0123456789ABCDEF";
     uint64_t                    currentCounter;
     static volatile uint64_t    counter;
+    static volatile uint64_t    errorCounter;
     static uint64_t             prevTimestamp;
     uint64_t                    elapsed;
+    int                         ret;
 
     if (prevTimestamp == 0)
         prevTimestamp = Now();
@@ -1112,7 +1114,9 @@ TEST_DEFINE(TestClientPrintableList)
     while (true)
     {
         RandomBufferSet(buffer, sizeof(buffer) - 1, printableChars, sizeof(printableChars) - 1);
-        TEST(client.ListKeys(defaultTableID, startKey, "", "", 1, true, false));
+        ret = client.ListKeys(defaultTableID, startKey, "", "", 1, true, false);
+        if (ret != SDBP_SUCCESS)
+            AtomicIncrementU64(errorCounter);
         result = client.GetResult();
         delete result;
         
@@ -1121,7 +1125,7 @@ TEST_DEFINE(TestClientPrintableList)
         {
             elapsed = Now() - prevTimestamp;
             prevTimestamp = Now();
-            Log_Message("%U: %u rps", currentCounter, (int)(1000.0 / elapsed * 1000));
+            Log_Message("%U: %u rps, errors %U", currentCounter, (int)(1000.0 / elapsed * 1000), errorCounter);
         }
     }
 
@@ -1340,7 +1344,7 @@ TEST_DEFINE(TestClientShardConnectionPooling)
 TEST_DEFINE(TestClientMultiThread)
 {
     ThreadPool*     threadPool;
-    unsigned        numThread = 20;
+    unsigned        numThread = 200;
     uint32_t        runCount;
     Stopwatch       sw;
 
