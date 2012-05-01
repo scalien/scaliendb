@@ -139,6 +139,7 @@ public:
     unsigned                GetNumListRequests();
     unsigned                GetNumInactiveListThreads();
     uint64_t                GetNextRequestID();
+    uint64_t                GetNumAbortedListRequests();
         
 private:
     void                    DeleteQuorumPaxosShard(uint64_t quorumID);
@@ -165,6 +166,7 @@ private:
     ShardDatabaseAsyncListList inactiveAsyncLists;
     Sequences               sequences;
     uint64_t                nextRequestID;
+    uint64_t                numAbortedListRequests;
 };
 
 #endif

@@ -380,6 +380,8 @@ void ShardDatabaseManager::Init(ShardServer* shardServer_)
 
     // Used for identifying async requests
     nextRequestID = 0;
+
+    numAbortedListRequests = 0;
 }
 
 void ShardDatabaseManager::Shutdown()
@@ -794,6 +796,11 @@ uint64_t ShardDatabaseManager::GetNextRequestID()
     return nextRequestID;
 }
 
+uint64_t ShardDatabaseManager::GetNumAbortedListRequests()
+{
+    return numAbortedListRequests;
+}
+
 void ShardDatabaseManager::DeleteQuorumPaxosShard(uint64_t quorumID)
 {
     StorageShardProxy*  shard;
@@ -954,6 +961,7 @@ void ShardDatabaseManager::OnExecuteLists()
             listRequests.Remove(request);
             request->response.NoService();
             request->OnComplete();
+            numAbortedListRequests++;
         }
     }
     

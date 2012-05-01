@@ -606,6 +606,8 @@ void ConfigHTTPClientSession::PrintStatistics()
     Buffer                  buffer;
     IOProcessorStat         iostat;
     FS_Stat                 fsStat;
+    bool                    verbose;
+    ReadBuffer              param;
     
     IOProcessor::GetStats(&iostat);
     
@@ -613,24 +615,30 @@ void ConfigHTTPClientSession::PrintStatistics()
     buffer.Appendf("numPolls: %U\n", iostat.numPolls);
     buffer.Appendf("numTCPReads: %U\n", iostat.numTCPReads);
     buffer.Appendf("numTCPWrites: %U\n", iostat.numTCPWrites);
-    buffer.Appendf("numBlockingWrites: %U\n", iostat.numBlockingWrites);
-    buffer.Appendf("numIncompleteWrites: %U\n", iostat.numIncompleteWrites);
     buffer.Appendf("numTCPBytesSent: %s\n", HUMAN_BYTES(iostat.numTCPBytesSent));
     buffer.Appendf("numTCPBytesReceived: %s\n", HUMAN_BYTES(iostat.numTCPBytesReceived));
     buffer.Appendf("numCompletions: %U\n", iostat.numCompletions);
     buffer.Appendf("totalPollTime: %U\n", iostat.totalPollTime);
     buffer.Appendf("totalNumEvents: %U\n", iostat.totalNumEvents);
 
+    verbose = false;
+    if (HTTP_GET_OPT_PARAM(params, "verbose", param))
+    {
+        verbose = PARAM_BOOL_VALUE(param);
+    }
 
-    FS_GetStats(&fsStat);
-    buffer.Append("\nFileSystem stats\n");
-    buffer.Appendf("numReads: %U\n", fsStat.numReads);
-    buffer.Appendf("numWrites: %U\n", fsStat.numWrites);
-    buffer.Appendf("numBytesRead: %s\n", HUMAN_BYTES(fsStat.numBytesRead));
-    buffer.Appendf("numBytesWritten: %s\n", HUMAN_BYTES(fsStat.numBytesWritten));
-    buffer.Appendf("numFileOpens: %U\n", fsStat.numFileOpens);
-    buffer.Appendf("numFileCloses: %U\n", fsStat.numFileCloses);
-    buffer.Appendf("numFileDeletes: %U\n", fsStat.numFileDeletes);
+    if (verbose)
+    {
+        FS_GetStats(&fsStat);
+        buffer.Append("\nFileSystem stats\n");
+        buffer.Appendf("numReads: %U\n", fsStat.numReads);
+        buffer.Appendf("numWrites: %U\n", fsStat.numWrites);
+        buffer.Appendf("numBytesRead: %s\n", HUMAN_BYTES(fsStat.numBytesRead));
+        buffer.Appendf("numBytesWritten: %s\n", HUMAN_BYTES(fsStat.numBytesWritten));
+        buffer.Appendf("numFileOpens: %U\n", fsStat.numFileOpens);
+        buffer.Appendf("numFileCloses: %U\n", fsStat.numFileCloses);
+        buffer.Appendf("numFileDeletes: %U\n", fsStat.numFileDeletes);
+    }
 
     session.Print(buffer);
     session.Flush();
