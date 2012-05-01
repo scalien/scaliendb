@@ -65,10 +65,10 @@ void ThreadPool::YieldThread()
     SwitchToThread();
 }
 
-ThreadPool_Windows::ThreadPool_Windows(int numThread_)
+ThreadPool_Windows::ThreadPool_Windows(int numThreads_)
 {
     InitializeCriticalSection(&critsec);
-    numThread = numThread_;
+    numThreads = numThreads_;
     numPending = 0;
     numStarted = 0;
     numStopped = 0;
@@ -90,7 +90,7 @@ ThreadPool_Windows::~ThreadPool_Windows()
 
 void ThreadPool_Windows::Shutdown()
 {
-    int     i;
+    unsigned i;
 
     if (threads)
     {
@@ -100,7 +100,7 @@ void ThreadPool_Windows::Shutdown()
         // XXX: this is a workaround as WaitForMultipleObjects cannot handle more than 64 handles
         // wait for all thread is stopped
         EnterCriticalSection(&critsec);
-        while (numStopped < numThread)
+        while (numStopped < numThreads)
         {
             LeaveCriticalSection(&critsec);
             WaitForSingleObject(stopEvent, INFINITE);
@@ -108,7 +108,7 @@ void ThreadPool_Windows::Shutdown()
         }
         LeaveCriticalSection(&critsec);
 
-        for (i = 0; i < numThread; i++)
+        for (i = 0; i < numThreads; i++)
             CloseHandle(threads[i]);
         
         delete[] threads;
@@ -137,24 +137,24 @@ void ThreadPool_Windows::Shutdown()
 
 void ThreadPool_Windows::Start()
 {
-    int         i;
+    unsigned    i;
     HANDLE      ret;
 
     if (running)
         return;
 
     running = true;
-    numActive = numThread;
+    numActive = numThreads;
 
-    threads = new HANDLE[numThread];
-    for (i = 0; i < numThread; i++)
+    threads = new HANDLE[numThreads];
+    for (i = 0; i < numThreads; i++)
     {
         ret = CreateThread(NULL, stackSize, ThreadFunc, this, STACK_SIZE_PARAM_IS_A_RESERVATION, NULL);
         if (ret == 0)
         {
             Log_SetTrace(true);
             Log_Errno("Cannot create thread! (errno = %d)", errno);
-            numThread = i;
+            numThreads = i;
             break;
         }
 
@@ -179,14 +179,14 @@ void ThreadPool_Windows::WaitStop()
 
     // wait for all thread is started
     EnterCriticalSection(&critsec);
-    while (numStarted < numThread)
+    while (numStarted < numThreads)
     {
         LeaveCriticalSection(&critsec);
         WaitForSingleObject(startEvent, INFINITE);
         EnterCriticalSection(&critsec);
     }
 
-    Log_Debug("All threads started, waiting for threads to stop, numThread: %u, %p", numThread, this);
+    Log_Debug("All threads started, waiting for threads to stop, numThread: %u, %p", numThreads, this);
 
     finished = true;
     LeaveCriticalSection(&critsec);
