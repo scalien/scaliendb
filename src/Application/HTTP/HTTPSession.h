@@ -74,7 +74,7 @@ public:
     void                Print(const ReadBuffer& line);
     void                PrintPair(const ReadBuffer& key, const ReadBuffer& value);
     void                PrintPair(const char* key, const char* value);
-    void                Flush();
+    void                Flush(bool closeAfterSend = true);
     void                SetType(Type type);
 
     bool                IsFlushed();

@@ -190,7 +190,7 @@ void HTTPSession::PrintPair(const char* key, const char* value)
     PrintPair(ReadBuffer(key), ReadBuffer(value));
 }
 
-void HTTPSession::Flush()
+void HTTPSession::Flush(bool closeAfterSend)
 {
     if (!conn)
         return;
@@ -200,8 +200,9 @@ void HTTPSession::Flush()
     if (type == JSON)
         json.End();
     
-    conn->Flush(true);
-    isFlushed = true;
+    conn->Flush(closeAfterSend);
+    if (closeAfterSend)
+        isFlushed = true;
 }
 
 void HTTPSession::SetType(Type type_)

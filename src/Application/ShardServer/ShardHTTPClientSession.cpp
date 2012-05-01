@@ -557,6 +557,7 @@ bool ShardHTTPClientSession::ProcessSettings()
     bool                    boolValue;
     uint64_t                traceBufferSize;
     uint64_t                logFlushInterval;
+    uint64_t                logTraceInterval;
     uint64_t                replicationLimit;
     ShardQuorumProcessor*   quorumProcessor;
 
@@ -566,6 +567,17 @@ bool ShardHTTPClientSession::ProcessSettings()
         Log_SetTrace(boolValue);
         Log_Flush();
         session.PrintPair("Trace", boolValue ? "on" : "off");
+        // Optional log trace interval in seconds
+        logTraceInterval = 0;
+        HTTP_GET_OPT_U64_PARAM(params, "interval", logTraceInterval);
+        if (logTraceInterval > 0 && !onTraceOffTimeout.IsActive())
+        {
+            onTraceOffTimeout.SetCallable(MFUNC(ShardHTTPClientSession, OnTraceOffTimeout));
+            onTraceOffTimeout.SetDelay(logTraceInterval * 1000);
+            EventLoop::Add(&onTraceOffTimeout);
+            session.Flush(false);
+            return true;
+        }
     }
 
     if (HTTP_GET_OPT_PARAM(params, "traceBufferSize", param))
@@ -943,4 +955,11 @@ bool ShardHTTPClientSession::GetRedirectedShardServer(uint64_t tableID, const Re
     // TODO: change http:// to symbolic const
     location.Writef("http://%s%R", endpoint.ToString(), &session.uri);
     return true;
+}
+
+void ShardHTTPClientSession::OnTraceOffTimeout()
+{
+    Log_SetTrace(false);
+    session.PrintPair("Trace", "off");
+    session.Flush();
 }

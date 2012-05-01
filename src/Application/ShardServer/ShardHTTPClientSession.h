@@ -1,6 +1,7 @@
 #ifndef SHARDHTTPCLIENTSESSION_H
 #define SHARDHTTPCLIENTSESSION_H
 
+#include "System/Events/Countdown.h"
 #include "Application/Common/ClientSession.h"
 #include "Application/HTTP/HTTPSession.h"
 #include "Application/HTTP/UrlParam.h"
@@ -62,10 +63,13 @@ private:
     void                OnConnectionClose();
     bool                GetRedirectedShardServer(uint64_t tableID, const ReadBuffer& key, Buffer& location);
     
+    void                OnTraceOffTimeout();
+
     ShardServer*        shardServer;
     HTTPSession         session;
     UrlParam            params;
     bool                binaryData;
+    Countdown           onTraceOffTimeout;
 };
 
 #endif

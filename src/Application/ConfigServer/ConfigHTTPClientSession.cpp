@@ -2,6 +2,7 @@
 #include "ConfigServer.h"
 #include "JSONConfigState.h"
 #include "System/Config.h"
+#include "System/FileSystem.h"
 #include "Framework/Replication/ReplicationConfig.h"
 #include "Application/Common/ContextTransport.h"
 #include "Version.h"
@@ -507,6 +508,7 @@ void ConfigHTTPClientSession::ProcessSettings()
     uint64_t    logStatTime;
     uint64_t    shardSplitSize;
     uint64_t    traceBufferSize;
+    uint64_t    logTraceInterval;
     uint64_t    logFlushInterval;
     
     if (HTTP_GET_OPT_PARAM(params, "trace", param))
@@ -515,6 +517,17 @@ void ConfigHTTPClientSession::ProcessSettings()
         Log_SetTrace(boolValue);
         Log_Flush();
         session.PrintPair("Trace", boolValue ? "on" : "off");
+        // Optional log trace interval in seconds
+        logTraceInterval = 0;
+        HTTP_GET_OPT_U64_PARAM(params, "interval", logTraceInterval);
+        if (logTraceInterval > 0 && !onTraceOffTimeout.IsActive())
+        {
+            onTraceOffTimeout.SetCallable(MFUNC(ConfigHTTPClientSession, OnTraceOffTimeout));
+            onTraceOffTimeout.SetDelay(logTraceInterval * 1000);
+            EventLoop::Add(&onTraceOffTimeout);
+            session.Flush(false);
+            return;
+        }
     }
 
     if (HTTP_GET_OPT_PARAM(params, "traceBufferSize", param))
@@ -588,6 +601,41 @@ void ConfigHTTPClientSession::PrintConfigFile()
     session.Flush();
 }
 
+void ConfigHTTPClientSession::PrintStatistics()
+{
+    Buffer                  buffer;
+    IOProcessorStat         iostat;
+    FS_Stat                 fsStat;
+    
+    IOProcessor::GetStats(&iostat);
+    
+    buffer.Append("IOProcessor stats\n");
+    buffer.Appendf("numPolls: %U\n", iostat.numPolls);
+    buffer.Appendf("numTCPReads: %U\n", iostat.numTCPReads);
+    buffer.Appendf("numTCPWrites: %U\n", iostat.numTCPWrites);
+    buffer.Appendf("numBlockingWrites: %U\n", iostat.numBlockingWrites);
+    buffer.Appendf("numIncompleteWrites: %U\n", iostat.numIncompleteWrites);
+    buffer.Appendf("numTCPBytesSent: %s\n", HUMAN_BYTES(iostat.numTCPBytesSent));
+    buffer.Appendf("numTCPBytesReceived: %s\n", HUMAN_BYTES(iostat.numTCPBytesReceived));
+    buffer.Appendf("numCompletions: %U\n", iostat.numCompletions);
+    buffer.Appendf("totalPollTime: %U\n", iostat.totalPollTime);
+    buffer.Appendf("totalNumEvents: %U\n", iostat.totalNumEvents);
+
+
+    FS_GetStats(&fsStat);
+    buffer.Append("\nFileSystem stats\n");
+    buffer.Appendf("numReads: %U\n", fsStat.numReads);
+    buffer.Appendf("numWrites: %U\n", fsStat.numWrites);
+    buffer.Appendf("numBytesRead: %s\n", HUMAN_BYTES(fsStat.numBytesRead));
+    buffer.Appendf("numBytesWritten: %s\n", HUMAN_BYTES(fsStat.numBytesWritten));
+    buffer.Appendf("numFileOpens: %U\n", fsStat.numFileOpens);
+    buffer.Appendf("numFileCloses: %U\n", fsStat.numFileCloses);
+    buffer.Appendf("numFileDeletes: %U\n", fsStat.numFileDeletes);
+
+    session.Print(buffer);
+    session.Flush();
+}
+
 bool ConfigHTTPClientSession::ProcessCommand(ReadBuffer& cmd)
 {
     ClientRequest*  request;
@@ -615,6 +663,11 @@ bool ConfigHTTPClientSession::ProcessCommand(ReadBuffer& cmd)
     if (HTTP_MATCH_COMMAND(cmd, "config"))
     {
         PrintConfigFile();
+        return true;
+    }
+    else if (HTTP_MATCH_COMMAND(cmd, "stats"))
+    {
+        PrintStatistics();
         return true;
     }
     if (HTTP_MATCH_COMMAND(cmd, "debug"))
@@ -1100,4 +1153,11 @@ void ConfigHTTPClientSession::OnConnectionClose()
     configServer->OnClientClose(this);
     session.SetConnection(NULL);
     delete this;
+}
+
+void ConfigHTTPClientSession::OnTraceOffTimeout()
+{
+    Log_SetTrace(false);
+    session.PrintPair("Trace", "off");
+    session.Flush();
 }

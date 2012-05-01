@@ -1,6 +1,7 @@
 #ifndef CONFIGHTTPCLIENTSESSION_H
 #define CONFIGHTTPCLIENTSESSION_H
 
+#include "System/Events/Countdown.h"
 #include "Application/Common/ClientSession.h"
 #include "Application/HTTP/HTTPSession.h"
 #include "Application/HTTP/UrlParam.h"
@@ -43,6 +44,7 @@ private:
     void                PrintShardMatrix(ConfigState* configState);
     void                PrintConfigState();
     void                PrintConfigFile();
+    void                PrintStatistics();
 
     void                ProcessActivateShardServer();
     void                ProcessSettings();
@@ -75,11 +77,13 @@ private:
     ClientRequest*      ProcessMigrateShard();
     
     void                OnConnectionClose();
+    void                OnTraceOffTimeout();
 
     ConfigServer*       configServer;
     HTTPSession         session;
     UrlParam            params;
     unsigned            numResponses;   // TODO: remove after testing
+    Countdown           onTraceOffTimeout;
 };
 
 #endif
