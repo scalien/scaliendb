@@ -173,7 +173,6 @@ bool ShardConnection::OnMessage(ReadBuffer& rbuf)
             // the requests
             if (response.type == CLIENTRESPONSE_NOSERVICE)
             {
-                //client->AddRequestToQuorum(request, true);
                 client->Lock();
                 client->ReassignRequest(request);
                 client->SendQuorumRequests();
