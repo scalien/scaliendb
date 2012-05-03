@@ -1154,6 +1154,8 @@ void StorageEnvironment::TrySerializeChunks()
             goto Candidate;
         if (memoChunksSumSize > config.GetMemoChunkCacheSize())
             goto Candidate;
+        if (memoChunk->GetSize() > config.GetChunkSize())
+            goto Candidate;
 
         // Uncomment this and the block above to keep logSize under limit
         //if (candidateLogTailSegment && 
@@ -1163,8 +1165,6 @@ void StorageEnvironment::TrySerializeChunks()
         //        goto Candidate;
         //}
 
-        if (memoChunk->GetSize() <= config.GetChunkSize())
-            continue;
         if (logSegment->GetLogSegmentID() <= config.GetNumUnbackedLogSegments())
             continue;
         if (memoChunk->GetMinLogSegmentID() == 0)
