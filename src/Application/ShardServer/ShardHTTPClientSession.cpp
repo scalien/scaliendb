@@ -315,7 +315,7 @@ void ShardHTTPClientSession::PrintStatistics()
     if (verbose)
     {
         FS_GetStats(&fsStat);
-        buffer.Append("\nFileSystem stats\n");
+        buffer.Append("Category: FileSystem\n");
         buffer.Appendf("numReads: %U\n", fsStat.numReads);
         buffer.Appendf("numWrites: %U\n", fsStat.numWrites);
         buffer.Appendf("numBytesRead: %s\n", HUMAN_BYTES(fsStat.numBytesRead));
@@ -325,7 +325,7 @@ void ShardHTTPClientSession::PrintStatistics()
         buffer.Appendf("numFileDeletes: %U\n", fsStat.numFileDeletes);
 
         databaseManager = shardServer->GetDatabaseManager();
-        buffer.Append("\nShardServer stats\n");
+        buffer.Append("Category: ShardServer\n");
         buffer.Appendf("uptime: %U sec\n", (Now() - shardServer->GetStartTimestamp()) / 1000);
         buffer.Appendf("pendingReadRequests: %u\n", databaseManager->GetNumReadRequests());
         buffer.Appendf("pendingBlockingReadRequests: %u\n", databaseManager->GetNumBlockingReadRequests());
@@ -334,7 +334,7 @@ void ShardHTTPClientSession::PrintStatistics()
         buffer.Appendf("numAbortedListRequests: %U\n", databaseManager->GetNumAbortedListRequests());
         buffer.Appendf("nextRequestID: %U\n", databaseManager->GetNextRequestID());
 
-        buffer.Append("\nReplication stats\n");
+        buffer.Append("Category: Replication\n");
         FOREACH (quorumProcessor, *shardServer->GetQuorumProcessors())
         {
             buffer.Appendf("quorum[%U].messageListSize: %u\n", quorumProcessor->GetQuorumID(), 
