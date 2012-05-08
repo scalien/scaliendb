@@ -45,6 +45,7 @@ public:
 
     static Address  GetLoopbackAddress();
     static bool     IsValidEndpoint(ReadBuffer ip_port);
+    static Mutex&   GetMutex();
 
 private:
 

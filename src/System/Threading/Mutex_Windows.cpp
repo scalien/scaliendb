@@ -1,6 +1,7 @@
 #ifdef PLATFORM_WINDOWS
 #include "Mutex.h"
 #include "System/Macros.h"
+#include "System/Time.h"
 
 #include <windows.h>
 
@@ -13,6 +14,8 @@ Mutex::Mutex()
 {
     InitializeCriticalSection((CRITICAL_SECTION*) &mutex);
     name = "";
+    lockCounter = 0;
+    lastLockTime = 0;
 }
 
 Mutex::~Mutex()
@@ -24,6 +27,8 @@ void Mutex::Lock()
 {
     EnterCriticalSection((CRITICAL_SECTION*) &mutex);
     threadID = (uint64_t) GetCurrentThreadId();
+    lockCounter++;
+    lastLockTime = NowClock();
 }
 
 bool Mutex::TryLock()

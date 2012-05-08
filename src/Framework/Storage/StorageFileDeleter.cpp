@@ -104,3 +104,8 @@ bool StorageFileDeleter::IsEnabled()
 {
     return enabled;
 }
+
+Mutex& StorageFileDeleter::GetMutex()
+{
+    return enabledMutex;
+}
