@@ -36,6 +36,7 @@
         internal byte[] startKey = new byte[0];
         internal byte[] endKey = new byte[0];
         internal long count = -1;
+        internal uint granularity = 100;
         internal bool forwardDirection = true;
 
         /// <summary>Specify the prefix parameter for iteration.</summary>
@@ -75,6 +76,19 @@
         public ByteRangeParams Count(uint count)
         {
             this.count = count;
+            return this;
+        }
+
+        /// <summary>Specify the granularity parameter for iteration</summary>
+        /// <remarks>Iteration will receive data in batches of granularity size.</remarks>
+        /// <param name="granularity">The granularity parameter.</param>
+        /// <returns>The ByteRangeParams instance, useful for chaining.</returns>
+        public ByteRangeParams Granularity(uint granularity)
+        {
+            if (granularity > 0)
+                this.granularity = granularity;
+            else
+                throw new SDBPException(Scalien.Status.SDBP_API_ERROR);
             return this;
         }
 

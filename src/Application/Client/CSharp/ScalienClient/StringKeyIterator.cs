@@ -7,12 +7,12 @@ namespace Scalien
     public class StringKeyIterator : IEnumerable<string>, IEnumerator<string>
     {
         Table table;
+        bool forwardDirection;
         string startKey;
         string endKey;
         string prefix;
         long count;
-        bool forwardDirection;
-        uint gran = 100;
+        uint granularity = 100;
         int pos;
         List<string> keys;
 
@@ -24,7 +24,7 @@ namespace Scalien
             this.prefix = ps.prefix;
             this.count = ps.count;
             this.forwardDirection = ps.forwardDirection;
-
+            this.granularity = ps.granularity;
             Query(false);
         }
 
@@ -32,8 +32,8 @@ namespace Scalien
         {
             uint num;
 
-            num = gran;
-            if (count > 0 && count < gran)
+            num = granularity;
+            if (count > 0 && count < granularity)
                 num = (uint)count;
 
             keys = table.Client.ListKeys(table.TableID, startKey, endKey, prefix, num, forwardDirection, skip);
@@ -62,7 +62,7 @@ namespace Scalien
                 return false;
             if (pos == keys.Count)
             {
-                if (keys.Count < gran)
+                if (keys.Count < granularity)
                     return false;
                 startKey = keys[keys.Count - 1];
                 Query(true);

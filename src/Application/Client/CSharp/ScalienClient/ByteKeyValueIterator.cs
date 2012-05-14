@@ -7,12 +7,12 @@ namespace Scalien
     public class ByteKeyValueIterator : IEnumerable<KeyValuePair<byte[], byte[]>>, IEnumerator<KeyValuePair<byte[], byte[]>>
     {
         Table table;
+        bool forwardDirection; 
         byte[] startKey;
         byte[] endKey;
         byte[] prefix;
         long count;
-        bool forwardDirection;
-        uint gran = 100;
+        uint granularity = 100;
         int pos;
         List<byte[]> keys;
         List<byte[]> values;
@@ -24,8 +24,8 @@ namespace Scalien
             this.endKey = ps.endKey;
             this.prefix = ps.prefix;
             this.count = ps.count;
+            this.granularity = ps.granularity;
             this.forwardDirection = ps.forwardDirection;
-
             Query(false);
         }
 
@@ -34,8 +34,8 @@ namespace Scalien
             uint num;
             Dictionary<byte[], byte[]> result;
 
-            num = gran;
-            if (count > 0 && count < gran)
+            num = granularity;
+            if (count > 0 && count < granularity)
                 num = (uint)count;
             
             result = table.Client.ListKeyValues(table.TableID, startKey, endKey, prefix, num, forwardDirection, skip);
@@ -74,7 +74,7 @@ namespace Scalien
                 return false;
             if (pos == keys.Count)
             {
-                if (keys.Count < gran)
+                if (keys.Count < granularity)
                     return false;
                 startKey = keys[keys.Count - 1];
                 Query(true);
