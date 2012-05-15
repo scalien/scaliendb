@@ -22,12 +22,16 @@ public:
     // ========================================================================================
     // Application interface:
     //
+    ConfigServerApp(bool restoreMode);
+
     void                    Init();
     void                    Shutdown();
 
     void                    SetLogStatTimeout(uint64_t timeout);
     void                    OnLogStatTimer();
     unsigned                GetNumSDBPClients();
+
+    bool                    restoreMode;
 
 private:
     ConfigServer            configServer;

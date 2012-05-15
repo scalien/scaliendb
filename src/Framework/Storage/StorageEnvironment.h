@@ -137,7 +137,8 @@ public:
     StorageShard*           GetShard(uint16_t contextID, uint64_t shardID);
     StorageShard*           GetShardByKey(uint16_t contextID, uint64_t tableID, ReadBuffer& key);
     void                    WriteTOC();
-    uint64_t                WriteSnapshotTOC();
+    uint64_t                WriteSnapshotTOC(Buffer& configStateBuffer);
+	void					WriteConfigStateFile(Buffer& configStateBuffer, uint64_t tocID);
     bool                    DeleteSnapshotTOC(uint64_t tocID);
     StorageFileChunk*       GetFileChunk(uint64_t chunkID);
     void                    EnqueueAsyncGet(StorageAsyncGet* asyncGet);

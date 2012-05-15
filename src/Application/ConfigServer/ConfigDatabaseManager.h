@@ -16,7 +16,7 @@
 class ConfigDatabaseManager
 {
 public:
-    void                    Init();
+    void                    Init(bool restoreMode);
     void                    Shutdown();
     
     ConfigState*            GetConfigState();
@@ -37,6 +37,8 @@ public:
     void                    SetControllers();
 
 private:
+    bool                    ReadConfigStateFromFile();
+
     uint64_t                paxosID;
     ConfigState             configState;
     Buffer                  writeBuffer;

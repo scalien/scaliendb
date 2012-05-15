@@ -78,13 +78,22 @@ uint64_t StorageEnvironmentWriter::WriteSnapshot(StorageEnvironment* env_)
 
 bool StorageEnvironmentWriter::DeleteSnapshot(StorageEnvironment* env, uint64_t tocID)
 {
+    bool        ret;
     Buffer      TOC;
+    Buffer      configStateFile;
 
     TOC.Write(env->envPath);
     TOC.Appendf("toc.%U", tocID);
     TOC.NullTerminate();
 
-    return FS_Delete(TOC.GetBuffer());
+    configStateFile.Write(env->envPath);
+    configStateFile.Appendf("configState.%U", tocID);
+    configStateFile.NullTerminate();
+
+    ret  = true;
+    ret &= FS_Delete(TOC.GetBuffer());
+    ret &= FS_Delete(configStateFile.GetBuffer());
+    return ret;
 }
 
 void StorageEnvironmentWriter::WriteBuffer()

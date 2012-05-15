@@ -30,7 +30,7 @@ void ConfigServer::Init(ConfigServerApp* app)
 
     REQUEST_CACHE->Init(configFile.GetIntValue("requestCache.size", 100));
  
-    databaseManager.Init();
+    databaseManager.Init(app->restoreMode);
  
     REPLICATION_CONFIG->Init(databaseManager.GetSystemShard());
     

@@ -1,11 +1,13 @@
 #include "ConfigDatabaseManager.h"
-#include "Application/Common/ContextTransport.h"
+#include "System/FileSystem.h"
+#include "Framework/Storage/FDGuard.h"
 #include "Framework/Replication/Quorums/QuorumDatabase.h"
 #include "Framework/Storage/StoragePageCache.h"
 #include "Framework/Storage/StorageConfig.h"
+#include "Application/Common/ContextTransport.h"
 #include "System/Config.h"
 
-void ConfigDatabaseManager::Init()
+void ConfigDatabaseManager::Init(bool restoreMode)
 {
     Buffer          envpath;
     StorageConfig   sc;
@@ -35,6 +37,16 @@ void ConfigDatabaseManager::Init()
     paxosID = 0;
     configState.Init();
     Read();
+
+    if (restoreMode)
+    {
+        Log_Message("Attempting to read config state from file 'configState' in the db folder...");
+        if (ReadConfigStateFromFile())
+            Log_Message("Success.");
+        else
+            STOP_FAIL(1, "Failed to read config state from file 'configState' in the db folder...");
+        Write();
+    }
     
     SetControllers();
 }
@@ -145,4 +157,44 @@ void ConfigDatabaseManager::SetControllers()
         controller->isConnected = CONTEXT_TRANSPORT->IsConnected(controller->nodeID);
         configState.controllers.Append(controller);
     }
+}
+
+bool ConfigDatabaseManager::ReadConfigStateFromFile()
+{
+    FDGuard     fd;
+    Buffer      configStateFile;
+    Buffer      configStateBuffer;
+    ReadBuffer  rb;
+    int64_t     size;
+
+    configStateFile.Write(environment.envPath);
+    configStateFile.Append("configState");
+    configStateFile.NullTerminate();
+
+    if (fd.Open(configStateFile.GetBuffer(), FS_READONLY) == INVALID_FD)
+    {
+        Log_Message("Unable to open file 'configState'");
+        return false;	
+    }
+    size = FS_FileSize(fd.GetFD());
+    if (size <= 0)
+    {
+        Log_Message("File 'configState' is corrupt or of zero length");
+        return false;
+    }
+    configStateBuffer.Allocate(size);
+    if (FS_FileRead(fd.GetFD(), configStateBuffer.GetBuffer(), size) != (ssize_t) size)
+    {
+        Log_Message("Unable to read from file 'configState'");
+        return false;
+    }
+    configStateBuffer.SetLength(size);
+    rb.Wrap(configStateBuffer);
+
+    if (!configState.Read(rb, false))
+    {
+        Log_Message("Error parsing the contents of the config state");
+        return false;
+    }
+    return true;
 }

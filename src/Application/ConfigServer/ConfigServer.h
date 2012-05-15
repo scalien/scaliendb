@@ -63,6 +63,7 @@ public:
 
 private:
     void                        OnBroadcastHTTPEndpoint();
+    bool                        ReadConfigStateFromFile();
 
     ConfigDatabaseManager       databaseManager;
     ConfigQuorumProcessor       quorumProcessor;

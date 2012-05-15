@@ -1605,7 +1605,7 @@ void StorageEnvironment::WriteTOC()
     Log_Debug("WriteTOC finished");
 }
 
-uint64_t StorageEnvironment::WriteSnapshotTOC()
+uint64_t StorageEnvironment::WriteSnapshotTOC(Buffer& configStateBuffer)
 {
     StorageEnvironmentWriter    writer;
     uint64_t                    tocID;
@@ -1613,7 +1613,35 @@ uint64_t StorageEnvironment::WriteSnapshotTOC()
     Log_Debug("WriteTOC started");
 
     tocID = writer.WriteSnapshot(this);
-    return tocID;
+
+    WriteConfigStateFile(configStateBuffer, tocID);
+
+	return tocID;
+}
+
+void StorageEnvironment::WriteConfigStateFile(Buffer& configStateBuffer, uint64_t tocID)
+{
+    unsigned    writeSize;
+	Buffer      configStateFile;
+    Buffer      writeBuffer;
+	FDGuard     fd;
+
+	configStateFile.Write(envPath);
+    configStateFile.Appendf("configState.%U", tocID);
+    configStateFile.NullTerminate();
+    
+    if (fd.Open(configStateFile.GetBuffer(), FS_CREATE | FS_WRITEONLY) == INVALID_FD)
+        ASSERT_FAIL();
+    
+    FS_FileTruncate(fd.GetFD(), 0);
+    StorageEnvironment::Sync(fd.GetFD());
+    
+    writeSize = configStateBuffer.GetLength();
+    if (FS_FileWrite(fd.GetFD(), configStateBuffer.GetBuffer(), writeSize) != (ssize_t) writeSize)
+        return;
+
+    StorageEnvironment::Sync(fd.GetFD());
+    fd.Close();
 }
 
 bool StorageEnvironment::DeleteSnapshotTOC(uint64_t tocID)

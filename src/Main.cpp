@@ -92,7 +92,7 @@ static void RunApplication()
     isController = IsController();
     LogPrintVersion(isController);
     if (isController)
-        app = new ConfigServerApp;
+        app = new ConfigServerApp(restoreMode);
     else
         app = new ShardServerApp(restoreMode);
     

@@ -4,6 +4,11 @@
 #include "Framework/Storage/StoragePageCache.h"
 #include "System/Config.h"
 
+ConfigServerApp::ConfigServerApp(bool restoreMode_)
+{
+    restoreMode = restoreMode_;
+}
+
 void ConfigServerApp::Init()
 {
     int         sdbpPort;

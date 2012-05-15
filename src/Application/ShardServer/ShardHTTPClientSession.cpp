@@ -523,13 +523,19 @@ void ShardHTTPClientSession::ProcessStartBackup()
 {
     uint64_t                tocID;
     Buffer                  output;
+	Buffer					configStateBuffer;
     StorageEnvironment*     env;
+	ConfigState*			configState;
 
     env = shardServer->GetDatabaseManager()->GetEnvironment();
-    
+
+	configState = shardServer->GetDatabaseManager()->GetConfigState();
+    if (configState)
+	    configState->Write(configStateBuffer, false);
+
     // turn off file deletion and write a snapshot of the TOC
     env->SetDeleteEnabled(false);
-    tocID = env->WriteSnapshotTOC();
+    tocID = env->WriteSnapshotTOC(configStateBuffer);
     
     output.Writef("%U", tocID);
     output.NullTerminate();
