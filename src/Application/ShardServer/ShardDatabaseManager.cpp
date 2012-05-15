@@ -340,15 +340,16 @@ void ShardDatabaseManager::Init(ShardServer* shardServer_)
     StorageConfig               sc;
     ShardDatabaseAsyncList*     asyncList;
     
-    sc.SetChunkSize(            (uint64_t) configFile.GetInt64Value("database.chunkSize",           64*MiB  ));
-    sc.SetLogSegmentSize(       (uint64_t) configFile.GetInt64Value("database.logSegmentSize",      64*MiB  ));
-    sc.SetFileChunkCacheSize(   (uint64_t) configFile.GetInt64Value("database.fileChunkCacheSize",  256*MiB ));
-    sc.SetMemoChunkCacheSize(   (uint64_t) configFile.GetInt64Value("database.memoChunkCacheSize",  1*GiB   ));
-    sc.SetLogSize(              (uint64_t) configFile.GetInt64Value("database.logSize",             20*GiB  ));
-    sc.SetMergeBufferSize(      (uint64_t) configFile.GetInt64Value("database.mergeBufferSize",     10*MiB  ));
-    sc.SetSyncGranularity(      (uint64_t) configFile.GetInt64Value("database.syncGranularity",     16*MiB  ));
-    sc.SetWriteGranularity(     (uint64_t) configFile.GetInt64Value("database.writeGranularity",    STORAGE_WRITE_GRANULARITY));
-    sc.SetReplicatedLogSize(    (uint64_t) configFile.GetInt64Value("database.replicatedLogSize",   10*GiB  ));
+    sc.SetChunkSize(            (uint64_t) configFile.GetInt64Value("database.chunkSize",				64*MiB  ));
+    sc.SetLogSegmentSize(       (uint64_t) configFile.GetInt64Value("database.logSegmentSize",			64*MiB  ));
+    sc.SetFileChunkCacheSize(   (uint64_t) configFile.GetInt64Value("database.fileChunkCacheSize",		256*MiB ));
+    sc.SetMemoChunkCacheSize(   (uint64_t) configFile.GetInt64Value("database.memoChunkCacheSize",		1*GiB   ));
+    sc.SetLogSize(              (uint64_t) configFile.GetInt64Value("database.logSize",					20*GiB  ));
+    sc.SetMergeBufferSize(      (uint64_t) configFile.GetInt64Value("database.mergeBufferSize",			10*MiB  ));
+    sc.SetSyncGranularity(      (uint64_t) configFile.GetInt64Value("database.syncGranularity",			16*MiB  ));
+    sc.SetWriteGranularity(     (uint64_t) configFile.GetInt64Value("database.writeGranularity",		STORAGE_WRITE_GRANULARITY));
+    sc.SetReplicatedLogSize(    (uint64_t) configFile.GetInt64Value("database.replicatedLogSize",		10*GiB  ));
+	sc.SetAbortWaitingListsNum( (uint64_t) configFile.GetInt64Value("database.abortWaitingListsNum",	0       ));
 
     envPath.Writef("%s", configFile.GetValue("database.dir", "db"));
     environment.Open(envPath, sc);
@@ -952,18 +953,21 @@ void ShardDatabaseManager::OnExecuteLists()
     if (inactiveAsyncLists.GetLength() == 0)
         return;
     
-    //if (environment.asyncListThread->GetNumActive() == environment.asyncListThread->GetNumThreads() &&
-    // listRequests.GetLength() > 2 * environment.asyncListThread->GetNumThreads())
-    //{
-    //    Log_Debug("Aborting waiting list requests, wait queue got too long...");
-    //    FOREACH_FIRST (request, listRequests)
-    //    {
-    //        listRequests.Remove(request);
-    //        request->response.NoService();
-    //        request->OnComplete();
-    //        numAbortedListRequests++;
-    //    }
-    //}
+	if (environment.config.GetAbortWaitingListsNum() > 0)
+	{
+		if (environment.asyncListThread->GetNumActive() == environment.asyncListThread->GetNumThreads() &&
+			listRequests.GetLength() > environment.config.GetAbortWaitingListsNum())
+		{
+			Log_Debug("Aborting waiting list requests, wait queue got too long...");
+			FOREACH_FIRST (request, listRequests)
+			{
+				listRequests.Remove(request);
+				request->response.NoService();
+				request->OnComplete();
+				numAbortedListRequests++;
+			}
+		}
+	}
     
     start = NowClock();
 

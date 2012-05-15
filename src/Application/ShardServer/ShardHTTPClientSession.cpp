@@ -571,6 +571,7 @@ bool ShardHTTPClientSession::ProcessSettings()
     uint64_t                logFlushInterval;
     uint64_t                logTraceInterval;
     uint64_t                replicationLimit;
+	uint64_t				abortWaitingListsNum;
     ShardQuorumProcessor*   quorumProcessor;
 
     if (HTTP_GET_OPT_PARAM(params, "trace", param))
@@ -639,6 +640,15 @@ bool ShardHTTPClientSession::ProcessSettings()
             quorumProcessor->SetReplicationLimit((unsigned) replicationLimit);
         }
         session.PrintPair("ReplicationLimit", INLINE_PRINTF("%u", 100, (unsigned) replicationLimit));
+    }
+
+	if (HTTP_GET_OPT_PARAM(params, "abortWaitingListsNum", param))
+    {
+        // initialize variable, because conversion may fail
+        abortWaitingListsNum = 0;
+        HTTP_GET_OPT_U64_PARAM(params, "abortWaitingListsNum", abortWaitingListsNum);
+		shardServer->GetDatabaseManager()->GetEnvironment()->config.SetAbortWaitingListsNum(abortWaitingListsNum);
+        session.PrintPair("AbortWaitingListsNum", INLINE_PRINTF("%u", 100, (unsigned) abortWaitingListsNum));
     }
 
     session.Flush();

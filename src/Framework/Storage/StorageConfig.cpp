@@ -45,6 +45,11 @@ void StorageConfig::SetReplicatedLogSize(uint64_t replicatedLogSize)
     numLogSegmentFileChunks = replicatedLogSize / chunkSize;
 }
 
+void StorageConfig::SetAbortWaitingListsNum(uint64_t abortWaitingListsNum_)
+{
+	abortWaitingListsNum = abortWaitingListsNum_;
+}
+
 uint64_t StorageConfig::GetChunkSize()
 {
     return chunkSize;
@@ -88,4 +93,9 @@ uint64_t StorageConfig::GetWriteGranularity()
 uint64_t StorageConfig::GetNumLogSegmentFileChunks()
 {
     return numLogSegmentFileChunks;
+}
+
+uint64_t StorageConfig::GetAbortWaitingListsNum()
+{
+	return abortWaitingListsNum;
 }
