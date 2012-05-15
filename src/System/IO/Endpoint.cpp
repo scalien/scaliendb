@@ -426,3 +426,8 @@ bool Endpoint::IsValidEndpoint(ReadBuffer ip_port)
     
     return true;
 }
+
+Mutex& Endpoint::GetMutex()
+{
+    return mutex;
+}

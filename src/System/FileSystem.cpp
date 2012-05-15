@@ -511,9 +511,6 @@ char FS_Separator()
 #include "System/Containers/List.h"
 #include "System/Threading/Mutex.h"
 
-static List<intptr_t>   fileHandles;
-static Mutex            globalMutex;
-
 struct FS_Dir_Windows
 {
     HANDLE              handle;
@@ -561,22 +558,12 @@ FD FS_Open(const char* filename, int flags)
     
     fd.handle = (intptr_t) handle;
     
-    globalMutex.Lock();
-    fileHandles.Append(fd.handle);
-    fsStat.numFileOpens++;
-    globalMutex.Unlock();
-
     return fd;
 }
 
 void FS_FileClose(FD fd)
 {
     BOOL    ret;
-
-    globalMutex.Lock();
-    fileHandles.Remove(fd.handle);
-    fsStat.numFileCloses++;
-    globalMutex.Unlock();
 
     ret = CloseHandle((HANDLE)fd.handle);
     if (!ret)
@@ -981,16 +968,10 @@ bool FS_Rename(const char* src, const char* dst)
 
 void FS_Sync()
 {
-    intptr_t* it;
-
     // TODO: To flush all open files on a volume, call FlushFileBuffers with a handle to the volume.
     // http://msdn.microsoft.com/en-us/library/aa364439(v=VS.85).aspx
 
-    FOREACH (it, fileHandles)
-    {
-        if (FlushFileBuffers((HANDLE)*it) == 0)
-            printf("FS_Sync() failed!\n");
-    }
+    // Not implemented on Windows
 }
 
 void FS_Sync(FD fd)

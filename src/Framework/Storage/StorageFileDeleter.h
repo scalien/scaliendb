@@ -23,6 +23,8 @@ public:
     static void                 Delete(const char* filename);
     static void                 SetEnabled(bool enabled);
     static bool                 IsEnabled();
+
+    static Mutex&               GetMutex();
 };
 
 #endif

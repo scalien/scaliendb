@@ -75,5 +75,8 @@ void Log_Shutdown();
 }
 #endif
 
+// For debugging purposes
+class Mutex;
+Mutex& Log_GetMutex();
 
 #endif

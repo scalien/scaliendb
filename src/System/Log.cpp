@@ -832,3 +832,8 @@ void Log(const char* file, int line, const char* func, int type, const char* fmt
     else
         Log_Write(buf, size, false);
 }
+
+Mutex& Log_GetMutex()
+{
+    return logFileMutex;
+}

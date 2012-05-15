@@ -57,7 +57,10 @@ public:
     uint64_t    GetThreadID();
     void        SetName(const char* name);
     const char* GetName();
-    
+
+    uint64_t    lockCounter;
+    uint64_t    lastLockTime;
+
 private:
     mutex_t     mutex;
     uint64_t    threadID;
