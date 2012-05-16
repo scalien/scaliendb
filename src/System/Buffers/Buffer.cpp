@@ -115,7 +115,7 @@ void Buffer::Allocate(unsigned size_, bool keepold)
 
     if (keepold && length > 0)
     {
-        if (buffer == array)
+        if (buffer == array || preallocated)
             memcpy(newbuffer, buffer, length);
     }
     
