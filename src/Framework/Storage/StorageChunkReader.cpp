@@ -6,16 +6,22 @@ StorageChunkReader::~StorageChunkReader()
 {
     if (preloadThreshold == 0)
     {
-        if (fileChunk.dataPages[prevIndex] != NULL)
+        if (prevIndex < fileChunk.numDataPages)
         {
-            StorageDataPageCache::Release(fileChunk.dataPages[prevIndex]);
-            fileChunk.dataPages[prevIndex] = NULL;
+            if (fileChunk.dataPages[prevIndex] != NULL)
+            {
+                StorageDataPageCache::Release(fileChunk.dataPages[prevIndex]);
+                fileChunk.dataPages[prevIndex] = NULL;
+            }
         }
 
-        if (fileChunk.dataPages[index] != NULL)
+        if (index < fileChunk.numDataPages)
         {
-            StorageDataPageCache::Release(fileChunk.dataPages[index]);
-            fileChunk.dataPages[index] = NULL;
+            if (fileChunk.dataPages[index] != NULL)
+            {
+                StorageDataPageCache::Release(fileChunk.dataPages[index]);
+                fileChunk.dataPages[index] = NULL;
+            }
         }
     }
 }
