@@ -115,6 +115,8 @@ int Client::Init(int nodec, const char* nodev[])
     if (!IOProcessor::Init(MAX_IO_CONNECTION))
         return SDBP_API_ERROR;
 
+    SeedRandomWith(ThreadPool::GetThreadID());
+
     if (numClients == 0)
     {
         Log_Debug("Creating IOThread");
@@ -2139,6 +2141,8 @@ void Client::IOThreadFunc()
     Log_SetTimestamping(true);
     Log_SetThreadedOutput(true);
     Log_Debug("IOThreadFunc started: %U", ThreadPool::GetThreadID());
+        
+    SeedRandomWith(ThreadPool::GetThreadID());
 
     EventLoop::Start();
     EventLoop::UpdateTime();

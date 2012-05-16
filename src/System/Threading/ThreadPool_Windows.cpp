@@ -212,6 +212,8 @@ void ThreadPool_Windows::ThreadPoolFunc()
     Callable*   it;
     bool        notifyNext;
 
+    SeedRandomWith(ThreadPool::GetThreadID());
+
     if (running)
     {
         EnterCriticalSection(&critsec);
