@@ -2,6 +2,24 @@
 #include "System/Time.h"
 #include "System/IO/IOProcessor.h"
 
+StorageChunkReader::~StorageChunkReader()
+{
+    if (preloadThreshold == 0)
+    {
+        if (fileChunk.dataPages[prevIndex] != NULL)
+        {
+            StorageDataPageCache::Release(fileChunk.dataPages[prevIndex]);
+            fileChunk.dataPages[prevIndex] = NULL;
+        }
+
+        if (fileChunk.dataPages[index] != NULL)
+        {
+            StorageDataPageCache::Release(fileChunk.dataPages[index]);
+            fileChunk.dataPages[index] = NULL;
+        }
+    }
+}
+
 void StorageChunkReader::Open(
  ReadBuffer filename, uint64_t preloadThreshold_,
  bool keysOnly_, bool forwardDirection_)
@@ -143,7 +161,11 @@ StorageFileKeyValue* StorageChunkReader::Next(StorageFileKeyValue* it)
         }
         if (index > prevIndex && fileChunk.dataPages[prevIndex] != NULL)
         {
-            delete fileChunk.dataPages[prevIndex];
+            if (preloadThreshold > 0)
+                delete fileChunk.dataPages[prevIndex];
+            else
+                StorageDataPageCache::Release(fileChunk.dataPages[prevIndex]);
+
             fileChunk.dataPages[prevIndex] = NULL;
         }
         prevIndex = index;
@@ -165,7 +187,8 @@ StorageFileKeyValue* StorageChunkReader::Next(StorageFileKeyValue* it)
             return next;
         if (index < prevIndex && fileChunk.dataPages[prevIndex] != NULL)
         {
-            delete fileChunk.dataPages[prevIndex];
+            // backward iteration happens only in list, never in merge
+            StorageDataPageCache::Release(fileChunk.dataPages[prevIndex]);
             fileChunk.dataPages[prevIndex] = NULL;
         }
         prevIndex = index;
@@ -194,7 +217,11 @@ StorageDataPage* StorageChunkReader::NextDataPage()
 {
     ASSERT(forwardDirection);
 
-    delete fileChunk.dataPages[prevIndex];
+    if (preloadThreshold > 0)
+        delete fileChunk.dataPages[prevIndex];
+    else
+        StorageDataPageCache::Release(fileChunk.dataPages[prevIndex]);
+
     fileChunk.dataPages[prevIndex] = NULL;
     
     prevIndex = index;
@@ -242,7 +269,17 @@ void StorageChunkReader::PreloadDataPages()
         i = index;
         do
         {
-            fileChunk.LoadDataPage(i, offset, false, keysOnly);
+            if (preloadThreshold > 0)
+            {
+                // merge case
+                fileChunk.LoadDataPage(i, offset, false, keysOnly);
+            }
+            else
+            {
+                // forward list case
+                fileChunk.LoadDataPage(i, offset, false, keysOnly, StorageDataPageCache::Acquire());
+            }
+
             //Log_Debug("Preloading datapage %u at offset %U from chunk %U", i, offset, fileChunk.GetChunkID());
             pageSize = fileChunk.dataPages[i]->GetSize();
             totalSize += pageSize;
@@ -263,7 +300,8 @@ void StorageChunkReader::PreloadDataPages()
         }
 
         offset = fileChunk.indexPage->GetIndexOffset(index);
-        fileChunk.LoadDataPage(index, offset, false, keysOnly);
+        // backward iteration happens only in list, never in merge
+        fileChunk.LoadDataPage(index, offset, false, keysOnly, StorageDataPageCache::Acquire());
         pageSize = fileChunk.dataPages[index]->GetSize();
         totalSize += pageSize;
         preloadIndex = index;

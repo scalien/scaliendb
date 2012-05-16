@@ -67,7 +67,7 @@ public:
     void                OnDataPageEvicted(uint32_t index);
     void                LoadBloomPage();
     void                LoadIndexPage();
-    void                LoadDataPage(uint32_t index, uint64_t offset, bool bulk = false, bool keysOnly = false);
+    void                LoadDataPage(uint32_t index, uint64_t offset, bool bulk = false, bool keysOnly = false, StorageDataPage* dataPage = NULL);
     StoragePage*        AsyncLoadBloomPage();
     StoragePage*        AsyncLoadIndexPage();
     StoragePage*        AsyncLoadDataPage(uint32_t index, uint64_t offset);

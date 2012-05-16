@@ -166,6 +166,7 @@ bool StorageEnvironment::Open(Buffer& envPath_, StorageConfig config_)
     }
     
     StoragePageCache::Init(config);
+    StorageDataPageCache::SetMaxCacheSize(config.GetListDataPageCacheSize());
     
     if (!recovery.TryRecovery(this))
     {

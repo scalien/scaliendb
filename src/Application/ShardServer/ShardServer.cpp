@@ -407,6 +407,9 @@ void ShardServer::GetMemoryUsageBuffer(Buffer& buffer)
     buffer.Appendf("Storage cache usage: %s\n", HUMAN_BYTES(StoragePageCache::GetSize()));
     totalMemory += StoragePageCache::GetSize();
 
+    buffer.Appendf("Storage list page cache usage: %s\n", HUMAN_BYTES(StorageDataPageCache::GetCacheSize()));
+    totalMemory += StorageDataPageCache::GetCacheSize();
+
     buffer.Appendf("Client request cache usage: %s\n", HUMAN_BYTES(REQUEST_CACHE->GetMemorySize()));
     totalMemory += REQUEST_CACHE->GetMemorySize();
 

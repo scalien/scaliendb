@@ -350,6 +350,7 @@ void ShardDatabaseManager::Init(ShardServer* shardServer_)
     sc.SetWriteGranularity(     (uint64_t) configFile.GetInt64Value("database.writeGranularity",		STORAGE_WRITE_GRANULARITY));
     sc.SetReplicatedLogSize(    (uint64_t) configFile.GetInt64Value("database.replicatedLogSize",		10*GiB  ));
 	sc.SetAbortWaitingListsNum( (uint64_t) configFile.GetInt64Value("database.abortWaitingListsNum",	0       ));
+    sc.SetListDataPageCacheSize((uint64_t) configFile.GetInt64Value("database.listDataPageCacheSize",   64*MB   ));
 
     envPath.Writef("%s", configFile.GetValue("database.dir", "db"));
     environment.Open(envPath, sc);

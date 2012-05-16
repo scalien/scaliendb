@@ -1026,6 +1026,9 @@
     <ClInclude Include="..\src\Framework\Storage\StorageFileDeleter.h">
       <Filter>Framework\Storage</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\Framework\Storage\StorageChunkLister.h">
+      <Filter>Framework\Storage</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="ScalienDB.rc" />

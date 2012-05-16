@@ -325,6 +325,8 @@ void ShardHTTPClientSession::PrintStatistics()
     buffer.Appendf("inactiveListThreads: %u\n", databaseManager->GetNumInactiveListThreads());
     buffer.Appendf("numAbortedListRequests: %U\n", databaseManager->GetNumAbortedListRequests());
     buffer.Appendf("nextRequestID: %U\n", databaseManager->GetNextRequestID());
+    buffer.Appendf("listPageCacheSize: %U\n", StorageDataPageCache::GetCacheSize());
+    buffer.Appendf("maxListPageCacheSize: %U\n", StorageDataPageCache::GetMaxCacheSize());
 
     buffer.Append("  Category: Mutexes\n");
     buffer.Appendf("StorageFileDeleter mutexLockCounter: %U\n", StorageFileDeleter::GetMutex().lockCounter);
@@ -578,6 +580,7 @@ bool ShardHTTPClientSession::ProcessSettings()
     uint64_t                logTraceInterval;
     uint64_t                replicationLimit;
 	uint64_t				abortWaitingListsNum;
+    uint64_t                listDataPageCacheSize;
     ShardQuorumProcessor*   quorumProcessor;
 
     if (HTTP_GET_OPT_PARAM(params, "trace", param))
@@ -655,6 +658,18 @@ bool ShardHTTPClientSession::ProcessSettings()
         HTTP_GET_OPT_U64_PARAM(params, "abortWaitingListsNum", abortWaitingListsNum);
 		shardServer->GetDatabaseManager()->GetEnvironment()->config.SetAbortWaitingListsNum(abortWaitingListsNum);
         session.PrintPair("AbortWaitingListsNum", INLINE_PRINTF("%u", 100, (unsigned) abortWaitingListsNum));
+    }
+
+	if (HTTP_GET_OPT_PARAM(params, "listDataPageCacheSize", param))
+    {
+        // initialize variable, because conversion may fail
+        listDataPageCacheSize = 0;
+        HTTP_GET_OPT_U64_PARAM(params, "listDataPageCacheSize", listDataPageCacheSize);
+        if (listDataPageCacheSize > 0)
+        {
+            StorageDataPageCache::SetMaxCacheSize(listDataPageCacheSize);
+            session.PrintPair("ListDataPageCacheSize", INLINE_PRINTF("%u", 100, (unsigned) listDataPageCacheSize));
+        }
     }
 
     session.Flush();

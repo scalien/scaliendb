@@ -7,6 +7,8 @@
 class StorageChunkReader
 {
 public:
+    ~StorageChunkReader();
+
     void                    Open(ReadBuffer filename, uint64_t preloadThreshold,
                              bool keysOnly = false, bool forwardDirection = true);
 

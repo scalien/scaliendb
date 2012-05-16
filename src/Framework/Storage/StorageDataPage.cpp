@@ -1,14 +1,94 @@
 #include "StorageDataPage.h"
 #include "StorageFileChunk.h"
+#include "System/Containers/InList.h"
+#include "System/Threading/Mutex.h"
 
 #define STORAGE_DATAPAGE_HEADER_SIZE        16
 
-StorageDataPage::StorageDataPage(StorageFileChunk* owner_, uint32_t index_)
+static Mutex dataPageCacheMutex;
+InList<StorageDataPage> dataPageList;
+int64_t cacheSize = 0;
+int64_t maxCacheSize = 0;
+
+void StorageDataPageCache::SetMaxCacheSize(uint64_t maxCacheSize_)
+{
+    maxCacheSize = maxCacheSize_;
+}
+
+uint64_t StorageDataPageCache::GetMaxCacheSize()
+{
+    return maxCacheSize;
+}
+
+uint64_t StorageDataPageCache::GetCacheSize()
+{
+    return cacheSize;
+}
+
+void StorageDataPageCache::Shutdown()
+{
+    MutexGuard mutexGuard(dataPageCacheMutex);
+
+    dataPageList.DeleteList();
+}
+
+StorageDataPage* StorageDataPageCache::Acquire()
+{
+    StorageDataPage* dataPage;
+
+    ASSERT(maxCacheSize > 0);
+    MutexGuard mutexGuard(dataPageCacheMutex);
+
+    if (dataPageList.GetLength() > 0)
+    {
+        dataPage = dataPageList.Pop();
+        cacheSize -= dataPage->GetMemorySize();
+        ASSERT(cacheSize >= 0);
+        return dataPage;
+    }
+    else
+    {
+        return new StorageDataPage();
+    }
+}
+
+void StorageDataPageCache::Release(StorageDataPage* dataPage)
+{
+    ASSERT(maxCacheSize > 0);
+    MutexGuard mutexGuard(dataPageCacheMutex);
+
+    if (cacheSize + dataPage->GetMemorySize() < maxCacheSize)
+    {
+        dataPageList.Append(dataPage);
+        cacheSize += dataPage->GetMemorySize();
+    }
+    else
+    {
+        delete dataPage;
+    }
+}
+
+StorageDataPage::StorageDataPage()
+{
+    prev = next = this;
+}
+
+StorageDataPage::StorageDataPage(StorageFileChunk* owner_, uint32_t index_, unsigned bufferSize)
+{
+    prev = next = this;
+    Init(owner_, index_, bufferSize);
+}
+
+StorageDataPage::~StorageDataPage()
+{
+}
+
+void StorageDataPage::Init(StorageFileChunk* owner_, uint32_t index_, unsigned bufferSize)
 {
     size = 0;
     compressedSize = 0;
 
-    buffer.Allocate(STORAGE_DEFAULT_PAGE_GRAN);
+    buffer.Allocate(bufferSize);
     buffer.Zero();
 
     buffer.AppendLittle32(0); // dummy for size
@@ -18,10 +98,6 @@ StorageDataPage::StorageDataPage(StorageFileChunk* owner_, uint32_t index_)
     
     owner = owner_;
     index = index_;
-}
-
-StorageDataPage::~StorageDataPage()
-{
 }
 
 void StorageDataPage::SetOwner(StorageFileChunk* owner_)
@@ -364,6 +440,9 @@ bool StorageDataPage::Read(Buffer& buffer_, bool keysOnly)
     // numkeys
     parse.ReadLittle32(numKeys);
     parse.Advance(4);
+
+    // preallocate keyValue buffer
+    storageFileKeyValueBuffer.Allocate(numKeys * sizeof(StorageFileKeyValue));
 
     // keys
     kparse = parse;

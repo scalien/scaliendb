@@ -50,6 +50,11 @@ void StorageConfig::SetAbortWaitingListsNum(uint64_t abortWaitingListsNum_)
 	abortWaitingListsNum = abortWaitingListsNum_;
 }
 
+void StorageConfig::SetListDataPageCacheSize(uint64_t listDataPageCacheSize_)
+{
+    listDataPageCacheSize = listDataPageCacheSize_;
+}
+
 uint64_t StorageConfig::GetChunkSize()
 {
     return chunkSize;
@@ -98,4 +103,9 @@ uint64_t StorageConfig::GetNumLogSegmentFileChunks()
 uint64_t StorageConfig::GetAbortWaitingListsNum()
 {
 	return abortWaitingListsNum;
+}
+
+uint64_t StorageConfig::GetListDataPageCacheSize()
+{
+    return listDataPageCacheSize;
 }

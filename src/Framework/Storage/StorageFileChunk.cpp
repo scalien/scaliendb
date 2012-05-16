@@ -492,15 +492,20 @@ void StorageFileChunk::LoadIndexPage()
     }
 }
 
-void StorageFileChunk::LoadDataPage(uint32_t index, uint64_t offset, bool bulk, bool keysOnly)
+void StorageFileChunk::LoadDataPage(uint32_t index, uint64_t offset, bool bulk, bool keysOnly, StorageDataPage* dataPage)
 {
-    Buffer buffer;
+    Buffer  buffer;
+    char    mem[STORAGE_DEFAULT_DATA_PAGE_SIZE];
+
+    if (useCache)
+        ASSERT(dataPage == NULL);
 
     if (fd == INVALID_FD)
         OpenForReading();
     
     if (dataPages[index])
     {
+        ASSERT(dataPage == NULL);
         // already loaded
         if (useCache && !dataPages[index]->IsCached())
             StoragePageCache::AddDataPage(dataPages[index]);
@@ -508,7 +513,18 @@ void StorageFileChunk::LoadDataPage(uint32_t index, uint64_t offset, bool bulk, 
         return;
     }
 
-    dataPages[index] = new StorageDataPage(this, index);
+    // use stack memory for buffer to read
+    buffer.SetPreallocated(mem, sizeof(mem));
+    if (dataPage == NULL)
+    {
+        dataPages[index] = new StorageDataPage(this, index, sizeof(mem));
+    }
+    else
+    {
+        dataPage->Init(this, index, sizeof(mem));
+        dataPages[index] = dataPage;
+    }
+
     dataPages[index]->SetOffset(offset);
     if (!ReadPage(offset, buffer, keysOnly))
     {

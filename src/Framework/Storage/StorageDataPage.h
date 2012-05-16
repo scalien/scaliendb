@@ -10,6 +10,27 @@
 #define STORAGE_DEFAULT_DATA_PAGE_SIZE         (64*KiB)
 
 class StorageFileChunk;
+class StorageDataPage;
+
+/*
+===============================================================================================
+
+ StorageDataPageCache
+
+===============================================================================================
+*/
+
+class StorageDataPageCache
+{
+public:
+    static void                 SetMaxCacheSize(uint64_t maxCacheSize);
+    static uint64_t             GetMaxCacheSize();
+    static uint64_t             GetCacheSize();
+    static void                 Shutdown();
+    static StorageDataPage*     Acquire();
+    static void                 Release(StorageDataPage* dataPage);
+};
+
 
 /*
 ===============================================================================================
@@ -21,10 +42,15 @@ class StorageFileChunk;
 
 class StorageDataPage : public StoragePage
 {
+private:
+    friend class StorageDataPageCache;
+    StorageDataPage();
+
 public:
-    StorageDataPage(StorageFileChunk* owner, uint32_t index);
+    StorageDataPage(StorageFileChunk* owner, uint32_t index, unsigned bufferSize = STORAGE_DEFAULT_PAGE_GRAN);
     ~StorageDataPage();
 
+    void                    Init(StorageFileChunk* owner_, uint32_t index_, unsigned bufferSize);
     void                    SetOwner(StorageFileChunk* owner);
 
     uint32_t                GetSize();
@@ -56,6 +82,9 @@ public:
     unsigned                Serialize(Buffer& buffer);
 
     void                    Unload();
+
+    StorageDataPage*        prev;
+    StorageDataPage*        next;
 
 private:
     void                    AppendKeyValue(StorageFileKeyValue& kv);

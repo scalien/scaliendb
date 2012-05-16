@@ -335,6 +335,7 @@
   <ItemGroup>
     <ClInclude Include="..\src\Application\ShardServer\ShardLockManager.h" />
     <ClInclude Include="..\src\Application\HTTP\JSONReader.h" />
+    <ClInclude Include="..\src\Framework\Storage\StorageChunkLister.h" />
     <ClInclude Include="..\src\Framework\Storage\StorageFileDeleter.h" />
     <ClInclude Include="..\src\Framework\Storage\StorageLogManager.h" />
     <ClInclude Include="..\src\SourceControl.h" />
