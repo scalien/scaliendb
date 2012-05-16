@@ -19,7 +19,6 @@ uint64_t StorageDataPageCache::GetMaxCacheSize()
 {
     return maxCacheSize;
 }
-
 uint64_t StorageDataPageCache::GetCacheSize()
 {
     return cacheSize;
@@ -96,6 +95,8 @@ void StorageDataPage::Init(StorageFileChunk* owner_, uint32_t index_, unsigned b
     buffer.AppendLittle32(0); // dummy for keysSize
     buffer.AppendLittle32(0); // dummy for numKeys
     
+    storageFileKeyValueBuffer.SetLength(0);
+
     owner = owner_;
     index = index_;
 }
