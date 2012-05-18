@@ -454,10 +454,11 @@ void ShardDatabaseManager::SetShards(SortedList<uint64_t>& shards)
         
         if (shard->state == CONFIG_SHARD_STATE_NORMAL)
         {
-            if (shard->firstKey.GetLength() == 0)
-            if (shard->lastKey.GetLength() == 0)
+            if (shard->firstKey.GetLength() == 0 && shard->lastKey.GetLength() == 0)
+            {
                environment.CreateShard(shard->quorumID, QUORUM_DATABASE_DATA_CONTEXT, *itShardID, shard->tableID,
                 shard->firstKey, shard->lastKey, true, STORAGE_SHARD_TYPE_STANDARD);
+            }
         }
     }
 }
