@@ -232,18 +232,13 @@ void ShardServer::OnClusterMessage(uint64_t nodeID, ClusterMessage& message)
             STOP_FAIL(0, "Aborting due to shard server unregistration...");
             break;
         case CLUSTERMESSAGE_SET_CONFIG_STATE:
-            OnSetConfigState(message);
-            Log_Trace("Got new configState, master is %d", 
-             configState.hasMaster ? (int) configState.masterID : -1);
+            OnSetConfigState(nodeID, message);
             break;
         case CLUSTERMESSAGE_RECEIVE_LEASE:
             quorumProcessor = GetQuorumProcessor(message.quorumID);
             if (quorumProcessor)
-                quorumProcessor->OnReceiveLease(message);
-            Log_Trace("Recieved lease, quorumID = %U, proposalID =  %U",
-             message.quorumID, message.proposalID);
+                quorumProcessor->OnReceiveLease(nodeID, message);
             break;
-
         /* shard migration */
         case CLUSTERMESSAGE_SHARDMIGRATION_INITIATE:
             configShard = configState.GetShard(message.srcShardID);
@@ -454,11 +449,17 @@ uint64_t ShardServer::GetStartTimestamp()
     return startTimestamp;
 }
 
-void ShardServer::OnSetConfigState(ClusterMessage& message)
+void ShardServer::OnSetConfigState(uint64_t nodeID, ClusterMessage& message)
 {
     ConfigQuorum*           configQuorum;
     ShardQuorumProcessor*   quorumProcessor;
     
+    if (!message.configState.hasMaster)
+        return;
+
+    if (message.configState.masterID != nodeID)
+        return;
+
     configState = message.configState;
 
     ResetChangedConnections();
@@ -477,6 +478,9 @@ void ShardServer::OnSetConfigState(ClusterMessage& message)
     }
 
     TryDeleteShards();
+
+    Log_Trace("Got new configState, master is %d", 
+     configState.hasMaster ? (int) configState.masterID : -1);
 }
 
 void ShardServer::ResetChangedConnections()

@@ -203,10 +203,6 @@ void ConfigHeartbeatManager::TrySplitShardActions(ClusterMessage& message)
     {
         if (itQuorum->primaryID != message.nodeID)
             continue;
-
-        // if there are inactive nodes (eg. down node or catchup) then no splitting
-        if (itQuorum->isActivatingNode || itQuorum->inactiveNodes.GetLength() > 0)
-            continue;
             
         // TODO: tidy up
         newShardID = 0;
