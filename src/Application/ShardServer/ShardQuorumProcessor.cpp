@@ -204,12 +204,18 @@ void ShardQuorumProcessor::OnSetConfigState()
 
 }
 
-void ShardQuorumProcessor::OnReceiveLease(ClusterMessage& message)
+void ShardQuorumProcessor::OnReceiveLease(uint64_t nodeID, ClusterMessage& message)
 {
     bool                    restartReplication;
     uint64_t*               it;
     ShardLeaseRequest*      lease;
     ShardLeaseRequest*      itLease;
+
+    if (!CONFIG_STATE->hasMaster)
+        return;
+
+    if (CONFIG_STATE->masterID != nodeID)
+        return;
 
     if (message.nodeID != MY_NODEID)
     {
@@ -285,6 +291,9 @@ void ShardQuorumProcessor::OnReceiveLease(ClusterMessage& message)
     
     if (restartReplication)
         quorumContext.RestartReplication();
+
+    Log_Trace("Recieved lease, quorumID = %U, proposalID =  %U",
+     quorumContext.GetQuorumID(), message.proposalID);
 }
 
 void ShardQuorumProcessor::OnStartProposing()

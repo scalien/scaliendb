@@ -92,7 +92,7 @@ public:
     // For ShardServer:
     //
     void                    OnSetConfigState();
-    void                    OnReceiveLease(ClusterMessage& message);
+    void                    OnReceiveLease(uint64_t nodeID, ClusterMessage& message);
     void                    OnClientRequest(ClientRequest* request);
     void                    OnClientClose(ClientSession* session);
     void                    RegisterPaxosID(uint64_t paxosID);

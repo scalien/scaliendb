@@ -66,7 +66,7 @@ public:
     uint64_t                GetStartTimestamp();
 
 private:
-    void                    OnSetConfigState(ClusterMessage& message);
+    void                    OnSetConfigState(uint64_t nodeID, ClusterMessage& message);
     void                    ResetChangedConnections();
     void                    TryDeleteQuorumProcessors();
     void                    TryDeleteQuorumProcessor(ShardQuorumProcessor* quorumProcessor);
