@@ -35,7 +35,7 @@ ShardQuorumProcessor::ShardQuorumProcessor()
     prev = next = this;
 
     requestLeaseTimeout.SetCallable(MFUNC(ShardQuorumProcessor, OnRequestLeaseTimeout));
-    requestLeaseTimeout.SetDelay(NORMAL_PRIMARYLEASE_REQUEST_TIMEOUT);
+    requestLeaseTimeout.SetDelay(PAXOSLEASE_MAX_LEASE_TIME);
     
     activationTimeout.SetCallable(MFUNC(ShardQuorumProcessor, OnActivationTimeout));
     activationTimeout.SetDelay(ACTIVATION_TIMEOUT);
@@ -376,6 +376,9 @@ void ShardQuorumProcessor::OnRequestLeaseTimeout()
     ClusterMessage      msg;
     
     Log_Trace();
+
+    if (requestLeaseTimeout.GetDelay() == PAXOSLEASE_MAX_LEASE_TIME)
+        requestLeaseTimeout.SetDelay(NORMAL_PRIMARYLEASE_REQUEST_TIMEOUT);
     
     highestProposalID = REPLICATION_CONFIG->NextProposalID(highestProposalID);
     msg.RequestLease(MY_NODEID, quorumContext.GetQuorumID(), highestProposalID,
