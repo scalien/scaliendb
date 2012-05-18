@@ -864,11 +864,25 @@ bool ConfigState::CompleteUnfreezeTable(ConfigMessage& message)
 
 bool ConfigState::CompleteTruncateTableBegin(ConfigMessage& message)
 {
+    uint64_t*       itShardID;
     ConfigTable*    table;
+    ConfigShard*    shard;
+    ConfigQuorum*   quorum;
 
     table = GetTable(message.tableID);
     if (table == NULL)
         return false; // no such table
+
+    // make sure there are no inactive shard servers in any associated quorums
+    FOREACH(itShardID, table->shards)
+    {
+        shard = GetShard(*itShardID);
+        ASSERT(shard);
+        quorum = GetQuorum(shard->quorumID);
+        ASSERT(quorum);
+        if (quorum->isActivatingNode || quorum->inactiveNodes.GetLength() > 0)
+            return false;
+    }
 
     return true;
 }
@@ -880,13 +894,20 @@ bool ConfigState::CompleteTruncateTableComplete(ConfigMessage&)
 
 bool ConfigState::CompleteSplitShardBegin(ConfigMessage& message)
 {
-    ConfigShard* shard;
+    ConfigShard*    shard;
+    ConfigQuorum*   quorum;
     
     shard = GetShard(message.shardID);
     
     if (shard == NULL)
         return false;
     
+    quorum = GetQuorum(shard->quorumID);
+    if (quorum == NULL)
+        return false;
+    if (quorum->isActivatingNode || quorum->inactiveNodes.GetLength() > 0)
+        return false;
+
     if (!RangeContains(shard->firstKey, shard->lastKey, message.splitKey))
         return false;
     
@@ -923,7 +944,7 @@ bool ConfigState::CompleteShardMigrationBegin(ConfigMessage& message)
     quorum = GetQuorum(message.quorumID);
     if (quorum == NULL)
         return false;
-    if (quorum->inactiveNodes.GetLength() > 0)
+    if (quorum->isActivatingNode || quorum->inactiveNodes.GetLength() > 0)
         return false;
     
     return true;
