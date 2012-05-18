@@ -504,5 +504,8 @@
     <ClInclude Include="..\src\System\CrashReporter.h">
       <Filter>System</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\System\Threading\Atomic.h">
+      <Filter>System\Threading</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

@@ -74,7 +74,7 @@ namespace Scalien
         /// </summary>
         /// <param name="gran">The gran of the sequence.</param>
         [System.Obsolete]
-        public void SetGranularity(long gran)
+        public virtual void SetGranularity(long gran)
         {
         }
 
@@ -87,7 +87,7 @@ namespace Scalien
         /// key => 1
         /// </c></para>
         /// </remarks>
-        public void Reset()
+        public virtual void Reset()
         {
             client.SequenceSet(tableID, key, 1);
         }
@@ -101,7 +101,7 @@ namespace Scalien
         /// key => value
         /// </c></para>
         /// </remarks>
-        public void Set(ulong value)
+        public virtual void Set(ulong value)
         {
             client.SequenceSet(tableID, key, value);
         }
@@ -109,7 +109,7 @@ namespace Scalien
         /// <summary>
         /// Get the next sequence value.
         /// </summary>
-        public ulong GetNext
+        public virtual ulong GetNext
         {
             get
             {

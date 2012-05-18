@@ -47,7 +47,7 @@ namespace Scalien
             return (IEnumerator)GetEnumerator();
         }
 
-        public IEnumerator<byte[]> GetEnumerator()
+        public virtual IEnumerator<byte[]> GetEnumerator()
         {
             return this;
         }
@@ -56,7 +56,7 @@ namespace Scalien
 
         #region IEnumerator interface
 
-        public bool MoveNext()
+        public virtual bool MoveNext()
         {
             if (count == 0)
                 return false;
@@ -76,12 +76,12 @@ namespace Scalien
             return true;
         }
 
-        public void Reset()
+        public virtual void Reset()
         {
             throw new NotSupportedException();
         }
 
-        public byte[] Current
+        public virtual byte[] Current
         {
             get
             {
