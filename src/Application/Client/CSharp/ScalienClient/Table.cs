@@ -62,7 +62,7 @@ namespace Scalien
         /// <summary>
         /// The unique ID of the table
         /// </summary>
-        public ulong TableID
+        public virtual ulong TableID
         {
             get
             {
@@ -73,7 +73,7 @@ namespace Scalien
         /// <summary>
         /// The database this table is in.
         /// </summary>
-        public Database Database
+        public virtual Database Database
         {
             get
             {
@@ -84,7 +84,7 @@ namespace Scalien
         /// <summary>
         /// The name of the table.
         /// </summary>
-        public string Name
+        public virtual string Name
         {
             get
             {
@@ -120,7 +120,7 @@ namespace Scalien
         /// </summary>
         /// <param name="newName">The new name of the table.</param>
         /// <exception cref="SDBPException"/>
-        public void RenameTable(string newName)
+        public virtual void RenameTable(string newName)
         {
             int status = scaliendb_client.SDBP_RenameTable(client.cptr, tableID, newName);
             client.CheckResultStatus(status);
@@ -130,7 +130,7 @@ namespace Scalien
         /// Delete the table.
         /// </summary>
         /// <exception cref="SDBPException"/>
-        public void DeleteTable()
+        public virtual void DeleteTable()
         {
             int status = scaliendb_client.SDBP_DeleteTable(client.cptr, tableID);
             client.CheckResultStatus(status);
@@ -140,7 +140,7 @@ namespace Scalien
         /// Truncate the table. This means all key-values in the table are dropped.
         /// </summary>
         /// <exception cref="SDBPException"/>
-        public void TruncateTable()
+        public virtual void TruncateTable()
         {
             int status = scaliendb_client.SDBP_TruncateTable(client.cptr, tableID);
             client.CheckResultStatus(status);
@@ -159,7 +159,7 @@ namespace Scalien
         /// <seealso cref="Get(string, string)"/>
         /// <seealso cref="Get(byte[])"/>
         /// <seealso cref="Get(byte[], byte[])"/>
-        public string Get(string key)
+        public virtual string Get(string key)
         {
             return client.Get(tableID, key);
         }
@@ -174,7 +174,7 @@ namespace Scalien
         /// <seealso cref="Get(string)"/>
         /// <seealso cref="Get(byte[])"/>
         /// <seealso cref="Get(string, string)"/>
-        public string Get(string key, string defval)
+        public virtual string Get(string key, string defval)
         {
             String value = client.Get(tableID, key);
             if (value != null)
@@ -192,7 +192,7 @@ namespace Scalien
         /// <seealso cref="Get(byte[], byte[])"/>
         /// <seealso cref="Get(string)"/>
         /// <seealso cref="Get(string, string)"/>
-        public byte[] Get(byte[] key)
+        public virtual byte[] Get(byte[] key)
         {
             return client.Get(tableID, key);
         }
@@ -207,7 +207,7 @@ namespace Scalien
         /// <seealso cref="Get(byte[])"/>
         /// <seealso cref="Get(string)"/>
         /// <seealso cref="Get(string, string)"/>
-        public byte[] Get(byte[] key, byte[] defval)
+        public virtual byte[] Get(byte[] key, byte[] defval)
         {
             byte[] value = client.Get(tableID, key);
             if (value != null)
@@ -223,7 +223,7 @@ namespace Scalien
         /// <param name="value">The value.</param>
         /// <exception cref="SDBPException"/>
         /// <seealso cref="Set(byte[], byte[])"/>
-        public void Set(string key, string value)
+        public virtual void Set(string key, string value)
         {
             client.Set(tableID, key, value);
         }
@@ -235,7 +235,7 @@ namespace Scalien
         /// <param name="value">The value.</param>
         /// <exception cref="SDBPException"/>
         /// <seealso cref="Set(string, string)"/>
-        public void Set(byte[] key, byte[] value)
+        public virtual void Set(byte[] key, byte[] value)
         {
             client.Set(tableID, key, value);
         }
@@ -250,7 +250,7 @@ namespace Scalien
         /// <returns>The incremented value.</returns>
         /// <exception cref="SDBPException"/>
         /// <seealso cref="Add(byte[], long)"/>
-        public long Add(string key, long number)
+        public virtual long Add(string key, long number)
         {
             return client.Add(tableID, key, number);
         }
@@ -265,7 +265,7 @@ namespace Scalien
         /// /// <returns>The incremented value.</returns>
         /// <exception cref="SDBPException"/>
         /// <seealso cref="Add(string, long)"/>
-        public long Add(byte[] key, long number)
+        public virtual long Add(byte[] key, long number)
         {
             return client.Add(tableID, key, number);
         }
@@ -276,7 +276,7 @@ namespace Scalien
         /// <param name="key">The key.</param>
         /// <exception cref="SDBPException"/>
         /// <seealso cref="Delete(byte[])"/>
-        public void Delete(string key)
+        public virtual void Delete(string key)
         {
             client.Delete(tableID, key);
         }
@@ -287,7 +287,7 @@ namespace Scalien
         /// <param name="key">The key.</param>
         /// <exception cref="SDBPException"/>
         /// <seealso cref="Delete(string)"/>
-        public void Delete(byte[] key)
+        public virtual void Delete(byte[] key)
         {
             client.Delete(tableID, key);
         }
@@ -300,7 +300,7 @@ namespace Scalien
         /// <exception cref="SDBPException"/>
         /// <seealso cref="Scalien.StringRangeParams"/>
         /// <seealso cref="Count(ByteRangeParams)"/>
-        public ulong Count(StringRangeParams ps)
+        public virtual ulong Count(StringRangeParams ps)
         {
             return client.Count(tableID, ps);
         }
@@ -313,7 +313,7 @@ namespace Scalien
         /// <exception cref="SDBPException"/>
         /// <seealso cref="Scalien.ByteRangeParams"/>
         /// <seealso cref="Count(StringRangeParams)"/>
-        public ulong Count(ByteRangeParams ps)
+        public virtual ulong Count(ByteRangeParams ps)
         {
             return client.Count(tableID, ps);
         }
@@ -337,7 +337,7 @@ namespace Scalien
         /// <seealso cref="GetKeyIterator(ByteRangeParams)"/>
         /// <seealso cref="GetKeyValueIterator(StringRangeParams)"/>
         /// <seealso cref="GetKeyValueIterator(ByteRangeParams)"/>
-        public StringKeyIterator GetKeyIterator(StringRangeParams ps)
+        public virtual StringKeyIterator GetKeyIterator(StringRangeParams ps)
         {
             return new StringKeyIterator(this, ps);
         }
@@ -351,7 +351,7 @@ namespace Scalien
         /// <seealso cref="GetKeyIterator(ByteRangeParams)"/>
         /// <seealso cref="GetKeyValueIterator(StringRangeParams)"/>
         /// <seealso cref="GetKeyValueIterator(ByteRangeParams)"/>
-        public ByteKeyIterator GetKeyIterator(ByteRangeParams ps)
+        public virtual ByteKeyIterator GetKeyIterator(ByteRangeParams ps)
         {
             return new ByteKeyIterator(this, ps);
         }
@@ -372,7 +372,7 @@ namespace Scalien
         /// <seealso cref="GetKeyValueIterator(ByteRangeParams)"/>
         /// <seealso cref="GetKeyIterator(StringRangeParams)"/>
         /// <seealso cref="GetKeyIterator(ByteRangeParams)"/>
-        public StringKeyValueIterator GetKeyValueIterator(StringRangeParams ps)
+        public virtual StringKeyValueIterator GetKeyValueIterator(StringRangeParams ps)
         {
             return new StringKeyValueIterator(this, ps);
         }
@@ -387,7 +387,7 @@ namespace Scalien
         /// <seealso cref="GetKeyValueIterator(StringRangeParams)"/>
         /// <seealso cref="GetKeyIterator(StringRangeParams)"/>
         /// <seealso cref="GetKeyIterator(ByteRangeParams)"/>
-        public ByteKeyValueIterator GetKeyValueIterator(ByteRangeParams ps)
+        public virtual ByteKeyValueIterator GetKeyValueIterator(ByteRangeParams ps)
         {
             return new ByteKeyValueIterator(this, ps);
         }
@@ -403,7 +403,7 @@ namespace Scalien
         /// <returns>The corresponding <see cref="Scalien.Sequence"/> object.</returns>
         /// <seealso cref="GetSequence(byte[])"/>
         /// <seealso cref="Scalien.Sequence"/>
-        public Sequence GetSequence(string key)
+        public virtual Sequence GetSequence(string key)
         {
             return new Sequence(this.client, this.tableID, key);
         }
@@ -415,7 +415,7 @@ namespace Scalien
         /// <returns>The corresponding <see cref="Scalien.Sequence"/> object.</returns>
         /// <seealso cref="GetSequence(string)"/>
         /// <seealso cref="Scalien.Sequence"/>
-        public Sequence GetSequence(byte[] key)
+        public virtual Sequence GetSequence(byte[] key)
         {
             return new Sequence(this.client, this.tableID, key);
         }

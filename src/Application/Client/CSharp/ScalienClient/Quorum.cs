@@ -36,7 +36,7 @@ namespace Scalien
         /// <summary>
         /// The name of the quorum.
         /// </summary>
-        public string Name
+        public virtual string Name
         {
             get
             {
