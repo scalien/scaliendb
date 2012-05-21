@@ -63,7 +63,7 @@ void ShardQuorumProcessor::Init(ConfigQuorum* configQuorum, ShardServer* shardSe
     migrateShardID = 0;
     migrateNodeID = 0;
     migrateCache = 0;
-    blockReplication = 0;
+    blockReplication = false;
     appendState.Reset();
     appendDelay = 0;
     prevAppendTime = 0;
@@ -490,7 +490,10 @@ void ShardQuorumProcessor::OnClientRequest(ClientRequest* request)
     }
     
     // read-your-write consistency
-    if (request->paxosID > quorumContext.GetPaxosID())
+    // only serve RYW consistency requests I have learned
+    // which means my paxosID is already bigger
+    // so if it's smaller or equal, send NoService
+    if (quorumContext.GetPaxosID() <= request->paxosID)
     {
         Log_Trace();
         request->response.NoService();

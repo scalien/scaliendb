@@ -134,9 +134,10 @@ void ShardConnection::ReassignSentRequests()
 
 bool ShardConnection::OnMessage(ReadBuffer& rbuf)
 {
+    bool                clientLocked;
+    uint64_t            paxosID;
     SDBPResponseMessage msg;
     Request*            request;
-    bool                clientLocked;
 
     //Log_Debug("Shard conn: %s, message: %R", endpoint.ToString(), &rbuf);
     
@@ -159,6 +160,13 @@ bool ShardConnection::OnMessage(ReadBuffer& rbuf)
     {
         if (request->commandID == response.commandID)
         {
+            if (response.type == CLIENTRESPONSE_OK)
+            {
+                paxosID = client->GetQuorumPaxosID(request->quorumID);
+                if (response.paxosID > paxosID)
+                    client->SetQuorumPaxosID(request->quorumID, response.paxosID);
+            }
+
             if (
              response.type != CLIENTRESPONSE_LIST_KEYS && 
              response.type != CLIENTRESPONSE_LIST_KEYVALUES &&
@@ -195,7 +203,7 @@ bool ShardConnection::OnMessage(ReadBuffer& rbuf)
             break;
         }
     }
-    
+
     clientLocked = false;
     if (!client->isDone.IsWaiting())
     {
@@ -284,4 +292,9 @@ void ShardConnection::SendQuorumRequests()
     // notify the client so that it can assign the requests to the connection
     FOREACH (qit, quorums)
         client->SendQuorumRequest(this, *qit);
+}
+
+static uint64_t Hash(uint64_t ID)
+{
+    return ID;
 }
