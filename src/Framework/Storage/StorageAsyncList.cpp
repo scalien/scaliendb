@@ -31,11 +31,10 @@ void StorageAsyncListResult::OnComplete()
     delete this;
 }
 
-void StorageAsyncListResult::Append(StorageFileKeyValue* kv, bool countOnly)
+void StorageAsyncListResult::Append(StorageFileKeyValue* kv)
 {
     numKeys++;
-    if (!countOnly)
-        dataPage.Append(kv);
+    dataPage.Append(kv);
 }
 
 uint32_t StorageAsyncListResult::GetSize()
@@ -229,7 +228,7 @@ void StorageAsyncList::AsyncMergeResult()
             continue;
         }
 
-        result->Append(it, type == COUNT);
+        result->Append(it);
         num++;
                 
         if (result->GetSize() > MAX_RESULT_SIZE)
@@ -247,9 +246,34 @@ void StorageAsyncList::AsyncMergeResult()
 
 void StorageAsyncList::OnResult(StorageAsyncListResult* result)
 {
-    Callable    callable;
+    bool                    redoDataPage;
+    Callable                callable;
+    StorageFileKeyValue*    fkv;
+    StorageAsyncListResult* newResult;
     
     result->dataPage.Finalize();
+
+    // check that keys are still in the merged interval
+    redoDataPage = false;
+    if (result->dataPage.First() && !IsKeyInShard(result->dataPage.First()->GetKey()))
+        redoDataPage = true;
+    if (result->dataPage.Last() && !IsKeyInShard(result->dataPage.Last()->GetKey()))
+        redoDataPage = true;
+
+    if (redoDataPage)
+    {
+        newResult = new StorageAsyncListResult(this);
+        FOREACH(fkv, result->dataPage)
+        {
+            if (IsKeyInShard(fkv->GetKey()))
+                newResult->Append(fkv);
+        }
+        newResult->dataPage.Finalize();
+        newResult->final = result->final;
+        delete result;
+        result = newResult;
+    }
+
     result->onComplete = onComplete;
     callable = MFunc<StorageAsyncListResult, &StorageAsyncListResult::OnComplete>(result);
     IOProcessor::Complete(&callable);
@@ -332,13 +356,6 @@ StorageFileKeyValue* StorageAsyncList::GetSmallest()
     {
         if (iterators[i] == NULL)
             continue;
-
-        // check that keys are still in the merged interval
-        if (!IsKeyInShard(iterators[i]->GetKey()))
-        {
-            iterators[i] = NULL;
-            continue;
-        }
 
         cmpres = CompareSmallestKey(iterators[i]->GetKey(), smallestKey);
         if (cmpres <= 0)
