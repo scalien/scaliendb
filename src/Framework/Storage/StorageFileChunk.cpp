@@ -486,10 +486,7 @@ void StorageFileChunk::LoadIndexPage()
         StoragePageCache::AddMetaPage(indexPage);
     
     if (numDataPages == 0)
-    {
-        numDataPages = indexPage->GetNumDataPages();
-        AllocateDataPageArray();
-    }
+        SetNumDataPages(indexPage->GetNumDataPages());
 }
 
 void StorageFileChunk::LoadDataPage(uint32_t index, uint64_t offset, bool bulk, bool keysOnly, StorageDataPage* dataPage)
@@ -732,6 +729,12 @@ void StorageFileChunk::AppendDataPage(StorageDataPage* dataPage)
     
     dataPages[numDataPages] = dataPage;
     numDataPages++;
+}
+
+void StorageFileChunk::SetNumDataPages(uint32_t numDataPages_)
+{
+    numDataPages = numDataPages_;
+    AllocateDataPageArray();
 }
 
 void StorageFileChunk::AllocateDataPageArray()
