@@ -146,7 +146,6 @@ int Client::Init(int nodec, const char* nodev[])
     batchLimit = DEFAULT_BATCH_LIMIT;
     proxy.Init();
     consistencyMode = SDBP_CONSISTENCY_STRICT;
-    highestSeenPaxosID = 0;
     connectivityStatus = SDBP_NOCONNECTION;
     timeoutStatus = SDBP_SUCCESS;
     transactionStatus = SDBP_SUCCESS;
@@ -861,6 +860,21 @@ int Client::Count(
     return result->GetCommandStatus();
 }
 
+uint64_t Client::GetQuorumPaxosID(uint64_t quorumID)
+{
+    uint64_t paxosID;
+
+    if (!paxosIDs.Get(quorumID, paxosID))
+        paxosID = 0;
+
+    return paxosID;
+}
+
+void Client::SetQuorumPaxosID(uint64_t quorumID, uint64_t paxosID)
+{
+    paxosIDs.Set(quorumID, paxosID);
+}
+
 int Client::Begin()
 {
     Log_Trace();
@@ -1532,7 +1546,7 @@ void Client::SendQuorumRequest(ShardConnection* conn, uint64_t quorumID)
         req->shardConns.Append(nodeID);
         
         // set paxosID by consistency level
-        req->paxosID = GetRequestPaxosID();
+        req->paxosID = GetRequestPaxosID(quorumID);
  
         // send request
         numServed++;
@@ -1863,12 +1877,12 @@ unsigned Client::GetMaxQuorumRequests(
     return maxRequests;
 }    
 
-uint64_t Client::GetRequestPaxosID()
+uint64_t Client::GetRequestPaxosID(uint64_t quorumID)
 {
     if (consistencyMode == SDBP_CONSISTENCY_ANY)
         return 0;
     else if (consistencyMode == SDBP_CONSISTENCY_RYW)
-        return highestSeenPaxosID;
+        return GetQuorumPaxosID(quorumID);
     else if (consistencyMode == SDBP_CONSISTENCY_STRICT)
         return 1;
     else

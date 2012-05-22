@@ -33,6 +33,7 @@ class ControllerConnection;
 
 class Client
 {
+    typedef HashMap<uint64_t, uint64_t> PaxosIDs;
 public:
     Client();
     ~Client();
@@ -117,6 +118,9 @@ public:
                              const ReadBuffer& prefix, unsigned count, uint64_t& commandID);
     int                     Receive(uint64_t commandID);
 
+    uint64_t                GetQuorumPaxosID(uint64_t quorumID);
+    void                    SetQuorumPaxosID(uint64_t quorumID, uint64_t paxosID);
+
     // Batching
     int                     Begin();
     int                     Submit();
@@ -181,7 +185,7 @@ private:
 
     unsigned                GetMaxQuorumRequests(RequestList* qrequests, ShardConnection* conn, 
                              ConfigQuorum* quorum);
-    uint64_t                GetRequestPaxosID();
+    uint64_t                GetRequestPaxosID(uint64_t quorumID);
     
     void                    ComputeListResponse();
     uint64_t                NumProxiedDeletes(Request* request);
@@ -206,7 +210,7 @@ private:
     RequestListMap          quorumRequests;
     int                     consistencyMode;
     int						batchMode;
-    uint64_t                highestSeenPaxosID;
+    PaxosIDs                paxosIDs;
     YieldTimer              onClientShutdown;
     unsigned                numControllerRequests;
     int                     numNestedTransactions;

@@ -83,6 +83,9 @@ void ReplicatedLog::TryAppendNextValue()
 {
     Log_Trace();
     
+    if (waitingOnAppend)
+        return;
+
     if (!context->IsLeaseOwner() || proposer.IsActive() || !proposer.state.multi)
         return;
     
@@ -200,7 +203,11 @@ void ReplicatedLog::OnAppendComplete()
 {
     waitingOnAppend = false;
 
-    // TODO: this is not a complete solution
+    NewPaxosRound(); // increments paxosID, clears proposer, acceptor
+    
+    if (context->IsLeaseKnown() && paxosID <= context->GetHighestPaxosID())
+        RequestChosen(context->GetLeaseOwner());
+
     if (paxosID < context->GetHighestPaxosID())
         context->GetDatabase()->Commit();
 
@@ -454,11 +461,6 @@ void ReplicatedLog::ProcessLearnChosen(uint64_t nodeID, uint64_t runID)
     
     if (context->GetHighestPaxosID() > 0 && paxosID < (context->GetHighestPaxosID() - 1))
         context->GetDatabase()->Commit();
-
-    NewPaxosRound(); // increments paxosID, clears proposer, acceptor
-    
-    if (paxosID <= context->GetHighestPaxosID())
-        RequestChosen(nodeID);
     
     ownAppend = proposer.state.multi;
     if (nodeID == MY_NODEID && runID == REPLICATION_CONFIG->GetRunID() && context->IsLeaseOwner())
@@ -481,7 +483,7 @@ void ReplicatedLog::ProcessLearnChosen(uint64_t nodeID, uint64_t runID)
     else
     {
         waitingOnAppend = true;
-        context->OnAppend(paxosID - 1, learnedValue, ownAppend);
+        context->OnAppend(paxosID, learnedValue, ownAppend);
         // QuorumContext::OnAppend() must call ReplicatedLog::OnAppendComplete()
     }
 }

@@ -43,7 +43,6 @@ void ConfigQuorumContext::Init(ConfigQuorumProcessor* quorumProcessor_, unsigned
 void ConfigQuorumContext::Append(ConfigMessage* message)
 {
     message->Write(nextValue);
-
     replicatedLog.TryAppendNextValue();
 }
 
