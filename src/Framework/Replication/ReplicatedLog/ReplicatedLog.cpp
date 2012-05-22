@@ -83,6 +83,9 @@ void ReplicatedLog::TryAppendNextValue()
 {
     Log_Trace();
     
+    if (waitingOnAppend)
+        return;
+
     if (!context->IsLeaseOwner() || proposer.IsActive() || !proposer.state.multi)
         return;
     
