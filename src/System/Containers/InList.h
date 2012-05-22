@@ -7,6 +7,8 @@
 
 template<class T> class InSortedList;   // for friend
 
+#define IN_LIST(node) (node->next != node)
+
 /*
 ===============================================================================================
 

@@ -33,6 +33,7 @@ public:
 private:
     void                    PreloadDataPages();
     bool                    LocateIndexAndOffset(StorageIndexPage* indexPage, uint32_t numDataPages, ReadBuffer& firstKey);
+    void                    GetDataPageFromCache(uint32_t index);
 
     bool                    keysOnly;
     bool                    forwardDirection;

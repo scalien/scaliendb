@@ -264,9 +264,9 @@ uint64_t StorageChunkReader::GetMaxLogCommandID()
 
 void StorageChunkReader::PreloadDataPages()
 {
-    uint32_t    i;
-    uint32_t    pageSize;
-    uint64_t    totalSize;
+    uint32_t            i;
+    uint32_t            pageSize;
+    uint64_t            totalSize;
     
     totalSize = 0;
     
@@ -283,7 +283,7 @@ void StorageChunkReader::PreloadDataPages()
             else
             {
                 // forward list case
-                fileChunk.LoadDataPage(i, offset, false, keysOnly, StorageDataPageCache::Acquire());
+                GetDataPageFromCache(i);
             }
 
             //Log_Debug("Preloading datapage %u at offset %U from chunk %U", i, offset, fileChunk.GetChunkID());
@@ -307,7 +307,7 @@ void StorageChunkReader::PreloadDataPages()
 
         offset = fileChunk.indexPage->GetIndexOffset(index);
         // backward iteration happens only in list, never in merge
-        fileChunk.LoadDataPage(index, offset, false, keysOnly, StorageDataPageCache::Acquire());
+        GetDataPageFromCache(index);
         pageSize = fileChunk.dataPages[index]->GetSize();
         totalSize += pageSize;
         preloadIndex = index;
@@ -345,4 +345,24 @@ bool StorageChunkReader::LocateIndexAndOffset(StorageIndexPage* indexPage, uint3
     }
 
     return true;
+}
+
+void StorageChunkReader::GetDataPageFromCache(uint32_t index)
+{
+    StorageDataPage*    dataPage;
+    uint32_t            oldSize;
+
+    dataPage = StorageDataPageCache::Acquire(fileChunk.GetChunkID(), index);
+    ASSERT(dataPage != NULL);
+    ASSERT(dataPage->cacheNode != NULL);
+    if (dataPage->cacheNode->key.chunkID == fileChunk.GetChunkID() && dataPage->cacheNode->key.index == index)
+        fileChunk.dataPages[index] = dataPage;
+    else
+    {
+        oldSize = dataPage->GetMemorySize();
+        fileChunk.LoadDataPage(index, offset, false, keysOnly, dataPage);
+        StorageDataPageCache::UpdateDataPageSize(oldSize, dataPage);
+        dataPage->cacheNode->key.chunkID = fileChunk.GetChunkID();
+        dataPage->cacheNode->key.index = index;
+    }
 }

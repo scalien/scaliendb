@@ -6,9 +6,21 @@
 #define STORAGE_DATAPAGE_HEADER_SIZE        16
 
 static Mutex dataPageCacheMutex;
-InList<StorageDataPage> dataPageList;
-int64_t cacheSize = 0;
+InHashMap<StorageDataPageCacheNode, StorageDataPageCacheKey> hashMap;
+InList<StorageDataPage> freeList;int64_t cacheSize = 0;
 int64_t maxCacheSize = 0;
+uint32_t largestSeen = 64*KB;
+
+StorageDataPageCacheNode::StorageDataPageCacheNode(StorageDataPage* dataPage_)
+{
+    prev = next = this;
+    dataPage = dataPage_;
+    ASSERT(dataPage->cacheNode == NULL);
+    dataPage->cacheNode = this;
+    key.chunkID = 0;
+    key.index = 0;
+    numAcquired = 0;
+}
 
 void StorageDataPageCache::SetMaxCacheSize(uint64_t maxCacheSize_)
 {
@@ -19,57 +31,158 @@ uint64_t StorageDataPageCache::GetMaxCacheSize()
 {
     return maxCacheSize;
 }
+
 uint64_t StorageDataPageCache::GetCacheSize()
 {
     return cacheSize;
+}
+
+uint32_t StorageDataPageCache::GetLargestSeen()
+{
+    return largestSeen;
 }
 
 void StorageDataPageCache::Shutdown()
 {
     MutexGuard mutexGuard(dataPageCacheMutex);
 
-    dataPageList.DeleteList();
+    // TODO
+//    dataPageList.DeleteList();
 }
 
-StorageDataPage* StorageDataPageCache::Acquire()
+StorageDataPage* StorageDataPageCache::Acquire(uint64_t chunkID, uint32_t index)
 {
-    StorageDataPage* dataPage;
+    CacheKey    key;
+    CacheNode*  node;
+    DataPage*   dataPage;
+
+    Log_Debug("Acquire: cacheSize: %s", HUMAN_BYTES(cacheSize));
 
     ASSERT(maxCacheSize > 0);
     MutexGuard mutexGuard(dataPageCacheMutex);
 
-    if (dataPageList.GetLength() > 0)
+    key.chunkID = chunkID;
+    key.index = index;
+    node = hashMap.Get(key);
+
+    if (node)
     {
-        dataPage = dataPageList.Pop();
-        cacheSize -= dataPage->GetMemorySize();
-        ASSERT(cacheSize >= 0);
-        return dataPage;
+        // data page is preloaded, return it
+        Log_Debug("Acquire: Returning preloaded data page from chunk %U index %u numAcquired %d",
+         node->key.chunkID, node->key.index, node->numAcquired);
+        ASSERT(node->numAcquired >= 0);
+        ASSERT(node->dataPage->cacheNode == node);
+        if (node->numAcquired == 0)
+        {
+            // remove from free list
+            ASSERT(IN_LIST(node->dataPage));
+            freeList.Remove(node->dataPage);
+        }
+        else
+        {
+            // it's already out, not on the free list
+            ASSERT(!IN_LIST(node->dataPage));
+        }
+        node->numAcquired++;
+        return node->dataPage;
+    }
+
+    // data page is not preloaded
+    if (freeList.GetLength() > 0 && cacheSize >= (maxCacheSize + largestSeen * 2))
+    {
+        Log_Debug("Acquire: Returning a data page from the free list");
+
+        // return a data page from the free list
+        // do _not_ add to the hashMap here
+        // this will happen when it is Release()'d
+        // since the dataPage will be empty until it's actually loaded
+        dataPage = freeList.Pop();
+        ASSERT(dataPage->cacheNode != NULL);
+        node = dataPage->cacheNode;
+        ASSERT(node->dataPage == dataPage);
+        ASSERT(node->numAcquired == 0);
+
+        // if in hashmap then remove, since we are changing the index values
+        if (IN_HASHMAP(node))
+            hashMap.Remove(node);
     }
     else
     {
-        return new StorageDataPage();
+        Log_Debug("Acquire: Allocating new data page");
+        // allocate a new node and data page
+        node = new CacheNode(new DataPage());
+        cacheSize += node->dataPage->GetMemorySize();
+        ASSERT(node->numAcquired == 0);
+        ASSERT(node->dataPage->cacheNode == node);
     }
+
+    node->numAcquired++;
+    return node->dataPage;
 }
 
 void StorageDataPageCache::Release(StorageDataPage* dataPage)
 {
+    CacheNode*  node;
+
+    Log_Debug("Release: cacheSize: %s", HUMAN_BYTES(cacheSize));
+
+    if (dataPage->GetMemorySize() > largestSeen)
+        largestSeen = dataPage->GetMemorySize();
+
     ASSERT(maxCacheSize > 0);
     MutexGuard mutexGuard(dataPageCacheMutex);
 
-    if (cacheSize + dataPage->GetMemorySize() < maxCacheSize)
+    ASSERT(dataPage->cacheNode != NULL);
+    node = dataPage->cacheNode;
+    ASSERT(node->dataPage == dataPage);
+
+    ASSERT(node->numAcquired > 0);
+    node->numAcquired--;
+
+    if (node->numAcquired == 0)
     {
-        dataPageList.Append(dataPage);
-        cacheSize += dataPage->GetMemorySize();
+        // node is not being used by the application
+        ASSERT(!IN_LIST(node->dataPage));
+        if (cacheSize < maxCacheSize)
+        {
+            Log_Debug("Release: returning data page to the free list; chunk %U index %u numAcquired %d",
+             node->key.chunkID, node->key.index, node->numAcquired);
+            // we have room, append it to freelist
+            freeList.Append(dataPage);
+        }
+        else
+        {
+            Log_Debug("Release: deleting data page; %U index %u numAcquired %d",
+             node->key.chunkID, node->key.index, node->numAcquired);
+            // we have no room, get rid of it
+            if (IN_HASHMAP(node))
+                hashMap.Remove(node);
+            cacheSize -= dataPage->GetMemorySize();
+            ASSERT(cacheSize >= 0);
+            delete node;
+            delete dataPage;
+            return;
+        }
     }
-    else
+
+    if (!hashMap.Get(node->key))
     {
-        delete dataPage;
+        ASSERT(!IN_HASHMAP(node));
+        hashMap.Set(node);
     }
+}
+
+void StorageDataPageCache::UpdateDataPageSize(uint32_t oldSize, StorageDataPage* dataPage)
+{
+    cacheSize -= oldSize;
+    ASSERT(cacheSize >= 0);
+    cacheSize += dataPage->GetMemorySize();
 }
 
 StorageDataPage::StorageDataPage()
 {
     prev = next = this;
+    cacheNode = NULL;
 }
 
 StorageDataPage::StorageDataPage(StorageFileChunk* owner_, uint32_t index_, unsigned bufferSize)
@@ -536,4 +649,9 @@ void StorageDataPage::AppendKeyValue(StorageFileKeyValue& kv)
 {
     ASSERT(kv.GetKey().GetLength() > 0);
     storageFileKeyValueBuffer.Append((const char*) &kv, sizeof(StorageFileKeyValue));
+}
+
+static size_t Hash(StorageDataPageCacheKey key)
+{
+    return key.chunkID * key.index;
 }

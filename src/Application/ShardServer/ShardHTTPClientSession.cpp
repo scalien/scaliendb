@@ -327,6 +327,7 @@ void ShardHTTPClientSession::PrintStatistics()
     buffer.Appendf("nextRequestID: %U\n", databaseManager->GetNextRequestID());
     buffer.Appendf("listPageCacheSize: %U\n", StorageDataPageCache::GetCacheSize());
     buffer.Appendf("maxListPageCacheSize: %U\n", StorageDataPageCache::GetMaxCacheSize());
+    buffer.Appendf("largestDataPageSeen: %u\n", StorageDataPageCache::GetLargestSeen());
 
     buffer.Append("  Category: Mutexes\n");
     buffer.Appendf("StorageFileDeleter mutexLockCounter: %U\n", StorageFileDeleter::GetMutex().lockCounter);

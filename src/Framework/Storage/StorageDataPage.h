@@ -3,6 +3,7 @@
 
 #include "System/Buffers/Buffer.h"
 #include "System/Containers/InTreeMap.h"
+#include "System/Containers/InHashMap.h"
 #include "StoragePage.h"
 #include "StorageMemoKeyValue.h"
 #include "StorageFileKeyValue.h"
@@ -20,15 +21,47 @@ class StorageDataPage;
 ===============================================================================================
 */
 
-class StorageDataPageCache
+class StorageDataPageCacheKey
 {
 public:
-    static void                 SetMaxCacheSize(uint64_t maxCacheSize);
-    static uint64_t             GetMaxCacheSize();
-    static uint64_t             GetCacheSize();
-    static void                 Shutdown();
-    static StorageDataPage*     Acquire();
-    static void                 Release(StorageDataPage* dataPage);
+    uint64_t                    chunkID;
+    uint32_t                    index;
+    bool operator==(StorageDataPageCacheKey& other)
+    {
+        return (chunkID == other.chunkID && index == other.index);
+    }
+};
+
+class StorageDataPageCacheNode
+{
+public:
+    StorageDataPageCacheNode(StorageDataPage* dataPage);
+
+    StorageDataPageCacheKey     key;
+    int                         numAcquired;
+    StorageDataPage*            dataPage;
+
+    StorageDataPageCacheNode*   prev;
+    StorageDataPageCacheNode*   next;
+};
+
+class StorageDataPageCache
+{
+    typedef StorageDataPage DataPage;
+    typedef StorageDataPageCacheNode CacheNode;
+    typedef StorageDataPageCacheKey CacheKey;
+    typedef InHashMap<CacheNode, CacheKey> CacheHashMap;
+    typedef InList<DataPage> DataPageList;
+
+public:
+    static void         SetMaxCacheSize(uint64_t maxCacheSize);
+    static uint64_t     GetMaxCacheSize();
+    static uint64_t     GetCacheSize();
+    static uint32_t     GetLargestSeen();
+    static void         Shutdown();
+    static DataPage*    Acquire(uint64_t chunkID, uint32_t index);
+    static void         Release(DataPage* dataPage);
+    static void         UpdateDataPageSize(uint32_t oldSize, DataPage* dataPage);
 };
 
 
@@ -42,7 +75,10 @@ public:
 
 class StorageDataPage : public StoragePage
 {
+    typedef StorageDataPageCacheNode CacheNode;
+
 private:
+    friend class StorageDataPageCacheNode;
     friend class StorageDataPageCache;
     StorageDataPage();
 
@@ -83,8 +119,7 @@ public:
 
     void                    Unload();
 
-    StorageDataPage*        prev;
-    StorageDataPage*        next;
+    CacheNode*              cacheNode;
 
 private:
     void                    AppendKeyValue(StorageFileKeyValue& kv);
