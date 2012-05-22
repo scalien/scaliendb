@@ -9,7 +9,8 @@ static Mutex dataPageCacheMutex;
 InHashMap<StorageDataPageCacheNode, StorageDataPageCacheKey> hashMap;
 InList<StorageDataPage> freeList;int64_t cacheSize = 0;
 int64_t maxCacheSize = 0;
-uint32_t largestSeen = 64*KB;
+int64_t maxUsedSize = 0;
+uint32_t largestSeen = 0;
 
 StorageDataPageCacheNode::StorageDataPageCacheNode(StorageDataPage* dataPage_)
 {
@@ -37,9 +38,19 @@ uint64_t StorageDataPageCache::GetCacheSize()
     return cacheSize;
 }
 
+uint64_t StorageDataPageCache::GetMaxUsedSize()
+{
+    return maxUsedSize;
+}
+
 uint32_t StorageDataPageCache::GetLargestSeen()
 {
     return largestSeen;
+}
+
+unsigned StorageDataPageCache::GetFreeListLength()
+{
+    return freeList.GetLength();
 }
 
 void StorageDataPageCache::Shutdown()
@@ -112,6 +123,8 @@ StorageDataPage* StorageDataPageCache::Acquire(uint64_t chunkID, uint32_t index)
         // allocate a new node and data page
         node = new CacheNode(new DataPage());
         cacheSize += node->dataPage->GetMemorySize();
+        if (cacheSize > maxUsedSize)
+            maxUsedSize = cacheSize;
         ASSERT(node->numAcquired == 0);
         ASSERT(node->dataPage->cacheNode == node);
     }
@@ -177,6 +190,9 @@ void StorageDataPageCache::UpdateDataPageSize(uint32_t oldSize, StorageDataPage*
     cacheSize -= oldSize;
     ASSERT(cacheSize >= 0);
     cacheSize += dataPage->GetMemorySize();
+    if (cacheSize > maxUsedSize)
+        maxUsedSize = cacheSize;
+    
 }
 
 StorageDataPage::StorageDataPage()
@@ -200,8 +216,12 @@ void StorageDataPage::Init(StorageFileChunk* owner_, uint32_t index_, unsigned b
     size = 0;
     compressedSize = 0;
 
+    keysBuffer.SetLength(0);
+    valuesBuffer.SetLength(0);
+
     buffer.Allocate(bufferSize);
     buffer.Zero();
+    buffer.SetLength(0);
 
     buffer.AppendLittle32(0); // dummy for size
     buffer.AppendLittle32(0); // dummy for checksum

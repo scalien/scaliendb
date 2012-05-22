@@ -79,7 +79,7 @@ public:
     bool                RangeContains(ReadBuffer key);
 
     void                AppendDataPage(StorageDataPage* dataPage);
-    void                AllocateDataPageArray();
+    void                SetNumDataPages(uint32_t numDataPages);
 
     StorageFileChunk*   prev;
     StorageFileChunk*   next;
@@ -97,6 +97,7 @@ public:
     uint64_t            fileSize;
 
 private:
+    void                AllocateDataPageArray();
     void                ExtendDataPageArray();
     bool                ReadPage(uint64_t offset, Buffer& buffer, bool keysOnly = false);
 

@@ -71,6 +71,7 @@ void StorageChunkReader::OpenWithFileChunk(
     fileChunk.SetFilename(fileChunk_->GetFilename());
     // it is safe to shallow copy headerPage
     fileChunk.headerPage = fileChunk_->headerPage;
+    fileChunk.SetNumDataPages(numDataPages);
 
     index = 0;
     offset = 0;
@@ -121,10 +122,7 @@ StorageFileKeyValue* StorageChunkReader::First(ReadBuffer& firstKey)
     }
 
     if (fileChunk.dataPages == NULL)
-    {
-        fileChunk.numDataPages = numDataPages;
-        fileChunk.AllocateDataPageArray();
-    }
+        fileChunk.SetNumDataPages(numDataPages);
 
     prevIndex = 0;
     PreloadDataPages();
@@ -298,14 +296,19 @@ void StorageChunkReader::PreloadDataPages()
     }
     else
     {
-        // don't preload when going backwards
-        if (fileChunk.indexPage == NULL)
+        // The offset and index is already located, so we don't need to
+        // load the header and index page
+        if (prevIndex != 0)
         {
-            fileChunk.ReadHeaderPage();
-            fileChunk.LoadIndexPage();
-        }
+            // don't preload when going backwards
+            if (fileChunk.indexPage == NULL)
+            {
+                fileChunk.ReadHeaderPage();
+                fileChunk.LoadIndexPage();
+            }
 
-        offset = fileChunk.indexPage->GetIndexOffset(index);
+            offset = fileChunk.indexPage->GetIndexOffset(index);
+        }
         // backward iteration happens only in list, never in merge
         GetDataPageFromCache(index);
         pageSize = fileChunk.dataPages[index]->GetSize();

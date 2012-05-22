@@ -238,11 +238,14 @@ bool StorageIndexPage::Read(Buffer& buffer_)
     parse.Advance(4);
 
     // checksum
-    parse.ReadLittle32(checksum);
-    dataPart.Wrap(buffer.GetBuffer() + 8, buffer.GetLength() - 8);
-    compChecksum = dataPart.GetChecksum();
-    if (compChecksum != checksum)
-        goto Fail;
+    if (false)  // TODO: make it switchable
+    {
+        parse.ReadLittle32(checksum);
+        dataPart.Wrap(buffer.GetBuffer() + 8, buffer.GetLength() - 8);
+        compChecksum = dataPart.GetChecksum();
+        if (compChecksum != checksum)
+            goto Fail;
+    }
     parse.Advance(4);
     
     // numkeys

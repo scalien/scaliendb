@@ -57,7 +57,9 @@ public:
     static void         SetMaxCacheSize(uint64_t maxCacheSize);
     static uint64_t     GetMaxCacheSize();
     static uint64_t     GetCacheSize();
+    static uint64_t     GetMaxUsedSize();
     static uint32_t     GetLargestSeen();
+    static unsigned     GetFreeListLength();
     static void         Shutdown();
     static DataPage*    Acquire(uint64_t chunkID, uint32_t index);
     static void         Release(DataPage* dataPage);
