@@ -9,6 +9,8 @@ static Mutex dataPageCacheMutex;
 InList<StorageDataPage> dataPageList;
 int64_t cacheSize = 0;
 int64_t maxCacheSize = 0;
+int64_t maxUsedSize = 0;
+int64_t maxCachedPageSize = 0;
 
 void StorageDataPageCache::SetMaxCacheSize(uint64_t maxCacheSize_)
 {
@@ -22,6 +24,21 @@ uint64_t StorageDataPageCache::GetMaxCacheSize()
 uint64_t StorageDataPageCache::GetCacheSize()
 {
     return cacheSize;
+}
+
+uint64_t StorageDataPageCache::GetMaxUsedSize()
+{
+    return maxUsedSize;
+}
+
+uint64_t StorageDataPageCache::GetMaxCachedPageSize()
+{
+    return maxCachedPageSize;
+}
+
+unsigned StorageDataPageCache::GetListLength()
+{
+    return dataPageList.GetLength();
 }
 
 void StorageDataPageCache::Shutdown()
@@ -60,6 +77,10 @@ void StorageDataPageCache::Release(StorageDataPage* dataPage)
     {
         dataPageList.Append(dataPage);
         cacheSize += dataPage->GetMemorySize();
+        if (cacheSize > maxUsedSize)
+            maxUsedSize = cacheSize;
+        if (dataPage->GetMemorySize() > maxCachedPageSize)
+            maxCachedPageSize = dataPage->GetMemorySize();
     }
     else
     {
@@ -87,8 +108,12 @@ void StorageDataPage::Init(StorageFileChunk* owner_, uint32_t index_, unsigned b
     size = 0;
     compressedSize = 0;
 
+    keysBuffer.SetLength(0);
+    valuesBuffer.SetLength(0);
+
     buffer.Allocate(bufferSize);
     buffer.Zero();
+    buffer.SetLength(0);
 
     buffer.AppendLittle32(0); // dummy for size
     buffer.AppendLittle32(0); // dummy for checksum
