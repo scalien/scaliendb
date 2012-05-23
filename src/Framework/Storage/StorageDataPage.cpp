@@ -7,7 +7,8 @@
 
 static Mutex dataPageCacheMutex;
 static InHashMap<StorageDataPageCacheNode, StorageDataPageCacheKey> hashMap(16*1000);
-static InList<StorageDataPage> freeList;int64_t cacheSize = 0;
+static InList<StorageDataPage> freeList;
+static int64_t cacheSize = 0;
 static int64_t maxCacheSize = 0;
 static int64_t maxUsedSize = 0;
 static uint32_t largestSeen = 0;
@@ -24,6 +25,25 @@ StorageDataPageCacheNode::StorageDataPageCacheNode(StorageDataPage* dataPage_)
     key.chunkID = 0;
     key.index = 0;
     numAcquired = 0;
+}
+
+void StorageDataPageCache::Shutdown()
+{
+    DataPage*   dataPage;
+
+    MutexGuard mutexGuard(dataPageCacheMutex);
+
+    FOREACH_REMOVE (dataPage, freeList)
+    {
+        ASSERT(dataPage->cacheNode->dataPage == dataPage);
+        ASSERT(dataPage->cacheNode->numAcquired == 0);
+        ASSERT(IN_HASHMAP(dataPage->cacheNode));
+        hashMap.Remove(dataPage->cacheNode);
+        delete dataPage->cacheNode;
+        delete dataPage;
+    }
+
+    ASSERT(hashMap.GetCount() == 0);
 }
 
 void StorageDataPageCache::SetMaxCacheSize(uint64_t maxCacheSize_)
@@ -69,14 +89,6 @@ uint64_t StorageDataPageCache::GetNumCacheMissPoolHit()
 uint64_t StorageDataPageCache::GetNumCacheMissPoolMiss()
 {
     return numCacheMissPoolMiss;
-}
-
-void StorageDataPageCache::Shutdown()
-{
-    MutexGuard mutexGuard(dataPageCacheMutex);
-
-    // TODO
-//    dataPageList.DeleteList();
 }
 
 StorageDataPage* StorageDataPageCache::Acquire(uint64_t chunkID, uint32_t index)

@@ -20,11 +20,11 @@ public:
     InHashMap(int bucketSize = 16);
     ~InHashMap();
     
-    void                    Clear();
-    
     T*                      Get(K& key);
     void                    Set(T* node);
     void                    Remove(T* node);
+
+    unsigned                GetCount();
 
 private:
     size_t                  GetHash(K& key);
@@ -52,28 +52,7 @@ InHashMap<T, K>::InHashMap(int bucketSize_)
 template<class T, class K>
 InHashMap<T, K>::~InHashMap()
 {
-    Clear();
     delete[] buckets;
-}
-
-template<class T, class K>
-void InHashMap<T, K>::Clear()
-{
-    size_t	    i;
-    T*          node;
-    T*          next;
-    
-    for (i = 0; i < bucketSize; i++)
-    {
-        InList<T>& bucket = buckets[i];
-        for (node = bucket.First(); node != NULL; node = next)
-        {
-            next = node->next;
-            delete node;
-        }
-    }
-    num = 0;
-    longestBucketSeen = 0;
 }
 
 template<class T, class K>
@@ -136,6 +115,12 @@ void InHashMap<T, K>::Remove(T* node)
     }
 
     ASSERT_FAIL();
+}
+
+template<class T, class K>
+unsigned InHashMap<T, K>::GetCount()
+{
+    return num;
 }
 
 template<class T, class K>

@@ -54,6 +54,8 @@ class StorageDataPageCache
     typedef InList<DataPage> DataPageList;
 
 public:
+    static void         Shutdown();
+
     static void         SetMaxCacheSize(uint64_t maxCacheSize);
     static uint64_t     GetMaxCacheSize();
     static uint64_t     GetCacheSize();
@@ -63,7 +65,6 @@ public:
     static uint64_t     GetNumCacheHit();
     static uint64_t     GetNumCacheMissPoolHit();
     static uint64_t     GetNumCacheMissPoolMiss();
-    static void         Shutdown();
     static DataPage*    Acquire(uint64_t chunkID, uint32_t index);
     static void         Release(DataPage* dataPage);
     static void         UpdateDataPageSize(uint32_t oldSize, DataPage* dataPage);
