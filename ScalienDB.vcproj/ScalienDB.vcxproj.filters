@@ -564,9 +564,6 @@
     <ClInclude Include="..\src\System\Containers\InTreeMap.h">
       <Filter>System\Containers</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\System\Containers\InTreeMap2.h">
-      <Filter>System\Containers</Filter>
-    </ClInclude>
     <ClInclude Include="..\src\System\Containers\List.h">
       <Filter>System\Containers</Filter>
     </ClInclude>
@@ -1028,6 +1025,9 @@
     </ClInclude>
     <ClInclude Include="..\src\Framework\Storage\StorageChunkLister.h">
       <Filter>Framework\Storage</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\System\Containers\InHashMap.h">
+      <Filter>System\Containers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
