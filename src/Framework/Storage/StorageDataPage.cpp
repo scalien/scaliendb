@@ -119,7 +119,7 @@ StorageDataPage* StorageDataPageCache::Acquire(uint64_t chunkID, uint32_t index)
     }
 
     // data page is not preloaded
-    if (freeList.GetLength() > 0 && cacheSize >= (maxCacheSize + largestSeen * 2))
+    if (freeList.GetLength() > 0 && maxUsedSize >= maxCacheSize)
     {
         Log_Debug("Acquire: Returning a data page from the free list");
 
@@ -148,7 +148,8 @@ StorageDataPage* StorageDataPageCache::Acquire(uint64_t chunkID, uint32_t index)
             maxUsedSize = cacheSize;
         ASSERT(node->numAcquired == 0);
         ASSERT(node->dataPage->cacheNode == node);
-        numCacheMissPoolMiss++;
+        if (maxUsedSize >= maxCacheSize)
+            numCacheMissPoolMiss++;
     }
 
     node->numAcquired++;
