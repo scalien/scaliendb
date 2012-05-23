@@ -223,6 +223,8 @@ void StorageDataPageCache::Release(StorageDataPage* dataPage)
 
 void StorageDataPageCache::UpdateDataPageSize(uint32_t oldSize, StorageDataPage* dataPage)
 {
+    MutexGuard mutexGuard(dataPageCacheMutex);
+
     cacheSize -= oldSize;
     ASSERT(cacheSize >= 0);
     cacheSize += dataPage->GetMemorySize();
@@ -707,7 +709,7 @@ void StorageDataPage::AppendKeyValue(StorageFileKeyValue& kv)
     storageFileKeyValueBuffer.Append((const char*) &kv, sizeof(StorageFileKeyValue));
 }
 
-static size_t Hash(StorageDataPageCacheKey key)
+static size_t Hash(StorageDataPageCacheKey& key)
 {
     uint64_t hash;
     

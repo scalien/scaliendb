@@ -59,14 +59,14 @@ template<class T, class K>
 T* InHashMap<T, K>::Get(K& key)
 {
     size_t  hash;
-    T*      node;
+    T*      it;
     
     hash = GetHash(key);
     InList<T>& bucket = buckets[hash];
-    for (node = bucket.First(); node != NULL; node = node->next)
+    FOREACH(it, bucket)
     {
-        if (node->key == key)
-            return node;
+        if (it->key == key)
+            return it;
     }
     
     return NULL;
@@ -80,7 +80,8 @@ void InHashMap<T, K>::Set(T* node)
     
     hash = GetHash(node->key);
     InList<T>& bucket = buckets[hash];
-    for (it = bucket.First(); it != NULL; it = it->next)
+
+    FOREACH(it, bucket)
     {
         if (it == node)
             ASSERT_FAIL();
@@ -102,6 +103,8 @@ void InHashMap<T, K>::Remove(T* node)
     
     hash = GetHash(node->key);
     InList<T>& bucket = buckets[hash];
+    
+    FOREACH(it, bucket)
     for (it = bucket.First(); it != NULL; it = it->next)
     {
         if (it->key == node->key)
