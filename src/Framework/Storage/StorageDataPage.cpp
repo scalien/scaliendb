@@ -6,14 +6,14 @@
 #define STORAGE_DATAPAGE_HEADER_SIZE        16
 
 static Mutex dataPageCacheMutex;
-InHashMap<StorageDataPageCacheNode, StorageDataPageCacheKey> hashMap(16*1000);
-InList<StorageDataPage> freeList;int64_t cacheSize = 0;
-int64_t maxCacheSize = 0;
-int64_t maxUsedSize = 0;
-uint32_t largestSeen = 0;
-uint64_t numCacheHit = 0;
-uint64_t numCacheMissPoolHit = 0;
-uint64_t numCacheMissPoolMiss = 0;
+static InHashMap<StorageDataPageCacheNode, StorageDataPageCacheKey> hashMap(16*1000);
+static InList<StorageDataPage> freeList;int64_t cacheSize = 0;
+static int64_t maxCacheSize = 0;
+static int64_t maxUsedSize = 0;
+static uint32_t largestSeen = 0;
+static uint64_t numCacheHit = 0;
+static uint64_t numCacheMissPoolHit = 0;
+static uint64_t numCacheMissPoolMiss = 0;
 
 StorageDataPageCacheNode::StorageDataPageCacheNode(StorageDataPage* dataPage_)
 {
@@ -85,10 +85,11 @@ StorageDataPage* StorageDataPageCache::Acquire(uint64_t chunkID, uint32_t index)
     CacheNode*  node;
     DataPage*   dataPage;
 
+    MutexGuard mutexGuard(dataPageCacheMutex);
+
     Log_Debug("Acquire: cacheSize: %s", HUMAN_BYTES(cacheSize));
 
     ASSERT(maxCacheSize > 0);
-    MutexGuard mutexGuard(dataPageCacheMutex);
 
     key.chunkID = chunkID;
     key.index = index;
@@ -158,13 +159,14 @@ void StorageDataPageCache::Release(StorageDataPage* dataPage)
 {
     CacheNode*  node;
 
+    MutexGuard mutexGuard(dataPageCacheMutex);
+
     Log_Debug("Release: cacheSize: %s", HUMAN_BYTES(cacheSize));
+
+    ASSERT(maxCacheSize > 0);
 
     if (dataPage->GetMemorySize() > largestSeen)
         largestSeen = dataPage->GetMemorySize();
-
-    ASSERT(maxCacheSize > 0);
-    MutexGuard mutexGuard(dataPageCacheMutex);
 
     ASSERT(dataPage->cacheNode != NULL);
     node = dataPage->cacheNode;
