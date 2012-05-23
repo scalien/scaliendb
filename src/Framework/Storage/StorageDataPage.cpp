@@ -6,11 +6,14 @@
 #define STORAGE_DATAPAGE_HEADER_SIZE        16
 
 static Mutex dataPageCacheMutex;
-InHashMap<StorageDataPageCacheNode, StorageDataPageCacheKey> hashMap;
+InHashMap<StorageDataPageCacheNode, StorageDataPageCacheKey> hashMap(16*1000);
 InList<StorageDataPage> freeList;int64_t cacheSize = 0;
 int64_t maxCacheSize = 0;
 int64_t maxUsedSize = 0;
 uint32_t largestSeen = 0;
+uint64_t numCacheHit = 0;
+uint64_t numCacheMissPoolHit = 0;
+uint64_t numCacheMissPoolMiss = 0;
 
 StorageDataPageCacheNode::StorageDataPageCacheNode(StorageDataPage* dataPage_)
 {
@@ -51,6 +54,21 @@ uint32_t StorageDataPageCache::GetLargestSeen()
 unsigned StorageDataPageCache::GetFreeListLength()
 {
     return freeList.GetLength();
+}
+
+uint64_t StorageDataPageCache::GetNumCacheHit()
+{
+    return numCacheHit;
+}
+
+uint64_t StorageDataPageCache::GetNumCacheMissPoolHit()
+{
+    return numCacheMissPoolHit;
+}
+
+uint64_t StorageDataPageCache::GetNumCacheMissPoolMiss()
+{
+    return numCacheMissPoolMiss;
 }
 
 void StorageDataPageCache::Shutdown()
@@ -95,6 +113,7 @@ StorageDataPage* StorageDataPageCache::Acquire(uint64_t chunkID, uint32_t index)
             ASSERT(!IN_LIST(node->dataPage));
         }
         node->numAcquired++;
+        numCacheHit++;
         return node->dataPage;
     }
 
@@ -116,6 +135,7 @@ StorageDataPage* StorageDataPageCache::Acquire(uint64_t chunkID, uint32_t index)
         // if in hashmap then remove, since we are changing the index values
         if (IN_HASHMAP(node))
             hashMap.Remove(node);
+        numCacheMissPoolHit++;
     }
     else
     {
@@ -127,6 +147,7 @@ StorageDataPage* StorageDataPageCache::Acquire(uint64_t chunkID, uint32_t index)
             maxUsedSize = cacheSize;
         ASSERT(node->numAcquired == 0);
         ASSERT(node->dataPage->cacheNode == node);
+        numCacheMissPoolMiss++;
     }
 
     node->numAcquired++;
@@ -673,5 +694,5 @@ void StorageDataPage::AppendKeyValue(StorageFileKeyValue& kv)
 
 static size_t Hash(StorageDataPageCacheKey key)
 {
-    return key.chunkID * key.index;
+    return (key.chunkID + 13567) * key.index;
 }
