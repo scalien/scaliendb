@@ -26,6 +26,7 @@ class StorageDataPageCacheKey
 public:
     uint64_t                    chunkID;
     uint32_t                    index;
+    
     bool operator==(StorageDataPageCacheKey& other)
     {
         return (chunkID == other.chunkID && index == other.index);
