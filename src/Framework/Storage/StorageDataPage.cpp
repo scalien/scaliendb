@@ -697,5 +697,11 @@ void StorageDataPage::AppendKeyValue(StorageFileKeyValue& kv)
 
 static size_t Hash(StorageDataPageCacheKey key)
 {
-    return (key.chunkID + 13567) * key.index;
+    uint64_t hash;
+    
+    hash = 23;
+    hash = hash * 31 + key.chunkID;
+    hash = hash * 31 + key.index;
+
+    return hash;
 }

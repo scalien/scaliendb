@@ -32,6 +32,7 @@ private:
     InList<T>*              buckets;
     size_t                  bucketSize;
     size_t                  num;
+    size_t                  longestBucketSeen;
 };
 
 /*
@@ -45,6 +46,7 @@ InHashMap<T, K>::InHashMap(int bucketSize_)
     bucketSize = bucketSize_;
     buckets = new InList<T>[bucketSize];
     memset(buckets, 0, bucketSize * sizeof(InList<T>));
+    longestBucketSeen = 0;
 }
 
 template<class T, class K>
@@ -71,6 +73,7 @@ void InHashMap<T, K>::Clear()
         }
     }
     num = 0;
+    longestBucketSeen = 0;
 }
 
 template<class T, class K>
@@ -108,6 +111,8 @@ void InHashMap<T, K>::Set(T* node)
 
     bucket.Append(node);
     num++;
+    if (bucket.GetLength() > longestBucketSeen)
+        longestBucketSeen = bucket.GetLength();
 }
 
 template<class T, class K>
