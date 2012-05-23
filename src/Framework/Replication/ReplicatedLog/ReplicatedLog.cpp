@@ -462,6 +462,7 @@ void ReplicatedLog::ProcessLearnChosen(uint64_t nodeID, uint64_t runID)
     if (context->GetHighestPaxosID() > 0 && paxosID < (context->GetHighestPaxosID() - 1))
         context->GetDatabase()->Commit();
     
+    waitingOnAppend = true;
     ownAppend = proposer.state.multi;
     if (nodeID == MY_NODEID && runID == REPLICATION_CONFIG->GetRunID() && context->IsLeaseOwner())
     {
@@ -481,11 +482,8 @@ void ReplicatedLog::ProcessLearnChosen(uint64_t nodeID, uint64_t runID)
     if (BUFCMP(&learnedValue, &dummy))
         OnAppendComplete();
     else
-    {
-        waitingOnAppend = true;
         context->OnAppend(paxosID, learnedValue, ownAppend);
         // QuorumContext::OnAppend() must call ReplicatedLog::OnAppendComplete()
-    }
 }
 
 void ReplicatedLog::OnRequest(PaxosMessage& imsg)
