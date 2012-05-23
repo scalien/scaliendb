@@ -36,7 +36,7 @@ public:
     StorageAsyncListResult(StorageAsyncList* asyncList);
     
     void                OnComplete();
-    void                Append(StorageFileKeyValue* kv, bool countOnly);
+    void                Append(StorageFileKeyValue* kv);
     uint32_t            GetSize();
 };
 
