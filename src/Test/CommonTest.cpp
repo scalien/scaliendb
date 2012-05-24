@@ -1,5 +1,6 @@
 #include "Test.h"
 #include "System/Common.h"
+#include "System/Time.h"
 
 #include <limits.h>
 
@@ -158,3 +159,16 @@ TEST_DEFINE(TestCommonInlinePrintf)
 
     return TEST_SUCCESS;
 }
+
+TEST_DEFINE(TestCommonGetTotalCpuUsage)
+{
+    uint32_t    cpuUsage;
+
+    while (true)
+    {
+        cpuUsage = GetTotalCpuUsage();
+        TEST_LOG("CPU: %u", cpuUsage);
+        MSleep(1000);
+    }
+}
+

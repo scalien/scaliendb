@@ -275,6 +275,9 @@ static void ConfigureSystemSettings()
     // set exit on error: this is how ASSERTs are handled in release build
     SetExitOnError(true);
 
+    // this must be called here, because the first value it returns might be unreliable
+    GetTotalCpuUsage();
+
     SeedRandom();
 }
 

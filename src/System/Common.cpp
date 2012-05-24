@@ -14,6 +14,8 @@
 #include <windows.h>
 #include <psapi.h>
 #include <dbghelp.h>
+#include <pdh.h>
+#include <pdhmsg.h>
 #endif
 #ifdef PLATFORM_DARWIN
 #include <mach/mach.h>
@@ -698,6 +700,71 @@ uint64_t GetProcessMemoryUsage()
 #else
     return 0;
 #endif
+#endif
+}
+
+#ifdef _WIN32
+static volatile long cpuUsage = -1;
+
+static DWORD WINAPI PerformancePollThread(LPVOID)
+{
+    PDH_HQUERY              hquery;
+    PDH_HCOUNTER            hcountercpu;
+    PDH_STATUS              status;
+    PDH_FMT_COUNTERVALUE    counterValue;
+    LPCTSTR                 counterPath = "\\Processor(_Total)\\% Processor Time";
+
+Begin:
+    status = PdhOpenQuery(NULL, 0, &hquery);
+    if (status != ERROR_SUCCESS)
+        goto Error;
+
+    status = PdhAddCounter(hquery, counterPath, 0, &hcountercpu);
+    if (status != ERROR_SUCCESS)
+        goto Error;
+
+    status = PdhCollectQueryData(hquery);
+    if (status != ERROR_SUCCESS)
+        goto Error;
+
+    while (true)
+    {
+        MSleep(1000);
+
+        // http://msdn.microsoft.com/en-us/library/windows/desktop/aa372637%28v=vs.85%29.aspx
+        // Some counters, such as rate counters, require two counter values in order to compute a displayable value. 
+        // In this case you must call PdhCollectQueryData twice before calling PdhGetFormattedCounterValue.
+        status = PdhCollectQueryData(hquery);
+        if (status != ERROR_SUCCESS)
+            goto Error;
+
+        status = PdhGetFormattedCounterValue(hcountercpu, PDH_FMT_LONG | PDH_FMT_NOCAP100, 0, &counterValue);
+        if (status != ERROR_SUCCESS)
+            goto Error;
+
+        cpuUsage = counterValue.longValue;
+    }
+
+    return 0;
+
+Error:
+    MSleep(1000);
+    goto Begin;
+}
+
+#endif
+
+uint32_t GetTotalCpuUsage()
+{
+#ifdef _WIN32
+    if (cpuUsage == -1)
+    {
+        CreateThread(NULL, 0, PerformancePollThread, NULL, STACK_SIZE_PARAM_IS_A_RESERVATION, NULL);
+        cpuUsage = 0;
+    }
+    return cpuUsage;
+#else
+    return 0;
 #endif
 }
 

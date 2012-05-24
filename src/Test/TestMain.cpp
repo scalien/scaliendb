@@ -41,6 +41,7 @@ TEST_ADD(TestCrashReporterStackOverflow);
 TEST_ADD(TestCrashReporterNullPointerMemberFunction);
 TEST_ADD(TestCrashReporterDivisionByZero);
 TEST_ADD(TestCrashReporterDoubleFree);
+TEST_ADD(TestCommonGetTotalCpuUsage);
 TEST_ADD(TestCommonHumanBytes);
 TEST_ADD(TestCommonRandomDistribution);
 TEST_ADD(TestCommonUInt64ToBufferWithBase);
