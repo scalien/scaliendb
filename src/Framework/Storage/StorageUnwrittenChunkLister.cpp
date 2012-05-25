@@ -6,8 +6,8 @@ StorageUnwrittenChunkLister::StorageUnwrittenChunkLister() : dataPage(NULL, 0)
 }
 
 // copy key-values from file chunk to a temporary data page, that will be used for listing
-void StorageUnwrittenChunkLister::Init(StorageFileChunk& fileChunk, ReadBuffer& firstKey,
- unsigned count, bool forwardDirection_)
+void StorageUnwrittenChunkLister::Init(StorageFileChunk& fileChunk, ReadBuffer& firstKey, 
+ ReadBuffer& prefix, unsigned count, bool forwardDirection_)
 {
     StorageFileKeyValue*    kv;
     int                     cmpres;
@@ -60,6 +60,9 @@ void StorageUnwrittenChunkLister::Init(StorageFileChunk& fileChunk, ReadBuffer& 
 
     while (kv != NULL)
     {
+        if (prefix.GetLength() > 0 && !kv->GetKey().BeginsWith(prefix))
+            break;
+
         dataPage.Append(kv);
         if (kv->GetType() == STORAGE_KEYVALUE_TYPE_SET)
         {

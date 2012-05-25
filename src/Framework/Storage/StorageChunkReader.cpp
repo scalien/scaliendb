@@ -129,7 +129,10 @@ StorageFileKeyValue* StorageChunkReader::First(ReadBuffer& firstKey)
 
     if (!forwardDirection && firstKey.GetLength() == 0)
     {
-        return fileChunk.dataPages[index]->Last();
+        it = fileChunk.dataPages[index]->Last();
+        if (it != NULL && prefix.GetLength() > 0 && !it->GetKey().BeginsWith(prefix))
+            it = NULL;
+        return it;
     }
 
     it = fileChunk.dataPages[index]->LocateKeyValue(firstKey, cmpres);
@@ -143,8 +146,8 @@ StorageFileKeyValue* StorageChunkReader::First(ReadBuffer& firstKey)
 
         // TODO: FIXME: this is an optimization that only works when iterating forwards
         // TODO: make it work for reverse iteration too
-        //if (it != NULL && forwardDirection && prefix.GetLength() > 0 && !it->GetKey().BeginsWith(prefix))
-        //    it = NULL;
+        if (it != NULL && prefix.GetLength() > 0 && !it->GetKey().BeginsWith(prefix))
+            it = NULL;
     }
 
     return it;
@@ -188,7 +191,11 @@ StorageFileKeyValue* StorageChunkReader::Next(StorageFileKeyValue* it)
     {
         next = fileChunk.dataPages[index]->Prev(it);
         if (next != NULL)
+        {
+            if (prefix.GetLength() > 0 && !next->GetKey().BeginsWith(prefix))
+                next = NULL;
             return next;
+        }
         if (index < prevIndex && fileChunk.dataPages[prevIndex] != NULL)
         {
             // backward iteration happens only in list, never in merge
@@ -201,7 +208,10 @@ StorageFileKeyValue* StorageChunkReader::Next(StorageFileKeyValue* it)
         index--;
         if (index < preloadIndex)
             PreloadDataPages();
-        return fileChunk.dataPages[index]->Last();
+        next = fileChunk.dataPages[index]->Last();
+        if (prefix.GetLength() > 0 && !next->GetKey().BeginsWith(prefix))
+            next = NULL;
+        return next;
     }
 }
 

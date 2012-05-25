@@ -117,7 +117,7 @@ void StorageAsyncBulkCursor::OnNextChunk()
     else if ((*itChunk)->GetChunkState() == StorageChunk::Unwritten)
     {
         fileChunk = (StorageFileChunk*) (*itChunk);
-        unwrittenLister.Init(*fileChunk, startKey, 0, true);
+        unwrittenLister.Init(*fileChunk, startKey, prefix, 0, true);
         result = new StorageAsyncBulkResult(this);
         result->dataPage = *unwrittenLister.GetDataPage();
         result->onComplete = onComplete;

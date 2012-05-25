@@ -18,7 +18,7 @@ public:
     StorageUnwrittenChunkLister();
     
     void                    Init(StorageFileChunk& fileChunk, ReadBuffer& startKey, 
-                             unsigned count, bool forwardDirection);
+                             ReadBuffer& prefix, unsigned count, bool forwardDirection);
 
     void                    SetDirection(bool forwardDirection);
     StorageFileKeyValue*    First(ReadBuffer& firstKey);

@@ -122,7 +122,7 @@ void StorageAsyncList::ExecuteAsyncList()
             else if (chunkState == StorageChunk::Unwritten)
             {
                 unwrittenLister = new StorageUnwrittenChunkLister;
-                unwrittenLister->Init(*((StorageFileChunk*) *itChunk), startKey, count, forwardDirection);
+                unwrittenLister->Init(*((StorageFileChunk*) *itChunk), startKey, prefix, count, forwardDirection);
                 listers[numListers] = unwrittenLister;
                 numListers++;
             }
@@ -330,14 +330,19 @@ int StorageAsyncList::CompareSmallestKey(const ReadBuffer& key, const ReadBuffer
         if (smallestKey.GetLength() == 0)
             cmpres = -1;
         else
-            cmpres = ReadBuffer::Cmp(key, smallestKey);        
+            cmpres = ReadBuffer::CmpWithOffset(key, smallestKey, prefix.GetLength());
     }
     else
     {
         if (key.GetLength() == 0)
             cmpres = -1;
         else
-            cmpres = ReadBuffer::Cmp(smallestKey, key);
+        {
+            if (smallestKey.GetLength() == 0)
+                cmpres = 0;
+            else
+                cmpres = ReadBuffer::CmpWithOffset(smallestKey, key, prefix.GetLength());
+        }
     }
     
     return cmpres;
