@@ -319,6 +319,7 @@ void ShardHTTPClientSession::PrintStatistics()
     databaseManager = shardServer->GetDatabaseManager();
     buffer.Append("  Category: ShardServer\n");
     buffer.Appendf("uptime: %U sec\n", (Now() - shardServer->GetStartTimestamp()) / 1000);
+    buffer.Appendf("totalCpuUsage: %u%%\n", GetTotalCpuUsage());
     buffer.Appendf("pendingReadRequests: %u\n", databaseManager->GetNumReadRequests());
     buffer.Appendf("pendingBlockingReadRequests: %u\n", databaseManager->GetNumBlockingReadRequests());
     buffer.Appendf("pendingListRequests: %u\n", databaseManager->GetNumListRequests());
