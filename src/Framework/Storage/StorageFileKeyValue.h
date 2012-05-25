@@ -18,17 +18,19 @@ class StorageFileKeyValue : public StorageKeyValue
 public:
     StorageFileKeyValue();
 
-    void            Set(ReadBuffer key, ReadBuffer value);
-    void            Delete(ReadBuffer key);
+    void                Set(ReadBuffer key, ReadBuffer value);
+    void                Delete(ReadBuffer key);
     
-    char            GetType();
-    ReadBuffer      GetKey() const;
-    ReadBuffer      GetValue() const;
+    char                GetType();
+    ReadBuffer          GetKey() const;
+    ReadBuffer          GetValue() const;
+
+    const ReadBuffer&   GetKeyReference() const;
 
 private:
-    char            type;
-    ReadBuffer      key;
-    ReadBuffer      value;
+    char                type;
+    ReadBuffer          key;
+    ReadBuffer          value;
 };
 
 #endif

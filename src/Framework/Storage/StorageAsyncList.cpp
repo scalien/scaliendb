@@ -176,6 +176,9 @@ void StorageAsyncList::AsyncLoadChunks()
     {
         Log_Debug("List[%U] Setting iterator to firstKey %R", requestID, &startKey);
         iterators[i] = listers[i]->First(startKey);
+
+        if (iterators[i] != NULL && !IsKeyInShard(iterators[i]->GetKeyReference()))
+            iterators[i] = NULL;
     }
     
     stage = MERGE;
@@ -206,12 +209,12 @@ void StorageAsyncList::AsyncMergeResult()
         
         if (forwardDirection)
         {
-            if (endKey.GetLength() != 0 && STORAGE_KEY_GREATER_THAN(it->GetKey(), endKey))
+            if (endKey.GetLength() != 0 && STORAGE_KEY_GREATER_THAN(it->GetKeyReference(), endKey))
                 break;
         }
         else
         {
-            if (endKey.GetLength() != 0 && STORAGE_KEY_GREATER_THAN(endKey, it->GetKey()))
+            if (endKey.GetLength() != 0 && STORAGE_KEY_GREATER_THAN(endKey, it->GetKeyReference()))
                 break;
         }
 
@@ -255,9 +258,9 @@ void StorageAsyncList::OnResult(StorageAsyncListResult* result)
 
     // check that keys are still in the merged interval
     redoDataPage = false;
-    if (result->dataPage.First() && !IsKeyInShard(result->dataPage.First()->GetKey()))
+    if (result->dataPage.First() && !IsKeyInShard(result->dataPage.First()->GetKeyReference()))
         redoDataPage = true;
-    if (result->dataPage.Last() && !IsKeyInShard(result->dataPage.Last()->GetKey()))
+    if (result->dataPage.Last() && !IsKeyInShard(result->dataPage.Last()->GetKeyReference()))
         redoDataPage = true;
 
     if (redoDataPage)
@@ -265,7 +268,7 @@ void StorageAsyncList::OnResult(StorageAsyncListResult* result)
         newResult = new StorageAsyncListResult(this);
         FOREACH(fkv, result->dataPage)
         {
-            if (IsKeyInShard(fkv->GetKey()))
+            if (IsKeyInShard(fkv->GetKeyReference()))
                 newResult->Append(fkv);
         }
         newResult->dataPage.Finalize();
@@ -352,12 +355,13 @@ StorageFileKeyValue* StorageAsyncList::GetSmallest()
     smallestIndex = 0;  // making the compiler happy by initializing
     smallestKv = NULL;
     // readers are sorted by relevance, first is the oldest, last is the latest
+        
     for (i = 0; i < numListers; i++)
     {
         if (iterators[i] == NULL)
             continue;
 
-        cmpres = CompareSmallestKey(iterators[i]->GetKey(), smallestKey);
+        cmpres = CompareSmallestKey(iterators[i]->GetKeyReference(), smallestKey);
         if (cmpres <= 0)
         {
             // advance the previously smallest if it is equal to the current
@@ -366,7 +370,7 @@ StorageFileKeyValue* StorageAsyncList::GetSmallest()
                 ADVANCE_ITERATOR(smallestIndex);
             smallestKv = iterators[i];
             smallestIndex = i;
-            smallestKey = smallestKv->GetKey();
+            smallestKey = smallestKv->GetKeyReference();
         }
     }
 

@@ -31,6 +31,12 @@ ReadBuffer StorageFileKeyValue::GetKey() const
     return key;
 }
 
+const ReadBuffer& StorageFileKeyValue::GetKeyReference() const
+{
+    return key;
+}
+
+
 ReadBuffer StorageFileKeyValue::GetValue() const
 {
     return value;

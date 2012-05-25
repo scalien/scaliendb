@@ -273,6 +273,10 @@ namespace ScalienClientUnitTesting
             // Submit, no proxied values left
             client.Submit();
 
+            client.SetConsistencyMode(Client.CONSISTENCY_STRICT);
+            ListTests(tbl, num);
+
+            client.SetConsistencyMode(Client.CONSISTENCY_RYW);
             ListTests(tbl, num);
         }
 

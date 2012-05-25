@@ -80,7 +80,7 @@ unsigned ReadBuffer::GetLength() const
     return length;
 }
 
-char ReadBuffer::GetCharAt(unsigned i)
+char ReadBuffer::GetCharAt(unsigned i) const
 {
     if (i > length - 1)
         ASSERT_FAIL();
