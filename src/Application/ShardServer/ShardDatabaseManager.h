@@ -149,6 +149,7 @@ private:
     void                    OnYieldStorageThreadsTimer();
     void                    OnExecuteReads();
     void                    OnExecuteLists();
+    bool                    IsEmptyListRange(ClientRequest* request);
 
     ShardServer*            shardServer;
     StorageEnvironment      environment;

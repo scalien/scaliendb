@@ -986,6 +986,25 @@ void ShardDatabaseManager::OnExecuteLists()
             continue;
         }
 
+        if (IsEmptyListRange(request))
+        {
+            request->response.OK();
+            request->OnComplete();
+            continue;
+        }
+
+        if (request->key.GetLength() > 0 && request->prefix.GetLength() > 0)
+        {
+            if (!request->key.BeginsWith(request->prefix))
+                request->key.Clear();
+        }
+
+        if (request->endKey.GetLength() > 0 && request->prefix.GetLength() > 0)
+        {
+            if (!request->endKey.BeginsWith(request->prefix))
+                request->endKey.Clear();
+        }
+
         // set if prefix is set it is assumed that startKey and endKey is prefixed
         prefix = request->prefix;
         if (request->key.GetLength() == 0 && request->prefix.GetLength() > 0)
@@ -1069,4 +1088,58 @@ void ShardDatabaseManager::OnExecuteLists()
         if (inactiveAsyncLists.GetLength() == 0)
             return;
     }
+}
+
+bool ShardDatabaseManager::IsEmptyListRange(ClientRequest* request)
+{
+    int cmp;
+
+    if (request->forwardDirection)
+    {
+        if (request->key.GetLength() > 0 && request->endKey.GetLength() > 0)
+        {
+            cmp = ReadBuffer::Cmp(request->key, request->endKey);
+            if (cmp > 0)
+                return true;
+        }
+
+        if (request->key.GetLength() > 0 && !request->key.BeginsWith(request->prefix))
+        {
+            cmp = ReadBuffer::Cmp(request->key, request->prefix);
+            if (cmp > 0)
+                return true;
+        }
+
+        if (request->prefix.GetLength() > 0 && request->endKey.GetLength() > 0)
+        {
+            cmp = ReadBuffer::Cmp(request->prefix, request->endKey);
+            if (cmp > 0)
+                return true;
+        }
+    }
+    else
+    {
+        if (request->key.GetLength() > 0 && request->endKey.GetLength() > 0)
+        {
+            cmp = ReadBuffer::Cmp(request->key, request->endKey);
+            if (cmp < 0)
+                return true;
+        }
+
+        if (request->key.GetLength() > 0 && request->prefix.GetLength() > 0)
+        {
+            cmp = ReadBuffer::Cmp(request->key, request->prefix);
+            if (cmp < 0)
+                return true;
+        }
+
+        if (request->endKey.GetLength() > 0 && !request->endKey.BeginsWith(request->prefix))
+        {
+            cmp = ReadBuffer::Cmp(request->prefix, request->endKey);
+            if (cmp < 0)
+                return true;
+        }
+    }
+
+    return false;
 }

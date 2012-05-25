@@ -147,7 +147,12 @@ StorageFileKeyValue* StorageChunkReader::First(ReadBuffer& firstKey)
         // TODO: FIXME: this is an optimization that only works when iterating forwards
         // TODO: make it work for reverse iteration too
         if (it != NULL && prefix.GetLength() > 0 && !it->GetKey().BeginsWith(prefix))
-            it = NULL;
+        {
+            if (forwardDirection)
+                it = NULL;
+            else
+                it = Next(it);
+        }
     }
 
     return it;
