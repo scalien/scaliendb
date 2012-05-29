@@ -73,8 +73,9 @@ public:
 
     static void             Sync(FD fd);
 
-    void                    SetYieldThreads(bool yieldThreads);
     void                    SetMergeEnabled(bool mergeEnabled);
+    void                    SetMergeCpuThreshold(uint32_t mergeCpuThreshold);
+    uint32_t                GetMergeCpuThreshold();
     void                    SetDeleteEnabled(bool deleteEnabled);
 
     uint64_t                GetShardID(uint16_t contextID, uint64_t tableID, ReadBuffer& key);
@@ -114,7 +115,10 @@ public:
     bool                    PushMemoChunk(uint16_t contextID, uint64_t shardID);
 
     bool                    IsShuttingDown();
-    
+    bool                    IsMergeEnabled();
+    bool                    IsMergeStarted();
+    bool                    IsMergeRunning();
+
     void                    PrintState(uint16_t contextID, Buffer& buffer);
     uint64_t                GetShardMemoryUsage();
     uint64_t                GetLogSegmentMemoryUsage();
@@ -174,12 +178,12 @@ public:
     Buffer                  archivePath;
 
     uint64_t                nextChunkID;
+    int                     mergeEnabledCounter; // enabled if > 0
+    uint32_t                mergeCpuThreshold;   // only merge if CPU % is below this number
     unsigned                numCursors;
     const char*             archiveScript;
-    bool                    yieldThreads;
     bool                    shuttingDown;
     bool                    writingTOC;
-    bool                    mergeEnabled;
     bool                    dumpMemoChunks;
 };
 

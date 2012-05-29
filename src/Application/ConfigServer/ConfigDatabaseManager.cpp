@@ -28,6 +28,10 @@ void ConfigDatabaseManager::Init(bool restoreMode)
     envpath.Writef("%s", configFile.GetValue("database.dir", "db"));
     environment.Open(envpath, sc);
 
+    if (configFile.GetBoolValue("database.merge", true))
+        environment.SetMergeEnabled(true);
+    environment.SetMergeCpuThreshold(configFile.GetIntValue("database.mergeCpuThreshold", 100));
+
     environment.CreateShard(1, QUORUM_DATABASE_SYSTEM_CONTEXT, 1, 0, "", "", true, STORAGE_SHARD_TYPE_STANDARD);
     environment.CreateShard(1, QUORUM_DATABASE_QUORUM_PAXOS_CONTEXT, 1, 0, "", "", true, STORAGE_SHARD_TYPE_DUMP);
     environment.CreateShard(1, QUORUM_DATABASE_QUORUM_LOG_CONTEXT, 1, 0, "", "", true, STORAGE_SHARD_TYPE_LOG);

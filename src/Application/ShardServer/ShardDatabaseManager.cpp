@@ -328,8 +328,6 @@ bool ShardDatabaseAsyncList::IsActive()
 
 ShardDatabaseManager::ShardDatabaseManager()
 {
-    yieldStorageThreadsTimer.SetDelay(SHARD_DATABASE_YIELD_THREADS_TIMEOUT);
-    yieldStorageThreadsTimer.SetCallable(MFUNC(ShardDatabaseManager, OnYieldStorageThreadsTimer));
     executeReads.SetCallable(MFUNC(ShardDatabaseManager, OnExecuteReads));
     executeLists.SetCallable(MFUNC(ShardDatabaseManager, OnExecuteLists));
 }
@@ -355,10 +353,13 @@ void ShardDatabaseManager::Init(ShardServer* shardServer_)
     envPath.Writef("%s", configFile.GetValue("database.dir", "db"));
     environment.Open(envPath, sc);
 
+    if (configFile.GetBoolValue("database.merge", true))
+        environment.SetMergeEnabled(true);
+    environment.SetMergeCpuThreshold(configFile.GetIntValue("database.mergeCpuThreshold", 100));
+
+
     shardServer = shardServer_;
     
-    EventLoop::Add(&yieldStorageThreadsTimer);
-
     // TODO: replace 1 with symbolic name
 
     environment.CreateShard(/* trackID */0, QUORUM_DATABASE_SYSTEM_CONTEXT, 1, 
@@ -516,8 +517,6 @@ void ShardDatabaseManager::OnClientReadRequest(ClientRequest* request)
 {
     readRequests.Append(request);
 
-    environment.SetYieldThreads(true);
-
     if (!executeReads.IsActive())
         EventLoop::Add(&executeReads);
 }
@@ -525,8 +524,6 @@ void ShardDatabaseManager::OnClientReadRequest(ClientRequest* request)
 void ShardDatabaseManager::OnClientListRequest(ClientRequest* request)
 {
     listRequests.Append(request);
-
-    environment.SetYieldThreads(true);
 
     if (!executeLists.IsActive())
         EventLoop::Add(&executeLists);
@@ -841,17 +838,6 @@ void ShardDatabaseManager::DeleteDataShards(uint64_t quorumID)
     
     FOREACH (itShardID, configQuorum->shards)
         environment.DeleteShard(QUORUM_DATABASE_DATA_CONTEXT, *itShardID);
-}
-
-void ShardDatabaseManager::OnYieldStorageThreadsTimer()
-{
-    Log_Trace("readRequests: %u", readRequests.GetLength());
-    if (readRequests.GetLength() > SHARD_DATABASE_YIELD_LIST_LENGTH)
-        environment.SetYieldThreads(true);
-    else
-        environment.SetYieldThreads(false);
-    
-    EventLoop::Add(&yieldStorageThreadsTimer);
 }
 
 void ShardDatabaseManager::OnExecuteReads()

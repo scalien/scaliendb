@@ -12,9 +12,6 @@
 #include "Application/Common/ClientRequest.h"
 #include "ShardMessage.h"
 
-#define SHARD_DATABASE_YIELD_LIST_LENGTH        1000
-#define SHARD_DATABASE_YIELD_THREADS_TIMEOUT    1000
-
 class ShardServer;              // forward
 class ShardDatabaseManager;     // forward
 
@@ -146,7 +143,6 @@ private:
     void                    DeleteQuorumLogShard(uint64_t quorumID);
     void                    DeleteDataShards(uint64_t quorumID);
 
-    void                    OnYieldStorageThreadsTimer();
     void                    OnExecuteReads();
     void                    OnExecuteLists();
     bool                    IsEmptyListRange(ClientRequest* request);
@@ -156,14 +152,12 @@ private:
     StorageShardProxy       systemShard;
     ShardMap                quorumPaxosShards;
     ShardMap                quorumLogShards;
-    Countdown               yieldStorageThreadsTimer;
     ClientRequestList       readRequests;
     ClientRequestList       blockingReadRequests;
     ClientRequestList       listRequests;
     YieldTimer              executeReads;
     ShardDatabaseAsyncGet   asyncGet;
     YieldTimer              executeLists;
-    //ShardDatabaseAsyncList  asyncList;
     ShardDatabaseAsyncListList inactiveAsyncLists;
     Sequences               sequences;
     uint64_t                nextRequestID;

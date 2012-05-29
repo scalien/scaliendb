@@ -24,8 +24,6 @@ void ShardServerApp::Init()
 
     // start shardServer only after network servers are started
     shardServer.Init(this, restoreMode);
-    shardServer.GetDatabaseManager()->GetEnvironment()->SetMergeEnabled(
-     configFile.GetBoolValue("database.merge", true));
 
     Log_Message("Web admin interface started on port %d", httpPort);
     Log_Message("Waiting for connections on port %d", sdbpPort);

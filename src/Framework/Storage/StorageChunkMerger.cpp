@@ -236,20 +236,19 @@ bool StorageChunkMerger::WriteDataPages(ReadBuffer /*firstKey*/, ReadBuffer last
 
     while(!IsDone())
     {
-        if (env->shuttingDown || mergeChunk->deleted || !env->mergeEnabled)
+        if (env->shuttingDown || mergeChunk->deleted || !env->IsMergeEnabled())
         {
             Log_Debug("Aborting merge, chunkID: %U", mergeChunk->GetChunkID());
             mergeChunk->writeError = false;
             return false;
         }
         
-        // TODO: HACK
-        while (env->yieldThreads || env->asyncGetThread->GetNumPending() > 0)
+        while (!env->IsMergeRunning())
         {
             Log_Trace("Yielding...");
             MSleep(1);
 
-            if (env->shuttingDown || mergeChunk->deleted || !env->mergeEnabled)
+            if (env->shuttingDown || mergeChunk->deleted || !env->IsMergeEnabled())
             {
                 Log_Debug("Aborting merge, chunkID: %U", mergeChunk->GetChunkID());
                 mergeChunk->writeError = false;

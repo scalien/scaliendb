@@ -75,11 +75,11 @@ StorageEnvironment::StorageEnvironment()
     backgroundTimer.SetCallable(onBackgroundTimer);
     
     nextChunkID = 1;
-    yieldThreads = false;
     shuttingDown = false;
     writingTOC = false;
     numCursors = 0;
-    mergeEnabled = true;
+    mergeEnabledCounter = 0; // disabled
+    mergeCpuThreshold = 100; // no limitation
     dumpMemoChunks = false;
 }
 
@@ -219,14 +219,22 @@ void StorageEnvironment::Sync(FD fd)
 #endif
 }
 
-void StorageEnvironment::SetYieldThreads(bool yieldThreads_)
+void StorageEnvironment::SetMergeEnabled(bool mergeEnabled)
 {
-    yieldThreads = yieldThreads_;
+    if (mergeEnabled)
+        mergeEnabledCounter++;
+    else
+        mergeEnabledCounter--;
 }
 
-void StorageEnvironment::SetMergeEnabled(bool mergeEnabled_)
+void StorageEnvironment::SetMergeCpuThreshold(uint32_t mergeCpuThreshold_)
 {
-    mergeEnabled = mergeEnabled_;
+    mergeCpuThreshold = mergeCpuThreshold_;
+}
+
+uint32_t StorageEnvironment::GetMergeCpuThreshold()
+{
+    return mergeCpuThreshold;
 }
 
 void StorageEnvironment::SetDeleteEnabled(bool deleteEnabled_)
@@ -686,6 +694,34 @@ bool StorageEnvironment::PushMemoChunk(uint16_t contextID, uint64_t shardID)
 bool StorageEnvironment::IsShuttingDown()
 {
     return shuttingDown;
+}
+
+bool StorageEnvironment::IsMergeEnabled()
+{
+    if (mergeEnabledCounter > 0)
+        return true;
+    else
+        return false;
+}
+
+bool StorageEnvironment::IsMergeStarted()
+{
+    return mergeChunkJobs.IsActive();
+}
+
+bool StorageEnvironment::IsMergeRunning()
+{
+    if (mergeChunkJobs.IsActive())
+    {
+        if (GetTotalCpuUsage() > mergeCpuThreshold)
+            return false;
+        else
+            return true;
+    }
+    else
+    {
+        return false;
+    }
 }
 
 void StorageEnvironment::PrintState(uint16_t contextID, Buffer& buffer)
@@ -1234,7 +1270,7 @@ void StorageEnvironment::TryMergeChunks()
 
     Log_Trace();
 
-    if (!mergeEnabled || mergeChunkJobs.IsActive() || numCursors > 0)
+    if (!IsMergeEnabled() || mergeChunkJobs.IsActive() || numCursors > 0)
         return;
 
     smcShard = NULL;
