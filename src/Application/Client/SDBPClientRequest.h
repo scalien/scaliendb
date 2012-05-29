@@ -31,7 +31,6 @@ class Request : public ClientRequest
 public:
     typedef InTreeNode<Request>     TreeNode;
     typedef List<ClientResponse*>   ResponseList;
-    typedef ArrayList<uint64_t, 9>  ShardConnList;
 
     Request();
     ~Request();
@@ -45,7 +44,7 @@ public:
     unsigned        numTry;
     unsigned        numShardServers;
     ResponseList    responses;
-    ShardConnList   shardConns;
+    uint64_t        connNodeID;
     uint64_t        userCount;
     bool            skip;
     Client*         client;
