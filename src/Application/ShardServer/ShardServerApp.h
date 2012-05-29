@@ -18,7 +18,7 @@
 class ShardServerApp : public Application
 {
 public:
-    ShardServerApp(bool restoreMode);
+    ShardServerApp(bool restoreMode, bool setNodeID, uint64_t nodeID);
 
     // ========================================================================================
     // Application interface:
@@ -37,6 +37,8 @@ private:
 
     SDBPServer              sdbpServer;
     bool                    restoreMode;
+    bool                    setNodeID;
+    uint64_t                nodeID;
 };
 
 #endif

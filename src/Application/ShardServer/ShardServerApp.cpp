@@ -2,9 +2,11 @@
 #include "System/Config.h"
 #include "Application/Common/ContextTransport.h"
 
-ShardServerApp::ShardServerApp(bool restoreMode_)
+ShardServerApp::ShardServerApp(bool restoreMode_, bool setNodeID_, uint64_t nodeID_)
 {
     restoreMode = restoreMode_;
+    setNodeID = setNodeID_;
+    nodeID = nodeID_;
 }
 
 void ShardServerApp::Init()
@@ -23,7 +25,7 @@ void ShardServerApp::Init()
     sdbpServer.UseKeepAlive(true);
 
     // start shardServer only after network servers are started
-    shardServer.Init(this, restoreMode);
+    shardServer.Init(this, restoreMode, setNodeID, nodeID);
 
     Log_Message("Web admin interface started on port %d", httpPort);
     Log_Message("Waiting for connections on port %d", sdbpPort);
