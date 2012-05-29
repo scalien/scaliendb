@@ -38,6 +38,8 @@ class StorageArchiveLogSegmentJob;
 #define STORAGE_WRITE_GRANULARITY                   (64*KiB)
 #endif
 
+#define STORAGE_DEFAULT_MERGE_CPU_THRESHOLD         (50)
+
 struct ShardSize;
 
 /*

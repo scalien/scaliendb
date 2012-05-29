@@ -30,7 +30,7 @@ void ConfigDatabaseManager::Init(bool restoreMode)
 
     if (configFile.GetBoolValue("database.merge", true))
         environment.SetMergeEnabled(true);
-    environment.SetMergeCpuThreshold(configFile.GetIntValue("database.mergeCpuThreshold", 100));
+    environment.SetMergeCpuThreshold(configFile.GetIntValue("database.mergeCpuThreshold", STORAGE_DEFAULT_MERGE_CPU_THRESHOLD));
 
     environment.CreateShard(1, QUORUM_DATABASE_SYSTEM_CONTEXT, 1, 0, "", "", true, STORAGE_SHARD_TYPE_STANDARD);
     environment.CreateShard(1, QUORUM_DATABASE_QUORUM_PAXOS_CONTEXT, 1, 0, "", "", true, STORAGE_SHARD_TYPE_DUMP);

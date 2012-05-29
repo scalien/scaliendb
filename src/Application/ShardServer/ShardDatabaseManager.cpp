@@ -355,7 +355,7 @@ void ShardDatabaseManager::Init(ShardServer* shardServer_)
 
     if (configFile.GetBoolValue("database.merge", true))
         environment.SetMergeEnabled(true);
-    environment.SetMergeCpuThreshold(configFile.GetIntValue("database.mergeCpuThreshold", 100));
+    environment.SetMergeCpuThreshold(configFile.GetIntValue("database.mergeCpuThreshold", STORAGE_DEFAULT_MERGE_CPU_THRESHOLD));
 
 
     shardServer = shardServer_;
@@ -367,8 +367,6 @@ void ShardDatabaseManager::Init(ShardServer* shardServer_)
 
     systemShard.Init(&environment, QUORUM_DATABASE_SYSTEM_CONTEXT, 1);
     REPLICATION_CONFIG->Init(&systemShard);
-    if (REPLICATION_CONFIG->GetNodeID() > 0)
-        Log_Message("My nodeID is %U", REPLICATION_CONFIG->GetNodeID());
     
     // Initialize async GET
     asyncGet.active = false;
