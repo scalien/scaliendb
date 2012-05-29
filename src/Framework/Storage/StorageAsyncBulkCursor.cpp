@@ -164,12 +164,6 @@ void StorageAsyncBulkCursor::AsyncReadFileChunk()
     
     while (dataPage != NULL)
     {
-        // rate control
-        while (lastResult != NULL || env->yieldThreads || env->asyncGetThread->GetNumPending() > 0)
-        {
-            MSleep(1);
-        }
-
         if (isAborted || env->shuttingDown)
         {
             // abort cursor

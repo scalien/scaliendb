@@ -20,6 +20,7 @@
     ReadBuffer::Cmp((param), "1") == 0) ? true : false)
 
 #define SHARD_MIGRATION_WRITER (shardServer->GetShardMigrationWriter())
+#define PRINT_BOOL(str, b) { if ((b)) buffer.Appendf("%s: yes\n", str); else buffer.Appendf("%s: no\n", str); }
 
 void ShardHTTPClientSession::SetShardServer(ShardServer* shardServer_)
 {
@@ -332,6 +333,9 @@ void ShardHTTPClientSession::PrintStatistics()
     buffer.Appendf("maxCachedPageSize: %U\n", StorageDataPageCache::GetMaxCachedPageSize());
     buffer.Appendf("averageCachedPageSize: %U\n", StorageDataPageCache::GetListLength() == 0 ? 0 : (uint64_t)((float)StorageDataPageCache::GetCacheSize() / StorageDataPageCache::GetListLength()));
     buffer.Appendf("listPageCacheLength: %u\n", StorageDataPageCache::GetListLength());
+    PRINT_BOOL("isMergeEnabled", databaseManager->GetEnvironment()->IsMergeEnabled());
+    buffer.Appendf("mergeCpuThreshold: %u\n", databaseManager->GetEnvironment()->GetMergeCpuThreshold());
+    PRINT_BOOL("isMergeRunning", databaseManager->GetEnvironment()->IsMergeRunning());
 
     buffer.Append("  Category: Mutexes\n");
     buffer.Appendf("StorageFileDeleter mutexLockCounter: %U\n", StorageFileDeleter::GetMutex().lockCounter);
@@ -340,7 +344,6 @@ void ShardHTTPClientSession::PrintStatistics()
     buffer.Appendf("Endpoint mutexLastLockDate: %U\n", Endpoint::GetMutex().lastLockTime);
     buffer.Appendf("Log mutexLockCounter: %U\n", Log_GetMutex().lockCounter);
     buffer.Appendf("Log mutexLastLockDate: %U\n", Log_GetMutex().lastLockTime);
-
 
     buffer.Append("  Category: Replication\n");
     FOREACH (quorumProcessor, *shardServer->GetQuorumProcessors())
@@ -580,6 +583,7 @@ bool ShardHTTPClientSession::ProcessSettings()
 {
     ReadBuffer              param;
     bool                    boolValue;
+    uint64_t                mergeCpuThreshold;
     uint64_t                traceBufferSize;
     uint64_t                logFlushInterval;
     uint64_t                logTraceInterval;
@@ -628,8 +632,19 @@ bool ShardHTTPClientSession::ProcessSettings()
     if (HTTP_GET_OPT_PARAM(params, "merge", param))
     {
         boolValue = PARAM_BOOL_VALUE(param);
-        shardServer->GetDatabaseManager()->GetEnvironment()->SetMergeEnabled(boolValue);
+        if (boolValue ^ shardServer->GetDatabaseManager()->GetEnvironment()->IsMergeEnabled())
+            shardServer->GetDatabaseManager()->GetEnvironment()->SetMergeEnabled(boolValue);
+        boolValue = shardServer->GetDatabaseManager()->GetEnvironment()->IsMergeEnabled();
         session.PrintPair("Merge", boolValue ? "on" : "off");
+    }
+
+    if (HTTP_GET_OPT_PARAM(params, "mergeCpuThreshold", param))
+    {
+        // initialize variable, because conversion may fail
+        mergeCpuThreshold = 100;
+        HTTP_GET_OPT_U64_PARAM(params, "mergeCpuThreshold", mergeCpuThreshold);
+        shardServer->GetDatabaseManager()->GetEnvironment()->SetMergeCpuThreshold(mergeCpuThreshold);
+        session.PrintPair("MergeCpuThreshold", INLINE_PRINTF("%u", 100, (unsigned) mergeCpuThreshold));
     }
 
     if (HTTP_GET_OPT_PARAM(params, "assert", param))
