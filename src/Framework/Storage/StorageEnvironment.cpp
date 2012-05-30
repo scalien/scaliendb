@@ -79,7 +79,7 @@ StorageEnvironment::StorageEnvironment()
     writingTOC = false;
     numCursors = 0;
     mergeEnabledCounter = 0; // disabled
-    mergeCpuThreshold = 100; // no limitation
+    mergeCpuThreshold = STORAGE_DEFAULT_MERGE_CPU_THRESHOLD; // run if CPU % is less than 50%
     dumpMemoChunks = false;
 }
 

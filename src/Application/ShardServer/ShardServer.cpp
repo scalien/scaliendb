@@ -13,7 +13,7 @@ static inline bool LessThan(const uint64_t& a, const uint64_t& b)
     return a < b;
 }
 
-void ShardServer::Init(ShardServerApp* app, bool restoreMode)
+void ShardServer::Init(ShardServerApp* app, bool restoreMode, bool setNodeID, uint64_t myNodeID)
 {
     unsigned        numControllers;
     uint64_t        nodeID;
@@ -36,6 +36,14 @@ void ShardServer::Init(ShardServerApp* app, bool restoreMode)
         REPLICATION_CONFIG->SetNodeID(0);
         REPLICATION_CONFIG->SetRunID(0);
     }
+
+    if (setNodeID)
+    {
+        REPLICATION_CONFIG->SetNodeID(myNodeID);
+    }
+
+    if (REPLICATION_CONFIG->GetNodeID() > 0)
+        Log_Message("My nodeID is %U", REPLICATION_CONFIG->GetNodeID());
 
     runID = REPLICATION_CONFIG->GetRunID();
     runID += 1;

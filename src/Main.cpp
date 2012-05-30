@@ -30,6 +30,8 @@ static void CrashReporterCallback();
 // the application object is global for debugging purposes
 static Application*     app;
 static bool             restoreMode = false;
+static bool             setNodeID = false;
+static uint64_t         nodeID = 0;
 
 int main(int argc, char** argv)
 {
@@ -94,7 +96,7 @@ static void RunApplication()
     if (isController)
         app = new ConfigServerApp(restoreMode);
     else
-        app = new ShardServerApp(restoreMode);
+        app = new ShardServerApp(restoreMode, setNodeID, nodeID);
     
     Service::SetStatus(SERVICE_STATUS_RUNNING);
     app->Init();
@@ -199,6 +201,9 @@ static void ParseDebugArgs(char* arg)
 
 static void ParseArgs(int argc, char** argv)
 {
+    ReadBuffer arg;
+
+
     for (int i = 1; i < argc; i++)
     {
         if (argv[i][0] == '-')
@@ -217,6 +222,12 @@ static void ParseArgs(int argc, char** argv)
                 break;
             case 'r':
                 restoreMode = true;
+                break;
+            case 'n':
+                setNodeID = true;
+                i++;
+                arg.Wrap(argv[i]);
+                arg.Readf("%U", &nodeID);
                 break;
             case 'h':
                 STOP("Usage:\n"
