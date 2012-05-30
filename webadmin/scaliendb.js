@@ -258,6 +258,20 @@ var scaliendb =
 		this.rpc("unfreezeTable", params);
 	},
 
+	freezeDatabase: function(databaseID)
+	{
+		var params = {};
+		params["databaseID"] = databaseID;
+		this.rpc("freezeDatabase", params);
+	},
+
+	unfreezeDatabase: function(databaseID)
+	{
+		var params = {};
+		params["databaseID"] = databaseID;
+		this.rpc("unfreezeDatabase", params);
+	},
+	
 	splitShard: function(shardID, key)
 	{
 		var params = {};

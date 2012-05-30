@@ -208,6 +208,10 @@ bool ConfigState::CompleteMessage(ConfigMessage& message)
             return CompleteFreezeTable(message);
         case CONFIGMESSAGE_UNFREEZE_TABLE:
             return CompleteUnfreezeTable(message);
+        case CONFIGMESSAGE_FREEZE_DATABASE:
+            return CompleteFreezeDatabase(message);
+        case CONFIGMESSAGE_UNFREEZE_DATABASE:
+            return CompleteUnfreezeDatabase(message);
         case CONFIGMESSAGE_TRUNCATE_TABLE_BEGIN:
             return CompleteTruncateTableBegin(message);
         case CONFIGMESSAGE_TRUNCATE_TABLE_COMPLETE:
@@ -406,6 +410,10 @@ void ConfigState::OnMessage(ConfigMessage& message)
             return OnFreezeTable(message);
         case CONFIGMESSAGE_UNFREEZE_TABLE:
             return OnUnfreezeTable(message);
+        case CONFIGMESSAGE_FREEZE_DATABASE:
+            return OnFreezeDatabase(message);
+        case CONFIGMESSAGE_UNFREEZE_DATABASE:
+            return OnUnfreezeDatabase(message);
         case CONFIGMESSAGE_TRUNCATE_TABLE_BEGIN:
             return OnTruncateTableBegin(message);
         case CONFIGMESSAGE_TRUNCATE_TABLE_COMPLETE:
@@ -862,6 +870,28 @@ bool ConfigState::CompleteUnfreezeTable(ConfigMessage& message)
     return true;
 }
 
+bool ConfigState::CompleteFreezeDatabase(ConfigMessage& message)
+{
+    ConfigDatabase* db;
+
+    db = GetDatabase(message.databaseID);
+    if (db == NULL)
+        return false; // no such database
+
+    return true;
+}
+
+bool ConfigState::CompleteUnfreezeDatabase(ConfigMessage& message)
+{
+    ConfigDatabase* db;
+
+    db = GetDatabase(message.databaseID);
+    if (db == NULL)
+        return false; // no such database
+
+    return true;
+}
+
 bool ConfigState::CompleteTruncateTableBegin(ConfigMessage& message)
 {
     uint64_t*       itShardID;
@@ -1303,6 +1333,42 @@ void ConfigState::OnUnfreezeTable(ConfigMessage& message)
     ASSERT(table != NULL);
     
     table->isFrozen = false;
+}
+
+void ConfigState::OnFreezeDatabase(ConfigMessage& message)
+{
+    uint64_t*       itTableID;
+    ConfigDatabase* db;
+    ConfigTable*    table;
+
+    db = GetDatabase(message.databaseID);
+    // make sure database exists
+    ASSERT(db != NULL);
+    
+    FOREACH(itTableID, db->tables)
+    {
+        table = GetTable(*itTableID);
+        ASSERT(table != NULL);
+        table->isFrozen = true;
+    }
+}
+
+void ConfigState::OnUnfreezeDatabase(ConfigMessage& message)
+{
+    uint64_t*       itTableID;
+    ConfigDatabase* db;
+    ConfigTable*    table;
+
+    db = GetDatabase(message.databaseID);
+    // make sure database exists
+    ASSERT(db != NULL);
+    
+    FOREACH(itTableID, db->tables)
+    {
+        table = GetTable(*itTableID);
+        ASSERT(table != NULL);
+        table->isFrozen = false;
+    }
 }
 
 void ConfigState::OnTruncateTableBegin(ConfigMessage& message)

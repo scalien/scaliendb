@@ -27,6 +27,8 @@
 #define CONFIGMESSAGE_CREATE_TABLE                      'c'
 #define CONFIGMESSAGE_RENAME_TABLE                      'r'
 #define CONFIGMESSAGE_DELETE_TABLE                      'd'
+#define CONFIGMESSAGE_FREEZE_DATABASE                   'L'
+#define CONFIGMESSAGE_UNFREEZE_DATABASE                 'l'
 #define CONFIGMESSAGE_FREEZE_TABLE                      'F'
 #define CONFIGMESSAGE_UNFREEZE_TABLE                    'f'
 #define CONFIGMESSAGE_TRUNCATE_TABLE_BEGIN              't'
@@ -119,6 +121,10 @@ public:
                      uint64_t tableID);
     bool            UnfreezeTable(
                      uint64_t tableID);
+    bool            FreezeDatabase(
+                     uint64_t databaseID);
+    bool            UnfreezeDatabase(
+                     uint64_t databaseID);
     bool            TruncateTableBegin(
                      uint64_t tableID);
     bool            TruncateTableComplete(

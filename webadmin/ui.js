@@ -780,6 +780,18 @@ function unfreezeTable(tableID)
 	scaliendb.unfreezeTable(tableID);
 }
 
+function freezeDatabase(databaseID)
+{
+	scaliendb.onResponse = onResponse;
+	scaliendb.freezeDatabase(databaseID);
+}
+
+function unfreezeDatabase(databaseID)
+{
+	scaliendb.onResponse = onResponse;
+	scaliendb.unfreezeDatabase(databaseID);
+}
+
 function splitShard()
 {
 	hideSplitShard();
@@ -1220,7 +1232,13 @@ function createDatabaseDiv(configState, database)
 	<span class="modify-button">rename database</span></a>												\
 	 - <a class="no-line" href="javascript:showCreateTable(\''
 	 + database["databaseID"] + '\', \'' + database["name"] + '\')">									\
-	<span class="create-button">create new table</span></a><br/><br/>									\
+	<span class="create-button">create new table</span></a>									\
+    - <a class="no-line" href="javascript:freezeDatabase(\''
+	 + database["databaseID"] + '\')">																	\
+	<span class="modify-button">freeze all tables</span></a>								\
+    - <a class="no-line" href="javascript:unfreezeDatabase(\''
+	 + database["databaseID"] + '\')">																	\
+	<span class="modify-button">unfreeze all tables</span></a><br/><br/>								\
 	';
 	var div = document.createElement("div");
 	div.setAttribute("class", "database");

@@ -73,6 +73,8 @@ private:
     ClientRequest*      ProcessTruncateTable();
     ClientRequest*      ProcessFreezeTable();
     ClientRequest*      ProcessUnfreezeTable();
+    ClientRequest*      ProcessFreezeDatabase();
+    ClientRequest*      ProcessUnfreezeDatabase();
     ClientRequest*      ProcessSplitShard();
     ClientRequest*      ProcessMigrateShard();
     

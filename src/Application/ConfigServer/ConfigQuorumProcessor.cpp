@@ -921,6 +921,14 @@ void ConfigQuorumProcessor::ConstructMessage(ClientRequest* request, ConfigMessa
             message->type = CONFIGMESSAGE_UNFREEZE_TABLE;
             message->tableID = request->tableID;
             return;
+        case CLIENTREQUEST_FREEZE_DATABASE:
+            message->type = CONFIGMESSAGE_FREEZE_DATABASE;
+            message->databaseID = request->databaseID;
+            return;
+        case CLIENTREQUEST_UNFREEZE_DATABASE:
+            message->type = CONFIGMESSAGE_UNFREEZE_DATABASE;
+            message->databaseID = request->databaseID;
+            return;
         case CLIENTREQUEST_SPLIT_SHARD:
             message->type = CONFIGMESSAGE_SPLIT_SHARD_BEGIN;
             message->shardID = request->shardID;
@@ -986,6 +994,12 @@ void ConfigQuorumProcessor::ConstructResponse(ConfigMessage* message, ClientResp
             response->OK();
             return;
         case CLIENTREQUEST_UNFREEZE_TABLE:
+            response->OK();
+            return;
+        case CLIENTREQUEST_FREEZE_DATABASE:
+            response->OK();
+            return;
+        case CLIENTREQUEST_UNFREEZE_DATABASE:
             response->OK();
             return;
         case CLIENTREQUEST_MIGRATE_SHARD:

@@ -75,6 +75,8 @@ bool ClientRequest::IsControllerRequest()
         type == CLIENTREQUEST_TRUNCATE_TABLE                    ||
         type == CLIENTREQUEST_FREEZE_TABLE                      ||
         type == CLIENTREQUEST_UNFREEZE_TABLE                    ||
+        type == CLIENTREQUEST_FREEZE_DATABASE                   ||
+        type == CLIENTREQUEST_UNFREEZE_DATABASE                 ||
         type == CLIENTREQUEST_SPLIT_SHARD                       ||
         type == CLIENTREQUEST_MIGRATE_SHARD)
             return true;
@@ -310,6 +312,22 @@ void ClientRequest::UnfreezeTable(
     type = CLIENTREQUEST_UNFREEZE_TABLE;
     commandID = commandID_;
     tableID = tableID_;
+}
+
+void ClientRequest::FreezeDatabase(
+ uint64_t commandID_, uint64_t databaseID_)
+{
+    type = CLIENTREQUEST_FREEZE_DATABASE;
+    commandID = commandID_;
+    databaseID = databaseID_;
+}
+
+void ClientRequest::UnfreezeDatabase(
+ uint64_t commandID_, uint64_t databaseID_)
+{
+    type = CLIENTREQUEST_UNFREEZE_DATABASE;
+    commandID = commandID_;
+    databaseID = databaseID_;
 }
 
 void ClientRequest::SplitShard(

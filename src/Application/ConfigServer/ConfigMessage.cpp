@@ -167,6 +167,22 @@ bool ConfigMessage::UnfreezeTable(
     return true;
 }
 
+bool ConfigMessage::FreezeDatabase(
+ uint64_t databaseID_)
+{
+    type = CONFIGMESSAGE_FREEZE_DATABASE;
+    databaseID = databaseID_;
+    return true;
+}
+
+bool ConfigMessage::UnfreezeDatabase(
+ uint64_t databaseID_)
+{
+    type = CONFIGMESSAGE_UNFREEZE_DATABASE;
+    databaseID = databaseID_;
+    return true;
+}
+
 bool ConfigMessage::TruncateTableBegin(
  uint64_t tableID_)
 {
@@ -326,6 +342,14 @@ bool ConfigMessage::Read(ReadBuffer& buffer)
             read = buffer.Readf("%c:%U",
              &type, &tableID);
             break;
+        case CONFIGMESSAGE_FREEZE_DATABASE:
+            read = buffer.Readf("%c:%U",
+             &type, &databaseID);
+            break;
+        case CONFIGMESSAGE_UNFREEZE_DATABASE:
+            read = buffer.Readf("%c:%U",
+             &type, &databaseID);
+            break;
 
         // Shard management
         case CONFIGMESSAGE_SPLIT_SHARD_BEGIN:
@@ -453,7 +477,15 @@ bool ConfigMessage::Write(Buffer& buffer)
             buffer.Writef("%c:%U",
              type, tableID);
             break;
-            
+        case CONFIGMESSAGE_FREEZE_DATABASE:
+            buffer.Writef("%c:%U",
+             type, databaseID);
+            break;
+        case CONFIGMESSAGE_UNFREEZE_DATABASE:
+            buffer.Writef("%c:%U",
+             type, databaseID);
+            break;
+
         // Shard management
         case CONFIGMESSAGE_SPLIT_SHARD_BEGIN:
             buffer.Writef("%c:%U:%#B",

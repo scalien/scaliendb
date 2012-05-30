@@ -825,11 +825,15 @@ ClientRequest* ConfigHTTPClientSession::ProcessConfigCommand(ReadBuffer& cmd)
     if (HTTP_MATCH_COMMAND(cmd, "deleteTable"))
         return ProcessDeleteTable();
     if (HTTP_MATCH_COMMAND(cmd, "truncateTable"))
-        return ProcessTruncateTable();    
+        return ProcessTruncateTable();
     if (HTTP_MATCH_COMMAND(cmd, "freezeTable"))
-        return ProcessFreezeTable();    
+        return ProcessFreezeTable(); 
     if (HTTP_MATCH_COMMAND(cmd, "unfreezeTable"))
-        return ProcessUnfreezeTable();    
+        return ProcessUnfreezeTable();
+    if (HTTP_MATCH_COMMAND(cmd, "freezeDatabase"))
+        return ProcessFreezeDatabase(); 
+    if (HTTP_MATCH_COMMAND(cmd, "unfreezeDatabase"))
+        return ProcessUnfreezeDatabase();
     if (HTTP_MATCH_COMMAND(cmd, "splitShard"))
         return ProcessSplitShard();
     if (HTTP_MATCH_COMMAND(cmd, "migrateShard"))
@@ -1128,6 +1132,32 @@ ClientRequest* ConfigHTTPClientSession::ProcessUnfreezeTable()
 
     request = new ClientRequest;
     request->UnfreezeTable(0, tableID);
+
+    return request;
+}
+
+ClientRequest* ConfigHTTPClientSession::ProcessFreezeDatabase()
+{
+    ClientRequest*  request;
+    uint64_t        databaseID;
+    
+    HTTP_GET_U64_PARAM(params, "databaseID", databaseID);
+
+    request = new ClientRequest;
+    request->FreezeDatabase(0, databaseID);
+
+    return request;
+}
+
+ClientRequest* ConfigHTTPClientSession::ProcessUnfreezeDatabase()
+{
+    ClientRequest*  request;
+    uint64_t        databaseID;
+    
+    HTTP_GET_U64_PARAM(params, "databaseID", databaseID);
+
+    request = new ClientRequest;
+    request->UnfreezeDatabase(0, databaseID);
 
     return request;
 }

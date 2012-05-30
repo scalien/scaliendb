@@ -121,6 +121,8 @@ private:
     bool                CompleteDeleteTable(ConfigMessage& message);
     bool                CompleteFreezeTable(ConfigMessage& message);
     bool                CompleteUnfreezeTable(ConfigMessage& message);
+    bool                CompleteFreezeDatabase(ConfigMessage& message);
+    bool                CompleteUnfreezeDatabase(ConfigMessage& message);
     bool                CompleteTruncateTableBegin(ConfigMessage& message);
     bool                CompleteTruncateTableComplete(ConfigMessage& message);
     bool                CompleteSplitShardBegin(ConfigMessage& message);
@@ -146,6 +148,8 @@ private:
     void                OnDeleteTable(ConfigMessage& message);
     void                OnFreezeTable(ConfigMessage& message);
     void                OnUnfreezeTable(ConfigMessage& message);
+    void                OnFreezeDatabase(ConfigMessage& message);
+    void                OnUnfreezeDatabase(ConfigMessage& message);
     void                OnTruncateTableBegin(ConfigMessage& message);
     void                OnTruncateTableComplete(ConfigMessage& message);
     void                OnSplitShardBegin(ConfigMessage& message);

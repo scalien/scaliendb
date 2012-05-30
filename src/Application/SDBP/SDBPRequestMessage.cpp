@@ -134,7 +134,16 @@ bool SDBPRequestMessage::Read(ReadBuffer& buffer)
              &request->type, &request->commandID,
              &request->tableID);
             break;
-            
+        case CLIENTREQUEST_FREEZE_DATABASE:
+            read = buffer.Readf("%c:%U:%U",
+             &request->type, &request->commandID,
+             &request->databaseID);
+            break;
+        case CLIENTREQUEST_UNFREEZE_DATABASE:
+            read = buffer.Readf("%c:%U:%U",
+             &request->type, &request->commandID,
+             &request->databaseID);
+            break;            
         /* Data operations */
         case CLIENTREQUEST_GET:
             read = buffer.Readf("%c:%U:%U:%U:%U:%#B",
@@ -326,6 +335,16 @@ bool SDBPRequestMessage::Write(Buffer& buffer)
             buffer.Appendf("%c:%U:%U",
              request->type, request->commandID,
              request->tableID);
+            return true;
+        case CLIENTREQUEST_FREEZE_DATABASE:
+            buffer.Appendf("%c:%U:%U",
+             request->type, request->commandID,
+             request->databaseID);
+            return true;
+        case CLIENTREQUEST_UNFREEZE_DATABASE:
+            buffer.Appendf("%c:%U:%U",
+             request->type, request->commandID,
+             request->databaseID);
             return true;
 
         /* Data operations */
