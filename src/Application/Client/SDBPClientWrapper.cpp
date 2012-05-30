@@ -298,24 +298,14 @@ int SDBP_ResultCommandStatus(ResultObj result_)
     return result->GetCommandStatus();
 }
 
-unsigned SDBP_ResultNumNodes(ResultObj result_)
+uint64_t SDBP_ResultNodeID(ResultObj result_)
 {
     Result*     result = (Result*) result_;
     
     if (!result)
         return SDBP_API_ERROR;
     
-    return result->GetNumNodes();
-}
-
-uint64_t SDBP_ResultNodeID(ResultObj result_, unsigned n)
-{
-    Result*     result = (Result*) result_;
-    
-    if (!result)
-        return SDBP_API_ERROR;
-    
-    return result->GetNodeID(n);
+    return result->GetNodeID();
 }
 
 unsigned SDBP_ResultElapsedTime(ResultObj result_)

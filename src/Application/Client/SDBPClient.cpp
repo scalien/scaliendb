@@ -1504,7 +1504,6 @@ void Client::SendQuorumRequest(ShardConnection* conn, uint64_t quorumID)
     RequestList*        qrequests;
     Request*            req;
     ConfigQuorum*       quorum;
-    uint64_t            nodeID;
     unsigned            maxRequests;
     unsigned            numServed;
     bool                flushNeeded;
@@ -1541,9 +1540,8 @@ void Client::SendQuorumRequest(ShardConnection* conn, uint64_t quorumID)
 			break;
         qrequests->Remove(req);
         
-        req->shardConns.Clear();
-        nodeID = conn->GetNodeID();
-        req->shardConns.Append(nodeID);
+        // assign nodeID to request
+        req->connNodeID = conn->GetNodeID();
         
         // set paxosID by consistency level
         req->paxosID = GetRequestPaxosID(quorumID);

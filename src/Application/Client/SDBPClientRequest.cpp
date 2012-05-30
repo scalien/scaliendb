@@ -1,4 +1,5 @@
 #include "SDBPClientRequest.h"
+#include "Framework/Clustering/ClusterTransport.h"
 
 using namespace SDBPClient;
 
@@ -11,6 +12,7 @@ Request::Request()
     requestTime = 0;
     responseTime = 0;
     userCount = 0;
+    nodeID = UNDEFINED_NODEID;
 }
 
 Request::~Request()

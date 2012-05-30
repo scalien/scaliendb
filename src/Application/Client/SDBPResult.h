@@ -18,6 +18,8 @@ namespace SDBPClient
 
 class Result
 {
+    typedef InTreeMap<Request> RequestMap;
+
 public:
     Result();
     ~Result();
@@ -41,8 +43,7 @@ public:
     int                 GetTimeoutStatus();
     void                SetTimeoutStatus(int status);
 
-    unsigned            GetNumNodes();
-    uint64_t            GetNodeID(unsigned n);
+    uint64_t            GetNodeID();
     unsigned            GetElapsedTime();
 
     int                 GetKey(ReadBuffer& key);
@@ -58,10 +59,9 @@ public:
     Request*            GetRequestCursor();
 
     void                HandleRequestResponse(Request* req, ClientResponse* resp);
-
-    typedef InTreeMap<Request> RequestMap;
     
     RequestMap          requests;
+
 private:
     int                 transportStatus;
     int                 timeoutStatus;
