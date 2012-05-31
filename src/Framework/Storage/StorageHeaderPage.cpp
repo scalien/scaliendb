@@ -1,5 +1,7 @@
 #include "StorageHeaderPage.h"
 
+#define MAX_KEY_LEN     (1024)
+
 StorageHeaderPage::StorageHeaderPage()
 {
     chunkID = 0;
@@ -244,7 +246,7 @@ bool StorageHeaderPage::Read(Buffer& buffer)
         return false;
     parse.Advance(4);
     if (parse.GetLength() < firstLen)
-        return false;        
+        goto TooLongKey;
     firstKey.Write(parse.GetBuffer(), firstLen);
     parse.Advance(firstLen);
 
@@ -252,7 +254,7 @@ bool StorageHeaderPage::Read(Buffer& buffer)
         return false;
     parse.Advance(4);
     if (parse.GetLength() < lastLen)
-        return false;        
+        goto TooLongKey;     
     lastKey.Write(parse.GetBuffer(), lastLen);
     parse.Advance(lastLen);
 
@@ -260,12 +262,21 @@ bool StorageHeaderPage::Read(Buffer& buffer)
         return false;
     parse.Advance(4);
     if (parse.GetLength() < midpointLen)
-        return false;        
+        goto TooLongKey;     
     midpoint.Write(parse.GetBuffer(), midpointLen);
     parse.Advance(midpointLen);
     
     parse.Advance(parse.Readf("%b", &merged));
 
+    return true;
+
+TooLongKey:
+    Log_Message("Long key detected in chunk file %U...", chunkID);
+    merged = false;
+    firstKey.Clear();
+    midpoint.Write("ScalienDB-Midpoint");
+    lastKey.Clear();
+    lastKey.Append((char)255);
     return true;
 }
 
@@ -301,6 +312,16 @@ void StorageHeaderPage::Write(Buffer& writeBuffer)
         writeBuffer.AppendLittle64(bloomPageOffset);
         writeBuffer.AppendLittle32(bloomPageSize);
     }
+
+    if (firstKey.GetLength() > MAX_KEY_LEN)
+        firstKey.SetLength(MAX_KEY_LEN);
+
+    if (lastKey.GetLength() > MAX_KEY_LEN)
+        lastKey.SetLength(MAX_KEY_LEN);
+
+    if (midpoint.GetLength() > MAX_KEY_LEN)
+        midpoint.SetLength(MAX_KEY_LEN);
+
     writeBuffer.AppendLittle32(firstKey.GetLength());
     writeBuffer.Append(firstKey);
     writeBuffer.AppendLittle32(lastKey.GetLength());

@@ -220,6 +220,9 @@ bool StorageShard::IsSplitable()
     {
         firstKey = (*itChunk)->GetFirstKey();
         lastKey = (*itChunk)->GetLastKey();
+
+        if (ReadBuffer::Cmp((*itChunk)->GetMidpoint(), "ScalienDB-Midpoint") == 0)
+            return false;
         
         if (firstKey.GetLength() > 0 && !RangeContains(firstKey))
             return false;
