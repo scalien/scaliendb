@@ -862,7 +862,9 @@ void StorageRecovery::TryWriteChunks()
     StorageChunkSerializer  serializer;
     StorageChunkWriter      writer;
     Stopwatch               sw;
-    bool                    ret;    
+    bool                    ret;
+    char                    humanBuf[5];
+    char                    humanElapsed[5];
 
     // mtrencseni:
     // this is terrible code, but we're on a schedule
@@ -877,7 +879,7 @@ void StorageRecovery::TryWriteChunks()
         if (memoChunk->GetSize() > env->config.GetChunkSize())
         {
             Log_Debug("Serializing chunk %U, size: %s", memoChunk->GetChunkID(),
-                HUMAN_BYTES(memoChunk->GetSize()));
+                HumanBytes(memoChunk->GetSize(), humanBuf));
 
             shard->PushMemoChunk(new StorageMemoChunk(env->nextChunkID++, shard->UseBloomFilter()));
 
@@ -908,7 +910,7 @@ void StorageRecovery::TryWriteChunks()
             {
                 // write failed
                 Log_Message("Unable to write chunk file %U to disk.", fileChunk->GetChunkID());
-                Log_Message("Free disk space: %s", HUMAN_BYTES(FS_FreeDiskSpace(fileChunk->GetFilename().GetBuffer())));
+                Log_Message("Free disk space: %s", HumanBytes(FS_FreeDiskSpace(fileChunk->GetFilename().GetBuffer()), humanBuf));
                 Log_Message("This should not happen.");
                 Log_Message("Possible causes: not enough disk space, software bug...");
                 STOP_FAIL(1);
@@ -916,8 +918,8 @@ void StorageRecovery::TryWriteChunks()
 
             Log_Message("Chunk %U written, elapsed: %U, size: %s, bps: %sB/s",
              fileChunk->GetChunkID(),
-             (uint64_t) sw.Elapsed(), HUMAN_BYTES(fileChunk->GetSize()), 
-             HUMAN_BYTES((uint64_t)(fileChunk->GetSize() / (sw.Elapsed() / 1000.0))));
+             (uint64_t) sw.Elapsed(), HumanBytes(fileChunk->GetSize(), humanBuf), 
+             HumanBytes((uint64_t)(fileChunk->GetSize() / (sw.Elapsed() / 1000.0)), humanElapsed));
 
             // from StorageEnvironment::OnChunkWrite()
             fileChunk->written = true;    

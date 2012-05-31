@@ -27,7 +27,7 @@
 #pragma warning(disable: 4127)
 
 #include <stddef.h>     // for intptr_t
-#include <malloc.h>     // for _alloca()
+#include <stdio.h>
 
 // VC++ 8.0 is not C99-compatible
 typedef __int8              int8_t;
@@ -54,8 +54,6 @@ typedef intptr_t            ssize_t;
 #define snprintf            _snprintf
 #define strdup              _strdup
 #define strncasecmp         _strnicmp
-#define alloca              _alloca
-#define alloca16(x)         ((void*)((((intptr_t)alloca((x) + 15)) + 15) & ~15))
 #define localtime_r(t, tm)  localtime_s(tm, t)
 #define __func__            __FUNCTION__
 

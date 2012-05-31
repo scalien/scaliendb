@@ -105,6 +105,7 @@
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <OpenMPSupport>true</OpenMPSupport>
     </ClCompile>
     <Link>
       <AdditionalDependencies>ws2_32.lib;mswsock.lib;winmm.lib;psapi.lib;dbghelp.lib;pdh.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -140,6 +141,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <OpenMPSupport>true</OpenMPSupport>
     </ClCompile>
     <Link>
       <AdditionalDependencies>ws2_32.lib;mswsock.lib;winmm.lib;psapi.lib;dbghelp.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -158,6 +160,7 @@
     <ClCompile Include="..\src\Application\Client\SDBPRequestProxy.cpp" />
     <ClCompile Include="..\src\Application\Client\SDBPResult.cpp" />
     <ClCompile Include="..\src\Application\Client\SDBPShardConnection.cpp" />
+    <ClCompile Include="..\src\Application\Client\SDBPShardStats.cpp" />
     <ClCompile Include="..\src\Application\Common\CatchupMessage.cpp" />
     <ClCompile Include="..\src\Application\Common\ClientRequest.cpp" />
     <ClCompile Include="..\src\Application\Common\ClientRequestCache.cpp" />
@@ -330,6 +333,7 @@
     <ClInclude Include="..\src\Application\Client\SDBPRequestProxy.h" />
     <ClInclude Include="..\src\Application\Client\SDBPResult.h" />
     <ClInclude Include="..\src\Application\Client\SDBPShardConnection.h" />
+    <ClInclude Include="..\src\Application\Client\SDBPShardStats.h" />
     <ClInclude Include="..\src\Application\Common\Application.h" />
     <ClInclude Include="..\src\Application\Common\CatchupMessage.h" />
     <ClInclude Include="..\src\Application\Common\ClientRequest.h" />

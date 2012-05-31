@@ -41,13 +41,10 @@ unsigned        NumDigits(int n);
 unsigned        NumDigits64(uint64_t n);
 
 const char*     HumanBytes(uint64_t bytes, char buf[5]);
-#define         HUMAN_BYTES(bytes) HumanBytes(bytes, (char*) alloca(5))
 
 const char*     SIBytes(uint64_t bytes, char buf[5]);
-#define         SI_BYTES(bytes) SIBytes(bytes, (char*) alloca(5))
 
 const char*     HumanTime(char buf[27]);
-#define         HUMAN_TIME() HumanTime((char*) alloca(27))
 
 int64_t         BufferToInt64(const char* buffer, unsigned length, unsigned* nread);
 uint64_t        BufferToUInt64(const char* buffer, unsigned length, unsigned* nread);
@@ -65,7 +62,6 @@ bool            RangeContains(ReadBuffer firstKey, ReadBuffer lastKey, ReadBuffe
 
 const char*     StaticPrint(const char* format, ...);
 const char*     InlinePrintf(char* buffer, size_t size, const char* format, ...);
-#define         INLINE_PRINTF(fmt, size, ...) InlinePrintf((char*) alloca(size), size, fmt, __VA_ARGS__)
 
 uint64_t        GenerateGUID();
 void            SeedRandom();

@@ -739,6 +739,7 @@ printable.Write(a); if (!printable.IsAsciiPrintable()) { printable.ToHexadecimal
     Buffer              printable;
     Buffer              tmp;
     uint64_t            totalSize;
+    char                humanBuf[5];
     
     UNUSED(contextID);
     
@@ -757,7 +758,7 @@ printable.Write(a); if (!printable.IsAsciiPrintable()) { printable.ToHexadecimal
 
         buffer.Appendf("- shard %U (tableID = %U) \n", shard->GetShardID(), shard->GetTableID());
         buffer.Appendf("   track: %U\n", shard->GetTrackID());
-        buffer.Appendf("   size: %s\n", HUMAN_BYTES(shard->GetSize()));
+        buffer.Appendf("   size: %s\n", HumanBytes(shard->GetSize(), humanBuf));
         buffer.Appendf("   isSplitable: %b\n", isSplitable);
 
         MAKE_PRINTABLE(firstKey);
@@ -787,7 +788,7 @@ printable.Write(a); if (!printable.IsAsciiPrintable()) { printable.ToHexadecimal
         buffer.Appendf("    * memo chunk %U\n", memoChunk->GetChunkID());
         buffer.Appendf("       state: %d {0=Tree, 1=Serialized, 2=Unwritten, 3=Written}\n",
          memoChunk->GetChunkState());
-        buffer.Appendf("       size: %s\n", HUMAN_BYTES(memoChunk->GetSize()));
+        buffer.Appendf("       size: %s\n", HumanBytes(memoChunk->GetSize(), humanBuf));
         buffer.Appendf("       count: %u\n", memoChunk->keyValues.GetCount());
         MAKE_PRINTABLE(firstKey);
         buffer.Appendf("       firstKey: %B\n", &printable);
@@ -808,7 +809,7 @@ printable.Write(a); if (!printable.IsAsciiPrintable()) { printable.ToHexadecimal
             buffer.Appendf("    * chunk %U\n", (*itChunk)->GetChunkID());
             buffer.Appendf("       state: %d {0=Tree, 1=Serialized, 2=Unwritten, 3=Written}\n",
              (*itChunk)->GetChunkState());
-            buffer.Appendf("       size: %s\n", HUMAN_BYTES((*itChunk)->GetSize()));
+            buffer.Appendf("       size: %s\n", HumanBytes((*itChunk)->GetSize(), humanBuf));
             MAKE_PRINTABLE(firstKey);
             buffer.Appendf("       firstKey: %B\n", &printable);
             MAKE_PRINTABLE(lastKey);
@@ -823,14 +824,14 @@ printable.Write(a); if (!printable.IsAsciiPrintable()) { printable.ToHexadecimal
         buffer.Appendf("\n");
     }
 
-    buffer.Appendf("\nCache size: %s\n", HUMAN_BYTES(StoragePageCache::GetSize()));
+    buffer.Appendf("\nCache size: %s\n", HumanBytes(StoragePageCache::GetSize(), humanBuf));
     totalSize += StoragePageCache::GetSize();
-    buffer.Appendf("Total memory size: %s\n", HUMAN_BYTES(totalSize));
+    buffer.Appendf("Total memory size: %s\n", HumanBytes(totalSize, humanBuf));
     
     tmp.Write(envPath);
     tmp.NullTerminate();
-    buffer.Appendf("Total disk space: %s\n", HUMAN_BYTES(FS_DiskSpace(tmp.GetBuffer())));
-    buffer.Appendf("Free disk space:  %s\n", HUMAN_BYTES(FS_FreeDiskSpace(tmp.GetBuffer())));
+    buffer.Appendf("Total disk space: %s\n", HumanBytes(FS_DiskSpace(tmp.GetBuffer()), humanBuf));
+    buffer.Appendf("Free disk space:  %s\n", HumanBytes(FS_FreeDiskSpace(tmp.GetBuffer()), humanBuf));
 }
 
 uint64_t StorageEnvironment::GetShardMemoryUsage()
@@ -1141,6 +1142,7 @@ void StorageEnvironment::TrySerializeChunks()
     StorageShard*           candidateShard;
     StorageMemoChunk*       memoChunk;
     StorageLogSegment*      logSegment;
+    char                    humanBuf[5];
 
     Log_Trace();
 
@@ -1226,7 +1228,7 @@ Candidate:
 
     memoChunk = candidateShard->GetMemoChunk();
     Log_Debug("Serializing chunk %U, size: %s", memoChunk->GetChunkID(),
-        HUMAN_BYTES(memoChunk->GetSize()));
+        HumanBytes(memoChunk->GetSize(), humanBuf));
     candidateShard->PushMemoChunk(new StorageMemoChunk(nextChunkID++, candidateShard->UseBloomFilter()));
     serializeChunkJobs.Execute(new StorageSerializeChunkJob(this, memoChunk));
 }
@@ -1624,6 +1626,7 @@ void StorageEnvironment::OnBackgroundTimer()
 void StorageEnvironment::WriteTOC()
 {
     StorageEnvironmentWriter    writer;
+    char                        humanBuf[5];
 
     Log_Debug("WriteTOC started");
 
@@ -1632,7 +1635,7 @@ void StorageEnvironment::WriteTOC()
     {
         envPath.NullTerminate();
         Log_Message("Unable to write table of contents file to disk.");
-        Log_Message("Free disk space: %s", HUMAN_BYTES(FS_FreeDiskSpace(envPath.GetBuffer())));
+        Log_Message("Free disk space: %s", HumanBytes(FS_FreeDiskSpace(envPath.GetBuffer()), humanBuf));
         Log_Message("This should not happen.");
         Log_Message("Possible causes: not enough disk space, software bug...");
         STOP_FAIL(1);

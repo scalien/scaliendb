@@ -65,6 +65,8 @@ void ConfigServerApp::SetLogStatTimeout(uint64_t timeout)
 
 void ConfigServerApp::OnLogStatTimer()
 {
+    char    humanBuf[5];
+
     Log_Message("=== ConfigServer stats ==>");
     Log_Message("SDBP active: %u, inactive: %u", sdbpServer.GetNumActiveConns(), sdbpServer.GetNumInactiveConns());
     Log_Message("HTTP active: %u, inactive: %u", httpServer.GetNumActiveConns(), httpServer.GetNumInactiveConns());
@@ -75,7 +77,7 @@ void ConfigServerApp::OnLogStatTimer()
     Log_Message("Requests: %u", configServer.GetQuorumProcessor()->GetNumRequests());
     Log_Message("Listen requests: %u", configServer.GetQuorumProcessor()->GetNumListenRequests());
     Log_Message("Timers: %u", EventLoop::GetNumTimers());
-    Log_Message("Page cache size: %s, num. pages: %u", HUMAN_BYTES(StoragePageCache::GetSize()), StoragePageCache::GetNumPages());
+    Log_Message("Page cache size: %s, num. pages: %u", HumanBytes(StoragePageCache::GetSize(), humanBuf), StoragePageCache::GetNumPages());
     Log_Message("Request cache free list size: %u", REQUEST_CACHE->GetNumFreeRequests());
     Log_Message("=== ConfigServer stats <==");
     EventLoop::Add(&logStatTimer);

@@ -100,7 +100,6 @@ bool FS_RecDeleteDir(const char* path)
 #include <fcntl.h>
 #include <unistd.h>
 #include <dirent.h>
-#include <alloca.h>
 #include <stdio.h>
 #include <errno.h>
 #include "System/Containers/List.h"

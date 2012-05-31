@@ -28,6 +28,7 @@ TEST_DEFINE(TestCommonHumanBytes)
         {100000000000,  "100G"},
         {1000000000000, "1.0T"},
         {1234567890123, "1.2T"},
+        {5272504032,    "5.3G"},
         {999,           "999"},
         {1000,          "1.0k"},
         {1449,          "1.4k"},
@@ -35,6 +36,7 @@ TEST_DEFINE(TestCommonHumanBytes)
         {1499,          "1.5k"},        
         {1599,          "1.6k"},
         {1999,          "2.0k"},
+        {(uint64_t)(-1),"18E"},
     };
 
     for (i = 0; i < SIZE(human_byte_pairs); i++)
@@ -44,6 +46,19 @@ TEST_DEFINE(TestCommonHumanBytes)
         //TEST_LOG("%" PRIu64 " => %s", human_byte_pairs[i].value, buf);
     }
     
+    return TEST_SUCCESS;
+}
+
+TEST_DEFINE(TestCommonHumanBytesBrute)
+{
+    char    buf[5];
+
+    #pragma omp parallel for private(buf), num_threads(6)
+    for (int64_t i = 0; i <= 256 * 1024 * 1024 * 1024ULL; i++)
+    {
+        HumanBytes(i, buf);
+    }
+
     return TEST_SUCCESS;
 }
 

@@ -37,6 +37,8 @@ void StorageMergeChunkJob::Execute()
     StorageChunkMerger  merger;
     List<Buffer*>       filenames;
     Stopwatch           sw;
+    char                humanSize[5];
+    char                humanElapsed[5];
 
     FOREACH (itInputChunk, inputChunks)
     {
@@ -55,7 +57,7 @@ void StorageMergeChunkJob::Execute()
     {
         // write failed
         Log_Message("Unable to write chunk file %U to disk.", mergeChunk->GetChunkID());
-        Log_Message("Free disk space: %s", HUMAN_BYTES(FS_FreeDiskSpace(mergeChunk->GetFilename().GetBuffer())));
+        Log_Message("Free disk space: %s", HumanBytes(FS_FreeDiskSpace(mergeChunk->GetFilename().GetBuffer()), humanSize));
         Log_Message("This should not happen.");
         Log_Message("Possible causes: not enough disk space, software bug...");
         STOP_FAIL(1);
@@ -65,15 +67,15 @@ void StorageMergeChunkJob::Execute()
     {
         Log_Message("Done merging chunk %U, elapsed: %U, size: %s, bps: %sB/s",
          mergeChunk->GetChunkID(),
-         (uint64_t) sw.Elapsed(), HUMAN_BYTES(mergeChunk->GetSize()), 
-         HUMAN_BYTES(BYTE_PER_SEC(mergeChunk->GetSize(), sw.Elapsed())));
+         (uint64_t) sw.Elapsed(), HumanBytes(mergeChunk->GetSize(), humanSize), 
+         HumanBytes(BYTE_PER_SEC(mergeChunk->GetSize(), sw.Elapsed()), humanElapsed));
     }
     else
     {
         Log_Message("Merge aborted, chunk %U, elapsed: %U, free disk space: %s",
          mergeChunk->GetChunkID(),
          (uint64_t) sw.Elapsed(),
-         HUMAN_BYTES(FS_FreeDiskSpace(mergeChunk->GetFilename().GetBuffer())));
+         HumanBytes(FS_FreeDiskSpace(mergeChunk->GetFilename().GetBuffer()), humanSize));
     } 
 }
 

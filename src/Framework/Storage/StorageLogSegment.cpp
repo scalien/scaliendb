@@ -35,6 +35,7 @@ void StorageLogSegment::Open(Buffer& logPath, uint64_t trackID_, uint64_t logSeg
 {
     unsigned    length;
     Stopwatch   sw;
+    char        humanBuf[5];
 
     trackID = trackID_;
     logSegmentID = logSegmentID_;
@@ -52,7 +53,7 @@ void StorageLogSegment::Open(Buffer& logPath, uint64_t trackID_, uint64_t logSeg
     if (fd == INVALID_FD)
     {
         Log_Message("Unable to open log segment file %U.", logSegmentID);
-        Log_Message("Free disk space: %s", HUMAN_BYTES(FS_FreeDiskSpace(filename.GetBuffer())));
+        Log_Message("Free disk space: %s", HumanBytes(FS_FreeDiskSpace(filename.GetBuffer()), humanBuf));
         Log_Message("This should not happen.");
         Log_Message("Possible causes: not enough disk space, software bug...");
         STOP_FAIL(1);
@@ -68,7 +69,7 @@ void StorageLogSegment::Open(Buffer& logPath, uint64_t trackID_, uint64_t logSeg
     if (FS_FileWrite(fd, writeBuffer.GetBuffer(), length) != (ssize_t) length)
     {
         Log_Message("Unable to open log segment file %U.", logSegmentID);
-        Log_Message("Free disk space: %s", HUMAN_BYTES(FS_FreeDiskSpace(filename.GetBuffer())));
+        Log_Message("Free disk space: %s", HumanBytes(FS_FreeDiskSpace(filename.GetBuffer()), humanBuf));
         Log_Message("This should not happen.");
         Log_Message("Possible causes: not enough disk space, software bug...");
         STOP_FAIL(1);
@@ -196,7 +197,9 @@ void StorageLogSegment::Commit()
     uint64_t    writeOffset;
     ssize_t     ret;
     Stopwatch   sw;
-    
+    char        humanBuf[5];
+    char        humanBuf2[5];
+
     commitStatus = true;
 
     ASSERT(fd != INVALID_FD);
@@ -224,7 +227,7 @@ void StorageLogSegment::Commit()
         if (ret < 0 || (uint64_t) ret != writeSize)
         {
             Log_Message("Unable to write log segment file %U to disk.", logSegmentID);
-            Log_Message("Free disk space: %s", HUMAN_BYTES(FS_FreeDiskSpace(filename.GetBuffer())));
+            Log_Message("Free disk space: %s", HumanBytes(FS_FreeDiskSpace(filename.GetBuffer()), humanBuf));
             Log_Message("This should not happen.");
             Log_Message("Possible causes: not enough disk space, software bug...");
             STOP_FAIL(1);
@@ -244,8 +247,8 @@ void StorageLogSegment::Commit()
     sw.Stop();
     Log_Message("Committed track %U, elapsed: %U, size: %s, bps: %sB/s",
         trackID,
-        (uint64_t) sw.Elapsed(), HUMAN_BYTES(length),
-        HUMAN_BYTES(BYTE_PER_SEC(length, sw.Elapsed())));
+        (uint64_t) sw.Elapsed(), HumanBytes(length, humanBuf),
+        HumanBytes(BYTE_PER_SEC(length, sw.Elapsed()), humanBuf2));
 
     NewRound();
     commitedLogCommandID = logCommandID - 1;

@@ -3,10 +3,12 @@
 #include "JSONConfigState.h"
 #include "System/Config.h"
 #include "System/FileSystem.h"
+#include "System/Platform.h"
 #include "Framework/Replication/ReplicationConfig.h"
 #include "Application/Common/ContextTransport.h"
 #include "Version.h"
 #include "ConfigHeartbeatManager.h"
+
 
 #define PARAM_BOOL_VALUE(param)                             \
     ((ReadBuffer::Cmp((param), "yes") == 0 ||               \
@@ -216,6 +218,7 @@ void ConfigHTTPClientSession::PrintShards(ConfigState* configState)
     ConfigShard*    it;
     Buffer          buffer;
     Buffer          firstKey, lastKey, splitKey;
+    char            humanBuf[5];
     
     if (configState->shards.GetLength() == 0)
     {
@@ -242,7 +245,7 @@ void ConfigHTTPClientSession::PrintShards(ConfigState* configState)
 
             buffer.Appendf("s%U: range [%B, %B], size: %s (isSplitable: %b, split key: %B)",
              it->shardID, &firstKey, &lastKey,
-             HUMAN_BYTES(it->shardSize), it->isSplitable, &splitKey);
+             HumanBytes(it->shardSize, humanBuf), it->isSplitable, &splitKey);
 
             session.Print(buffer);
         }
@@ -510,6 +513,7 @@ void ConfigHTTPClientSession::ProcessSettings()
     uint64_t    traceBufferSize;
     uint64_t    logTraceInterval;
     uint64_t    logFlushInterval;
+    char        buf[100];
     
     if (HTTP_GET_OPT_PARAM(params, "trace", param))
     {
@@ -537,7 +541,8 @@ void ConfigHTTPClientSession::ProcessSettings()
         HTTP_GET_OPT_U64_PARAM(params, "traceBufferSize", traceBufferSize);
         // we expect traceBufferSize is in bytes
         Log_SetTraceBufferSize((unsigned) traceBufferSize);
-        session.PrintPair("TraceBufferSize", INLINE_PRINTF("%u", 100, (unsigned) traceBufferSize));
+        snprintf(buf, sizeof(buf), "%u", (unsigned) traceBufferSize);
+        session.PrintPair("TraceBufferSize", buf);
     }
 
     if (HTTP_GET_OPT_PARAM(params, "debug", param))
@@ -555,7 +560,8 @@ void ConfigHTTPClientSession::ProcessSettings()
         HTTP_GET_OPT_U64_PARAM(params, "logStatTime", logStatTime);
         // we expect logStatTime is in seconds
         configServer->SetLogStatTimeout(logStatTime * 1000);
-        session.PrintPair("LogStatTime", INLINE_PRINTF("%u", 100, (unsigned) logStatTime));
+        snprintf(buf, sizeof(buf), "%u", (unsigned) logStatTime);
+        session.PrintPair("LogStatTime", buf);
     }
 
     if (HTTP_GET_OPT_PARAM(params, "logFlushInterval", param))
@@ -563,7 +569,8 @@ void ConfigHTTPClientSession::ProcessSettings()
         logFlushInterval = 0;
         HTTP_GET_OPT_U64_PARAM(params, "logFlushInterval", logFlushInterval);
         Log_SetFlushInterval((unsigned) logFlushInterval * 1000);
-        session.PrintPair("LogFlushInterval", INLINE_PRINTF("%u", 100, (unsigned) logFlushInterval));
+        snprintf(buf, sizeof(buf), "%u", (unsigned) logFlushInterval);
+        session.PrintPair("LogFlushInterval", buf);
     }
 
     if (HTTP_GET_OPT_PARAM(params, "shardSplitSize", param))
@@ -573,7 +580,8 @@ void ConfigHTTPClientSession::ProcessSettings()
         HTTP_GET_OPT_U64_PARAM(params, "shardSplitSize", shardSplitSize);
         // we expect shardSplitSize is in MegaBytes 
         configServer->GetHeartbeatManager()->SetShardSplitSize(shardSplitSize * 1000 * 1000);
-        session.PrintPair("ShardSplitSize", INLINE_PRINTF("%u", 100, (unsigned) shardSplitSize));
+        snprintf(buf, sizeof(buf), "%u", (unsigned) shardSplitSize);
+        session.PrintPair("ShardSplitSize", buf);
     }
 
     session.Flush();
@@ -608,6 +616,7 @@ void ConfigHTTPClientSession::PrintStatistics()
     FS_Stat                 fsStat;
     bool                    verbose;
     ReadBuffer              param;
+    char                    humanBuf[5];
     
     IOProcessor::GetStats(&iostat);
     
@@ -615,8 +624,8 @@ void ConfigHTTPClientSession::PrintStatistics()
     buffer.Appendf("numPolls: %U\n", iostat.numPolls);
     buffer.Appendf("numTCPReads: %U\n", iostat.numTCPReads);
     buffer.Appendf("numTCPWrites: %U\n", iostat.numTCPWrites);
-    buffer.Appendf("numTCPBytesSent: %s\n", HUMAN_BYTES(iostat.numTCPBytesSent));
-    buffer.Appendf("numTCPBytesReceived: %s\n", HUMAN_BYTES(iostat.numTCPBytesReceived));
+    buffer.Appendf("numTCPBytesSent: %s\n", HumanBytes(iostat.numTCPBytesSent, humanBuf));
+    buffer.Appendf("numTCPBytesReceived: %s\n", HumanBytes(iostat.numTCPBytesReceived, humanBuf));
     buffer.Appendf("numCompletions: %U\n", iostat.numCompletions);
     buffer.Appendf("totalPollTime: %U\n", iostat.totalPollTime);
     buffer.Appendf("totalNumEvents: %U\n", iostat.totalNumEvents);
@@ -633,8 +642,8 @@ void ConfigHTTPClientSession::PrintStatistics()
         buffer.Append("\nFileSystem stats\n");
         buffer.Appendf("numReads: %U\n", fsStat.numReads);
         buffer.Appendf("numWrites: %U\n", fsStat.numWrites);
-        buffer.Appendf("numBytesRead: %s\n", HUMAN_BYTES(fsStat.numBytesRead));
-        buffer.Appendf("numBytesWritten: %s\n", HUMAN_BYTES(fsStat.numBytesWritten));
+        buffer.Appendf("numBytesRead: %s\n", HumanBytes(fsStat.numBytesRead, humanBuf));
+        buffer.Appendf("numBytesWritten: %s\n", HumanBytes(fsStat.numBytesWritten, humanBuf));
         buffer.Appendf("numFileOpens: %U\n", fsStat.numFileOpens);
         buffer.Appendf("numFileCloses: %U\n", fsStat.numFileCloses);
         buffer.Appendf("numFileDeletes: %U\n", fsStat.numFileDeletes);

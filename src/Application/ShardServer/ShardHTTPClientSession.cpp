@@ -182,6 +182,9 @@ void ShardHTTPClientSession::PrintStatus()
     char                        hexbuf[64 + 1];
     int                         i;
     uint64_t                    elapsed;
+    char                        humanBytesSent[5];
+    char                        humanBytesTotal[5];
+    char                        humanThroughput[5];
 
     session.PrintPair("ScalienDB", "ShardServer");
     session.PrintPair("Version", VERSION_STRING);
@@ -241,9 +244,9 @@ void ShardHTTPClientSession::PrintStatus()
         if (it->IsCatchupActive())
         {
             valbuf.Appendf(", catchup active (sent: %s/%s, aggregate throughput: %s/s)",
-             HUMAN_BYTES(it->GetCatchupBytesSent()),
-             HUMAN_BYTES(it->GetCatchupBytesTotal()),
-             HUMAN_BYTES(it->GetCatchupThroughput())
+             HumanBytes(it->GetCatchupBytesSent(), humanBytesSent),
+             HumanBytes(it->GetCatchupBytesTotal(), humanBytesTotal),
+             HumanBytes(it->GetCatchupThroughput(), humanThroughput)
              );
         }
         valbuf.NullTerminate();
@@ -255,9 +258,9 @@ void ShardHTTPClientSession::PrintStatus()
     keybuf.NullTerminate();
     if (SHARD_MIGRATION_WRITER->IsActive())
         valbuf.Writef("yes (sent: %s/%s, aggregate throughput: %s/s)",
-         HUMAN_BYTES(SHARD_MIGRATION_WRITER->GetBytesSent()),
-         HUMAN_BYTES(SHARD_MIGRATION_WRITER->GetBytesTotal()),
-         HUMAN_BYTES(SHARD_MIGRATION_WRITER->GetThroughput()));
+         HumanBytes(SHARD_MIGRATION_WRITER->GetBytesSent(), humanBytesSent),
+         HumanBytes(SHARD_MIGRATION_WRITER->GetBytesTotal(), humanBytesTotal),
+         HumanBytes(SHARD_MIGRATION_WRITER->GetThroughput(), humanThroughput));
     else
         valbuf.Writef("no");
     valbuf.NullTerminate();
@@ -294,6 +297,7 @@ void ShardHTTPClientSession::PrintStatistics()
     ShardDatabaseManager*   databaseManager;
     ShardQuorumProcessor*   quorumProcessor;
     ReadBuffer              param;
+    char                    humanBuf[5];
     
     IOProcessor::GetStats(&iostat);
     
@@ -301,8 +305,8 @@ void ShardHTTPClientSession::PrintStatistics()
     buffer.Appendf("numPolls: %U\n", iostat.numPolls);
     buffer.Appendf("numTCPReads: %U\n", iostat.numTCPReads);
     buffer.Appendf("numTCPWrites: %U\n", iostat.numTCPWrites);
-    buffer.Appendf("numTCPBytesSent: %s\n", HUMAN_BYTES(iostat.numTCPBytesSent));
-    buffer.Appendf("numTCPBytesReceived: %s\n", HUMAN_BYTES(iostat.numTCPBytesReceived));
+    buffer.Appendf("numTCPBytesSent: %s\n", HumanBytes(iostat.numTCPBytesSent, humanBuf));
+    buffer.Appendf("numTCPBytesReceived: %s\n", HumanBytes(iostat.numTCPBytesReceived, humanBuf));
     buffer.Appendf("numCompletions: %U\n", iostat.numCompletions);
     buffer.Appendf("totalPollTime: %U\n", iostat.totalPollTime);
     buffer.Appendf("totalNumEvents: %U\n", iostat.totalNumEvents);
@@ -311,8 +315,8 @@ void ShardHTTPClientSession::PrintStatistics()
     buffer.Append("  Category: FileSystem\n");
     buffer.Appendf("numReads: %U\n", fsStat.numReads);
     buffer.Appendf("numWrites: %U\n", fsStat.numWrites);
-    buffer.Appendf("numBytesRead: %s\n", HUMAN_BYTES(fsStat.numBytesRead));
-    buffer.Appendf("numBytesWritten: %s\n", HUMAN_BYTES(fsStat.numBytesWritten));
+    buffer.Appendf("numBytesRead: %s\n", HumanBytes(fsStat.numBytesRead, humanBuf));
+    buffer.Appendf("numBytesWritten: %s\n", HumanBytes(fsStat.numBytesWritten, humanBuf));
     buffer.Appendf("numFileOpens: %U\n", fsStat.numFileOpens);
     buffer.Appendf("numFileCloses: %U\n", fsStat.numFileCloses);
     buffer.Appendf("numFileDeletes: %U\n", fsStat.numFileDeletes);
@@ -477,6 +481,7 @@ void ShardHTTPClientSession::ProcessDebugCommand()
 #ifdef DEBUG
     ReadBuffer  param;
     bool        boolValue;
+    char        buf[100];
 
     if (HTTP_GET_OPT_PARAM(params, "crash", param))
     {
@@ -491,7 +496,8 @@ void ShardHTTPClientSession::ProcessDebugCommand()
         uint64_t crashInterval = 0;
         HTTP_GET_OPT_U64_PARAM(params, "interval", crashInterval);
         CrashReporter::TimedCrash((unsigned int) crashInterval);
-        session.Print(INLINE_PRINTF("Crash in %u msec", 100, (unsigned int) crashInterval));
+        snprintf(buf, sizeof(buf), "Crash in %u msec", (unsigned int) crashInterval);
+        session.Print(buf);
     }
 
     if (HTTP_GET_OPT_PARAM(params, "randomcrash", param))
@@ -499,7 +505,8 @@ void ShardHTTPClientSession::ProcessDebugCommand()
         uint64_t crashInterval = 0;
         HTTP_GET_OPT_U64_PARAM(params, "interval", crashInterval);
         CrashReporter::RandomCrash((unsigned int) crashInterval);
-        session.Print(INLINE_PRINTF("Crash in %u msec", 100, (unsigned int) crashInterval));
+        snprintf(buf, sizeof(buf), "Crash in %u msec", (unsigned int) crashInterval);
+        session.Print(buf);
     }
 
     if (HTTP_GET_OPT_PARAM(params, "sleep", param))
@@ -591,6 +598,7 @@ bool ShardHTTPClientSession::ProcessSettings()
 	uint64_t				abortWaitingListsNum;
     uint64_t                listDataPageCacheSize;
     ShardQuorumProcessor*   quorumProcessor;
+    char                    buf[100];
 
     if (HTTP_GET_OPT_PARAM(params, "trace", param))
     {
@@ -618,7 +626,8 @@ bool ShardHTTPClientSession::ProcessSettings()
         HTTP_GET_OPT_U64_PARAM(params, "traceBufferSize", traceBufferSize);
         // we expect traceBufferSize is in bytes
         Log_SetTraceBufferSize((unsigned) traceBufferSize);
-        session.PrintPair("TraceBufferSize", INLINE_PRINTF("%u", 100, (unsigned) traceBufferSize));
+        snprintf(buf, sizeof(buf), "%u", (unsigned) traceBufferSize);
+        session.PrintPair("TraceBufferSize", buf);
     }
 
     if (HTTP_GET_OPT_PARAM(params, "debug", param))
@@ -644,7 +653,8 @@ bool ShardHTTPClientSession::ProcessSettings()
         mergeCpuThreshold = 100;
         HTTP_GET_OPT_U64_PARAM(params, "mergeCpuThreshold", mergeCpuThreshold);
         shardServer->GetDatabaseManager()->GetEnvironment()->SetMergeCpuThreshold(mergeCpuThreshold);
-        session.PrintPair("MergeCpuThreshold", INLINE_PRINTF("%u", 100, (unsigned) mergeCpuThreshold));
+        snprintf(buf, sizeof(buf), "%u", (unsigned) mergeCpuThreshold);
+        session.PrintPair("MergeCpuThreshold", buf);
     }
 
     if (HTTP_GET_OPT_PARAM(params, "assert", param))
@@ -657,7 +667,8 @@ bool ShardHTTPClientSession::ProcessSettings()
         logFlushInterval = 0;
         HTTP_GET_OPT_U64_PARAM(params, "logFlushInterval", logFlushInterval);
         Log_SetFlushInterval((unsigned) logFlushInterval * 1000);
-        session.PrintPair("LogFlushInterval", INLINE_PRINTF("%u", 100, (unsigned) logFlushInterval));
+        snprintf(buf, sizeof(buf), "%u", (unsigned) logFlushInterval);
+        session.PrintPair("LogFlushInterval", buf);
     }
 
     if (HTTP_GET_OPT_PARAM(params, "replicationLimit", param))
@@ -668,7 +679,8 @@ bool ShardHTTPClientSession::ProcessSettings()
         {
             quorumProcessor->SetReplicationLimit((unsigned) replicationLimit);
         }
-        session.PrintPair("ReplicationLimit", INLINE_PRINTF("%u", 100, (unsigned) replicationLimit));
+        snprintf(buf, sizeof(buf), "%u", (unsigned) replicationLimit);
+        session.PrintPair("ReplicationLimit", buf);
     }
 
 	if (HTTP_GET_OPT_PARAM(params, "abortWaitingListsNum", param))
@@ -677,7 +689,8 @@ bool ShardHTTPClientSession::ProcessSettings()
         abortWaitingListsNum = 0;
         HTTP_GET_OPT_U64_PARAM(params, "abortWaitingListsNum", abortWaitingListsNum);
 		shardServer->GetDatabaseManager()->GetEnvironment()->config.SetAbortWaitingListsNum(abortWaitingListsNum);
-        session.PrintPair("AbortWaitingListsNum", INLINE_PRINTF("%u", 100, (unsigned) abortWaitingListsNum));
+        snprintf(buf, sizeof(buf), "%u", (unsigned) abortWaitingListsNum);
+        session.PrintPair("AbortWaitingListsNum", buf);
     }
 
 	if (HTTP_GET_OPT_PARAM(params, "listDataPageCacheSize", param))
@@ -688,7 +701,8 @@ bool ShardHTTPClientSession::ProcessSettings()
         if (listDataPageCacheSize > 0)
         {
             StorageDataPageCache::SetMaxCacheSize(listDataPageCacheSize);
-            session.PrintPair("ListDataPageCacheSize", INLINE_PRINTF("%u", 100, (unsigned) listDataPageCacheSize));
+            snprintf(buf, sizeof(buf), "%u", (unsigned) listDataPageCacheSize);
+            session.PrintPair("ListDataPageCacheSize", buf);
         }
     }
 
