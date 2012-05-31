@@ -491,13 +491,17 @@ void ShardDatabaseManager::SetQuorumShards(uint64_t quorumID)
 
 void ShardDatabaseManager::RemoveDeletedDataShards(SortedList<uint64_t>& myShardIDs)
 {
-    uint64_t    shardID;
-    Buffer      storageShardIDs;
-    ReadBuffer  parse;
+    ConfigState*    configState;
+    ConfigTable*    configTable;
+    StorageShard*   storageShard;
+    uint64_t        shardID;
+    Buffer          storageShardIDs;
+    ReadBuffer      parse;
     
     environment.GetShardIDs(QUORUM_DATABASE_DATA_CONTEXT, storageShardIDs);
     parse.Wrap(storageShardIDs);
-    
+    configState = GetConfigState();
+
     while (parse.ReadLittle64(shardID))
     {
         parse.Advance(sizeof(uint64_t));
@@ -506,7 +510,22 @@ void ShardDatabaseManager::RemoveDeletedDataShards(SortedList<uint64_t>& myShard
             if (SHARD_MIGRATION_WRITER->IsActive() && SHARD_MIGRATION_WRITER->GetShardID() == shardID)
                 SHARD_MIGRATION_WRITER->Abort();
 
-            environment.DeleteShard(QUORUM_DATABASE_DATA_CONTEXT, shardID);
+            // There is a shard that I have that is not in the shard list sent to me by the controller.
+            // Make sure I am deleting this shard because the table has been deleted.
+            // I don't have to worry about truncate here, ie. I don't have to call DeleteShard() because
+            // of truncate, because that's handled in ExecuteMessage() when the SHARDMESSAGE_TRUNCATE_TABLE
+            // shard message is replicated.
+
+            storageShard = environment.GetShard(QUORUM_DATABASE_DATA_CONTEXT, shardID);
+            if (!storageShard)
+                continue; // should not happen
+
+            configTable = configState->GetTable(storageShard->GetTableID());
+            if (!configTable)
+            {
+                // table has been deleted, delete the shard, too
+                environment.DeleteShard(QUORUM_DATABASE_DATA_CONTEXT, shardID);
+            }
         }
     }
 }
