@@ -47,6 +47,7 @@ private:
     void                PrintStatistics();
 
     void                ProcessActivateShardServer();
+    void                ProcessDeactivateShardServer();
     void                ProcessSettings();
     bool                ProcessCommand(ReadBuffer& cmd);
     void                ProcessDebugCommand();

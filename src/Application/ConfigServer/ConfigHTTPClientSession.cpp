@@ -504,6 +504,43 @@ End:
     return;    
 }
 
+void ConfigHTTPClientSession::ProcessDeactivateShardServer()
+{
+    bool        force;
+    unsigned    nread;
+    uint64_t    nodeID;
+    ReadBuffer  param;
+    Buffer      wb;
+    ConfigShardServer* configShardServer;
+
+    if (!params.GetNamed("nodeID", sizeof("nodeID") - 1, param))
+        goto Failed;
+    nodeID = BufferToUInt64(param.GetBuffer(), param.GetLength(), &nread);
+    if (nread != param.GetLength())
+        goto Failed;
+
+    force = false;
+    if (HTTP_GET_OPT_PARAM(params, "force", param))
+        force = PARAM_BOOL_VALUE(param);
+
+    configShardServer = configServer->GetDatabaseManager()->GetConfigState()->GetShardServer(nodeID);
+    if (configShardServer)
+    {
+        configServer->GetActivationManager()->TryDeactivateShardServer(nodeID, force);
+        configShardServer->tryAutoActivation = false;
+    }
+
+    session.Print("Deactivation process started...");
+    goto End;
+    
+Failed:
+    session.Print("FAILED. Specify a nodeID!");
+
+End:
+    session.Flush();
+    return;    
+}
+
 void ConfigHTTPClientSession::ProcessSettings()
 {
     ReadBuffer  param;
@@ -670,6 +707,11 @@ bool ConfigHTTPClientSession::ProcessCommand(ReadBuffer& cmd)
     if (HTTP_MATCH_COMMAND(cmd, "activateShardserver"))
     {
         ProcessActivateShardServer();
+        return true;
+    }
+    if (HTTP_MATCH_COMMAND(cmd, "deactivateShardserver"))
+    {
+        ProcessDeactivateShardServer();
         return true;
     }
     if (HTTP_MATCH_COMMAND(cmd, "settings"))
