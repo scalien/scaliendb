@@ -20,7 +20,7 @@ void StorageArchiveLogSegmentJob::Execute()
     
     if (ReadBuffer::Cmp(script, "$archive") == 0)
     {
-        Log_Debug("Archiving log segment %U...", logSegment->GetLogSegmentID());
+        Log_Message("Archiving log segment %U...", logSegment->GetLogSegmentID());
 
         dest.Write(env->archivePath);
         dest.Appendf("log.%020U.%020U", logSegment->GetTrackID(), logSegment->GetLogSegmentID());
@@ -30,13 +30,13 @@ void StorageArchiveLogSegmentJob::Execute()
     }
     else if (ReadBuffer::Cmp(script, "$delete") == 0)
     {
-        Log_Debug("Deleting archive log segment %U/%U...",
+        Log_Message("Deleting archive log segment %U/%U...",
          logSegment->GetTrackID(), logSegment->GetLogSegmentID());
         StorageFileDeleter::Delete(logSegment->filename.GetBuffer());
     }
     else
     {
-        Log_Debug("Executing script on archive log segment %U (%s)...", 
+        Log_Message("Executing script on archive log segment %U (%s)...", 
          logSegment->GetLogSegmentID(), script);
         
         EvalScriptVariables();
