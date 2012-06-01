@@ -340,6 +340,8 @@ void ShardHTTPClientSession::PrintStatistics()
     PRINT_BOOL("isMergeEnabled", databaseManager->GetEnvironment()->IsMergeEnabled());
     buffer.Appendf("mergeCpuThreshold: %u\n", databaseManager->GetEnvironment()->GetMergeCpuThreshold());
     PRINT_BOOL("isMergeRunning", databaseManager->GetEnvironment()->IsMergeRunning());
+    buffer.Appendf("chunkFileDiskUsage: %s\n", HumanBytes(databaseManager->GetEnvironment()->GetChunkFileDiskUsage(), humanBuf));
+    buffer.Appendf("logFileDiskUsage: %s\n", HumanBytes(databaseManager->GetEnvironment()->GetLogSegmentDiskUsage(), humanBuf));
 
     buffer.Append("  Category: Mutexes\n");
     buffer.Appendf("StorageFileDeleter mutexLockCounter: %U\n", StorageFileDeleter::GetMutex().lockCounter);

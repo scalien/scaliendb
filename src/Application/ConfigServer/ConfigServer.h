@@ -59,6 +59,8 @@ public:
     bool                        GetControllerHTTPEndpoint(uint64_t nodeID, Endpoint& endpoint);
     void                        GetHTTPEndpoint(Endpoint& endpoint);
     unsigned                    GetNumSDBPClients();
+    uint64_t                    GetStartTimestamp();
+
     void                        SetLogStatTimeout(uint64_t timeout);
 
 private:
@@ -75,6 +77,7 @@ private:
     Endpoint                    httpEndpoint;
     Countdown                   broadcastHTTPEndpoint;
     ConfigServerApp*            configServerApp;
+    uint64_t                    startTimestamp;
 };
 
 #endif

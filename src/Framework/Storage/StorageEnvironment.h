@@ -124,6 +124,8 @@ public:
     void                    PrintState(uint16_t contextID, Buffer& buffer);
     uint64_t                GetShardMemoryUsage();
     uint64_t                GetLogSegmentMemoryUsage();
+    uint64_t                GetChunkFileDiskUsage();
+    uint64_t                GetLogSegmentDiskUsage();
     StorageConfig&          GetConfig();
     
     void                    OnCommit(StorageCommitJob* job);

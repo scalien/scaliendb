@@ -650,11 +650,11 @@ void ConfigHTTPClientSession::PrintStatistics()
 {
     Buffer                  buffer;
     IOProcessorStat         iostat;
-    FS_Stat                 fsStat;
-    bool                    verbose;
     ReadBuffer              param;
     char                    humanBuf[5];
+    ConfigDatabaseManager*  databaseManager;
     
+    databaseManager = configServer->GetDatabaseManager();
     IOProcessor::GetStats(&iostat);
     
     buffer.Append("IOProcessor stats\n");
@@ -666,25 +666,12 @@ void ConfigHTTPClientSession::PrintStatistics()
     buffer.Appendf("numCompletions: %U\n", iostat.numCompletions);
     buffer.Appendf("totalPollTime: %U\n", iostat.totalPollTime);
     buffer.Appendf("totalNumEvents: %U\n", iostat.totalNumEvents);
-
-    verbose = false;
-    if (HTTP_GET_OPT_PARAM(params, "verbose", param))
-    {
-        verbose = PARAM_BOOL_VALUE(param);
-    }
-
-    if (verbose)
-    {
-        FS_GetStats(&fsStat);
-        buffer.Append("\nFileSystem stats\n");
-        buffer.Appendf("numReads: %U\n", fsStat.numReads);
-        buffer.Appendf("numWrites: %U\n", fsStat.numWrites);
-        buffer.Appendf("numBytesRead: %s\n", HumanBytes(fsStat.numBytesRead, humanBuf));
-        buffer.Appendf("numBytesWritten: %s\n", HumanBytes(fsStat.numBytesWritten, humanBuf));
-        buffer.Appendf("numFileOpens: %U\n", fsStat.numFileOpens);
-        buffer.Appendf("numFileCloses: %U\n", fsStat.numFileCloses);
-        buffer.Appendf("numFileDeletes: %U\n", fsStat.numFileDeletes);
-    }
+    
+    buffer.Append("  Category: Controller\n");
+    buffer.Appendf("uptime: %U sec\n", (Now() - configServer->GetStartTimestamp()) / 1000);
+    buffer.Appendf("totalCpuUsage: %u%%\n", GetTotalCpuUsage());
+    buffer.Appendf("chunkFileDiskUsage: %s\n", HumanBytes(databaseManager->GetEnvironment()->GetChunkFileDiskUsage(), humanBuf));
+    buffer.Appendf("logFileDiskUsage: %s\n", HumanBytes(databaseManager->GetEnvironment()->GetLogSegmentDiskUsage(), humanBuf));
 
     session.Print(buffer);
     session.Flush();

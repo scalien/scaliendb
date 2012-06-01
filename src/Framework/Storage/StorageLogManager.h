@@ -44,6 +44,7 @@ public:
     LogSegment*     GetTail(uint64_t trackID);
 
     uint64_t        GetMemoryUsage();
+    uint64_t        GetDiskUsage();
 
     StorageEnvironment* env;
 

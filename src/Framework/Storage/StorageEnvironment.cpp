@@ -832,6 +832,9 @@ printable.Write(a); if (!printable.IsAsciiPrintable()) { printable.ToHexadecimal
     tmp.NullTerminate();
     buffer.Appendf("Total disk space: %s\n", HumanBytes(FS_DiskSpace(tmp.GetBuffer()), humanBuf));
     buffer.Appendf("Free disk space:  %s\n", HumanBytes(FS_FreeDiskSpace(tmp.GetBuffer()), humanBuf));
+    buffer.Appendf("Total chunk file disk usage: %s\n", HumanBytes(GetChunkFileDiskUsage(), humanBuf));
+    buffer.Appendf("Total log file disk usage: %s\n", HumanBytes(GetLogSegmentDiskUsage(), humanBuf));
+    buffer.Appendf("Total database disk usage: %s\n", HumanBytes(GetChunkFileDiskUsage() + GetLogSegmentDiskUsage(), humanBuf));
 }
 
 uint64_t StorageEnvironment::GetShardMemoryUsage()
@@ -859,6 +862,31 @@ uint64_t StorageEnvironment::GetShardMemoryUsage()
 uint64_t StorageEnvironment::GetLogSegmentMemoryUsage()
 {
     return logManager.GetMemoryUsage();
+}
+
+uint64_t StorageEnvironment::GetChunkFileDiskUsage()
+{
+    uint64_t        totalSize;
+    StorageShard*   shard;
+    StorageChunk**  itChunk;
+
+    totalSize = 0;
+
+    FOREACH (shard, shards)
+    {
+        FOREACH (itChunk, shard->GetChunks())
+        {
+            if ((*itChunk)->GetChunkState() == StorageChunk::Written)
+                totalSize += (*itChunk)->GetSize();
+        }
+    }
+
+    return totalSize;
+}
+
+uint64_t StorageEnvironment::GetLogSegmentDiskUsage()
+{
+    return logManager.GetDiskUsage();
 }
 
 StorageConfig& StorageEnvironment::GetConfig()

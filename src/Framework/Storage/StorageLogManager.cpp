@@ -137,3 +137,21 @@ uint64_t StorageLogManager::GetMemoryUsage()
 
     return totalSize;
 }
+
+uint64_t StorageLogManager::GetDiskUsage()
+{
+    uint64_t        totalSize;
+    Track*          track;
+    LogSegment*     logSegment;
+
+    totalSize = 0;
+
+    FOREACH(track, tracks)
+    {
+        FOREACH (logSegment, track->logSegments)
+            totalSize += logSegment->GetOffset();
+    }
+
+    return totalSize;
+    
+}

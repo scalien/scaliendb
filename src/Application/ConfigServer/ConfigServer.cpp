@@ -26,6 +26,7 @@ void ConfigServer::Init(ConfigServerApp* app)
     const char*     str;
     Endpoint        endpoint;
 
+    startTimestamp = Now();
     configServerApp = app;
 
     REQUEST_CACHE->Init(configFile.GetIntValue("requestCache.size", 100));
@@ -293,6 +294,11 @@ void ConfigServer::GetHTTPEndpoint(Endpoint& endpoint)
 unsigned ConfigServer::GetNumSDBPClients()
 {
     return configServerApp->GetNumSDBPClients();
+}
+
+uint64_t ConfigServer::GetStartTimestamp()
+{
+    return startTimestamp;
 }
 
 void ConfigServer::SetLogStatTimeout(uint64_t timeout)
