@@ -79,6 +79,8 @@ uint64_t        GetProcessID();
 uint64_t        GetTotalPhysicalMemory();
 uint64_t        GetProcessMemoryUsage();
 uint32_t        GetTotalCpuUsage();
+uint32_t        GetDiskReadsPerSec();
+uint32_t        GetDiskWritesPerSec();
 void            SetMemoryLimit(uint64_t limit);
 
 uint32_t        ChecksumBuffer(const char* buffer, unsigned length);
