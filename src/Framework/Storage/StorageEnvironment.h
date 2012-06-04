@@ -115,6 +115,7 @@ public:
     bool                    IsCommitting(uint64_t trackID);
     
     bool                    PushMemoChunk(uint16_t contextID, uint64_t shardID);
+    void                    DumpMemoChunks();
 
     bool                    IsShuttingDown();
     bool                    IsMergeEnabled();
@@ -126,6 +127,9 @@ public:
     uint64_t                GetLogSegmentMemoryUsage();
     uint64_t                GetChunkFileDiskUsage();
     uint64_t                GetLogSegmentDiskUsage();
+    unsigned                GetNumListThreads();
+    unsigned                GetNumActiveListThreads();
+    unsigned                GetNumFinishedMergeJobs();
     StorageConfig&          GetConfig();
     
     void                    OnCommit(StorageCommitJob* job);
@@ -159,14 +163,20 @@ public:
                              StorageShard::IsMergeCandidateFunc IsMergeCandidateFunc);
     void                    MergeChunk(StorageShard* shard);
 
-    Countdown               backgroundTimer;
-    Callable                onBackgroundTimer;
+    Buffer                  envPath;
+    Buffer                  chunkPath;
+    Buffer                  logPath;
+    Buffer                  archivePath;
 
-    LogManager              logManager;
+private:
     ShardList               shards;
     FileChunkList           fileChunks;
     StorageConfig           config;
-    
+    LogManager              logManager;
+
+    Countdown               backgroundTimer;
+    Callable                onBackgroundTimer;
+
     JobProcessor            commitJobs;
     JobProcessor            serializeChunkJobs;
     JobProcessor            writeChunkJobs;
@@ -176,14 +186,10 @@ public:
     ThreadPool*             asyncListThread;
     ThreadPool*             asyncGetThread;
 
-    Buffer                  envPath;
-    Buffer                  chunkPath;
-    Buffer                  logPath;
-    Buffer                  archivePath;
-
     uint64_t                nextChunkID;
     int                     mergeEnabledCounter; // enabled if > 0
     uint32_t                mergeCpuThreshold;   // only merge if CPU % is below this number
+    unsigned                numFinishedMergeJobs;
     unsigned                numCursors;
     const char*             archiveScript;
     bool                    shuttingDown;

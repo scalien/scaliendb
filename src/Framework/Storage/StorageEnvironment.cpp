@@ -80,6 +80,7 @@ StorageEnvironment::StorageEnvironment()
     numCursors = 0;
     mergeEnabledCounter = 0; // disabled
     mergeCpuThreshold = STORAGE_DEFAULT_MERGE_CPU_THRESHOLD; // run if CPU % is less than 50%
+    numFinishedMergeJobs = 0;
     dumpMemoChunks = false;
 }
 
@@ -691,6 +692,11 @@ bool StorageEnvironment::PushMemoChunk(uint16_t contextID, uint64_t shardID)
     return true;
 }
 
+void StorageEnvironment::DumpMemoChunks()
+{
+    dumpMemoChunks = true;
+}
+
 bool StorageEnvironment::IsShuttingDown()
 {
     return shuttingDown;
@@ -887,6 +893,21 @@ uint64_t StorageEnvironment::GetChunkFileDiskUsage()
 uint64_t StorageEnvironment::GetLogSegmentDiskUsage()
 {
     return logManager.GetDiskUsage();
+}
+
+unsigned StorageEnvironment::GetNumListThreads()
+{
+    return asyncListThread->GetNumThreads();
+}
+
+unsigned StorageEnvironment::GetNumActiveListThreads()
+{
+    return asyncListThread->GetNumActive();
+}
+
+unsigned StorageEnvironment::GetNumFinishedMergeJobs()
+{
+    return numFinishedMergeJobs;
 }
 
 StorageConfig& StorageEnvironment::GetConfig()
@@ -1579,6 +1600,7 @@ void StorageEnvironment::OnChunkMerge(StorageMergeChunkJob* job)
     StorageFileChunk**  itInputChunk;
     StorageFileChunk*   inputChunk;
     
+    numFinishedMergeJobs += 1;
     if (shuttingDown)
         return;
 
