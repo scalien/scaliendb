@@ -325,6 +325,8 @@ void ShardHTTPClientSession::PrintStatistics()
     buffer.Append("  Category: ShardServer\n");
     buffer.Appendf("uptime: %U sec\n", (Now() - shardServer->GetStartTimestamp()) / 1000);
     buffer.Appendf("totalCpuUsage: %u%%\n", GetTotalCpuUsage());
+    buffer.Appendf("diskReadsPerSec: %u\n", GetDiskReadsPerSec());
+    buffer.Appendf("diskWritesPerSec: %u\n", GetDiskWritesPerSec());
     buffer.Appendf("pendingReadRequests: %u\n", databaseManager->GetNumReadRequests());
     buffer.Appendf("pendingBlockingReadRequests: %u\n", databaseManager->GetNumBlockingReadRequests());
     buffer.Appendf("pendingListRequests: %u\n", databaseManager->GetNumListRequests());
@@ -340,6 +342,7 @@ void ShardHTTPClientSession::PrintStatistics()
     PRINT_BOOL("isMergeEnabled", databaseManager->GetEnvironment()->IsMergeEnabled());
     buffer.Appendf("mergeCpuThreshold: %u\n", databaseManager->GetEnvironment()->GetMergeCpuThreshold());
     PRINT_BOOL("isMergeRunning", databaseManager->GetEnvironment()->IsMergeRunning());
+    buffer.Appendf("numFinishedMergeJobs: %u\n", databaseManager->GetEnvironment()->GetNumFinishedMergeJobs());
     buffer.Appendf("chunkFileDiskUsage: %s\n", HumanBytes(databaseManager->GetEnvironment()->GetChunkFileDiskUsage(), humanBuf));
     buffer.Appendf("logFileDiskUsage: %s\n", HumanBytes(databaseManager->GetEnvironment()->GetLogSegmentDiskUsage(), humanBuf));
 
@@ -582,7 +585,7 @@ void ShardHTTPClientSession::ProcessEndBackup()
 
 void ShardHTTPClientSession::ProcessDumpMemoChunks()
 {
-    shardServer->GetDatabaseManager()->GetEnvironment()->dumpMemoChunks = true;
+    shardServer->GetDatabaseManager()->GetEnvironment()->DumpMemoChunks();
 
     session.Print("Dumping memo chunks.");
     session.Flush();
@@ -593,6 +596,7 @@ bool ShardHTTPClientSession::ProcessSettings()
     ReadBuffer              param;
     bool                    boolValue;
     uint64_t                mergeCpuThreshold;
+    uint64_t                mergeBufferSize;
     uint64_t                traceBufferSize;
     uint64_t                logFlushInterval;
     uint64_t                logTraceInterval;
@@ -659,6 +663,15 @@ bool ShardHTTPClientSession::ProcessSettings()
         session.PrintPair("MergeCpuThreshold", buf);
     }
 
+    if (HTTP_GET_OPT_PARAM(params, "mergeBufferSize", param))
+    {
+        mergeBufferSize = shardServer->GetDatabaseManager()->GetEnvironment()->GetConfig().GetMergeBufferSize();
+        HTTP_GET_OPT_U64_PARAM(params, "mergeBufferSize", mergeBufferSize);
+        shardServer->GetDatabaseManager()->GetEnvironment()->GetConfig().SetMergeBufferSize(mergeBufferSize);
+        snprintf(buf, sizeof(buf), "%u", (unsigned) mergeBufferSize);
+        session.PrintPair("MergeBufferSize", buf);
+    }
+
     if (HTTP_GET_OPT_PARAM(params, "assert", param))
     {
         ASSERT(false);
@@ -690,7 +703,7 @@ bool ShardHTTPClientSession::ProcessSettings()
         // initialize variable, because conversion may fail
         abortWaitingListsNum = 0;
         HTTP_GET_OPT_U64_PARAM(params, "abortWaitingListsNum", abortWaitingListsNum);
-		shardServer->GetDatabaseManager()->GetEnvironment()->config.SetAbortWaitingListsNum(abortWaitingListsNum);
+		shardServer->GetDatabaseManager()->GetEnvironment()->GetConfig().SetAbortWaitingListsNum(abortWaitingListsNum);
         snprintf(buf, sizeof(buf), "%u", (unsigned) abortWaitingListsNum);
         session.PrintPair("AbortWaitingListsNum", buf);
     }
