@@ -958,10 +958,10 @@ void ShardDatabaseManager::OnExecuteLists()
     if (inactiveAsyncLists.GetLength() == 0)
         return;
     
-	if (environment.config.GetAbortWaitingListsNum() > 0)
+	if (environment.GetConfig().GetAbortWaitingListsNum() > 0)
 	{
-		if (environment.asyncListThread->GetNumActive() == environment.asyncListThread->GetNumThreads() &&
-			listRequests.GetLength() > environment.config.GetAbortWaitingListsNum())
+		if (environment.GetNumActiveListThreads() == environment.GetNumListThreads() &&
+			listRequests.GetLength() > environment.GetConfig().GetAbortWaitingListsNum())
 		{
 			Log_Debug("Aborting waiting list requests, wait queue got too long...");
 			FOREACH_FIRST (request, listRequests)
