@@ -1,19 +1,43 @@
 #include "ConfigActivationManager.h"
 #include "System/Events/EventLoop.h"
+#include "System/Config.h"
 #include "Application/Common/DatabaseConsts.h"
 #include "Application/Common/ContextTransport.h"
 #include "ConfigServer.h"
 #include "ConfigQuorumProcessor.h"
 
-#define CONFIG_STATE        (configServer->GetDatabaseManager()->GetConfigState())
-#define QUORUM_PROCESSOR    (configServer->GetQuorumProcessor())
-#define HEARTBEAT_MANAGER   (configServer->GetHeartbeatManager())
+#define CONFIG_STATE            (configServer->GetDatabaseManager()->GetConfigState())
+#define QUORUM_PROCESSOR        (configServer->GetQuorumProcessor())
+#define HEARTBEAT_MANAGER       (configServer->GetHeartbeatManager())
 
 void ConfigActivationManager::Init(ConfigServer* configServer_)
 {
     configServer = configServer_;
     
+    numRoundsTriggerActivation = configFile.GetIntValue("numRoundsTriggerActivation", RLOG_REACTIVATION_DIFF);
+    activationTimeoutInterval = configFile.GetIntValue("activationTimeout", ACTIVATION_TIMEOUT);
+
     activationTimeout.SetCallable(MFUNC(ConfigActivationManager, OnActivationTimeout));
+}
+
+void ConfigActivationManager::SetNumRoundsTriggerActivation(uint64_t numRoundsTriggerActivation_)
+{
+    numRoundsTriggerActivation = numRoundsTriggerActivation_;
+}
+
+uint64_t ConfigActivationManager::GetNumRoundsTriggerActivation()
+{
+    return numRoundsTriggerActivation;
+}
+
+void ConfigActivationManager::SetActivationTimeout(uint64_t activationTimeoutInterval_)
+{
+    activationTimeoutInterval = activationTimeoutInterval_;
+}
+
+uint64_t ConfigActivationManager::GetActivationTimeout()
+{
+    return activationTimeoutInterval;
 }
 
 void ConfigActivationManager::TryDeactivateShardServer(uint64_t nodeID, bool force)
@@ -109,9 +133,10 @@ void ConfigActivationManager::OnExtendLease(ConfigQuorum& quorum, ClusterMessage
     else
     {
         Log_Trace();
-        
         // if the primary was able to increase its paxosID, the new shardserver joined successfully
-        if (message.paxosID > quorum.activationPaxosID)
+
+        // HACK: the shard server primary uses this to signal to the controller that activation was successful
+        if (message.duration == (PAXOSLEASE_MAX_LEASE_TIME - 1))
         {
             Log_Message("Activating shard server %U in quorum %U: The primary was able to increase its paxosID!",
              quorum.activatingNodeID, quorum.quorumID);
@@ -122,6 +147,8 @@ void ConfigActivationManager::OnExtendLease(ConfigQuorum& quorum, ClusterMessage
 
             shardServer = CONFIG_STATE->GetShardServer(quorum.activatingNodeID);
             shardServer->tryAutoActivation = true;
+
+            UpdateTimeout(); // remove timeout
         }
         else
         {
@@ -167,16 +194,21 @@ void ConfigActivationManager::UpdateTimeout()
     activationExpireTime = 0;
     FOREACH (quorum, CONFIG_STATE->quorums)
     {
-        if (quorum->isActivatingNode)
-        if (!quorum->isReplicatingActivation)
-        if (activationExpireTime == 0 || quorum->activationExpireTime < activationExpireTime)
-            activationExpireTime = quorum->activationExpireTime;
+        if (quorum->isActivatingNode &&
+            !quorum->isReplicatingActivation &&
+            (activationExpireTime == 0 || quorum->activationExpireTime < activationExpireTime))
+                activationExpireTime = quorum->activationExpireTime;
     }
     
     if (activationExpireTime > 0)
     {
         activationTimeout.SetExpireTime(activationExpireTime);
         EventLoop::Reset(&activationTimeout);
+    }
+    else
+    {
+        if (activationTimeout.IsActive())
+            EventLoop::Remove(&activationTimeout);
     }
 }
 
@@ -202,14 +234,14 @@ void ConfigActivationManager::TryActivateShardServer(ConfigQuorum* quorum, Confi
         return;
     
     if (quorum->paxosID >= quorumInfo->paxosID)
-    if (quorum->paxosID - quorumInfo->paxosID > RLOG_REACTIVATION_DIFF)
+    if (quorum->paxosID - quorumInfo->paxosID > numRoundsTriggerActivation)
         return;
 
     // the shard server is "almost caught up", start the activation process
     Log_Message("Activation started for shard server %U and quorum %U...",
         shardServer->nodeID, quorum->quorumID);
 
-    quorum->OnActivationStart(shardServer->nodeID, EventLoop::Now() + ACTIVATION_TIMEOUT);
+    quorum->OnActivationStart(shardServer->nodeID, EventLoop::Now() + activationTimeoutInterval);
     UpdateTimeout();
         
     shardServer->tryAutoActivation = false;

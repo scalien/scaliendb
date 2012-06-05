@@ -67,6 +67,7 @@ void ShardQuorumProcessor::Init(ConfigQuorum* configQuorum, ShardServer* shardSe
     appendState.Reset();
     appendDelay = 0;
     prevAppendTime = 0;
+    activationTargetPaxosID = 0;
     quorumContext.Init(configQuorum, this);
     CONTEXT_TRANSPORT->AddQuorumContext(&quorumContext);
     messageCache.Init(100*1000);
@@ -283,10 +284,30 @@ void ShardQuorumProcessor::OnReceiveLease(uint64_t nodeID, ClusterMessage& messa
     
     quorumContext.OnLearnLease();
     
-    // shard migration
+    // activation (and shard migration)
     if (message.watchingPaxosID)
-        quorumContext.AppendDummy();
-    
+    {
+        if (!quorumContext.IsWaitingOnAppend())
+        {
+            activationTargetPaxosID = GetPaxosID() + 1;
+            // we try append a dummy (+1)
+            quorumContext.AppendDummy();
+        }
+        else
+        {
+            activationTargetPaxosID = GetPaxosID() + 2;
+            // the paxosID will be increased after the OnAppend() runs (+1),
+            // and then we try to append a dummy (+1), see end of OnResumeAppend()
+            restartReplication = false;
+            // don't restart replication when waiting on append
+        }
+        
+    }
+    else
+    {
+        activationTargetPaxosID = 0;
+    }
+
     leaseRequests.Delete(lease);
     
     if (restartReplication)
@@ -383,6 +404,7 @@ void ShardQuorumProcessor::OnRequestLeaseTimeout()
     uint64_t            expireTime;
     ShardLeaseRequest*  lease;
     ClusterMessage      msg;
+    unsigned            duration;
     
     Log_Trace();
 
@@ -390,8 +412,13 @@ void ShardQuorumProcessor::OnRequestLeaseTimeout()
         requestLeaseTimeout.SetDelay(NORMAL_PRIMARYLEASE_REQUEST_TIMEOUT);
     
     highestProposalID = REPLICATION_CONFIG->NextProposalID(highestProposalID);
+
+    duration = PAXOSLEASE_MAX_LEASE_TIME;
+    if (activationTargetPaxosID > 0 && GetPaxosID() >= activationTargetPaxosID)
+        duration = PAXOSLEASE_MAX_LEASE_TIME - 1; // HACK: signal to controller that activation succeeded
+
     msg.RequestLease(MY_NODEID, quorumContext.GetQuorumID(), highestProposalID,
-     GetPaxosID(), configID, PAXOSLEASE_MAX_LEASE_TIME);
+     GetPaxosID(), configID, duration);
     
     Log_Trace("Requesting lease for quorum %U with proposalID %U", GetQuorumID(), highestProposalID);
     
@@ -987,7 +1014,7 @@ void ShardQuorumProcessor::OnResumeAppend()
     ShardMessage*   itShardMessage;
     ShardMessage    shardMessage;
     ClusterMessage  clusterMessage;
-    
+
     if (blockReplication)
     {
         Log_Debug("Blocking replication...");
@@ -1034,10 +1061,13 @@ void ShardQuorumProcessor::OnResumeAppend()
     
     appendState.Reset();
     
+    quorumContext.OnAppendComplete();
+
     if (shardMessages.GetLength() > 0)
         EventLoop::TryAdd(&tryAppend);
-
-    quorumContext.OnAppendComplete();
+    
+    if (activationTargetPaxosID > 0 && activationTargetPaxosID < GetPaxosID())
+        quorumContext.AppendDummy();
 }
 
 void ShardQuorumProcessor::OnResumeBlockedAppend()

@@ -242,6 +242,11 @@ void ShardQuorumContext::ContinueReplication()
     replicatedLog.Continue();
 }
 
+bool ShardQuorumContext::IsWaitingOnAppend()
+{
+    return replicatedLog.IsWaitingOnAppend();
+}
+
 void ShardQuorumContext::OnMessage(ReadBuffer buffer)
 {
     char    proto;

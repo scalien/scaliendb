@@ -71,6 +71,8 @@ public:
     virtual void                    StopReplication();
     virtual void                    ContinueReplication();
 
+    virtual bool                    IsWaitingOnAppend();
+
 private:
     void                            OnPaxosLeaseMessage(ReadBuffer buffer);
     void                            OnPaxosMessage(ReadBuffer buffer);

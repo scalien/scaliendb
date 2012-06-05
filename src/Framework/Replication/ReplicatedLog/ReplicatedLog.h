@@ -33,6 +33,7 @@ public:
 
     bool                    IsMultiPaxosEnabled();
     bool                    IsAppending();
+    bool                    IsWaitingOnAppend();
 
     void                    TryAppendDummy();
     void                    TryAppendNextValue();
@@ -80,6 +81,7 @@ private:
     PaxosAcceptor           acceptor;
     
     bool                    waitingOnAppend;
+    bool                    appendDummyNext;
     uint64_t                lastRequestChosenTime;
     uint64_t                lastLearnChosenTime;
     Countdown               canaryTimer;

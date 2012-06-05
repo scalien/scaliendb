@@ -8,7 +8,6 @@
 class Heartbeat;        // forward
 class ConfigServer;     // forward
 
-#define HEARTBEAT_EXPIRE_TIME           3000        // msec
 #define DEFAULT_SHARD_SPLIT_SIZE        500*MB
 
 /*
@@ -28,7 +27,14 @@ public:
     void                Shutdown();
 
     void                SetShardSplitSize(uint64_t shardSplitSize);
-    
+    uint64_t            GetShardSplitSize();
+
+    void                SetHeartbeatExpireTimeout(uint64_t heartbeatExpireTimeout);
+    uint64_t            GetHeartbeatExpireTimeout();
+
+    void                SetShardSplitCooldownTime(uint64_t shardSplitCooldownTime);
+    uint64_t            GetShardSplitCooldownTime();
+
     void                OnHeartbeatMessage(ClusterMessage& message);
     void                OnHeartbeatTimeout();
 
@@ -45,6 +51,9 @@ private:
     HeartbeatList       heartbeats;
     Countdown           heartbeatTimeout;
     uint64_t            shardSplitSize;
+    uint64_t            heartbeatExpireTimeout;
+    uint64_t            lastSplitTime;
+    uint64_t            shardSplitCooldownTime;
 };
 
 /*

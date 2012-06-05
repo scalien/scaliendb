@@ -6,6 +6,7 @@
 #include "System/Platform.h"
 #include "Framework/Replication/ReplicationConfig.h"
 #include "Application/Common/ContextTransport.h"
+#include "Application/Common/DatabaseConsts.h"
 #include "Version.h"
 #include "ConfigHeartbeatManager.h"
 
@@ -550,6 +551,10 @@ void ConfigHTTPClientSession::ProcessSettings()
     uint64_t    traceBufferSize;
     uint64_t    logTraceInterval;
     uint64_t    logFlushInterval;
+    uint64_t    numRoundsTriggerActivation;
+    uint64_t    activationTimeout;
+    uint64_t    heartbeatExpireTimeout;
+    uint64_t    shardSplitCooldownTime;
     char        buf[100];
     
     if (HTTP_GET_OPT_PARAM(params, "trace", param))
@@ -621,6 +626,46 @@ void ConfigHTTPClientSession::ProcessSettings()
         session.PrintPair("ShardSplitSize", buf);
     }
 
+    if (HTTP_GET_OPT_PARAM(params, "numRoundsTriggerActivation", param))
+    {
+        // initialize variable, because conversion may fail
+        numRoundsTriggerActivation = RLOG_REACTIVATION_DIFF;
+        HTTP_GET_OPT_U64_PARAM(params, "numRoundsTriggerActivation", numRoundsTriggerActivation);
+        configServer->GetActivationManager()->SetNumRoundsTriggerActivation(numRoundsTriggerActivation);
+        snprintf(buf, sizeof(buf), "%u", (unsigned) numRoundsTriggerActivation);
+        session.PrintPair("NumRoundsTriggerActivation", buf);
+    }
+
+    if (HTTP_GET_OPT_PARAM(params, "activationTimeout", param))
+    {
+        // initialize variable, because conversion may fail
+        activationTimeout = ACTIVATION_TIMEOUT;
+        HTTP_GET_OPT_U64_PARAM(params, "activationTimeout", activationTimeout);
+        configServer->GetActivationManager()->SetActivationTimeout(activationTimeout);
+        snprintf(buf, sizeof(buf), "%u", (unsigned) activationTimeout);
+        session.PrintPair("ActivationTimeout", buf);
+    }
+
+    if (HTTP_GET_OPT_PARAM(params, "heartbeatExpireTimeout", param))
+    {
+        // initialize variable, because conversion may fail
+        heartbeatExpireTimeout = HEARTBEAT_EXPIRE_TIME;
+        HTTP_GET_OPT_U64_PARAM(params, "heartbeatExpireTimeout", heartbeatExpireTimeout);
+        configServer->GetHeartbeatManager()->SetHeartbeatExpireTimeout(heartbeatExpireTimeout);
+        snprintf(buf, sizeof(buf), "%u", (unsigned) heartbeatExpireTimeout);
+        session.PrintPair("HeartbeatExpireTimeout", buf);
+    }
+
+    if (HTTP_GET_OPT_PARAM(params, "shardSplitCooldownTime", param))
+    {
+        // initialize variable, because conversion may fail
+        shardSplitCooldownTime = SPLIT_COOLDOWN_TIME;
+        HTTP_GET_OPT_U64_PARAM(params, "shardSplitCooldownTime", shardSplitCooldownTime);
+        configServer->GetHeartbeatManager()->SetShardSplitCooldownTime(shardSplitCooldownTime);
+        snprintf(buf, sizeof(buf), "%u", (unsigned) shardSplitCooldownTime);
+        session.PrintPair("ShardSplitCooldownTime", buf);
+    }
+
     session.Flush();
 }
 
@@ -672,6 +717,12 @@ void ConfigHTTPClientSession::PrintStatistics()
     buffer.Appendf("totalCpuUsage: %u%%\n", GetTotalCpuUsage());
     buffer.Appendf("chunkFileDiskUsage: %s\n", HumanBytes(databaseManager->GetEnvironment()->GetChunkFileDiskUsage(), humanBuf));
     buffer.Appendf("logFileDiskUsage: %s\n", HumanBytes(databaseManager->GetEnvironment()->GetLogSegmentDiskUsage(), humanBuf));
+
+    buffer.Appendf("shardSplitSize: %U\n", configServer->GetHeartbeatManager()->GetShardSplitSize());
+    buffer.Appendf("heartbeatExpireTimeout: %U\n", configServer->GetHeartbeatManager()->GetHeartbeatExpireTimeout());
+    buffer.Appendf("numRoundsTriggerActivation: %U\n", configServer->GetActivationManager()->GetNumRoundsTriggerActivation());
+    buffer.Appendf("activationTimeout: %U\n", configServer->GetActivationManager()->GetActivationTimeout());
+    buffer.Appendf("shardSplitCooldownTime: %U\n", configServer->GetHeartbeatManager()->GetShardSplitCooldownTime());
 
     session.Print(buffer);
     session.Flush();

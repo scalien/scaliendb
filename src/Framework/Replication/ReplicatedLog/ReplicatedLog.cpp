@@ -20,6 +20,7 @@ void ReplicatedLog::Init(QuorumContext* context_)
 
     paxosID = 0;
     waitingOnAppend = false;
+    appendDummyNext = false;
     
     proposer.Init(context);
     acceptor.Init(context);
@@ -64,15 +65,30 @@ bool ReplicatedLog::IsAppending()
     return context->IsLeaseOwner() && proposer.state.numProposals > 0;
 }
 
+bool ReplicatedLog::IsWaitingOnAppend()
+{
+    return waitingOnAppend;
+}
+
 void ReplicatedLog::TryAppendDummy()
 {
     Log_Trace();
     
     proposer.SetUseTimeouts(true);
-
-    if (proposer.IsActive())
-        return;
     
+    if (proposer.IsActive())
+    {
+        appendDummyNext = true;
+        return;
+    }
+
+    if (waitingOnAppend)
+    {
+        appendDummyNext = true;
+        Log_Message("TryAppendDummy called, but waitingOnAppend = true");
+        return;
+    }
+
     Append(dummy);
 #ifdef RLOG_DEBUG_MESSAGES
     Log_Debug("Appending DUMMY!");
@@ -88,6 +104,13 @@ void ReplicatedLog::TryAppendNextValue()
 
     if (!context->IsLeaseOwner() || proposer.IsActive() || !proposer.state.multi)
         return;
+
+    if (appendDummyNext)
+    {
+        appendDummyNext = false;
+        TryAppendDummy();
+        return;
+    }
     
     Buffer& value = context->GetNextValue();
     if (value.GetLength() == 0)
@@ -105,6 +128,9 @@ void ReplicatedLog::TryCatchup()
 
 void ReplicatedLog::Restart()
 {
+    if (waitingOnAppend)
+        return;
+
     context->OnStartProposing();
 
     if (proposer.IsActive())

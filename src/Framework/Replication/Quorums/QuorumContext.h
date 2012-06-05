@@ -56,6 +56,8 @@ public:
 
     virtual void                StopReplication()                                               = 0;
     virtual void                ContinueReplication()                                           = 0;
+
+    virtual bool                IsWaitingOnAppend()                                             = 0;
 };
 
 #endif

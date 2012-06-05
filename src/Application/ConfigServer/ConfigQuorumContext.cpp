@@ -250,6 +250,11 @@ void ConfigQuorumContext::ContinueReplication()
     // TODO: xxx
 }
 
+bool ConfigQuorumContext::IsWaitingOnAppend()
+{
+    return replicatedLog.IsWaitingOnAppend();
+}
+
 void ConfigQuorumContext::OnPaxosLeaseMessage(ReadBuffer buffer)
 {
     PaxosLeaseMessage msg;

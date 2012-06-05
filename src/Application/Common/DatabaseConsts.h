@@ -9,6 +9,9 @@
 
 #define DATABASE_REPLICATION_SIZE               (   1*MB)
 
-#define ACTIVATION_TIMEOUT                      (15*1000) //msec
+#define HEARTBEAT_EXPIRE_TIME                   ( 3*1000) // msec
+#define ACTIVATION_TIMEOUT                      (15*1000) // msec
+#define RLOG_REACTIVATION_DIFF                  (    100) // paxos rounds of difference
+#define SPLIT_COOLDOWN_TIME                     ( 3*1000) // msec
 
 #endif

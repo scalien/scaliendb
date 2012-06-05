@@ -2,6 +2,7 @@
 #include "System/Config.h"
 #include "System/Events/EventLoop.h"
 #include "Application/Common/ContextTransport.h"
+#include "Application/Common/DatabaseConsts.h"
 #include "ConfigActivationManager.h"
 #include "ConfigServer.h"
 
@@ -16,6 +17,10 @@ void ConfigHeartbeatManager::Init(ConfigServer* configServer_)
     EventLoop::Add(&heartbeatTimeout);
     
     shardSplitSize = configFile.GetIntValue("shardSplitSize", DEFAULT_SHARD_SPLIT_SIZE);
+    heartbeatExpireTimeout = configFile.GetIntValue("heartbeatExpireTimeout", HEARTBEAT_EXPIRE_TIME);
+    shardSplitCooldownTime = configFile.GetIntValue("shardSplitCooldownTime", SPLIT_COOLDOWN_TIME);
+
+    lastSplitTime = 0;
 }
 
 void ConfigHeartbeatManager::Shutdown()
@@ -26,6 +31,31 @@ void ConfigHeartbeatManager::Shutdown()
 void ConfigHeartbeatManager::SetShardSplitSize(uint64_t shardSplitSize_)
 {
     shardSplitSize = shardSplitSize_;
+}
+
+uint64_t ConfigHeartbeatManager::GetShardSplitSize()
+{
+    return shardSplitSize;
+}
+
+void ConfigHeartbeatManager::SetHeartbeatExpireTimeout(uint64_t heartbeatExpireTimeout_)
+{
+    heartbeatExpireTimeout = heartbeatExpireTimeout_;
+}
+
+uint64_t ConfigHeartbeatManager::GetHeartbeatExpireTimeout()
+{
+    return heartbeatExpireTimeout;
+}
+
+void ConfigHeartbeatManager::SetShardSplitCooldownTime(uint64_t shardSplitCooldownTime_)
+{
+    shardSplitCooldownTime = shardSplitCooldownTime_;
+}
+
+uint64_t ConfigHeartbeatManager::GetShardSplitCooldownTime()
+{
+    return shardSplitCooldownTime;
 }
 
 void ConfigHeartbeatManager::OnHeartbeatMessage(ClusterMessage& message)
@@ -81,7 +111,7 @@ void ConfigHeartbeatManager::OnHeartbeatTimeout()
     now = Now();
 
     // first remove nodes from the heartbeats list which have
-    // not sent a heartbeat in HEARTBEAT_EXPIRE_TIME
+    // not sent a heartbeat in heartbeatExpireTimeout
     num = heartbeats.GetLength();
     for (itHeartbeat = heartbeats.First(); itHeartbeat != NULL; /* incremented in body */)
     {
@@ -163,7 +193,7 @@ void ConfigHeartbeatManager::RegisterHeartbeat(uint64_t nodeID)
         if (it->nodeID == nodeID)
         {
             heartbeats.Remove(it);
-            it->expireTime = now + HEARTBEAT_EXPIRE_TIME;
+            it->expireTime = now + heartbeatExpireTimeout;
             heartbeats.Add(it);
             return;
         }
@@ -171,7 +201,7 @@ void ConfigHeartbeatManager::RegisterHeartbeat(uint64_t nodeID)
     
     it = new Heartbeat();
     it->nodeID = nodeID;
-    it->expireTime = now + HEARTBEAT_EXPIRE_TIME;
+    it->expireTime = now + heartbeatExpireTimeout;
     heartbeats.Add(it);
     
     configServer->OnConfigStateChanged();
@@ -180,6 +210,7 @@ void ConfigHeartbeatManager::RegisterHeartbeat(uint64_t nodeID)
 void ConfigHeartbeatManager::TrySplitShardActions(ClusterMessage& message)
 {
     bool                    isSplitCreating;
+    uint64_t                now;
     uint64_t                newShardID;
     ConfigShardServer*      configShardServer;
     ConfigQuorum*           itQuorum;
@@ -199,6 +230,8 @@ void ConfigHeartbeatManager::TrySplitShardActions(ClusterMessage& message)
     if (!configShardServer)
         return;
     
+    now = EventLoop::Now();
+
     FOREACH (itQuorum, CONFIG_STATE->quorums)
     {
         if (itQuorum->primaryID != message.nodeID)
@@ -241,8 +274,12 @@ void ConfigHeartbeatManager::TrySplitShardActions(ClusterMessage& message)
                 if (!configServer->GetDatabaseManager()->ShardExists(
                  configShard->tableID, ReadBuffer(itQuorumShardInfo->splitKey)))
                 {
-                    configServer->GetQuorumProcessor()->TrySplitShardBegin(
-                     itQuorumShardInfo->shardID, ReadBuffer(itQuorumShardInfo->splitKey));
+                    if (now > (lastSplitTime + shardSplitCooldownTime))
+                    {
+                        configServer->GetQuorumProcessor()->TrySplitShardBegin(
+                            itQuorumShardInfo->shardID, ReadBuffer(itQuorumShardInfo->splitKey));
+                        lastSplitTime = now;
+                    }
                     break;
                 }
             }

@@ -78,6 +78,8 @@ public:
     virtual void                    StopReplication();
     virtual void                    ContinueReplication();
 
+    virtual bool                    IsWaitingOnAppend();
+
     void                            RegisterPaxosID(uint64_t paxosID);
 
 private:

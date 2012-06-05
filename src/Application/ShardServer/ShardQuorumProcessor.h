@@ -182,6 +182,7 @@ private:
     Timer                   tryAppend;
     YieldTimer              resumeAppend;
     Countdown               resumeBlockedAppend;
+    uint64_t                activationTargetPaxosID;
 };
 
 #endif
