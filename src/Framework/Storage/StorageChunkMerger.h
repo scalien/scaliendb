@@ -34,7 +34,6 @@ public:
     void                    OnMergeFinished();
 
 private:
-    StorageFileKeyValue*    MergeKeyValue(StorageFileKeyValue* , StorageFileKeyValue* it2);
     bool                    WriteBuffer();
     void                    UnloadChunk();
     
@@ -47,6 +46,7 @@ private:
     bool                    IsDone();
     StorageFileKeyValue*    GetSmallest();
     StorageFileKeyValue*    Next(ReadBuffer& lastKey);
+    void                    YieldDiskReads();
 
     FDGuard                 fd;
     Buffer                  writeBuffer;
@@ -55,6 +55,8 @@ private:
     uint64_t                numKeys;
     uint64_t                offset;
     uint64_t                lastSyncOffset;
+    uint64_t                lastReadTime;
+    unsigned                lastNumReads;
 
     StorageChunkReader*     readers;
     unsigned                numReaders;
