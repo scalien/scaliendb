@@ -20,6 +20,7 @@ public:
     void        SetMemoChunkCacheSize(uint64_t memoChunkCacheSize);
     void        SetLogSize(uint64_t logSize);
     void        SetMergeBufferSize(uint64_t mergeBufferSize);
+    void        SetMergeYieldFactor(uint64_t mergeYieldFactor);
     void        SetSyncGranularity(uint64_t syncGranularity);
     void        SetWriteGranularity(uint64_t writeGranularity);
     void        SetReplicatedLogSize(uint64_t replicatedLogSize);
@@ -32,6 +33,7 @@ public:
     uint64_t    GetMemoChunkCacheSize();
     uint64_t    GetNumUnbackedLogSegments();
     uint64_t    GetMergeBufferSize();
+    uint64_t    GetMergeYieldFactor();
     uint64_t    GetSyncGranularity();
     uint64_t    GetWriteGranularity();
     uint64_t    GetNumLogSegmentFileChunks();
@@ -45,6 +47,7 @@ private:
     uint64_t    memoChunkCacheSize;
     uint64_t    numUnbackedLogSegments;
     uint64_t    mergeBufferSize;
+    uint64_t    mergeYieldFactor;
     uint64_t    syncGranularity;
     uint64_t    writeGranularity;
     uint64_t    numLogSegmentFileChunks;

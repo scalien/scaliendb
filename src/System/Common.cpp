@@ -704,28 +704,60 @@ uint64_t GetProcessMemoryUsage()
 }
 
 #ifdef _WIN32
-static volatile long cpuUsage = -1;
+static bool             isPollThreadStarted = false;
+static volatile long    cpuUsage;
+static volatile long    diskReadsPerSec;
+static volatile long    diskWritesPerSec;
+
+struct PerformanceCounterQuery
+{
+    LPCTSTR             path;
+    PDH_HQUERY          hquery;
+    PDH_HCOUNTER        hcounter;
+    DWORD               dwFormat;
+    volatile long*      pValue;
+};
 
 static DWORD WINAPI PerformancePollThread(LPVOID)
 {
-    PDH_HQUERY              hquery;
-    PDH_HCOUNTER            hcountercpu;
+    unsigned                i;
+    unsigned                numCounters;
     PDH_STATUS              status;
     PDH_FMT_COUNTERVALUE    counterValue;
-    LPCTSTR                 counterPath = "\\Processor(_Total)\\% Processor Time";
+    PerformanceCounterQuery pcq[3];
+
+    // Initialize counters
+    numCounters = SIZE(pcq);
+    memset(pcq, 0, sizeof(pcq));
+
+    pcq[0].path = "\\Processor(_Total)\\% Processor Time";
+    pcq[0].dwFormat = PDH_FMT_LONG | PDH_FMT_NOCAP100;
+    pcq[0].pValue = &cpuUsage;
+
+    pcq[1].path = "\\PhysicalDisk(_Total)\\Disk Reads/sec";
+    pcq[1].dwFormat = PDH_FMT_LONG | PDH_FMT_NOCAP100;
+    pcq[1].pValue = &diskReadsPerSec;
+
+    pcq[2].path = "\\PhysicalDisk(_Total)\\Disk Writes/sec";
+    pcq[2].dwFormat = PDH_FMT_LONG | PDH_FMT_NOCAP100;
+    pcq[2].pValue = &diskWritesPerSec;
 
 Begin:
-    status = PdhOpenQuery(NULL, 0, &hquery);
-    if (status != ERROR_SUCCESS)
-        goto Error;
+    for (i = 0; i < SIZE(pcq); i++)
+    {
+        status = PdhOpenQuery(NULL, 0, &pcq[i].hquery);
+        if (status != ERROR_SUCCESS)
+            goto Error;
 
-    status = PdhAddCounter(hquery, counterPath, 0, &hcountercpu);
-    if (status != ERROR_SUCCESS)
-        goto Error;
+        status = PdhAddCounter(pcq[i].hquery, pcq[i].path, 0, &pcq[i].hcounter);
+        if (status != ERROR_SUCCESS)
+            goto Error;
 
-    status = PdhCollectQueryData(hquery);
-    if (status != ERROR_SUCCESS)
-        goto Error;
+        status = PdhCollectQueryData(pcq[i].hquery);
+        if (status != ERROR_SUCCESS)
+            goto Error;
+    }
+
 
     while (true)
     {
@@ -734,15 +766,19 @@ Begin:
         // http://msdn.microsoft.com/en-us/library/windows/desktop/aa372637%28v=vs.85%29.aspx
         // Some counters, such as rate counters, require two counter values in order to compute a displayable value. 
         // In this case you must call PdhCollectQueryData twice before calling PdhGetFormattedCounterValue.
-        status = PdhCollectQueryData(hquery);
-        if (status != ERROR_SUCCESS)
-            goto Error;
 
-        status = PdhGetFormattedCounterValue(hcountercpu, PDH_FMT_LONG | PDH_FMT_NOCAP100, 0, &counterValue);
-        if (status != ERROR_SUCCESS)
-            goto Error;
+        for (i = 0; i < SIZE(pcq); i++)
+        {
+            status = PdhCollectQueryData(pcq[i].hquery);
+            if (status != ERROR_SUCCESS)
+                goto Error;
 
-        cpuUsage = counterValue.longValue;
+            status = PdhGetFormattedCounterValue(pcq[i].hcounter, pcq[i].dwFormat, 0, &counterValue);
+            if (status != ERROR_SUCCESS)
+                goto Error;
+
+            *pcq[i].pValue = counterValue.longValue;
+        }
     }
 
     return 0;
@@ -752,17 +788,45 @@ Error:
     goto Begin;
 }
 
+static inline void StartPerformancePollThread()
+{
+    if (!isPollThreadStarted)
+    {
+        isPollThreadStarted = true;
+        CreateThread(NULL, 0, PerformancePollThread, NULL, STACK_SIZE_PARAM_IS_A_RESERVATION, NULL);
+    }
+}
+
 #endif
 
 uint32_t GetTotalCpuUsage()
 {
 #ifdef _WIN32
-    if (cpuUsage == -1)
-    {
-        CreateThread(NULL, 0, PerformancePollThread, NULL, STACK_SIZE_PARAM_IS_A_RESERVATION, NULL);
-        cpuUsage = 0;
-    }
+    StartPerformancePollThread();
+
     return cpuUsage;
+#else
+    return 0;
+#endif
+}
+
+uint32_t GetDiskReadsPerSec()
+{
+#ifdef _WIN32
+    StartPerformancePollThread();
+    
+    return diskReadsPerSec;
+#else
+    return 0;
+#endif
+}
+
+uint32_t GetDiskWritesPerSec()
+{
+#ifdef _WIN32
+    StartPerformancePollThread();
+    
+    return diskWritesPerSec;
 #else
     return 0;
 #endif

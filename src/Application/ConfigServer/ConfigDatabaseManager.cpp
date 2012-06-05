@@ -19,6 +19,7 @@ void ConfigDatabaseManager::Init(bool restoreMode)
     sc.SetMemoChunkCacheSize(   (uint64_t) configFile.GetInt64Value("database.memoChunkCacheSize",		1*GiB   ));
     sc.SetLogSize(              (uint64_t) configFile.GetInt64Value("database.logSize",					64*MiB  ));
     sc.SetMergeBufferSize(      (uint64_t) configFile.GetInt64Value("database.mergeBufferSize",			10*MiB  ));
+    sc.SetMergeYieldFactor(     (uint64_t) configFile.GetInt64Value("database.mergeYieldFactor",        100     ));
     sc.SetSyncGranularity(      (uint64_t) configFile.GetInt64Value("database.syncGranularity",			16*MiB  ));
     sc.SetWriteGranularity(     (uint64_t) configFile.GetInt64Value("database.writeGranularity",		STORAGE_WRITE_GRANULARITY));
     sc.SetReplicatedLogSize(    (uint64_t) configFile.GetInt64Value("database.replicatedLogSize",		0       ));

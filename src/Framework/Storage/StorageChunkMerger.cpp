@@ -14,9 +14,9 @@ bool StorageChunkMerger::Merge(
 {
     unsigned    i;
     unsigned    numKeys;
+    uint64_t    preloadThreshold;
     Buffer**    itFilename;
     Deferred    onFinish(MFUNC(StorageChunkMerger, OnMergeFinished));
-    uint64_t    preloadThreshold;
     
     env = env_;
     mergeChunk = mergeChunk_;
@@ -25,6 +25,7 @@ bool StorageChunkMerger::Merge(
     minLogSegmentID = 0;
     maxLogSegmentID = 0;
     maxLogCommandID = 0;
+    lastNumReads = 0;
     
     // open readers
     numReaders = filenames.GetLength();
@@ -34,7 +35,10 @@ bool StorageChunkMerger::Merge(
     preloadThreshold = env->GetConfig().GetMergeBufferSize() / numReaders;
     FOREACH (itFilename, filenames)
     {
+        lastReadTime = EventLoop::Now();
         readers[i].Open(ReadBuffer(**itFilename), preloadThreshold);
+        YieldDiskReads();
+
         numKeys += readers[i].GetNumKeys();
         
         // set up segment and command IDs
@@ -126,23 +130,18 @@ void StorageChunkMerger::OnMergeFinished()
     UnloadChunk();
 }
 
-StorageFileKeyValue* StorageChunkMerger::MergeKeyValue(StorageFileKeyValue* , StorageFileKeyValue* it2)
-{
-    if (it2->GetType() == STORAGE_KEYVALUE_TYPE_SET)
-        return it2;
-    else
-        return NULL;
-}
-
 bool StorageChunkMerger::WriteBuffer()
 {
     ssize_t     writeSize;
     uint64_t    syncGranularity;
+    uint64_t    startTime;
+    uint64_t    elapsed;
 
+    startTime = EventLoop::Now();
     writeSize = writeBuffer.GetLength();
     if (FS_FileWrite(fd.GetFD(), writeBuffer.GetBuffer(), writeSize) != writeSize)
         return false;
-    
+
     offset += writeSize;
 
     syncGranularity = env->GetConfig().GetSyncGranularity();
@@ -151,6 +150,11 @@ bool StorageChunkMerger::WriteBuffer()
         StorageEnvironment::Sync(fd.GetFD());
         lastSyncOffset = offset;
     }
+
+    // let other disk activity to happen
+    elapsed = EventLoop::Now() - startTime;
+    if (elapsed > 50)
+        MSleep(elapsed);
 
     return true;
 }
@@ -246,7 +250,7 @@ bool StorageChunkMerger::WriteDataPages(ReadBuffer /*firstKey*/, ReadBuffer last
         while (!env->IsMergeRunning())
         {
             Log_Trace("Yielding...");
-            MSleep(1);
+            MSleep(10);
 
             if (env->shuttingDown || mergeChunk->deleted || !env->IsMergeEnabled())
             {
@@ -260,9 +264,9 @@ bool StorageChunkMerger::WriteDataPages(ReadBuffer /*firstKey*/, ReadBuffer last
         if (it == NULL)
             break;
     
-//        key = it->GetKey();
-//        Log_Debug("Merge: %R", &key);
-        
+        YieldDiskReads();
+        lastReadTime = EventLoop::Now();
+
         ASSERT(it->GetKey().GetLength() > 0);
 
         if (this->firstKey.GetLength() == 0)
@@ -287,13 +291,6 @@ bool StorageChunkMerger::WriteDataPages(ReadBuffer /*firstKey*/, ReadBuffer last
             else
             {
                 dataPage->Finalize();
-                
-                //writeBuffer.Clear();
-                //dataPage->Write(writeBuffer);
-                //ASSERT(writeBuffer.GetLength() == dataPage->GetSize());
-                //if (!WriteBuffer())
-                //    return false;
-                
                 pageOffset += dataPage->Serialize(writeBuffer);
                 if (writeBuffer.GetLength() > env->GetConfig().GetWriteGranularity())
                 {
@@ -317,12 +314,6 @@ bool StorageChunkMerger::WriteDataPages(ReadBuffer /*firstKey*/, ReadBuffer last
     if (dataPage->GetNumKeys() > 0)
     {
         dataPage->Finalize();
-
-        //writeBuffer.Clear();
-        //dataPage->Write(writeBuffer);
-        //ASSERT(writeBuffer.GetLength() == dataPage->GetSize());
-        //if (!WriteBuffer())
-        //    return false;
         dataPage->Serialize(writeBuffer);
 
         mergeChunk->AppendDataPage(NULL);
@@ -449,4 +440,66 @@ StorageFileKeyValue* StorageChunkMerger::Next(ReadBuffer& lastKey)
     }
 
     return NULL;
+}
+
+void StorageChunkMerger::YieldDiskReads()
+{
+    uint64_t    waitTime;
+    uint64_t    now;
+    uint64_t    elapsed;
+    uint64_t    fsWaitTime;
+    uint64_t    numReads;
+    uint64_t    mergeYieldFactor;
+    unsigned    readsPerSec;
+    unsigned    waitUnit;
+    FS_Stat     stat;
+
+    mergeYieldFactor = env->GetConfig().GetMergeYieldFactor();
+    if (mergeYieldFactor == 0)
+        return;
+
+    waitTime = 0;
+    now = EventLoop::Now();
+    if (now == lastReadTime)
+        return;
+
+    // Yield the same amount of time the last operation took
+    waitTime = now - lastReadTime;
+
+    // Use Performance Counters to yield. Unfortunately they have one second resolution
+    // which is very low for yielding and results in spiky read performance
+    readsPerSec = GetDiskReadsPerSec();
+    if (readsPerSec * 2 > waitTime)
+        waitTime = readsPerSec * 2;
+
+    // Yield based on the internal FileSystem module statistics. This gives the best
+    // results, but its heuristics needs tweaking through the mergeYieldFactor
+    // config variable.
+    if (waitTime > 10)
+    {
+        // This is effectively a memcpy, so we only call it at most every 10 msec
+        FS_GetStats(&stat);
+        elapsed = now - lastReadTime;
+        numReads = stat.numReads - lastNumReads;
+        fsWaitTime = numReads / elapsed / mergeYieldFactor;
+        if (fsWaitTime > waitTime)
+            waitTime = fsWaitTime;
+        
+        lastNumReads = stat.numReads;
+        lastReadTime = EventLoop::Now();
+
+        if (waitTime > 1000)
+            waitTime = 1000;
+    }
+    
+    // Sleep in waitUnit units, so long waits can be interrupted.
+    waitUnit = 20;
+    while (waitTime >= waitUnit) 
+    {
+        if (env->shuttingDown || mergeChunk->deleted || !env->IsMergeEnabled())
+            return;
+
+        MSleep(waitUnit);
+        waitTime -= waitUnit;
+    }
 }

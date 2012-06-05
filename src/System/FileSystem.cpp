@@ -1,6 +1,7 @@
 #include "FileSystem.h"
 #include "Log.h"
 #include "Buffers/Buffer.h"
+#include "System/Threading/Atomic.h"
 
 #include <string.h>
 
@@ -641,7 +642,7 @@ ssize_t FS_FileWrite(FD fd, const void* buf, size_t count)
     BOOL    ret;
     DWORD   numWritten;
     
-    fsStat.numWrites++;
+    AtomicIncrementU64(fsStat.numWrites);
 
     ret = WriteFile((HANDLE)fd.handle, buf, (DWORD) count, &numWritten, NULL);
     if (!ret)
@@ -660,7 +661,7 @@ ssize_t FS_FileRead(FD fd, void* buf, size_t count)
     BOOL    ret;
     DWORD   numRead;
 
-    fsStat.numReads++;
+    AtomicIncrementU64(fsStat.numReads);
 
     ret = ReadFile((HANDLE)fd.handle, buf, (DWORD) count, &numRead, NULL);
     if (!ret)
@@ -680,7 +681,7 @@ ssize_t FS_FileWriteOffs(FD fd, const void* buf, size_t count, uint64_t offset)
     DWORD       numWritten;
     OVERLAPPED  overlapped;
 
-    fsStat.numWrites++;
+    AtomicIncrementU64(fsStat.numWrites);
 
     overlapped.hEvent = NULL;
     overlapped.Internal = 0;
@@ -705,7 +706,7 @@ ssize_t FS_FileReadOffs(FD fd, void* buf, size_t count, uint64_t offset)
     DWORD       numRead;
     OVERLAPPED  overlapped;
 
-    fsStat.numReads++;
+    AtomicIncrementU64(fsStat.numReads);
 
     overlapped.hEvent = NULL;
     overlapped.Internal = 0;

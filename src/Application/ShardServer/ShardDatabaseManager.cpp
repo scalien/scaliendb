@@ -344,6 +344,7 @@ void ShardDatabaseManager::Init(ShardServer* shardServer_)
     sc.SetMemoChunkCacheSize(   (uint64_t) configFile.GetInt64Value("database.memoChunkCacheSize",		1*GiB   ));
     sc.SetLogSize(              (uint64_t) configFile.GetInt64Value("database.logSize",					20*GiB  ));
     sc.SetMergeBufferSize(      (uint64_t) configFile.GetInt64Value("database.mergeBufferSize",			10*MiB  ));
+    sc.SetMergeYieldFactor(     (uint64_t) configFile.GetInt64Value("database.mergeYieldFactor",        100     ));
     sc.SetSyncGranularity(      (uint64_t) configFile.GetInt64Value("database.syncGranularity",			16*MiB  ));
     sc.SetWriteGranularity(     (uint64_t) configFile.GetInt64Value("database.writeGranularity",		STORAGE_WRITE_GRANULARITY));
     sc.SetReplicatedLogSize(    (uint64_t) configFile.GetInt64Value("database.replicatedLogSize",		10*GiB  ));
@@ -958,10 +959,10 @@ void ShardDatabaseManager::OnExecuteLists()
     if (inactiveAsyncLists.GetLength() == 0)
         return;
     
-	if (environment.config.GetAbortWaitingListsNum() > 0)
+	if (environment.GetConfig().GetAbortWaitingListsNum() > 0)
 	{
-		if (environment.asyncListThread->GetNumActive() == environment.asyncListThread->GetNumThreads() &&
-			listRequests.GetLength() > environment.config.GetAbortWaitingListsNum())
+		if (environment.GetNumActiveListThreads() == environment.GetNumListThreads() &&
+			listRequests.GetLength() > environment.GetConfig().GetAbortWaitingListsNum())
 		{
 			Log_Debug("Aborting waiting list requests, wait queue got too long...");
 			FOREACH_FIRST (request, listRequests)
