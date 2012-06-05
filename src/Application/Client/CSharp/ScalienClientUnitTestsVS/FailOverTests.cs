@@ -331,5 +331,43 @@ namespace ScalienClientUnitTesting
             killer.Abort();
         }
 
+        [TestMethod]
+        public void TestRandomCrashShardServer()
+        {
+            var client = new Client(Utils.GetConfigNodes());
+            var jsonConfigState = client.GetJSONConfigState();
+            var configState = Utils.JsonDeserialize<ConfigState>(System.Text.Encoding.UTF8.GetBytes(jsonConfigState));
+            var shardServers = configState.shardServers;
+            var quorum = configState.quorums[0];
+            var numShardServers = shardServers.Count;
+
+            Random random = new Random();
+
+            while (true)
+            {
+                if (quorum.inactiveNodes.Count > 0)
+                {
+                    var sleepTime = random.Next(10, 10 + random.Next(30));
+                    Console.WriteLine("Inactive found, sleeping {0}...", sleepTime);
+                    Thread.Sleep(sleepTime * 1000);
+                    continue;
+                }
+
+                var victimNodeID = quorum.activeNodes[random.Next(quorum.activeNodes.Count)];
+                foreach (var shardServer in shardServers)
+                {
+                    if (shardServer.nodeID == victimNodeID)
+                    {
+                        var shardHttpURI = ConfigStateHelpers.GetShardServerURL(shardServer);
+                        Console.WriteLine("Killing {0}", shardHttpURI);
+                        Utils.HTTP.GET(Utils.HTTP.BuildUri(shardHttpURI, "settings?assert"));
+                        var sleepTime = random.Next(300, 300 + random.Next(300));
+                        Console.WriteLine("Sleeping {0}...", sleepTime);
+                        Thread.Sleep(sleepTime * 1000);
+                    }
+                }
+                
+            }
+        }
     }
 }
