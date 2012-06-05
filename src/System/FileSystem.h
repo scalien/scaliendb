@@ -28,13 +28,13 @@
 
 struct FS_Stat
 {
-    uint64_t    numReads;
-    uint64_t    numWrites;
-    uint64_t    numBytesRead;
-    uint64_t    numBytesWritten;
-    uint64_t    numFileOpens;
-    uint64_t    numFileCloses;
-    uint64_t    numFileDeletes;
+    volatile uint64_t   numReads;
+    volatile uint64_t   numWrites;
+    volatile uint64_t   numBytesRead;
+    volatile uint64_t   numBytesWritten;
+    volatile uint64_t   numFileOpens;
+    volatile uint64_t   numFileCloses;
+    volatile uint64_t   numFileDeletes;
 };
 
 typedef intptr_t FS_Dir;
