@@ -30,6 +30,11 @@ void StorageConfig::SetMergeBufferSize(uint64_t mergeBufferSize_)
     mergeBufferSize = mergeBufferSize_;
 }
 
+void StorageConfig::SetMergeYieldFactor(uint64_t mergeYieldFactor_)
+{
+    mergeYieldFactor = mergeYieldFactor_;
+}
+
 void StorageConfig::SetSyncGranularity(uint64_t syncGranularity_)
 {
     syncGranularity = syncGranularity_;
@@ -83,6 +88,11 @@ uint64_t StorageConfig::GetNumUnbackedLogSegments()
 uint64_t StorageConfig::GetMergeBufferSize()
 {
     return mergeBufferSize;
+}
+
+uint64_t StorageConfig::GetMergeYieldFactor()
+{
+    return mergeYieldFactor;
 }
 
 uint64_t StorageConfig::GetSyncGranularity()
