@@ -341,6 +341,7 @@ void ShardHTTPClientSession::PrintStatistics()
     buffer.Appendf("listPageCacheLength: %u\n", StorageDataPageCache::GetListLength());
     PRINT_BOOL("isMergeEnabled", databaseManager->GetEnvironment()->IsMergeEnabled());
     buffer.Appendf("mergeCpuThreshold: %u\n", databaseManager->GetEnvironment()->GetMergeCpuThreshold());
+    buffer.Appendf("mergeYieldFactor: %u\n", databaseManager->GetEnvironment()->GetConfig().GetMergeYieldFactor());
     PRINT_BOOL("isMergeRunning", databaseManager->GetEnvironment()->IsMergeRunning());
     buffer.Appendf("numFinishedMergeJobs: %u\n", databaseManager->GetEnvironment()->GetNumFinishedMergeJobs());
     buffer.Appendf("chunkFileDiskUsage: %s\n", HumanBytes(databaseManager->GetEnvironment()->GetChunkFileDiskUsage(), humanBuf));
@@ -597,6 +598,7 @@ bool ShardHTTPClientSession::ProcessSettings()
     bool                    boolValue;
     uint64_t                mergeCpuThreshold;
     uint64_t                mergeBufferSize;
+    uint64_t                mergeYieldFactor;
     uint64_t                traceBufferSize;
     uint64_t                logFlushInterval;
     uint64_t                logTraceInterval;
@@ -670,6 +672,15 @@ bool ShardHTTPClientSession::ProcessSettings()
         shardServer->GetDatabaseManager()->GetEnvironment()->GetConfig().SetMergeBufferSize(mergeBufferSize);
         snprintf(buf, sizeof(buf), "%u", (unsigned) mergeBufferSize);
         session.PrintPair("MergeBufferSize", buf);
+    }
+
+    if (HTTP_GET_OPT_PARAM(params, "mergeYieldFactor", param))
+    {
+        mergeYieldFactor = shardServer->GetDatabaseManager()->GetEnvironment()->GetConfig().GetMergeYieldFactor();
+        HTTP_GET_OPT_U64_PARAM(params, "mergeYieldFactor", mergeYieldFactor);
+        shardServer->GetDatabaseManager()->GetEnvironment()->GetConfig().SetMergeYieldFactor(mergeYieldFactor);
+        snprintf(buf, sizeof(buf), "%u", (unsigned) mergeYieldFactor);
+        session.PrintPair("MergeYieldFactor", buf);
     }
 
     if (HTTP_GET_OPT_PARAM(params, "assert", param))
