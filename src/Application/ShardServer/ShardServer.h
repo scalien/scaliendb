@@ -64,6 +64,7 @@ public:
     void                    GetMemoryUsageBuffer(Buffer& buffer);
     unsigned                GetNumSDBPClients();
     uint64_t                GetStartTimestamp();
+    uint64_t                GetNumRequests();
 
 private:
     void                    OnSetConfigState(uint64_t nodeID, ClusterMessage& message);
@@ -83,6 +84,7 @@ private:
     ShardMigrationWriter    migrationWriter;
     ShardServerApp*         shardServerApp;
     uint64_t                startTimestamp;
+    uint64_t                numRequests;
 };
 
 #endif

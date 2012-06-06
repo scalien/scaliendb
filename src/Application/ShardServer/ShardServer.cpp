@@ -25,6 +25,8 @@ void ShardServer::Init(ShardServerApp* app, bool restoreMode, bool setNodeID, ui
     shardServerApp = app;
 
     startTimestamp = Now();
+    numRequests = 0;
+
     databaseManager.Init(this); 
     heartbeatManager.Init(this);
     migrationWriter.Init(this);
@@ -150,6 +152,8 @@ void ShardServer::OnClientRequest(ClientRequest* request)
     ConfigShard*            shard;
     ShardQuorumProcessor*   quorumProcessor;
     
+    numRequests += 1;
+
     if (request->IsTransaction())
     {
         quorumProcessor = GetQuorumProcessor(request->quorumID);
@@ -456,6 +460,11 @@ unsigned ShardServer::GetNumSDBPClients()
 uint64_t ShardServer::GetStartTimestamp()
 {
     return startTimestamp;
+}
+
+uint64_t ShardServer::GetNumRequests()
+{
+    return numRequests;
 }
 
 void ShardServer::OnSetConfigState(uint64_t nodeID, ClusterMessage& message)

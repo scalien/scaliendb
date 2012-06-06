@@ -327,12 +327,14 @@ void ShardHTTPClientSession::PrintStatistics()
     buffer.Appendf("totalCpuUsage: %u%%\n", GetTotalCpuUsage());
     buffer.Appendf("diskReadsPerSec: %u\n", GetDiskReadsPerSec());
     buffer.Appendf("diskWritesPerSec: %u\n", GetDiskWritesPerSec());
+    buffer.Appendf("numRequests: %U\n", shardServer->GetNumRequests());
+    buffer.Appendf("nextGetRequestID: %U\n", databaseManager->GetNextGetRequestID());
     buffer.Appendf("pendingReadRequests: %u\n", databaseManager->GetNumReadRequests());
     buffer.Appendf("pendingBlockingReadRequests: %u\n", databaseManager->GetNumBlockingReadRequests());
     buffer.Appendf("pendingListRequests: %u\n", databaseManager->GetNumListRequests());
     buffer.Appendf("inactiveListThreads: %u\n", databaseManager->GetNumInactiveListThreads());
     buffer.Appendf("numAbortedListRequests: %U\n", databaseManager->GetNumAbortedListRequests());
-    buffer.Appendf("nextRequestID: %U\n", databaseManager->GetNextRequestID());
+    buffer.Appendf("nextListRequestID: %U\n", databaseManager->GetNextListRequestID());
     buffer.Appendf("listPageCacheSize: %U\n", StorageDataPageCache::GetCacheSize());
     buffer.Appendf("maxListPageCacheSize: %U\n", StorageDataPageCache::GetMaxCacheSize());
     buffer.Appendf("maxUsedListPageCacheSize: %U\n", StorageDataPageCache::GetMaxUsedSize());
