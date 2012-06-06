@@ -130,6 +130,8 @@ FD FS_Open(const char* filename, int flags)
         oflags |= O_WRONLY;
     if ((flags & FS_APPEND) == FS_APPEND)
         oflags |= O_APPEND;
+    if ((flags & FS_TRUNCATE) == FS_TRUNCATE)
+        oflags |= O_TRUNC;
 #ifdef PLATFORM_LINUX
     if ((flags & FS_DIRECT) == FS_DIRECT)
         oflags |= O_DIRECT;
@@ -529,6 +531,14 @@ FD FS_Open(const char* filename, int flags)
     if ((flags & FS_CREATE) == FS_CREATE)
         dwCreationDisposition = OPEN_ALWAYS;
     
+    if ((flags & FS_TRUNCATE) == FS_TRUNCATE)
+    {
+        if ((flags & FS_CREATE) == FS_CREATE)
+            dwCreationDisposition = CREATE_ALWAYS;
+        else
+            dwCreationDisposition = TRUNCATE_EXISTING;
+    }
+
     dwDesiredAccess = 0;
     if ((flags & FS_READONLY) == FS_READONLY)
         dwDesiredAccess = GENERIC_READ;
@@ -605,21 +615,21 @@ int64_t FS_FileSeek(FD fd, uint64_t offset, int whence_)
     return (int64_t) newFilePointer.QuadPart;
 }
 
-int FS_FileTruncate(FD fd, uint64_t length)
+bool FS_FileTruncate(FD fd, uint64_t length)
 {
     BOOL    ret;
     
     if (FS_FileSeek(fd, length, FS_SEEK_SET) != length)
-        return -1;
+        return false;
 
     ret = SetEndOfFile((HANDLE)fd.handle);
     if (!ret)
     {
         Log_Errno();
-        return -1;
+        return false;
     }
     
-    return 0;
+    return true;
 }
 
 int64_t FS_FileSize(FD fd)

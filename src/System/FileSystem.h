@@ -21,6 +21,7 @@
 #define FS_WRITEONLY            0x0001
 #define FS_READWRITE            0x0002
 #define FS_APPEND               0x0008
+#define FS_TRUNCATE             0x0400
 #define FS_DIRECT               0x4000
 
 #define FS_INVALID_DIR          0
@@ -45,7 +46,7 @@ void        FS_GetStats(FS_Stat* stat);
 FD          FS_Open(const char* filename, int mode);
 void        FS_FileClose(FD fd);
 int64_t     FS_FileSeek(FD fd, uint64_t offset, int whence);
-int         FS_FileTruncate(FD fd, uint64_t length);
+bool        FS_FileTruncate(FD fd, uint64_t length);
 int64_t     FS_FileSize(FD fd);
 ssize_t     FS_FileWrite(FD fd, const void* buf, size_t count);
 ssize_t     FS_FileWriteVector(FD fd, unsigned num, const void** buf, size_t *count);
