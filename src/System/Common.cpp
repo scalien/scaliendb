@@ -450,10 +450,10 @@ void RandomBuffer(char* buffer, unsigned length)
     const char set[] = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
     const size_t setsize = sizeof(set) - 1;
 
-    RandomBufferSet(buffer, length, set, setsize);
+    RandomBufferFromSet(buffer, length, set, setsize);
 }
 
-void RandomBufferSet(char* buffer, unsigned length, const char* set, unsigned setSize)
+void RandomBufferFromSet(char* buffer, unsigned length, const char* set, unsigned setSize)
 {
     unsigned int i;
     static uint64_t d = GenerateGUID();
