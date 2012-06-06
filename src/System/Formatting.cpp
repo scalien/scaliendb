@@ -460,7 +460,7 @@ if (pad)                                            \
                 if (n < 0) EXIT();
                 PAD();
                 REQUIRE(n);
-                if (ghost) n = size;
+                if (ghost) n = MIN((int)size, n);
                 memcpy(buffer, local, n);
                 ADVANCE(2, n);
             }
@@ -471,7 +471,7 @@ if (pad)                                            \
                 if (n < 0) EXIT();
                 PAD();
                 REQUIRE(n);
-                if (ghost) n = size;
+                if (ghost) n = MIN((int)size, n);
                 memcpy(buffer, local, n);
                 ADVANCE(2, n);
             }
@@ -482,7 +482,7 @@ if (pad)                                            \
                 if (n < 0) EXIT();
                 PAD();
                 REQUIRE(n);
-                if (ghost) n = size;
+                if (ghost) n = MIN((int)size, n);
                 memcpy(buffer, local, n);
                 ADVANCE(2, n);
             }
@@ -493,7 +493,7 @@ if (pad)                                            \
                 if (n < 0) EXIT();
                 PAD();
                 REQUIRE(n);
-                if (ghost) n = size;
+                if (ghost) n = MIN((int)size, n);
                 memcpy(buffer, local, n);
                 ADVANCE(2, n);
             }
@@ -504,7 +504,7 @@ if (pad)                                            \
                 if (n < 0) EXIT();
                 PAD();
                 REQUIRE(n);
-                if (ghost) n = size;
+                if (ghost) n = MIN((int)size, n);
                 memcpy(buffer, local, n);
                 ADVANCE(2, n);
             }
@@ -515,7 +515,7 @@ if (pad)                                            \
                 if (n < 0) EXIT();
                 PAD();
                 REQUIRE(n);
-                if (ghost) n = size;
+                if (ghost) n = MIN((int)size, n);
                 memcpy(buffer, local, n);
                 ADVANCE(2, n);
             }
@@ -526,7 +526,7 @@ if (pad)                                            \
                 if (n < 0) EXIT();
                 PAD();
                 REQUIRE(n);
-                if (ghost) n = size;
+                if (ghost) n = MIN((int)size, n);
                 memcpy(buffer, local, n);
                 ADVANCE(2, n);
             }
@@ -535,7 +535,7 @@ if (pad)                                            \
                 p = va_arg(ap, char*);
                 l = strlen(p);
                 REQUIRE(l);
-                if (ghost) l = size;
+                if (ghost) l = MIN((int)size, l);
                 memcpy(buffer, p, l);
                 ADVANCE(2, l);
             }
@@ -545,7 +545,7 @@ if (pad)                                            \
                 p = buf->GetBuffer();
                 l = buf->GetLength();
                 REQUIRE(l);
-                if (ghost) l = size;
+                if (ghost) l = MIN((int)size, l);
                 memcpy(buffer, p, l);
                 ADVANCE(2, l);
             }
@@ -558,12 +558,12 @@ if (pad)                                            \
                 local[n] = ':';
                 n += 1;
                 REQUIRE(n);
-                if (ghost) n = size;
+                if (ghost) n = MIN((int)size, n);
                 memcpy(buffer, local, n);
                 ADVANCE(0, n);
                 REQUIRE(buf->GetLength());
                 l = buf->GetLength();
-                if (ghost) l = size;
+                if (ghost) l = MIN((int)size, l);
                 memmove(buffer, buf->GetBuffer(), l);
                 ADVANCE(3, l);
             }
@@ -573,7 +573,7 @@ if (pad)                                            \
                 p = rb->GetBuffer();
                 l = rb->GetLength();
                 REQUIRE(l);
-                if (ghost) l = size;
+                if (ghost) l = MIN((int)size, l);
                 memcpy(buffer, p, l);
                 ADVANCE(2, l);
             }
@@ -583,12 +583,12 @@ if (pad)                                            \
                 n = snprintf(local, sizeof(local), "%u:", rb->GetLength());
                 if (n < 0) EXIT();
                 REQUIRE(n);
-                if (ghost) n = size;
+                if (ghost) n = MIN((int)size, n);
                 memcpy(buffer, local, n);
                 ADVANCE(0, n);
                 REQUIRE(rb->GetLength());
                 l = rb->GetLength();
-                if (ghost) l = size;
+                if (ghost) l = MIN((int)size, l);
                 memmove(buffer, rb->GetBuffer(), l);
                 ADVANCE(3, l);
             }
@@ -597,7 +597,7 @@ if (pad)                                            \
                 l = va_arg(ap, unsigned);
                 p = va_arg(ap, char*);
                 REQUIRE(l);
-                if (ghost) l = size;
+                if (ghost) l = MIN((int)size, l);
                 memcpy(buffer, p, l);
                 ADVANCE(4, l);
             }
