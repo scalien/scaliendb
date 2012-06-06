@@ -23,12 +23,8 @@ bool StorageEnvironmentWriter::Write(StorageEnvironment* env_)
     TOC.Append("toc");
     TOC.NullTerminate();
     
-    if (fd.Open(newTOC.GetBuffer(), FS_CREATE | FS_WRITEONLY) == INVALID_FD)
+    if (fd.Open(newTOC.GetBuffer(), FS_CREATE | FS_WRITEONLY | FS_TRUNCATE) == INVALID_FD)
         return false;
-    
-    // TODO: open with FS_TRUNCATE flag
-    FS_FileTruncate(fd.GetFD(), 0);
-    StorageEnvironment::Sync(fd.GetFD());
     
     writeSize = writeBuffer.GetLength();
     if (FS_FileWrite(fd.GetFD(), writeBuffer.GetBuffer(), writeSize) != (ssize_t) writeSize)
@@ -59,12 +55,8 @@ uint64_t StorageEnvironmentWriter::WriteSnapshot(StorageEnvironment* env_)
     TOC.Appendf("toc.%U", tocID);
     TOC.NullTerminate();
     
-    if (fd.Open(TOC.GetBuffer(), FS_CREATE | FS_WRITEONLY) == INVALID_FD)
+    if (fd.Open(TOC.GetBuffer(), FS_CREATE | FS_WRITEONLY | FS_TRUNCATE) == INVALID_FD)
         return false;
-    
-    // TODO: open with FS_TRUNCATE flag
-    FS_FileTruncate(fd.GetFD(), 0);
-    StorageEnvironment::Sync(fd.GetFD());
     
     writeSize = writeBuffer.GetLength();
     if (FS_FileWrite(fd.GetFD(), writeBuffer.GetBuffer(), writeSize) != (ssize_t) writeSize)

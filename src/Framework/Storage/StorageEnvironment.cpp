@@ -1720,11 +1720,8 @@ void StorageEnvironment::WriteConfigStateFile(Buffer& configStateBuffer, uint64_
     configStateFile.Appendf("configState.%U", tocID);
     configStateFile.NullTerminate();
     
-    if (fd.Open(configStateFile.GetBuffer(), FS_CREATE | FS_WRITEONLY) == INVALID_FD)
+    if (fd.Open(configStateFile.GetBuffer(), FS_CREATE | FS_WRITEONLY | FS_TRUNCATE) == INVALID_FD)
         ASSERT_FAIL();
-    
-    FS_FileTruncate(fd.GetFD(), 0);
-    StorageEnvironment::Sync(fd.GetFD());
     
     writeSize = configStateBuffer.GetLength();
     if (FS_FileWrite(fd.GetFD(), configStateBuffer.GetBuffer(), writeSize) != (ssize_t) writeSize)

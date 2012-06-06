@@ -11,11 +11,9 @@ bool StorageChunkWriter::Write(StorageEnvironment* env_, StorageFileChunk* file_
 
     file->writeError = true;
 
-    if (fd.Open(file->GetFilename().GetBuffer(), FS_CREATE | FS_WRITEONLY | FS_APPEND) == INVALID_FD)
+    if (fd.Open(file->GetFilename().GetBuffer(), FS_CREATE | FS_WRITEONLY | FS_APPEND | FS_TRUNCATE) == INVALID_FD)
         return false;
     
-    FS_FileTruncate(fd.GetFD(), 0);
-
     if (!WriteHeaderPage())
         return false;
     
