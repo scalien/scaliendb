@@ -1113,7 +1113,7 @@ TEST_DEFINE(TestClientPrintableList)
     client.SetConsistencyMode(SDBP_CONSISTENCY_ANY);
     while (true)
     {
-        RandomBufferSet(buffer, sizeof(buffer) - 1, printableChars, sizeof(printableChars) - 1);
+        RandomBufferFromSet(buffer, sizeof(buffer) - 1, printableChars, sizeof(printableChars) - 1);
         ret = client.ListKeys(defaultTableID, startKey, "", "", 1, true, false);
         if (ret != SDBP_SUCCESS)
             AtomicIncrementU64(errorCounter);

@@ -712,6 +712,7 @@ TEST_DEFINE(TestJSONConfigStateReader_Benchmark)
     JSONConfigState     jsonConfigState;
     unsigned            numBytes;
     ReadBuffer          rb;
+    char                humanBuf[5];
 
     TEST_ASSERT(JSONReader::IsValid(jsonText));
     root = JSON::Create(jsonText);
@@ -776,7 +777,7 @@ TEST_DEFINE(TestJSONConfigStateReader_Benchmark)
         TEST_ASSERT(configState.shards.GetLength() == referenceConfigState.shards.GetLength());
         TEST_ASSERT(configState.shardServers.GetLength() == referenceConfigState.shardServers.GetLength());
     }
-    TEST_LOG("JSONConfigState writer elapsed: %u, bytes: %u, bps: %s", writerSw.Elapsed(), numBytes, HUMAN_BYTES(numBytes * 1000.0 / writerSw.Elapsed()));
+    TEST_LOG("JSONConfigState writer elapsed: %u, bytes: %u, bps: %s", writerSw.Elapsed(), numBytes, HumanBytes(numBytes * 1000.0 / writerSw.Elapsed(), humanBuf));
     TEST_LOG("JSONConfigState reader elapsed: %u", readerSw.Elapsed());
 
     return TEST_SUCCESS;

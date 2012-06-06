@@ -38,6 +38,7 @@ TEST_DEFINE(TestTimingFileSystemWrite)
     char        buf[64*1024];
     unsigned    num = 10*1000;
     const char  filename[] = "tmpfile";
+    char        humanBuf[5];
     
     fd = FS_Open(filename, FS_WRITEONLY | FS_CREATE | FS_APPEND);
     
@@ -52,7 +53,7 @@ TEST_DEFINE(TestTimingFileSystemWrite)
     FS_FileClose(fd);
     FS_Delete(filename);
     
-    TEST_LOG("With sync(): elapsed: %ld, %s/s", (long) sw.Elapsed(), HUMAN_BYTES((float)num * sizeof(buf) / sw.Elapsed() * 1000.0));
+    TEST_LOG("With sync(): elapsed: %ld, %s/s", (long) sw.Elapsed(), HumanBytes((float)num * sizeof(buf) / sw.Elapsed() * 1000.0, humanBuf));
 
     fd = FS_Open(filename, FS_WRITEONLY | FS_CREATE | FS_APPEND);
     
@@ -66,7 +67,7 @@ TEST_DEFINE(TestTimingFileSystemWrite)
     FS_FileClose(fd);
     FS_Delete(filename);
     
-    TEST_LOG("Without sync(): elapsed: %ld, %s/s", (long) sw.Elapsed(), HUMAN_BYTES((float)num * sizeof(buf) / sw.Elapsed() * 1000.0));
+    TEST_LOG("Without sync(): elapsed: %ld, %s/s", (long) sw.Elapsed(), HumanBytes((float)num * sizeof(buf) / sw.Elapsed() * 1000.0, humanBuf));
 
     
     return TEST_SUCCESS;
@@ -82,6 +83,7 @@ static void ParallelWrite1()
     char        buf[64*1024];
     unsigned    num = 10*1000;
     Stopwatch   sw;
+    char        humanBuf[5];
     
     sw.Restart();
     for (unsigned i = 0; i < num; i++)
@@ -94,7 +96,7 @@ static void ParallelWrite1()
     FS_FileClose(parallelFd1);
     FS_Delete(parallelFilename1);
     
-    TEST_LOG("P1 elapsed: %ld, %s/s", (long) sw.Elapsed(), HUMAN_BYTES((float)num * sizeof(buf) / sw.Elapsed() * 1000.0));
+    TEST_LOG("P1 elapsed: %ld, %s/s", (long) sw.Elapsed(), HumanBytes((float)num * sizeof(buf) / sw.Elapsed() * 1000.0, humanBuf));
 }
 
 static void ParallelWrite2()
@@ -102,6 +104,7 @@ static void ParallelWrite2()
     char        buf[64*1024];
     unsigned    num = 10*1000;
     Stopwatch   sw;
+    char        humanBuf[5];
     
     sw.Restart();
     for (unsigned i = 0; i < num; i++)
@@ -114,7 +117,7 @@ static void ParallelWrite2()
     FS_FileClose(parallelFd2);
     FS_Delete(parallelFilename2);
     
-    TEST_LOG("P2 elapsed: %ld, %s/s", (long) sw.Elapsed(), HUMAN_BYTES((float)num * sizeof(buf) / sw.Elapsed() * 1000.0));
+    TEST_LOG("P2 elapsed: %ld, %s/s", (long) sw.Elapsed(), HumanBytes((float)num * sizeof(buf) / sw.Elapsed() * 1000.0, humanBuf));
 }
 
 /*

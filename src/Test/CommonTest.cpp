@@ -150,31 +150,6 @@ TEST_DEFINE(TestCommonUInt64ToBufferWithBase)
     return TEST_SUCCESS;
 }
 
-TEST_DEFINE(TestCommonInlinePrintf)
-{
-    const char*     test;
-    char            buffer[100];
-    unsigned        i;
-    
-    i = 0;
-    
-    while (true)
-    {
-        if (true)
-        {
-            test = INLINE_PRINTF("%u", 100, i);
-            snprintf(buffer, sizeof(buffer), "%u", i);
-            TEST_ASSERT(strcmp(INLINE_PRINTF("%u", 100, i), buffer) == 0);
-
-            i += 1;
-            if (i == 0)
-                break;
-        }
-    }
-
-    return TEST_SUCCESS;
-}
-
 TEST_DEFINE(TestCommonGetTotalCpuUsage)
 {
     uint32_t    cpuUsage;
