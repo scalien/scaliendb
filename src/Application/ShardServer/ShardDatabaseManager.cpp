@@ -381,7 +381,8 @@ void ShardDatabaseManager::Init(ShardServer* shardServer_)
     }
 
     // Used for identifying async requests
-    nextRequestID = 0;
+    nextListRequestID = 0;
+    nextGetRequestID = 0;
 
     numAbortedListRequests = 0;
 }
@@ -809,9 +810,14 @@ unsigned ShardDatabaseManager::GetNumInactiveListThreads()
     return inactiveAsyncLists.GetLength();
 }
 
-uint64_t ShardDatabaseManager::GetNextRequestID()
+uint64_t ShardDatabaseManager::GetNextListRequestID()
 {
-    return nextRequestID;
+    return nextListRequestID;
+}
+
+uint64_t ShardDatabaseManager::GetNextGetRequestID()
+{
+    return nextGetRequestID;
 }
 
 uint64_t ShardDatabaseManager::GetNumAbortedListRequests()
@@ -890,6 +896,8 @@ void ShardDatabaseManager::OnExecuteReads()
         key.Wrap(itRequest->key);
         contextID = QUORUM_DATABASE_DATA_CONTEXT;
         shardID = environment.GetShardID(contextID, itRequest->tableID, key);
+
+        nextGetRequestID += 1;
 
         asyncGet.request = itRequest;
         asyncGet.key = key;
@@ -1066,7 +1074,7 @@ void ShardDatabaseManager::OnExecuteLists()
             ASSERT_FAIL();
 
         // set parameters
-        asyncList->requestID = nextRequestID++;
+        asyncList->requestID = nextListRequestID++;
         asyncList->SetTotal(0);
         asyncList->num = 0;
         asyncList->SetRequest(request);
