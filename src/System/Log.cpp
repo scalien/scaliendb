@@ -285,15 +285,15 @@ static void Log_Write(const char* buf, int size, int flush, bool lockMutex = tru
         if (buf)
             fputs(buf, stdout);
         if (flush)
-			fflush(stdout);
+            fflush(stdout);
     }
     
     if ((target & LOG_TARGET_STDERR) == LOG_TARGET_STDERR)
     {
         if (buf)
             fputs(buf, stderr);
-		if (flush)
-			fflush(stderr);
+        if (flush)
+            fflush(stderr);
 
 #ifdef _WIN32
         IFDEBUG(OutputDebugString(buf));
@@ -307,8 +307,8 @@ static void Log_Write(const char* buf, int size, int flush, bool lockMutex = tru
 
         if (buf)
             fputs(buf, logfile);
-		if (flush)
-			fflush(logfile);
+        if (flush)
+            fflush(logfile);
         
         if (maxSize > 0)
         {
@@ -670,6 +670,7 @@ void Log_Shutdown()
     
     if (logfile)
     {
+
         fclose(logfile);
         logfile = NULL;
     }
