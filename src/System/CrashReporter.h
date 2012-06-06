@@ -11,10 +11,8 @@ public:
     static const char*  GetReport();
     static void         ReportSystemEvent(const char* ident);
 
-#ifdef DEBUG
     static void         TimedCrash(unsigned intervalMsec);
     static void         RandomCrash(unsigned intervalMsec);
-#endif
 };
 
 #endif

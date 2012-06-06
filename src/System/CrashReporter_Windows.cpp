@@ -1,5 +1,7 @@
 #ifdef PLATFORM_WINDOWS
 #include "CrashReporter.h"
+#include "Threading/ThreadPool.h"
+#include "Time.h"
 
 #include <windows.h>
 #include <dbghelp.h>
@@ -9,6 +11,8 @@ static Callable                 exceptionCallback;
 static char                     exceptionMessage[16384];
 static EXCEPTION_POINTERS*      exceptionPointers;
 static volatile bool            exceptionActive;
+static unsigned long            crashSleepTime; 
+static ThreadPool*              crashThread;
 
 #ifndef STATUS_HEAP_CORRUPTION
 #define STATUS_HEAP_CORRUPTION  0xC0000374
@@ -208,17 +212,14 @@ void CrashReporter::ReportSystemEvent(const char* ident)
     }
 }
 
-#ifdef DEBUG
-// Crash testing functionality support. Should NOT be included in release versions!
-#include "Threading/ThreadPool.h"
-#include "Time.h"
-
-static unsigned long    crashSleepTime; 
-static ThreadPool*      crashThread;
-
+// Crash testing functionality support
 void CrashThreadFunc()
 {
     MSleep(crashSleepTime);
+    
+    Log_Message("Crashing...");
+    Log_Shutdown();
+
     *((char*) 0) = 0;
 }
 
@@ -239,7 +240,5 @@ void CrashReporter::RandomCrash(unsigned intervalMsec)
 {
     TimedCrash(RandomInt(0, (int) intervalMsec));
 }
-
-#endif // DEBUG
 
 #endif // PLATFORM_WINDOWS
