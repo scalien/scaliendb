@@ -168,7 +168,7 @@ TEST_DEFINE(TestClientBasic)
     ReadBuffer      resultValue;
     int             ret;
 
-	ret = SetupDefaultClient(client);
+    ret = SetupDefaultClient(client);
     if (ret != SDBP_SUCCESS)
         TEST_CLIENT_FAIL();
     
@@ -245,7 +245,7 @@ TEST_DEFINE(TestClientSet)
         }
     }
 
-	client.Submit();
+    client.Submit();
 
     client.Shutdown();
     
@@ -1350,28 +1350,28 @@ TEST_DEFINE(TestClientMultiThread)
 
     // parallel tests may fail, but that should not affect the main program
     stopOnTestFailure = true;
-	
+    
     runCount = 0;
 
     while(true)
-	{
+    {
         TEST_LOG("Starting %u threads", numThread);
         sw.Restart();
-		threadPool = ThreadPool::Create(numThread);
-		threadPool->SetStackSize(256*KiB);
+        threadPool = ThreadPool::Create(numThread);
+        threadPool->SetStackSize(256*KiB);
 
-		for (unsigned i = 0; i < numThread; i++)
-		{
+        for (unsigned i = 0; i < numThread; i++)
+        {
             threadPool->Execute(CFunc((void (*)(void)) TestClientPrintableList));
-		}
+        }
     
-		threadPool->Start();
-		threadPool->WaitStop();
-	    delete threadPool;
+        threadPool->Start();
+        threadPool->WaitStop();
+        delete threadPool;
         sw.Stop();
         runCount += numThread;
         TEST_LOG("Elapsed: %ld, fail/run = %u/%u = %2.1f%%", (long) sw.Elapsed(), failCount, runCount, (float)failCount / runCount * 100.0);
-	}
+    }
     
     return TEST_SUCCESS;
 }

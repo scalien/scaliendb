@@ -53,3 +53,30 @@ TEST_DEFINE(TestFormattingFD)
 
     return TEST_SUCCESS;
 }
+
+TEST_DEFINE(TestFormattingOverflow)
+{
+    #pragma omp parallel for
+    for (int i = 0; i < 1000; i++)
+    {
+        Buffer          tmp;
+        Buffer          big;
+        Buffer          small;
+
+        const unsigned  TMP_SIZE = 8 * MB;
+        const unsigned  BIG_SIZE = 16 * MB;
+
+        tmp.Allocate(TMP_SIZE);
+        tmp.SetLength(TMP_SIZE);
+    
+        big.Allocate(BIG_SIZE);
+        big.SetLength(BIG_SIZE);
+
+        small.Write("hello");
+
+        tmp.Appendf("%#B:%#B", &big, &small);
+    }
+
+    return TEST_SUCCESS;
+}
+
