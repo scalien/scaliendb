@@ -245,7 +245,7 @@ void StorageLogSegment::Commit()
     StorageEnvironment::Sync(fd);
 
     sw.Stop();
-    Log_Message("Committed track %U, elapsed: %U, size: %s, bps: %sB/s",
+    Log_Debug("Committed track %U, elapsed: %U, size: %s, bps: %sB/s",
         trackID,
         (uint64_t) sw.Elapsed(), HumanBytes(length, humanBuf),
         HumanBytes(BYTE_PER_SEC(length, sw.Elapsed()), humanBuf2));
