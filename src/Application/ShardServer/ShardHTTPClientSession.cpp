@@ -348,6 +348,8 @@ void ShardHTTPClientSession::PrintStatistics()
     buffer.Appendf("numFinishedMergeJobs: %u\n", databaseManager->GetEnvironment()->GetNumFinishedMergeJobs());
     buffer.Appendf("chunkFileDiskUsage: %s\n", HumanBytes(databaseManager->GetEnvironment()->GetChunkFileDiskUsage(), humanBuf));
     buffer.Appendf("logFileDiskUsage: %s\n", HumanBytes(databaseManager->GetEnvironment()->GetLogSegmentDiskUsage(), humanBuf));
+    buffer.Appendf("numShards: %u\n", databaseManager->GetEnvironment()->GetNumShards());
+    buffer.Appendf("numFileChunks: %u\n", databaseManager->GetEnvironment()->GetNumFileChunks());
 
     buffer.Append("  Category: Mutexes\n");
     buffer.Appendf("StorageFileDeleter mutexLockCounter: %U\n", StorageFileDeleter::GetMutex().lockCounter);
@@ -360,12 +362,8 @@ void ShardHTTPClientSession::PrintStatistics()
     buffer.Append("  Category: Replication\n");
     FOREACH (quorumProcessor, *shardServer->GetQuorumProcessors())
     {
-        buffer.Appendf("quorum[%U].messageListSize: %u\n", quorumProcessor->GetQuorumID(), 
-            quorumProcessor->GetMessageListSize());
-        buffer.Appendf("quorum[%U].shardAppendStateSize: %u\n", quorumProcessor->GetQuorumID(), 
-            quorumProcessor->GetShardAppendStateSize());
-        buffer.Appendf("quorum[%U].contextSize: %u\n", quorumProcessor->GetQuorumID(), 
-            quorumProcessor->GetQuorumContextSize());
+        buffer.Appendf("quorum[%U].messageListLength: %u\n", quorumProcessor->GetQuorumID(), 
+            quorumProcessor->GetMessageListLength());
     }
 
     session.Print(buffer);
@@ -486,17 +484,36 @@ bool ShardHTTPClientSession::ProcessCommand(ReadBuffer& cmd)
 
 void ShardHTTPClientSession::ProcessDebugCommand()
 {
-#ifdef DEBUG
-    ReadBuffer  param;
-    bool        boolValue;
-    char        buf[100];
+    ReadBuffer      param;
+    char            buf[100];
+    const char*     debugKey;
+
+    debugKey = configFile.GetValue("debug.key", NULL);
+    if (debugKey == NULL)
+    {
+        session.Flush();
+        return;
+    }
+
+    if (!HTTP_GET_OPT_PARAM(params, "key", param))
+    {
+        session.Flush();
+        return;
+    }
+
+    if (!param.Equals(debugKey))
+    {
+        session.Flush();
+        return;
+    }
 
     if (HTTP_GET_OPT_PARAM(params, "crash", param))
     {
-        Log_Debug("Crashing server from web console...");
-        char* null = NULL;
-        *null = 0;
+        Log_Message("Crashing due to request from HTTP interface");
+        Log_Shutdown();
+    
         // Access violation
+        *((char*) 0) = 0;        
     }
 
     if (HTTP_GET_OPT_PARAM(params, "timedcrash", param))
@@ -504,8 +521,9 @@ void ShardHTTPClientSession::ProcessDebugCommand()
         uint64_t crashInterval = 0;
         HTTP_GET_OPT_U64_PARAM(params, "interval", crashInterval);
         CrashReporter::TimedCrash((unsigned int) crashInterval);
-        snprintf(buf, sizeof(buf), "Crash in %u msec", (unsigned int) crashInterval);
+        snprintf(buf, sizeof(buf), "Crash scheduled in %u msec", (unsigned int) crashInterval);
         session.Print(buf);
+        Log_Message("%s", buf);
     }
 
     if (HTTP_GET_OPT_PARAM(params, "randomcrash", param))
@@ -515,6 +533,7 @@ void ShardHTTPClientSession::ProcessDebugCommand()
         CrashReporter::RandomCrash((unsigned int) crashInterval);
         snprintf(buf, sizeof(buf), "Crash in %u msec", (unsigned int) crashInterval);
         session.Print(buf);
+        Log_Message("%s", buf);
     }
 
     if (HTTP_GET_OPT_PARAM(params, "sleep", param))
@@ -527,11 +546,16 @@ void ShardHTTPClientSession::ProcessDebugCommand()
         session.Print("Sleep finished");
     }
 
-    if (HTTP_GET_OPT_PARAM(params, "log", param))
+    if (HTTP_GET_OPT_PARAM(params, "stop", param))
     {
-        boolValue = PARAM_BOOL_VALUE(param);
-        Log_SetDebug(boolValue);
-        session.PrintPair("Debug", boolValue ? "on" : "off");
+        STOP("Stopping due to request from HTTP interface");
+        // program terminates here
+    }
+
+    if (HTTP_GET_OPT_PARAM(params, "fail", param))
+    {
+        STOP_FAIL(1, "Failing due to request from HTTP interface");
+        // program terminates here
     }
 
     if (HTTP_GET_OPT_PARAM(params, "assert", param))
@@ -541,22 +565,21 @@ void ShardHTTPClientSession::ProcessDebugCommand()
     }
 
     session.Flush();
-#endif
 }
 
 void ShardHTTPClientSession::ProcessStartBackup()
 {
     uint64_t                tocID;
     Buffer                  output;
-	Buffer					configStateBuffer;
+    Buffer					configStateBuffer;
     StorageEnvironment*     env;
-	ConfigState*			configState;
+    ConfigState*			configState;
 
     env = shardServer->GetDatabaseManager()->GetEnvironment();
 
-	configState = shardServer->GetDatabaseManager()->GetConfigState();
+    configState = shardServer->GetDatabaseManager()->GetConfigState();
     if (configState)
-	    configState->Write(configStateBuffer, false);
+        configState->Write(configStateBuffer, false);
 
     // turn off file deletion and write a snapshot of the TOC
     env->SetDeleteEnabled(false);
@@ -605,7 +628,7 @@ bool ShardHTTPClientSession::ProcessSettings()
     uint64_t                logFlushInterval;
     uint64_t                logTraceInterval;
     uint64_t                replicationLimit;
-	uint64_t				abortWaitingListsNum;
+    uint64_t				abortWaitingListsNum;
     uint64_t                listDataPageCacheSize;
     ShardQuorumProcessor*   quorumProcessor;
     char                    buf[100];
@@ -711,17 +734,17 @@ bool ShardHTTPClientSession::ProcessSettings()
         session.PrintPair("ReplicationLimit", buf);
     }
 
-	if (HTTP_GET_OPT_PARAM(params, "abortWaitingListsNum", param))
+    if (HTTP_GET_OPT_PARAM(params, "abortWaitingListsNum", param))
     {
         // initialize variable, because conversion may fail
         abortWaitingListsNum = 0;
         HTTP_GET_OPT_U64_PARAM(params, "abortWaitingListsNum", abortWaitingListsNum);
-		shardServer->GetDatabaseManager()->GetEnvironment()->GetConfig().SetAbortWaitingListsNum(abortWaitingListsNum);
+        shardServer->GetDatabaseManager()->GetEnvironment()->GetConfig().SetAbortWaitingListsNum(abortWaitingListsNum);
         snprintf(buf, sizeof(buf), "%u", (unsigned) abortWaitingListsNum);
         session.PrintPair("AbortWaitingListsNum", buf);
     }
 
-	if (HTTP_GET_OPT_PARAM(params, "listDataPageCacheSize", param))
+    if (HTTP_GET_OPT_PARAM(params, "listDataPageCacheSize", param))
     {
         // initialize variable, because conversion may fail
         listDataPageCacheSize = 0;
