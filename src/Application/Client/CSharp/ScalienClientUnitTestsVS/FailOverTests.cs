@@ -335,6 +335,7 @@ namespace ScalienClientUnitTesting
         public void TestRandomCrashShardServer()
         {
             var client = new Client(Utils.GetConfigNodes());
+            var debugKey = "N0226tpF27HnXqP";
 
             Random random = new Random();
 
@@ -361,8 +362,8 @@ namespace ScalienClientUnitTesting
                     {
                         var shardHttpURI = ConfigStateHelpers.GetShardServerURL(shardServer);
                         Console.WriteLine("Killing {0}", shardHttpURI);
-                        Utils.HTTP.GET(Utils.HTTP.BuildUri(shardHttpURI, "settings?assert"));
-                        var sleepTime = random.Next(600, 600 + random.Next(300));
+                        Utils.HTTP.GET(Utils.HTTP.BuildUri(shardHttpURI, "debug?randomcrash&key=" + debugKey + "&interval=300"));
+                        var sleepTime = random.Next(600, 600 + random.Next(900));
                         Console.WriteLine("Sleeping {0}...", sleepTime);
                         Thread.Sleep(sleepTime * 1000);
                     }
