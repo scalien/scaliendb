@@ -120,6 +120,7 @@ public:
     
     uint64_t                GetMessageCacheSize();
     uint64_t                GetMessageListSize();
+    unsigned                GetMessageListLength();
     uint64_t                GetShardAppendStateSize();
     uint64_t                GetQuorumContextSize();
 

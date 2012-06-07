@@ -805,6 +805,11 @@ uint64_t ShardQuorumProcessor::GetMessageListSize()
     return shardMessages.GetLength() * sizeof(ShardMessage);
 }
 
+unsigned ShardQuorumProcessor::GetMessageListLength()
+{
+    return shardMessages.GetLength();
+}
+
 uint64_t ShardQuorumProcessor::GetShardAppendStateSize()
 {
     return appendState.valueBuffer.GetSize();
