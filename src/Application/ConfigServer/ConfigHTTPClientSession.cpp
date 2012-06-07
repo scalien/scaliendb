@@ -4,6 +4,7 @@
 #include "System/Config.h"
 #include "System/FileSystem.h"
 #include "System/Platform.h"
+#include "System/CrashReporter.h"
 #include "Framework/Replication/ReplicationConfig.h"
 #include "Application/Common/ContextTransport.h"
 #include "Application/Common/DatabaseConsts.h"
@@ -116,6 +117,10 @@ void ConfigHTTPClientSession::PrintStatus()
     buf.NullTerminate();
     session.PrintPair("ProcessID", buf.GetBuffer());
 
+    buf.Writef("%U", (Now() - configServer->GetStartTimestamp()) / 1000);
+    buf.NullTerminate();
+    session.PrintPair("Uptime", buf.GetBuffer());
+
     UInt64ToBufferWithBase(hexbuf, sizeof(hexbuf), REPLICATION_CONFIG->GetClusterID(), 64);
     session.PrintPair("ClusterID", hexbuf);
 
@@ -140,7 +145,7 @@ void ConfigHTTPClientSession::PrintStatus()
     }
     else
     {
-        session.Print("No replication round seen since start...");
+        session.PrintPair("Seconds since last replication", "No replication");
     }
 
     buf.Writef("%u", configServer->GetNumSDBPClients());
@@ -802,16 +807,56 @@ bool ConfigHTTPClientSession::ProcessCommand(ReadBuffer& cmd)
 
 void ConfigHTTPClientSession::ProcessDebugCommand()
 {
-#ifdef DEBUG
-    ReadBuffer  param;
-    bool        boolValue;
+    ReadBuffer      param;
+    char            buf[100];
+    const char*     debugKey;
+
+    debugKey = configFile.GetValue("debug.key", NULL);
+    if (debugKey == NULL)
+    {
+        session.Flush();
+        return;
+    }
+
+    if (!HTTP_GET_OPT_PARAM(params, "key", param))
+    {
+        session.Flush();
+        return;
+    }
+
+    if (!param.Equals(debugKey))
+    {
+        session.Flush();
+        return;
+    }
 
     if (HTTP_GET_OPT_PARAM(params, "crash", param))
     {
-        Log_Debug("Crashing server from web console...");
-        char* null = NULL;
-        *null = 0;
+        Log_Message("Crashing due to request from HTTP interface");
+        Log_Shutdown();
+    
         // Access violation
+        *((char*) 0) = 0;        
+    }
+
+    if (HTTP_GET_OPT_PARAM(params, "timedcrash", param))
+    {
+        uint64_t crashInterval = 0;
+        HTTP_GET_OPT_U64_PARAM(params, "interval", crashInterval);
+        CrashReporter::TimedCrash((unsigned int) crashInterval);
+        snprintf(buf, sizeof(buf), "Crash scheduled in %u msec", (unsigned int) crashInterval);
+        session.Print(buf);
+        Log_Message("%s", buf);
+    }
+
+    if (HTTP_GET_OPT_PARAM(params, "randomcrash", param))
+    {
+        uint64_t crashInterval = 0;
+        HTTP_GET_OPT_U64_PARAM(params, "interval", crashInterval);
+        CrashReporter::RandomCrash((unsigned int) crashInterval);
+        snprintf(buf, sizeof(buf), "Crash in %u msec", (unsigned int) crashInterval);
+        session.Print(buf);
+        Log_Message("%s", buf);
     }
 
     if (HTTP_GET_OPT_PARAM(params, "sleep", param))
@@ -824,30 +869,40 @@ void ConfigHTTPClientSession::ProcessDebugCommand()
         session.Print("Sleep finished");
     }
 
-    if (HTTP_GET_OPT_PARAM(params, "log", param))
+    if (HTTP_GET_OPT_PARAM(params, "stop", param))
     {
-        boolValue = PARAM_BOOL_VALUE(param);
-        Log_SetDebug(boolValue);
-        session.PrintPair("Debug", boolValue ? "on" : "off");
+        STOP("Stopping due to request from HTTP interface");
+        // program terminates here
+    }
+
+    if (HTTP_GET_OPT_PARAM(params, "fail", param))
+    {
+        STOP_FAIL(1, "Failing due to request from HTTP interface");
+        // program terminates here
+    }
+
+    if (HTTP_GET_OPT_PARAM(params, "assert", param))
+    {
+        ASSERT_FAIL();
+        // program terminates here
     }
 
     session.Flush();
-#endif
 }
 
 void ConfigHTTPClientSession::ProcessStartBackup()
 {
     uint64_t                tocID;
     Buffer                  output;
-	Buffer					configStateBuffer;
+    Buffer					configStateBuffer;
     StorageEnvironment*     env;
-	ConfigState*			configState;
+    ConfigState*			configState;
 
     env = configServer->GetDatabaseManager()->GetEnvironment();
     
     configState = configServer->GetDatabaseManager()->GetConfigState();
     if (configState)
-	    configState->Write(configStateBuffer, false);
+        configState->Write(configStateBuffer, false);
 
     // turn off file deletion and write a snapshot of the TOC
     env->SetDeleteEnabled(false);
