@@ -53,6 +53,7 @@ TEST_ADD(TestFileSystemDiskSpace);
 TEST_ADD(TestFileSystemFileSize);
 TEST_ADD(TestFileSystemTruncate);
 TEST_ADD(TestFormattingFD);
+TEST_ADD(TestFormattingOverflow);
 TEST_ADD(TestFormattingUnsigned);
 TEST_ADD(TestFormattingPadding);
 TEST_ADD(TestInTreeMap);
