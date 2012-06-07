@@ -895,6 +895,31 @@ uint64_t StorageEnvironment::GetLogSegmentDiskUsage()
     return logManager.GetDiskUsage();
 }
 
+unsigned StorageEnvironment::GetNumShards()
+{
+    return shards.GetLength();
+}
+
+unsigned StorageEnvironment::GetNumFileChunks()
+{
+    unsigned        numFileChunks;
+    StorageShard*   shard;
+    StorageChunk**  itChunk;
+
+    numFileChunks = 0;
+
+    FOREACH (shard, shards)
+    {
+        FOREACH (itChunk, shard->GetChunks())
+        {
+            if ((*itChunk)->GetChunkState() == StorageChunk::Written)
+                numFileChunks += 1;
+        }
+    }
+
+    return numFileChunks;
+}
+
 unsigned StorageEnvironment::GetNumListThreads()
 {
     return asyncListThread->GetNumThreads();
@@ -1706,17 +1731,17 @@ uint64_t StorageEnvironment::WriteSnapshotTOC(Buffer& configStateBuffer)
 
     WriteConfigStateFile(configStateBuffer, tocID);
 
-	return tocID;
+    return tocID;
 }
 
 void StorageEnvironment::WriteConfigStateFile(Buffer& configStateBuffer, uint64_t tocID)
 {
     unsigned    writeSize;
-	Buffer      configStateFile;
+    Buffer      configStateFile;
     Buffer      writeBuffer;
-	FDGuard     fd;
+    FDGuard     fd;
 
-	configStateFile.Write(envPath);
+    configStateFile.Write(envPath);
     configStateFile.Appendf("configState.%U", tocID);
     configStateFile.NullTerminate();
     
