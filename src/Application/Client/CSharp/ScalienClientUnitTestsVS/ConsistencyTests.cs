@@ -141,6 +141,32 @@ namespace ScalienClientUnitTesting
         }
 
         [TestMethod]
+        public void CheckClusterConsistencyByKeyValues()
+        {
+            var client = new Client(Utils.GetConfigNodes());
+            var jsonConfigState = client.GetJSONConfigState();
+            var configState = Utils.JsonDeserialize<ConfigState>(System.Text.Encoding.UTF8.GetBytes(jsonConfigState));
+            foreach (var table in configState.tables)
+            {
+                var shards = ConfigStateHelpers.GetTableShards(table, configState.shards);
+                foreach (var shard in shards)
+                {
+                    System.Console.WriteLine("\nComparing shard key-values on shard " + shard.shardID);
+
+                    var tableID = shard.tableID;
+                    var startKey = Utils.StringToByteArray(shard.firstKey);
+                    var endKey = Utils.StringToByteArray(shard.lastKey);
+                    var quorum = ConfigStateHelpers.GetQuorum(configState, shard.quorumID);
+                    var shardServers = ConfigStateHelpers.GetQuorumActiveShardServers(configState, quorum);
+
+                    CompareTableKeyValuesHTTP(shardServers, tableID, startKey, endKey);
+
+                    System.Console.WriteLine("Shard " + shard.shardID + " is consistent.\n");
+                }
+            }
+        }
+
+        [TestMethod]
         public void CheckAndFixClusterConsistencyByKeys()
         {
             var client = new Client(Utils.GetConfigNodes());
@@ -266,6 +292,57 @@ namespace ScalienClientUnitTesting
 
                 startKey = serverKeys[0][serverKeys[0].Length - 1];
                 System.Console.WriteLine("StartKey: " + startKey);
+            }
+        }
+
+        public static void CompareTableKeyValuesHTTP(List<ConfigState.ShardServer> shardServers, Int64 tableID, byte[] startKey, byte[] endKey)
+        {
+            if (shardServers.Count <= 1)
+                return;
+
+            var i = 0;
+            while (true)
+            {
+                var serverKeys = ConfigStateHelpers.ParallelFetchTableKeyValuesHTTP(shardServers, tableID, startKey, endKey, true);
+                int numEmpty = serverKeys.Count(keys => keys.Count == 0);
+                if (numEmpty == serverKeys.Length)
+                    break;
+
+                System.Console.WriteLine("StartKey: " + Utils.ByteArrayToString(startKey));
+
+                for (i = 1; i < serverKeys.Length; i++)
+                {
+                    if (serverKeys[i].Count != serverKeys[0].Count)
+                    {
+                        System.Console.WriteLine("Inconsistency at tableID: " + tableID);
+                        System.Console.WriteLine("NodeID: " + shardServers.ElementAt(i).nodeID + ", count: " + serverKeys[i].Count);
+                        System.Console.WriteLine("NodeID: " + shardServers.ElementAt(0).nodeID + ", count: " + serverKeys[i].Count);
+                        Assert.Fail("Inconsistency at tableID: " + tableID);
+                        return;
+                    }
+
+
+                    for (var j = 0; j < serverKeys[0].Count; j++)
+                    {
+                        var a = serverKeys[i][j];
+                        var b = serverKeys[0][j];
+                        if (Utils.ByteArraysEqual(a.Key, b.Key) && Utils.ByteArraysEqual(a.Value, b.Value))
+                            continue;
+
+                        System.Console.WriteLine("Inconsistency at tableID: " + tableID);
+                        System.Console.WriteLine("NodeID: " + shardServers.ElementAt(i).nodeID + ", key: " + Utils.ByteArrayToString(a.Key));
+                        System.Console.WriteLine("NodeID: " + shardServers.ElementAt(0).nodeID + ", key: " + Utils.ByteArrayToString(b.Key));
+                        Assert.Fail("Inconsistency at tableID: " + tableID);
+                        //return;
+                        goto Out;
+                    }
+                }
+
+            Out:
+                if (serverKeys[0].Count == 0)
+                    break;
+
+                startKey = Utils.NextKey(serverKeys[0].Last().Key);
             }
         }
 

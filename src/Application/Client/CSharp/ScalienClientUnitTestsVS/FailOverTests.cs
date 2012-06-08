@@ -371,5 +371,89 @@ namespace ScalienClientUnitTesting
                 
             }
         }
+
+        [TestMethod]
+        public void TestRandomSleepShardServer()
+        {
+            var client = new Client(Utils.GetConfigNodes());
+            var debugKey = "N0226tpF27HnXqP";
+            var sleepInterval = 4;
+
+            Random random = new Random();
+
+            while (true)
+            {
+                var jsonConfigState = client.GetJSONConfigState();
+                var configState = Utils.JsonDeserialize<ConfigState>(System.Text.Encoding.UTF8.GetBytes(jsonConfigState));
+                var shardServers = configState.shardServers;
+                var quorum = configState.quorums[0];
+                var numShardServers = shardServers.Count;
+
+                if (quorum.inactiveNodes.Count > 0)
+                {
+                    var sleepTime = random.Next(sleepInterval * 2, sleepInterval * 2 + random.Next(sleepInterval * 2));
+                    Console.WriteLine("Inactive found, sleeping {0}...", sleepTime);
+                    Thread.Sleep(sleepTime * 1000);
+                    continue;
+                }
+
+                var victimNodeID = quorum.activeNodes[random.Next(quorum.activeNodes.Count)];
+                foreach (var shardServer in shardServers)
+                {
+                    if (shardServer.nodeID == victimNodeID)
+                    {
+                        var shardHttpURI = ConfigStateHelpers.GetShardServerURL(shardServer);
+                        Console.WriteLine("Sleeping {0} for {1} secs", shardHttpURI, sleepInterval);
+                        Utils.HTTP.GET(Utils.HTTP.BuildUri(shardHttpURI, "debug?sleep=" + sleepInterval + "&key=" + debugKey));
+                        var sleepTime = random.Next(sleepInterval * 2, sleepInterval * 2 + random.Next(sleepInterval * 2));
+                        Console.WriteLine("Sleeping {0}...", sleepTime);
+                        Thread.Sleep(sleepTime * 1000);
+                    }
+                }
+
+            }
+        }
+
+        [TestMethod]
+        public void TestRandomSleepPrimaryShardServer()
+        {
+            var client = new Client(Utils.GetConfigNodes());
+            var debugKey = "N0226tpF27HnXqP";
+            var sleepInterval = 4;
+
+            Random random = new Random();
+
+            while (true)
+            {
+                var jsonConfigState = client.GetJSONConfigState();
+                var configState = Utils.JsonDeserialize<ConfigState>(System.Text.Encoding.UTF8.GetBytes(jsonConfigState));
+                var shardServers = configState.shardServers;
+                var quorum = configState.quorums[0];
+                var numShardServers = shardServers.Count;
+
+                if (quorum.inactiveNodes.Count > 0)
+                {
+                    var sleepTime = random.Next(sleepInterval * 2, sleepInterval * 2 + random.Next(sleepInterval * 2));
+                    Console.WriteLine("Inactive found, sleeping {0}...", sleepTime);
+                    Thread.Sleep(sleepTime * 1000);
+                    continue;
+                }
+
+                var victimNodeID = quorum.activeNodes.Where(nodeID => nodeID == quorum.primaryID).First();
+                foreach (var shardServer in shardServers)
+                {
+                    if (shardServer.nodeID == victimNodeID)
+                    {
+                        var shardHttpURI = ConfigStateHelpers.GetShardServerURL(shardServer);
+                        Console.WriteLine("Sleeping {0} for {1} secs", shardHttpURI, sleepInterval);
+                        Utils.HTTP.GET(Utils.HTTP.BuildUri(shardHttpURI, "debug?sleep=" + sleepInterval + "&key=" + debugKey));
+                        var sleepTime = random.Next(sleepInterval * 2, sleepInterval * 2 + random.Next(sleepInterval * 2));
+                        Console.WriteLine("Sleeping {0}...", sleepTime);
+                        Thread.Sleep(sleepTime * 1000);
+                    }
+                }
+
+            }
+        }
     }
 }

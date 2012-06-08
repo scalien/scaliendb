@@ -61,6 +61,10 @@ namespace ScalienClientUnitTesting
         {
             if (value == null) Throw(message);
         }
+        public static void Fail()
+        {
+            Throw("");
+        }
         public static void Fail(string message)
         {
             Throw(message);
