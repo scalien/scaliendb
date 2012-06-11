@@ -129,7 +129,8 @@ ConfigShardServer::ConfigShardServer()
 {
     prev = next = this;
     nodeID = 0;
-    tryAutoActivation = true;
+    activationPhase = 0;
+    nextActivationTime = 0;
     httpPort = 0;
     sdbpPort = 0;
     hasHeartbeat = false;

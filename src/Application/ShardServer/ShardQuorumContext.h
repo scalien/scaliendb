@@ -33,7 +33,6 @@ public:
     void                            Append(); // nextValue was filled up using GetNextValue()
     bool                            IsAppending();
     void                            OnAppendComplete();
-    void                            NewPaxosRound();
     void                            WriteReplicationState();
     
     uint64_t                        GetMemoryUsage();

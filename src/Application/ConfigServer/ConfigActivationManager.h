@@ -30,13 +30,17 @@ public:
     void            OnExtendLease(ConfigQuorum& quorum, ClusterMessage& message);
     
     void            OnActivationTimeout();
+    void            OnNextActivationTimeout();
 
-    void            UpdateTimeout();
+    void            UpdateTimeouts();
 
 private:
     void            TryActivateShardServer(ConfigQuorum* quorum, ConfigShardServer* shardServer, bool disregardPrevious, bool force);
+    void            UpdateActivationTimeout();
+    void            UpdateNextActivationTimeout();
 
     Timer           activationTimeout;
+    Timer           nextActivationTimeout;
     ConfigServer*   configServer;
     uint64_t        numRoundsTriggerActivation;
     uint64_t        activationTimeoutInterval;

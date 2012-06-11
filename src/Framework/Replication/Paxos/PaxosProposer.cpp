@@ -109,6 +109,7 @@ void PaxosProposer::OnProposeResponse(PaxosMessage& imsg)
         StopProposing();
         omsg.LearnProposal(context->GetPaxosID(), MY_NODEID, state.proposalID);
         BroadcastMessage(omsg);
+        state.learnSent = true;
     }
 }
 
@@ -118,6 +119,12 @@ void PaxosProposer::Propose(Buffer& value)
     
     if (IsActive())
         ASSERT_FAIL();
+
+    // SUSPECT CODE:
+    // what if it's called after the round completed, before the OnLearn arrives?
+    // It will happily start up again
+    // TODO: don't call if (state.numProposals > 0)
+    // TODO: if (state.numProposals > 0) return;
 
     state.proposedRunID = REPLICATION_CONFIG->GetRunID();
     ASSERT(value.GetLength() > 0);
@@ -171,6 +178,11 @@ void PaxosProposer::Stop()
 bool PaxosProposer::IsActive()
 {
     return (state.preparing || state.proposing || restartTimeout.IsActive());
+}
+
+bool PaxosProposer::IsLearnSent()
+{
+    return state.learnSent;
 }
 
 uint64_t PaxosProposer::GetMemoryUsage()

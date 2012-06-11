@@ -278,7 +278,7 @@ void ShardQuorumProcessor::OnReceiveLease(uint64_t nodeID, ClusterMessage& messa
     activeNodes.Clear();
     FOREACH (it, message.activeNodes)
         activeNodes.Add(*it);
-        
+    
     leaseTimeout.SetExpireTime(lease->expireTime);
     EventLoop::Reset(&leaseTimeout);
     
@@ -311,7 +311,10 @@ void ShardQuorumProcessor::OnReceiveLease(uint64_t nodeID, ClusterMessage& messa
     leaseRequests.Delete(lease);
     
     if (restartReplication)
+    {
+        Log_Message("Restarting replication");
         quorumContext.RestartReplication();
+    }
 
     Log_Trace("Recieved lease, quorumID = %U, proposalID =  %U",
      quorumContext.GetQuorumID(), message.proposalID);

@@ -37,6 +37,7 @@ public:
     void            Restart();
     void            Stop();
     bool            IsActive();
+    bool            IsLearnSent();
     uint64_t        GetMemoryUsage();
 
     State           state;

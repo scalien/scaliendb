@@ -20,6 +20,7 @@ struct PaxosProposerState
 
     bool            preparing;
     bool            proposing;
+    bool            learnSent;
     uint64_t        proposalID;
     uint64_t        highestReceivedProposalID;
     uint64_t        highestPromisedProposalID;
@@ -45,6 +46,7 @@ inline void PaxosProposerState::OnNewPaxosRound()
 {
     preparing = false;
     proposing = false;
+    learnSent = false;
     proposalID = 0;
     highestReceivedProposalID = 0;
     highestPromisedProposalID = 0;
