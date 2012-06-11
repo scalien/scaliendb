@@ -105,7 +105,8 @@ public:
     // ========================================================================================
     //
     // Not replicated, only stored by the MASTER in-memory
-    bool                    tryAutoActivation;
+    int                     activationPhase;
+    uint64_t                nextActivationTime;
     List<QuorumInfo>        quorumInfos;
     List<QuorumShardInfo>   quorumShardInfos;
     

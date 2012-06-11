@@ -533,7 +533,7 @@ void ConfigHTTPClientSession::ProcessDeactivateShardServer()
     if (configShardServer)
     {
         configServer->GetActivationManager()->TryDeactivateShardServer(nodeID, force);
-        configShardServer->tryAutoActivation = false;
+        configShardServer->activationPhase = -1;
     }
 
     session.Print("Deactivation process started...");

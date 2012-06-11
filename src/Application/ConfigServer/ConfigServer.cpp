@@ -123,7 +123,7 @@ ConfigActivationManager* ConfigServer::GetActivationManager()
 
 void ConfigServer::OnConfigStateChanged()
 {
-    activationManager.UpdateTimeout();
+    activationManager.UpdateTimeouts();
     quorumProcessor.UpdateListeners();
 }
 
