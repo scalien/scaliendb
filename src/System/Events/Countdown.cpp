@@ -20,5 +20,5 @@ uint64_t Countdown::GetDelay() const
 void Countdown::OnAdd()
 {
     expireTime = EventLoop::Now() + delay;
-    Log_Trace("expireTime: %U, delay: %U", expireTime, delay);
+    //Log_Trace("expireTime: %U, delay: %U", expireTime, delay);
 }
