@@ -76,7 +76,7 @@ void ReplicatedLog::TryAppendDummy()
     
     proposer.SetUseTimeouts(true);
     
-    if (proposer.IsActive())
+    if (proposer.IsActive() || proposer.IsLearnSent())
     {
         appendDummyNext = true;
         return;
@@ -102,7 +102,7 @@ void ReplicatedLog::TryAppendNextValue()
     if (waitingOnAppend)
         return;
 
-    if (!context->IsLeaseOwner() || proposer.IsActive() || !proposer.state.multi)
+    if (!context->IsLeaseOwner() || proposer.IsActive() || proposer.IsLearnSent() || !proposer.state.multi)
         return;
 
     if (appendDummyNext)
@@ -129,6 +129,9 @@ void ReplicatedLog::TryCatchup()
 void ReplicatedLog::Restart()
 {
     if (waitingOnAppend)
+        return;
+
+    if (proposer.IsLearnSent())
         return;
 
     context->OnStartProposing();
@@ -264,7 +267,7 @@ void ReplicatedLog::Append(Buffer& value)
 {
     Log_Trace();
         
-    if (proposer.IsActive())
+    if (proposer.IsActive() || proposer.IsLearnSent())
         return;
     
     context->OnStartProposing();
@@ -361,11 +364,18 @@ bool ReplicatedLog::OnLearnChosen(PaxosMessage& imsg)
         return true;
     }
 
-    if (imsg.nodeID != MY_NODEID && context->IsLeaseOwner())
-    {
-        Log_Debug("Received learn message from %U, but I'm the lease owner", imsg.nodeID);
-        return true;
-    }
+    // it's valid for me to be the primary and be lagging by one round * at the beginning of my lease *
+    // this can happen if the old primary completes a round of replication, fails
+    // and I get the lease before its OnLearnChosen arrives
+    // if I throw away the OnLearnChosen, but the others in the quorum do not
+    // they will advance their paxosID, I will not advance mine
+    // and I will not be able to replicate => read-only cluster
+
+    //if (imsg.nodeID != MY_NODEID && context->IsLeaseOwner())
+    //{
+    //    Log_Debug("Received learn message from %U, but I'm the lease owner", imsg.nodeID);
+    //    return true;
+    //}
 
     Log_Trace();
 
@@ -516,8 +526,6 @@ void ReplicatedLog::ProcessLearnChosen(uint64_t nodeID, uint64_t runID)
 
 void ReplicatedLog::OnRequest(PaxosMessage& imsg)
 {
-    uint64_t        sendPaxosID;
-    uint64_t        total;
     Buffer          value;
     PaxosMessage    omsg;
 
@@ -525,21 +533,11 @@ void ReplicatedLog::OnRequest(PaxosMessage& imsg)
 
     if (imsg.paxosID < GetPaxosID())
     {
-        // the node is lagging and needs to catch-up
-        // send more than one round for better thruput
-        total = 0;
-        for (sendPaxosID = imsg.paxosID; sendPaxosID <= GetPaxosID(); sendPaxosID++)
-        {
-            // TODO: use async get here
-            context->GetDatabase()->GetAcceptedValue(sendPaxosID, value);
-            if (value.GetLength() == 0)
-                return;
-            omsg.LearnValue(sendPaxosID, MY_NODEID, 0, value);
-            context->GetTransport()->SendMessage(imsg.nodeID, omsg);
-            total += value.GetLength();
-            if (total >= PAXOS_CATCHUP_GRANULARITY)
-                break;
-        }
+        context->GetDatabase()->GetAcceptedValue(imsg.paxosID, value);
+        if (value.GetLength() == 0)
+            return;
+        omsg.LearnValue(imsg.paxosID, MY_NODEID, 0, value);
+        context->GetTransport()->SendMessage(imsg.nodeID, omsg);
     }
     else if (GetPaxosID() < imsg.paxosID)
     {
