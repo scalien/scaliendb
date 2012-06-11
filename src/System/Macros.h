@@ -48,6 +48,7 @@
         if (!(expr))                                                    \
         {                                                               \
             PrintStackTrace();                                          \
+            Log_Flush();                                                \
             if (IsAssertCritical())                                     \
                 assert(expr);                                           \
             else                                                        \
