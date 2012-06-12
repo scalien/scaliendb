@@ -402,8 +402,9 @@ namespace ScalienClientUnitTesting
                 {
                     if (shardServer.nodeID == victimNodeID)
                     {
+                        bool isPrimary = (quorum.hasPrimary && quorum.primaryID == victimNodeID);
                         var shardHttpURI = ConfigStateHelpers.GetShardServerURL(shardServer);
-                        Console.WriteLine("Sleeping {0} for {1} secs", shardHttpURI, sleepInterval);
+                        Console.WriteLine("Sleeping {0} for {1} secs {2}", shardHttpURI, sleepInterval, isPrimary ? "(Primary)" : "");
                         Utils.HTTP.GET(Utils.HTTP.BuildUri(shardHttpURI, "debug?sleep=" + sleepInterval + "&key=" + debugKey));
                         var sleepTime = random.Next(sleepInterval * 2, sleepInterval * 2 + random.Next(sleepInterval * 2));
                         Console.WriteLine("Sleeping {0}...", sleepTime);
