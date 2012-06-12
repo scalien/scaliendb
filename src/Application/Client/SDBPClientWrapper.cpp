@@ -34,19 +34,19 @@ SDBP_NodeParams::~SDBP_NodeParams()
 
 void SDBP_NodeParams::Close()
 {
-	for (int i = 0; i < num; i++)
-		free(nodes[i]);
-	delete[] nodes;
-	nodes = NULL;
-	num = 0;
+    for (int i = 0; i < num; i++)
+        free(nodes[i]);
+    delete[] nodes;
+    nodes = NULL;
+    num = 0;
 }
 
 void SDBP_NodeParams::AddNode(const std::string& node)
 {
-	if (num > nodec)
-		return;
+    if (num > nodec)
+        return;
     Log_Trace("num = %d, node = %s", num, node.c_str());
-	nodes[num++] = strdup(node.c_str());
+    nodes[num++] = strdup(node.c_str());
 }
 
 SDBP_Buffer::SDBP_Buffer()
@@ -1042,20 +1042,20 @@ int SDBP_RollbackTransaction(ClientObj client_)
 
 void SDBP_SetTrace(bool trace)
 {
-	if (trace)
-	{
-		Log_SetTrace(true);
+    if (trace)
+    {
+        Log_SetTrace(true);
         Log_SetDebug(true);
         Log_SetTimestamping(true);
         Log_SetThreadedOutput(true);
-		Log_SetTarget(Log_GetTarget() | LOG_TARGET_STDERR);
-	}
-	else
-	{
-		Log_SetTrace(false);
+        Log_SetTarget(Log_GetTarget() | LOG_TARGET_STDERR);
+    }
+    else
+    {
+        Log_SetTrace(false);
         Log_SetDebug(false);
         Log_SetTarget(Log_GetTarget() & ~LOG_TARGET_STDERR);
-	}
+    }
 }
 
 void SDBP_SetDebug(bool debug)
@@ -1063,11 +1063,11 @@ void SDBP_SetDebug(bool debug)
     Log_SetTimestamping(true);
     Log_SetThreadedOutput(true);
     Log_SetDebug(debug);
-	
-	if (debug)
-		Log_SetTarget(Log_GetTarget() | LOG_TARGET_STDERR);
-	else
-		Log_SetTarget(Log_GetTarget() & ~LOG_TARGET_STDERR);
+    
+    if (debug)
+        Log_SetTarget(Log_GetTarget() | LOG_TARGET_STDERR);
+    else
+        Log_SetTarget(Log_GetTarget() & ~LOG_TARGET_STDERR);
 }
 
 void SDBP_SetTraceBufferSize(unsigned traceBufferSize)
