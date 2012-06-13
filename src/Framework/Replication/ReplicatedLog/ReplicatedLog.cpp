@@ -136,6 +136,7 @@ void ReplicatedLog::Restart()
 
     context->OnStartProposing();
 
+    proposer.state.multi = false;
     if (proposer.IsActive())
         proposer.Restart();
 }
@@ -358,11 +359,17 @@ bool ReplicatedLog::OnLearnChosen(PaxosMessage& imsg)
         return true;
     }
 
-    if (imsg.nodeID != MY_NODEID && proposer.state.multi)
-    {
-        Log_Debug("Received learn message from %U, but I'm in multi paxos mode", imsg.nodeID);
-        return true;
-    }
+    // if I was the primary, lost the lease in the middle of round 1000, another node replicated some rounds 1001-1100,
+    // I get the lease back, and then receive the learn message for my previous round (1000)
+    // then multi will be turned back on, but then subsequent rounds (1001-1100), where I will
+    // receive learn messages will not succeed, and due to the code above
+    // I would throw it away any learn messages sent to me
+
+    //if (imsg.nodeID != MY_NODEID && proposer.state.multi)
+    //{
+    //    Log_Debug("Received learn message from %U, but I'm in multi paxos mode", imsg.nodeID);
+    //    return true;
+    //}
 
     // it's valid for me to be the primary and be lagging by one round * at the beginning of my lease *
     // this can happen if the old primary completes a round of replication, fails
