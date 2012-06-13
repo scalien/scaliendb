@@ -254,7 +254,8 @@ void ShardHTTPClientSession::PrintStatus()
         session.PrintPair(keybuf.GetBuffer(), valbuf.GetBuffer());
 
         keybuf.Writef("Quorum %U primary", it->GetQuorumID());
-        valbuf.Writef("%U", primaryID);
+        // primaryID is (uint64_t)(-1) when there is no primary, so we print it as signed
+        valbuf.Writef("%I", primaryID);
         session.PrintPair(keybuf, valbuf);
 
         keybuf.Writef("Quorum %U paxosID", it->GetQuorumID());
