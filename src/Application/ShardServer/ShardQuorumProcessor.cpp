@@ -256,7 +256,7 @@ void ShardQuorumProcessor::OnReceiveLease(uint64_t nodeID, ClusterMessage& messa
         leaseRequests.Delete(itLease);
     }
     
-    if (lease->expireTime < EventLoop::Now())
+    if (lease->expireTime < Now())
     {
         leaseRequests.Delete(lease);
         Log_Debug("Dropping received lease because it has expired");
@@ -427,7 +427,7 @@ void ShardQuorumProcessor::OnRequestLeaseTimeout()
     
     shardServer->BroadcastToControllers(msg);
 
-    expireTime = EventLoop::Now() + PAXOSLEASE_MAX_LEASE_TIME;
+    expireTime = Now() + PAXOSLEASE_MAX_LEASE_TIME;
     if (!requestLeaseTimeout.IsActive())
         EventLoop::Add(&requestLeaseTimeout);
 
