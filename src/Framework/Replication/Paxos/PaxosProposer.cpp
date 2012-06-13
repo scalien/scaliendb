@@ -120,12 +120,6 @@ void PaxosProposer::Propose(Buffer& value)
     if (IsActive())
         ASSERT_FAIL();
 
-    // SUSPECT CODE:
-    // what if it's called after the round completed, before the OnLearn arrives?
-    // It will happily start up again
-    // TODO: don't call if (state.numProposals > 0)
-    // TODO: if (state.numProposals > 0) return;
-
     state.proposedRunID = REPLICATION_CONFIG->GetRunID();
     ASSERT(value.GetLength() > 0);
     state.proposedValue.Write(value);
