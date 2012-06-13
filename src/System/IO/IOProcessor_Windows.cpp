@@ -128,15 +128,15 @@ static IODesc* GetIODesc(const FD& fd)
 bool IOProcessorAccept(const FD& listeningFd, FD& fd)
 {
     IODesc*     iod;
-	int			ret;
+    int			ret;
 
     iod = GetIODesc(listeningFd);
     fd = iod->acceptFd;
 
     // this need to be called so that getpeername works
     ret = setsockopt(fd.handle, SOL_SOCKET, SO_UPDATE_ACCEPT_CONTEXT, (const char *)&listeningFd.handle, sizeof(SOCKET));
-	if (ret < 0)
-		return false;
+    if (ret < 0)
+        return false;
 
     return true;
 }
@@ -293,7 +293,7 @@ bool IOProcessor::Init(int maxfd)
     closesocket(s);
 
     // create an array for IODesc indexing
-	numIods = maxfd;
+    numIods = maxfd;
     iods = new IODesc[numIods];
     for (int i = 0; i < numIods - 1; i++)
         iods[i].next = &iods[i + 1];
@@ -411,12 +411,12 @@ static bool StartAsyncAccept(IOOperation* ioop)
     // create an accepting socket with WSA_FLAG_OVERLAPPED to support async operations
     iod->acceptFd.handle = WSASocket(AF_INET, SOCK_STREAM, IPPROTO_TCP, NULL, 0, WSA_FLAG_OVERLAPPED);
     if (iod->acceptFd.handle == INVALID_SOCKET)
-	{
+    {
         Log_Debug("iod->acceptFd.handle == INVALID_SOCKET");
         //Call(ioop->onClose);
         pendingOnClose.Append(ioop);
         return false;
-	}
+    }
 
     ret = setsockopt(iod->acceptFd.handle, SOL_SOCKET, SO_REUSEADDR, (char *)&trueval, sizeof(BOOL));
     if (ret == SOCKET_ERROR)
@@ -500,7 +500,7 @@ bool IOProcessor::Add(IOOperation* ioop)
 #ifdef IOPROCESSOR_MULTITHREADED
     MutexGuard  guard(mutex);
 #endif
-	return IOProcessor_UnprotectedAdd(ioop);
+    return IOProcessor_UnprotectedAdd(ioop);
 }
 
 bool IOProcessor_UnprotectedRemove(IOOperation *ioop)
@@ -578,10 +578,10 @@ bool IOProcessor_UnprotectedRemove(IOOperation *ioop)
 bool IOProcessor::Remove(IOOperation* ioop)
 {
 #ifdef IOPROCESSOR_MULTITHREADED
-		MutexGuard  guard(mutex);
+        MutexGuard  guard(mutex);
 #endif
 
-	return IOProcessor_UnprotectedRemove(ioop);
+    return IOProcessor_UnprotectedRemove(ioop);
 }
 
 void AddToPendingOps(IOOperation* ioop)
@@ -680,14 +680,14 @@ bool IOProcessor::Poll(int msec)
                         error = GetLastError();
                         if (error != WSA_IO_INCOMPLETE)
                         {
-						    // special case for listening sockets
-						    if (ioop->type == IOOperation::TCP_READ && ((TCPRead*)ioop)->listening == true)
-						    {
-							    // the error happened on the accepted socket and async accept failed so we close it
-							    closesocket(iod->acceptFd.handle);
-							    iod->acceptFd.handle = INVALID_SOCKET;
-							    Log_Debug("Async accept failed");
-						    }
+                            // special case for listening sockets
+                            if (ioop->type == IOOperation::TCP_READ && ((TCPRead*)ioop)->listening == true)
+                            {
+                                // the error happened on the accepted socket and async accept failed so we close it
+                                closesocket(iod->acceptFd.handle);
+                                iod->acceptFd.handle = INVALID_SOCKET;
+                                Log_Debug("Async accept failed");
+                            }
 
                             Log_Debug("Read last error = %d", error);
                             ioop->active = false;
