@@ -146,8 +146,7 @@ void ConfigActivationManager::OnExtendLease(ConfigQuorum& quorum, ClusterMessage
         // if the primary was able to increase its paxosID, the new shardserver joined successfully
 
         // HACK: the shard server primary uses this to signal to the controller that activation was successful
-        //if (message.duration == (PAXOSLEASE_MAX_LEASE_TIME - 1))
-        // HACK: If in the future PAXOSLEASE_MAX_LEASE_TIME becomes configurable, only depend on message.duration
+        // If in the future PAXOSLEASE_MAX_LEASE_TIME becomes configurable, only depend on message.duration
         // ending in 999 vs. it being 2999 exactly. In the shard server we will have to make sure that this is
         // only set to n*1000...
         if ((message.duration % 1000) == 999)
@@ -226,6 +225,7 @@ void ConfigActivationManager::UpdateTimeouts()
 void ConfigActivationManager::TryActivateShardServer(ConfigQuorum* quorum, ConfigShardServer* shardServer, bool disregardPrevious, bool force)
 {
     QuorumInfo* quorumInfo;
+    uint64_t    nextActivationSeconds;
 
     if (force)
     {
@@ -270,6 +270,9 @@ void ConfigActivationManager::TryActivateShardServer(ConfigQuorum* quorum, Confi
     
     shardServer->activationPhase++;
     shardServer->nextActivationTime = EventLoop::Now() + activationTimeoutInterval * pow(2.0, shardServer->activationPhase);
+    nextActivationSeconds = activationTimeoutInterval * pow(2.0, shardServer->activationPhase) / 1000;
+    Log_Message("If activation does not succeed, next activation of shard server %U in quorum %U will be in %U seconds...",
+     shardServer->nodeID, quorum->quorumID, nextActivationSeconds);
 
     configServer->OnConfigStateChanged();
 }
