@@ -877,6 +877,40 @@ TEST_DEFINE(TestClientSetFailover)
     return TEST_SUCCESS;
 }
 
+TEST_DEFINE(TestClientSetGetFailover)
+{
+    Client          client;
+    ReadBuffer      value;
+    unsigned        i;
+    uint64_t        start;
+    uint64_t        end;
+    int             ret;
+    Buffer          tmp;
+    
+
+    TEST(SetupDefaultClient(client));
+    ret = client.Set(defaultTableID, "index", "0");
+    TEST_ASSERT(ret == SDBP_SUCCESS || ret == SDBP_FAILED);
+    
+    i = 0;
+    while (true)
+    {
+        i++;
+        tmp.Writef("%d", i);
+        start = Now();
+        TEST(client.Set(defaultTableID, "index", tmp));
+        TEST(client.Submit());
+        TEST(client.Get(defaultTableID, "index"));
+        end = Now();
+        TEST_LOG("%i: diff = %u", i, (unsigned) (end - start));
+        
+        MSleep(500);
+    }
+    client.Shutdown();
+    
+    return TEST_SUCCESS;
+}
+
 TEST_DEFINE(TestClientGetFailover)
 {
     Client          client;
@@ -903,6 +937,38 @@ TEST_DEFINE(TestClientGetFailover)
         TEST_LOG("%i: diff = %u", i, (unsigned) (end - start));
         
         MSleep(500);
+    }
+    client.Shutdown();
+    
+    return TEST_SUCCESS;
+}
+
+TEST_DEFINE(TestClientListFailover)
+{
+    Client          client;
+    ReadBuffer      value;
+    unsigned        i;
+    uint64_t        start;
+    uint64_t        end;
+    Buffer          tmp;
+    
+//    Log_SetTrace(true);
+    
+    TEST(SetupDefaultClient(client));
+//    SDBP_SetShardPoolSize(100);
+    client.SetConsistencyMode(SDBP_CONSISTENCY_ANY);
+
+    i = 0;
+    while (true)
+    {
+        i++;
+        tmp.Writef("%d", i);
+        start = Now();
+        TEST(client.ListKeys(defaultTableID, "index", "", "", 100, true, false));
+        end = Now();
+        TEST_LOG("%i: diff = %u", i, (unsigned) (end - start));
+        
+        MSleep(1);
     }
     client.Shutdown();
     

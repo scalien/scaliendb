@@ -2,8 +2,8 @@
 #define VERSION_H
 
 #define VERSION_MAJOR       "2"
-#define VERSION_MINOR       "4"
-#define VERSION_RELEASE     "9"
+#define VERSION_MINOR       "5"
+#define VERSION_RELEASE     "2"
 // keep VERSION_PATCH empty for release versions
 #define VERSION_PATCH       ""
 #define VERSION_STRING      VERSION_MAJOR "." VERSION_MINOR "." VERSION_RELEASE VERSION_PATCH

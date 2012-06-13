@@ -527,6 +527,8 @@ FD FS_Open(const char* filename, int flags)
     DWORD   dwFlagsAndAttributes;
     HANDLE  handle;
     
+    AtomicIncrementU64(fsStat.numFileOpens);
+
     dwCreationDisposition = OPEN_EXISTING;
     if ((flags & FS_CREATE) == FS_CREATE)
         dwCreationDisposition = OPEN_ALWAYS;
@@ -574,6 +576,8 @@ FD FS_Open(const char* filename, int flags)
 void FS_FileClose(FD fd)
 {
     BOOL    ret;
+
+    AtomicIncrementU64(fsStat.numFileCloses);
 
     ret = CloseHandle((HANDLE)fd.handle);
     if (!ret)
@@ -763,13 +767,13 @@ FS_Dir FS_OpenDir(const char* filename)
     char                path[MAX_PATH];
     
     // The filename parameter to FindFirstFile should not be NULL, an invalid string 
-	// (for example, an empty string or a string that is missing the terminating 
-	// null character), or end in a trailing backslash (\).
+    // (for example, an empty string or a string that is missing the terminating 
+    // null character), or end in a trailing backslash (\).
     // http://msdn.microsoft.com/en-us/library/aa364418(VS.85).aspx
-	if (filename == NULL)
-		return FS_INVALID_DIR;
-	
-	len = strlen(filename);
+    if (filename == NULL)
+        return FS_INVALID_DIR;
+    
+    len = strlen(filename);
     if (len == 0)
         return FS_INVALID_DIR;
 

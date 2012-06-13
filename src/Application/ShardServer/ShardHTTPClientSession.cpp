@@ -252,6 +252,15 @@ void ShardHTTPClientSession::PrintStatus()
         valbuf.NullTerminate();
         
         session.PrintPair(keybuf.GetBuffer(), valbuf.GetBuffer());
+
+        keybuf.Writef("Quorum %U primary", it->GetQuorumID());
+        // primaryID is (uint64_t)(-1) when there is no primary, so we print it as signed
+        valbuf.Writef("%I", primaryID);
+        session.PrintPair(keybuf, valbuf);
+
+        keybuf.Writef("Quorum %U paxosID", it->GetQuorumID());
+        valbuf.Writef("%U", paxosID);
+        session.PrintPair(keybuf, valbuf);
     }    
     
     keybuf.Writef("Migrating shard (sending)");

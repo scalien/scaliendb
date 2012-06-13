@@ -584,6 +584,13 @@ void ShardQuorumProcessor::OnClientRequest(ClientRequest* request)
         }
     }
     
+    if (!IsPrimary())
+    {
+        request->response.NoService();
+        request->OnComplete();
+        return;
+    }
+
     message = messageCache.Acquire();
     TransformRequest(request, message);
     

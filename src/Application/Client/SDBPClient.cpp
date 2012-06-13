@@ -128,7 +128,7 @@ int Client::Init(int nodec, const char* nodev[])
         Log_Debug("IOThread started");
     }
     numClients++;
-	Log_Debug("Number of clients: %u", numClients);
+    Log_Debug("Number of clients: %u", numClients);
     GLOBAL_MUTEX_GUARD_UNLOCK();
 
     IOProcessor::BlockSignals(IOPROCESSOR_BLOCK_INTERACTIVE);
@@ -356,7 +356,7 @@ void Client::WaitConfigState()
 
 Result* Client::GetResult()
 {
-	CLIENT_MUTEX_GUARD_DECLARE();
+    CLIENT_MUTEX_GUARD_DECLARE();
 
     if (controller == NULL)
         return NULL;
@@ -662,7 +662,7 @@ int Client::Get(uint64_t tableID, const ReadBuffer& key)
     Request*    proxiedRequest;
 
     if (key.GetLength() == 0)
-		return SDBP_API_ERROR;
+        return SDBP_API_ERROR;
     
     VALIDATE_CONTROLLERS();
     CLIENT_MUTEX_GUARD_DECLARE();
@@ -798,7 +798,7 @@ int Client::ListKeys(
 
     CLIENT_MUTEX_GUARD_UNLOCK();
     EventLoop();
-	CLIENT_MUTEX_GUARD_LOCK();
+    CLIENT_MUTEX_GUARD_LOCK();
 
     req->count = req->userCount;
     ComputeListResponse();
@@ -834,7 +834,7 @@ int Client::ListKeyValues(
 
     CLIENT_MUTEX_GUARD_UNLOCK();
     EventLoop();
-	CLIENT_MUTEX_GUARD_LOCK();
+    CLIENT_MUTEX_GUARD_LOCK();
 
     req->count = req->userCount;
     ComputeListResponse();
@@ -966,7 +966,7 @@ int Client::StartTransaction(uint64_t quorumID, const ReadBuffer& majorKey)
 
     CLIENT_MUTEX_GUARD_UNLOCK();
     EventLoop();
-	CLIENT_MUTEX_GUARD_LOCK();
+    CLIENT_MUTEX_GUARD_LOCK();
     
     if (result->GetCommandStatus() != SDBP_SUCCESS)
         return result->GetCommandStatus();
@@ -1004,7 +1004,7 @@ int Client::CommitTransaction()
     
     submittedRequests.Append(req);
     result->AppendRequest(req);
-	//ASSERT(proxySize == 0);
+    //ASSERT(proxySize == 0);
 
     CLIENT_MUTEX_GUARD_UNLOCK();
     EventLoop();
@@ -1071,7 +1071,7 @@ int Client::PassthroughRequest(Request* req)
    }
 
     CLIENT_MUTEX_GUARD_DECLARE();
-	
+    
     if (req->key.GetLength() == 0)
     {
         delete req;
@@ -1092,7 +1092,7 @@ int Client::PassthroughRequest(Request* req)
     result->AppendRequest(req);
     CLIENT_MUTEX_GUARD_UNLOCK();
     EventLoop();
-	CLIENT_MUTEX_GUARD_LOCK();
+    CLIENT_MUTEX_GUARD_LOCK();
     if (result->GetCommandStatus() == SDBP_SUCCESS)
     {
         for (itRequest = result->requests.First(); itRequest != NULL; itRequest = nextRequest)
@@ -1210,7 +1210,7 @@ void Client::EventLoop()
 {
     CLIENT_MUTEX_GUARD_DECLARE();
 
-	if (!controller)
+    if (!controller)
     {
         result->SetTransportStatus(SDBP_API_ERROR);
         return;
@@ -1516,6 +1516,9 @@ void Client::SendQuorumRequest(ShardConnection* conn, uint64_t quorumID)
     if (!quorumRequests.Get(quorumID, qrequests))
         return;
     
+    if (qrequests->GetLength() == 0)
+        return;
+
     quorum = configState.GetQuorum(quorumID);
     if (!quorum)
         ASSERT_FAIL();
@@ -1536,8 +1539,8 @@ void Client::SendQuorumRequest(ShardConnection* conn, uint64_t quorumID)
     while (qrequests->GetLength() > 0)
     {   
         req = qrequests->First();
-		if (req->IsShardServerRequest() && !req->IsReadRequest() && quorum->primaryID != conn->GetNodeID())
-			break;
+        if (req->IsShardServerRequest() && !req->IsReadRequest() && quorum->primaryID != conn->GetNodeID())
+            break;
         qrequests->Remove(req);
         
         // assign nodeID to request
