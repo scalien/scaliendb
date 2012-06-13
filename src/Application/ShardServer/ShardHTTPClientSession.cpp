@@ -298,6 +298,27 @@ void ShardHTTPClientSession::PrintStorage()
     session.Flush();
 }
 
+static const char* PrintableBytes(uint64_t bytes, char buf[100], bool humanize)
+{
+    int     ret;
+
+    if (humanize)
+    {
+        return HumanBytes(bytes, buf);
+    }
+    else
+    {
+        ret = Writef(buf, 100, "%U", bytes);
+        if (ret < 0 || ret >= 100)
+            return "";
+        
+        // terminate the buffer with zero
+        buf[ret] = 0;
+        
+        return buf;
+    }
+}
+
 void ShardHTTPClientSession::PrintStatistics()
 {
     Buffer                  buffer;
@@ -306,16 +327,23 @@ void ShardHTTPClientSession::PrintStatistics()
     ShardDatabaseManager*   databaseManager;
     ShardQuorumProcessor*   quorumProcessor;
     ReadBuffer              param;
-    char                    humanBuf[5];
-    
+    char                    humanBuf[100];
+    bool                    humanize;
+
+    humanize = true;
+    if (HTTP_GET_OPT_PARAM(params, "humanize", param))
+    {
+        humanize = PARAM_BOOL_VALUE(param);
+    }
+
     IOProcessor::GetStats(&iostat);
     
     buffer.Append("IOProcessor stats\n");
     buffer.Appendf("numPolls: %U\n", iostat.numPolls);
     buffer.Appendf("numTCPReads: %U\n", iostat.numTCPReads);
     buffer.Appendf("numTCPWrites: %U\n", iostat.numTCPWrites);
-    buffer.Appendf("numTCPBytesSent: %s\n", HumanBytes(iostat.numTCPBytesSent, humanBuf));
-    buffer.Appendf("numTCPBytesReceived: %s\n", HumanBytes(iostat.numTCPBytesReceived, humanBuf));
+    buffer.Appendf("numTCPBytesSent: %s\n", PrintableBytes(iostat.numTCPBytesSent, humanBuf, humanize));
+    buffer.Appendf("numTCPBytesReceived: %s\n", PrintableBytes(iostat.numTCPBytesReceived, humanBuf, humanize));
     buffer.Appendf("numCompletions: %U\n", iostat.numCompletions);
     buffer.Appendf("totalPollTime: %U\n", iostat.totalPollTime);
     buffer.Appendf("totalNumEvents: %U\n", iostat.totalNumEvents);
@@ -324,8 +352,8 @@ void ShardHTTPClientSession::PrintStatistics()
     buffer.Append("  Category: FileSystem\n");
     buffer.Appendf("numReads: %U\n", fsStat.numReads);
     buffer.Appendf("numWrites: %U\n", fsStat.numWrites);
-    buffer.Appendf("numBytesRead: %s\n", HumanBytes(fsStat.numBytesRead, humanBuf));
-    buffer.Appendf("numBytesWritten: %s\n", HumanBytes(fsStat.numBytesWritten, humanBuf));
+    buffer.Appendf("numBytesRead: %s\n", PrintableBytes(fsStat.numBytesRead, humanBuf, humanize));
+    buffer.Appendf("numBytesWritten: %s\n", PrintableBytes(fsStat.numBytesWritten, humanBuf, humanize));
     buffer.Appendf("numFileOpens: %U\n", fsStat.numFileOpens);
     buffer.Appendf("numFileCloses: %U\n", fsStat.numFileCloses);
     buffer.Appendf("numFileDeletes: %U\n", fsStat.numFileDeletes);
@@ -355,8 +383,8 @@ void ShardHTTPClientSession::PrintStatistics()
     buffer.Appendf("mergeYieldFactor: %u\n", databaseManager->GetEnvironment()->GetConfig().GetMergeYieldFactor());
     PRINT_BOOL("isMergeRunning", databaseManager->GetEnvironment()->IsMergeRunning());
     buffer.Appendf("numFinishedMergeJobs: %u\n", databaseManager->GetEnvironment()->GetNumFinishedMergeJobs());
-    buffer.Appendf("chunkFileDiskUsage: %s\n", HumanBytes(databaseManager->GetEnvironment()->GetChunkFileDiskUsage(), humanBuf));
-    buffer.Appendf("logFileDiskUsage: %s\n", HumanBytes(databaseManager->GetEnvironment()->GetLogSegmentDiskUsage(), humanBuf));
+    buffer.Appendf("chunkFileDiskUsage: %s\n", PrintableBytes(databaseManager->GetEnvironment()->GetChunkFileDiskUsage(), humanBuf, humanize));
+    buffer.Appendf("logFileDiskUsage: %s\n", PrintableBytes(databaseManager->GetEnvironment()->GetLogSegmentDiskUsage(), humanBuf, humanize));
     buffer.Appendf("numShards: %u\n", databaseManager->GetEnvironment()->GetNumShards());
     buffer.Appendf("numFileChunks: %u\n", databaseManager->GetEnvironment()->GetNumFileChunks());
 
