@@ -154,6 +154,26 @@ namespace Scalien
             return keyvals;
         }
 
+        public UInt64 GetNodeID()
+        {
+            return scaliendb_client.SDBP_ResultNodeID(cptr);
+        }
+
+        public UInt64 GetTableID() 
+        {
+            return scaliendb_client.SDBP_ResultTableID(cptr);
+        }
+
+        public UInt64 GetDatabaseID()
+        {
+            return scaliendb_client.SDBP_ResultDatabaseID(cptr);
+        }
+
+        public uint GetElapsedTime()
+        {
+            return scaliendb_client.SDBP_ResultElapsedTime(cptr);
+        }
+
         private byte[] GetBytes(SDBP_Buffer buffer)
         {
             unsafe
