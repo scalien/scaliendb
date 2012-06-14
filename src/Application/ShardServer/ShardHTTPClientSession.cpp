@@ -305,6 +305,7 @@ void ShardHTTPClientSession::PrintStatistics()
     FS_Stat                 fsStat;
     ShardDatabaseManager*   databaseManager;
     ShardQuorumProcessor*   quorumProcessor;
+    ShardLockManager*       lockManager;
     ReadBuffer              param;
     char                    humanBuf[5];
     
@@ -367,6 +368,14 @@ void ShardHTTPClientSession::PrintStatistics()
     buffer.Appendf("Endpoint mutexLastLockDate: %U\n", Endpoint::GetMutex().lastLockTime);
     buffer.Appendf("Log mutexLockCounter: %U\n", Log_GetMutex().lockCounter);
     buffer.Appendf("Log mutexLastLockDate: %U\n", Log_GetMutex().lastLockTime);
+
+    lockManager = shardServer->GetLockManager();
+    buffer.Append("  Category: User locks\n");
+    buffer.Appendf("numLocks: %u\n", lockManager->GetNumLocks());
+    buffer.Appendf("lockTreeCount: %u\n", lockManager->GetLockTreeCount());
+    buffer.Appendf("lockCacheListLength: %u\n", lockManager->GetLockCacheListLength());
+    buffer.Appendf("lockPoolListLength: %u\n", lockManager->GetLockPoolListLength());
+    buffer.Appendf("lockExpiryListLength: %u\n", lockManager->GetLockExpiryListLength());
 
     buffer.Append("  Category: Replication\n");
     FOREACH (quorumProcessor, *shardServer->GetQuorumProcessors())

@@ -27,6 +27,7 @@ void ShardServer::Init(ShardServerApp* app, bool restoreMode, bool setNodeID, ui
     startTimestamp = Now();
     numRequests = 0;
 
+    lockManager.Init();
     databaseManager.Init(this); 
     heartbeatManager.Init(this);
     migrationWriter.Init(this);

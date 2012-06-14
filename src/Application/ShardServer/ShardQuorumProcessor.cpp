@@ -76,18 +76,26 @@ void ShardQuorumProcessor::Init(ConfigQuorum* configQuorum, ShardServer* shardSe
 
 void ShardQuorumProcessor::Shutdown()
 {
-    ShardMessage*       itMessage;
+    ShardMessage*   message;
+    ClientRequest*  request;
     
     leaseRequests.DeleteList();
   
-    FOREACH(itMessage, shardMessages)
+    FOREACH(message, shardMessages)
     {
-        if (!itMessage->clientRequest)
+        if (!message->clientRequest)
             continue;
-        
-        itMessage->clientRequest->response.NoService();
-        itMessage->clientRequest->OnComplete();
-        itMessage->clientRequest = NULL;
+
+        if (message->clientRequest->session->IsTransactional())
+        {
+            // clear session list so clean up code does not assert
+            FOREACH_POP(request, message->clientRequest->session->transaction); // no body
+            message->clientRequest->session->Init();
+        }
+
+        message->clientRequest->response.NoService();
+        message->clientRequest->OnComplete();
+        message->clientRequest = NULL;
     }
     shardMessages.DeleteList();
     
@@ -495,6 +503,18 @@ void ShardQuorumProcessor::OnClientRequest(ClientRequest* request)
         // but I did not see the START_TRANSACTION command
         // disallow this, as it possibly violates transactional semantics
         // eg. the client sent the first few SETs to the previous primary
+        Log_Debug("Client sending transactional command but session is not transactional");
+        request->response.Failed();
+        request->OnComplete();
+        return;
+    }
+
+    if (request->session->IsTransactional() && !LOCK_MANAGER->IsLocked(request->session->lockKey))
+    {
+        // lock expired
+        Log_Debug("Client sending transactional command but is not holding the lock");
+        
+        ClearSessionTransaction(request->session);
         request->response.Failed();
         request->OnComplete();
         return;
@@ -505,6 +525,8 @@ void ShardQuorumProcessor::OnClientRequest(ClientRequest* request)
         // client already sent a COMMIT_TRANSACTION command
         // and it's replicating, and we haven't answered yet
         // don't allow commands in this state
+        Log_Debug("Transactional command received but currently replicating the previous commit");
+        ClearSessionTransaction(request->session);
         request->response.Failed();
         request->OnComplete();
         return;
@@ -514,6 +536,8 @@ void ShardQuorumProcessor::OnClientRequest(ClientRequest* request)
     if (request->paxosID == 1 && !quorumContext.IsLeader())
     {
         Log_Trace();
+        if (request->session->IsTransactional())
+            ClearSessionTransaction(request->session);
         request->response.NoService();
         request->OnComplete();
         return;
@@ -526,6 +550,8 @@ void ShardQuorumProcessor::OnClientRequest(ClientRequest* request)
     if (quorumContext.GetPaxosID() <= request->paxosID)
     {
         Log_Trace();
+        if (request->session->IsTransactional())
+            ClearSessionTransaction(request->session);
         request->response.NoService();
         request->OnComplete();
         return;
@@ -545,12 +571,24 @@ void ShardQuorumProcessor::OnClientRequest(ClientRequest* request)
     
     if (request->type == CLIENTREQUEST_COMMIT_TRANSACTION)
     {
+        if (!request->session->IsTransactional() || !LOCK_MANAGER->IsLocked(request->session->lockKey))
+        {
+            Log_Debug("Client sending commit but is not holding the lock");
+            if (request->session->IsTransactional())
+                ClearSessionTransaction(request->session);
+            request->response.Failed();
+            request->OnComplete();
+            return;
+        }
+
+        Log_Debug("Committing transaction...");
         CommitTransaction(request);
         return;
     }
 
     if (request->type == CLIENTREQUEST_ROLLBACK_TRANSACTION)
     {
+        Log_Debug("Rolling back transaction...");
         RollbackTransaction(request);
         return;
     }
@@ -558,6 +596,8 @@ void ShardQuorumProcessor::OnClientRequest(ClientRequest* request)
     if (request->key.GetLength() == 0)
     {
         // TODO: move this to a better place
+        if (request->session->IsTransactional())
+            ClearSessionTransaction(request->session);
         request->response.Failed();
         request->OnComplete();
         return;
@@ -586,6 +626,8 @@ void ShardQuorumProcessor::OnClientRequest(ClientRequest* request)
     
     if (!IsPrimary())
     {
+        if (request->session->IsTransactional())
+            ClearSessionTransaction(request->session);
         request->response.NoService();
         request->OnComplete();
         return;
@@ -1103,7 +1145,6 @@ void ShardQuorumProcessor::StartTransaction(ClientRequest* request)
     {
         // lock acquired for major key
         ASSERT(!request->session->IsTransactional());
-        Log_Debug("Lock %B acquired.", &request->key);        
         request->session->lockKey.Write(request->key);
         request->response.OK();
         request->OnComplete();
@@ -1151,41 +1192,48 @@ void ShardQuorumProcessor::CommitTransaction(ClientRequest* request)
 
 void ShardQuorumProcessor::RollbackTransaction(ClientRequest* request)
 {
-    ClientRequest* it;
-
     if (!request->session->IsTransactional())
     {
         ASSERT(request->session->transaction.GetLength() == 0);
-        request->response.Failed();
+        request->response.OK();
         request->OnComplete();
         return;
     }
 
-    if (request->session->transaction.GetLength() > 0)
+    if (ClearSessionTransaction(request->session))
+        request->response.OK();
+    else
+        request->response.Failed();
+
+    request->OnComplete();
+}
+
+bool ShardQuorumProcessor::ClearSessionTransaction(ClientSession* session)
+{
+    ClientRequest* request;
+
+    if (session->transaction.GetLength() > 0)
     {
-        if (request->session->transaction.Last()->type == CLIENTREQUEST_COMMIT_TRANSACTION)
+        if (session->transaction.Last()->type == CLIENTREQUEST_COMMIT_TRANSACTION)
         {
             // client already sent a commit, and
             // shard messages are queued for replication
             // and replication has possibly began
-            request->response.Failed();
-            request->OnComplete();
-            return;
+            // cannot clear!
+            Log_Debug("Cannot clear session transaction due to possibly replicating commit...");
+            return false;
         }
     }
 
-    FOREACH_POP(it, request->session->transaction)
+    FOREACH_POP(request, session->transaction)
     {
-        ASSERT(it->type != CLIENTREQUEST_UNDEFINED);
-        it->response.NoResponse();
-        it->OnComplete(); // request deletes itself
+        ASSERT(request->type != CLIENTREQUEST_UNDEFINED);
+        request->response.NoResponse();
+        request->OnComplete(); // request deletes itself
     }
 
-    LOCK_MANAGER->Unlock(request->session->lockKey);
-    Log_Debug("Lock %B released due to rollback.", &request->session->lockKey);
+    LOCK_MANAGER->Unlock(session->lockKey);
+    session->Init();
 
-    request->session->lockKey.Clear();
-
-    request->response.OK();
-    request->OnComplete();
+    return true;
 }

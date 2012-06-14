@@ -1015,7 +1015,7 @@ int Client::CommitTransaction()
     
     Log_Trace("CommitTransaction returning");
     
-    return result->GetTransportStatus();
+    return req->status;
 }
 
 int Client::RollbackTransaction()
@@ -1049,7 +1049,7 @@ int Client::RollbackTransaction()
 
     Log_Trace("RollbackTransaction returning");
     
-    return result->GetTransportStatus();
+    return req->status;
 }
 
 // =============================================================================================
