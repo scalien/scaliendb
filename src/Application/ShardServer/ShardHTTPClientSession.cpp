@@ -668,6 +668,7 @@ bool ShardHTTPClientSession::ProcessSettings()
     uint64_t                replicationLimit;
     uint64_t				abortWaitingListsNum;
     uint64_t                listDataPageCacheSize;
+    unsigned                maxChunkPerShard;
     ShardQuorumProcessor*   quorumProcessor;
     char                    buf[100];
 
@@ -792,6 +793,19 @@ bool ShardHTTPClientSession::ProcessSettings()
             StorageDataPageCache::SetMaxCacheSize(listDataPageCacheSize);
             snprintf(buf, sizeof(buf), "%u", (unsigned) listDataPageCacheSize);
             session.PrintPair("ListDataPageCacheSize", buf);
+        }
+    }
+
+    if (HTTP_GET_OPT_PARAM(params, "maxChunkPerShard", param))
+    {
+        // initialize variable, because conversion may fail
+        maxChunkPerShard = 0;
+        HTTP_GET_OPT_U64_PARAM(params, "maxChunkPerShard", maxChunkPerShard);
+        if (maxChunkPerShard > 0)
+        {
+            shardServer->GetDatabaseManager()->GetEnvironment()->GetConfig().SetMaxChunkPerShard(maxChunkPerShard);
+            snprintf(buf, sizeof(buf), "%u", (unsigned) maxChunkPerShard);
+            session.PrintPair("MaxChunkPerShard", buf);
         }
     }
 

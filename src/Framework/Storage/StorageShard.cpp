@@ -341,7 +341,7 @@ bool StorageShard::IsSplitMergeCandidate()
         return false;
 }
 
-bool StorageShard::IsFragmentedMergeCandidate()
+bool StorageShard::IsFragmentedMergeCandidate(unsigned maxChunkPerShard)
 {
     unsigned        count;
     StorageChunk**  itChunk;
@@ -358,7 +358,7 @@ bool StorageShard::IsFragmentedMergeCandidate()
             return false;   // don't merge unwritten shards
     }
 
-    if (count > 10)
+    if (count > maxChunkPerShard)
         return true;
     else
         return false;

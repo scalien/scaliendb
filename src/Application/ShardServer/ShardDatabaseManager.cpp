@@ -348,8 +348,9 @@ void ShardDatabaseManager::Init(ShardServer* shardServer_)
     sc.SetSyncGranularity(      (uint64_t) configFile.GetInt64Value("database.syncGranularity",			16*MiB  ));
     sc.SetWriteGranularity(     (uint64_t) configFile.GetInt64Value("database.writeGranularity",		STORAGE_WRITE_GRANULARITY));
     sc.SetReplicatedLogSize(    (uint64_t) configFile.GetInt64Value("database.replicatedLogSize",		10*GiB  ));
-	sc.SetAbortWaitingListsNum( (uint64_t) configFile.GetInt64Value("database.abortWaitingListsNum",	0       ));
+    sc.SetAbortWaitingListsNum( (uint64_t) configFile.GetInt64Value("database.abortWaitingListsNum",	0       ));
     sc.SetListDataPageCacheSize((uint64_t) configFile.GetInt64Value("database.listDataPageCacheSize",   64*MB   ));
+    sc.SetMaxChunkPerShard(     (unsigned) configFile.GetIntValue  ("database.maxChunkPerShard",        10      ));
 
     envPath.Writef("%s", configFile.GetValue("database.dir", "db"));
     environment.Open(envPath, sc);
@@ -581,9 +582,9 @@ uint64_t ShardDatabaseManager::ExecuteMessage(uint64_t quorumID, uint64_t paxosI
 {
 #define CHECK_CMD()                                             \
 {                                                               \
-	if (readPaxosID > paxosID ||                                \
-	 (readPaxosID == paxosID && readCommandID >= commandID))    \
-		break;                                                  \
+    if (readPaxosID > paxosID ||                                \
+     (readPaxosID == paxosID && readCommandID >= commandID))    \
+        break;                                                  \
 }
 
 #define RESPONSE_FAIL()                                         \
@@ -967,21 +968,21 @@ void ShardDatabaseManager::OnExecuteLists()
     if (inactiveAsyncLists.GetLength() == 0)
         return;
     
-	if (environment.GetConfig().GetAbortWaitingListsNum() > 0)
-	{
-		if (environment.GetNumActiveListThreads() == environment.GetNumListThreads() &&
-			listRequests.GetLength() > environment.GetConfig().GetAbortWaitingListsNum())
-		{
-			Log_Debug("Aborting waiting list requests, wait queue got too long...");
-			FOREACH_FIRST (request, listRequests)
-			{
-				listRequests.Remove(request);
-				request->response.NoService();
-				request->OnComplete();
-				numAbortedListRequests++;
-			}
-		}
-	}
+    if (environment.GetConfig().GetAbortWaitingListsNum() > 0)
+    {
+        if (environment.GetNumActiveListThreads() == environment.GetNumListThreads() &&
+            listRequests.GetLength() > environment.GetConfig().GetAbortWaitingListsNum())
+        {
+            Log_Debug("Aborting waiting list requests, wait queue got too long...");
+            FOREACH_FIRST (request, listRequests)
+            {
+                listRequests.Remove(request);
+                request->response.NoService();
+                request->OnComplete();
+                numAbortedListRequests++;
+            }
+        }
+    }
     
     start = NowClock();
 
