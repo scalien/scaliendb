@@ -28,9 +28,21 @@ void ShardServer::Init(ShardServerApp* app, bool restoreMode, bool setNodeID, ui
     numRequests = 0;
 
     lockManager.Init();
+    waitQueueManager.Init();
     databaseManager.Init(this); 
     heartbeatManager.Init(this);
     migrationWriter.Init(this);
+
+    lockManager.SetLockExpireTime(configFile.GetIntValue("      lock.expireTime", LOCK_EXPIRE_TIME));
+    lockManager.SetMaxCacheTime(configFile.GetIntValue("        lock.maxCacheTime", LOCK_CACHE_TIME));
+    lockManager.SetMaxCacheCount(configFile.GetIntValue("       lock.maxCacheCount", LOCK_CACHE_COUNT));
+    lockManager.SetMaxPoolCount(configFile.GetIntValue("        lock.maxPoolCount", LOCK_POOL_COUNT));
+
+    waitQueueManager.SetWaitExpireTime(configFile.GetIntValue(" waitQueue.expireTime", WAITQUEUE_EXPIRE_TIME));
+    waitQueueManager.SetMaxCacheTime(configFile.GetIntValue("   waitQueue.maxCacheTime", WAITQUEUE_CACHE_TIME));
+    waitQueueManager.SetMaxCacheCount(configFile.GetIntValue("  waitQueue.maxCacheCount", WAITQUEUE_CACHE_COUNT));
+    waitQueueManager.SetMaxPoolCount(configFile.GetIntValue("   waitQueue.maxPoolCount", WAITQUEUE_POOL_COUNT));
+
     REQUEST_CACHE->Init(configFile.GetIntValue("requestCache.size", 100*1000));
 
     if (restoreMode)
@@ -82,9 +94,11 @@ void ShardServer::Shutdown()
 
     quorumProcessors.DeleteList();
     databaseManager.Shutdown();
+    waitQueueManager.Shutdown();
+    lockManager.Shutdown();
     CONTEXT_TRANSPORT->Shutdown();
     REPLICATION_CONFIG->Shutdown();
-    REQUEST_CACHE->Shutdown();    
+    REQUEST_CACHE->Shutdown();
 }
 
 ShardQuorumProcessor* ShardServer::GetQuorumProcessor(uint64_t quorumID)
@@ -113,6 +127,11 @@ ShardDatabaseManager* ShardServer::GetDatabaseManager()
 ShardLockManager* ShardServer::GetLockManager()
 {
     return &lockManager;
+}
+
+ShardWaitQueueManager* ShardServer::GetWaitQueueManager()
+{
+    return &waitQueueManager;
 }
 
 ShardMigrationWriter* ShardServer::GetShardMigrationWriter()

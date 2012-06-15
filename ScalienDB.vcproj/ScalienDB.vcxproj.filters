@@ -505,6 +505,9 @@
     <ClCompile Include="..\src\Framework\Storage\StorageFileDeleter.cpp">
       <Filter>Framework\Storage</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\Application\ShardServer\ShardWaitQueueManager.cpp">
+      <Filter>Application\ShardServer</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\System\Common.h">
@@ -1028,6 +1031,12 @@
     </ClInclude>
     <ClInclude Include="..\src\Framework\Storage\StorageChunkLister.h">
       <Filter>Framework\Storage</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\System\Containers\InNodeList.h">
+      <Filter>System\Containers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Application\ShardServer\ShardWaitQueueManager.h">
+      <Filter>Application\ShardServer</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

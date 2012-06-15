@@ -21,21 +21,33 @@ void ShardLock::Init()
 {
     locked = false;
     unlockTime = 0;
+    expireTime = 0;
 }
 
 ShardLockManager::ShardLockManager()
 {
-    numLocked = 0;
-    removeLocks.SetCallable(MFUNC(ShardLockManager, OnRemoveCachedLocksFromTree));
-    removeLocks.SetDelay(LOCK_CHECK_FREQUENCY);
+    removeCachedLocks.SetCallable(MFUNC(ShardLockManager, OnRemoveCachedLocks));
+    removeCachedLocks.SetDelay(LOCK_CHECK_FREQUENCY);
     expireLocks.SetCallable(MFUNC(ShardLockManager, OnExpireLocks));
     expireLocks.SetDelay(LOCK_CHECK_FREQUENCY);
+
+    numLocked = 0;
+    lockExpireTime = LOCK_EXPIRE_TIME;
+    maxCacheTime = LOCK_CACHE_TIME;
+    maxCacheCount = LOCK_CACHE_COUNT;
+    maxPoolCount = LOCK_POOL_COUNT;
 }
 
 void ShardLockManager::Init()
 {
-    EventLoop::Add(&removeLocks);
+    EventLoop::Add(&removeCachedLocks);
     EventLoop::Add(&expireLocks);
+}
+
+void ShardLockManager::Shutdown()
+{
+    UnlockAll();
+    numLocked = 0;
 }
 
 unsigned ShardLockManager::GetNumLocks()
@@ -43,24 +55,64 @@ unsigned ShardLockManager::GetNumLocks()
     return numLocked;
 }
 
-unsigned ShardLockManager::GetLockTreeCount()
+unsigned ShardLockManager::GetTreeCount()
 {
     return lockTree.GetCount();
 }
 
-unsigned ShardLockManager::GetLockCacheListLength()
+unsigned ShardLockManager::GetCacheListLength()
 {
     return lockCacheList.GetLength();
 }
 
-unsigned ShardLockManager::GetLockPoolListLength()
+unsigned ShardLockManager::GetPoolListLength()
 {
     return lockPoolList.GetLength();
 }
 
-unsigned ShardLockManager::GetLockExpiryListLength()
+unsigned ShardLockManager::GetExpiryListLength()
 {
     return lockExpiryList.GetLength();
+}
+
+void ShardLockManager::SetLockExpireTime(unsigned lockExpireTime_)
+{
+    lockExpireTime = lockExpireTime_;
+}
+
+void ShardLockManager::SetMaxCacheTime(unsigned maxCacheTime_)
+{
+    maxCacheTime = maxCacheTime_;
+}
+
+void ShardLockManager::SetMaxCacheCount(unsigned maxCacheCount_)
+{
+    maxCacheCount = maxCacheCount_;
+}
+
+void ShardLockManager::SetMaxPoolCount(unsigned maxPoolCount_)
+{
+    maxPoolCount = maxPoolCount_;
+}
+
+unsigned ShardLockManager::GetLockExpireTime()
+{
+    return lockExpireTime;
+}
+
+unsigned ShardLockManager::GetMaxCacheTime()
+{
+    return maxCacheTime;
+}
+
+unsigned ShardLockManager::GetMaxCacheCount()
+{
+    return maxCacheCount;
+}
+
+unsigned ShardLockManager::GetMaxPoolCount()
+{
+    return maxPoolCount;
 }
 
 bool ShardLockManager::TryLock(ReadBuffer key)
@@ -100,7 +152,7 @@ bool ShardLockManager::TryLock(ReadBuffer key)
     // in tree, not locked
     lock->locked = true;
     numLocked++;
-    lock->expireTime = EventLoop::Now() + LOCK_EXPIRE_TIME;
+    lock->expireTime = EventLoop::Now() + lockExpireTime;
     // add to expiry list
     lockExpiryList.Append(lock);
 
@@ -150,11 +202,13 @@ void ShardLockManager::Unlock(ReadBuffer key)
 void ShardLockManager::UnlockAll()
 {
     lockCacheList.Clear();
+    lockExpiryList.Clear();
+    lockPoolList.Clear();
     lockTree.DeleteTree();
     numLocked = 0;
 }
 
-void ShardLockManager::OnRemoveCachedLocksFromTree()
+void ShardLockManager::OnRemoveCachedLocks()
 {
     uint64_t    now;
     ShardLock*  lock;
@@ -163,17 +217,17 @@ void ShardLockManager::OnRemoveCachedLocksFromTree()
 
     FOREACH_FIRST(lock, lockCacheList)
     {
-        if (lock->unlockTime < now)
-        {
-            // should be unlocked
-            ASSERT(!lock->locked);
-            // not in lock expiry list
-            ASSERT(lock->listExpiryNode.next == lock);
-            // not in lock pool list
-            ASSERT(lock->listPoolNode.next == lock);
-            // in tree
-            ASSERT(lock->treeNode.IsInTree());
+        // should be unlocked
+        ASSERT(!lock->locked);
+        // not in lock expiry list
+        ASSERT(lock->listExpiryNode.next == lock);
+        // not in lock pool list
+        ASSERT(lock->listPoolNode.next == lock);
+        // in tree
+        ASSERT(lock->treeNode.IsInTree());
 
+        if (lock->unlockTime < now || lockCacheList.GetLength() > maxCacheCount)
+        {
             lockTree.Remove(lock);
             lockCacheList.Remove(lock);
             DeleteLock(lock);
@@ -182,7 +236,7 @@ void ShardLockManager::OnRemoveCachedLocksFromTree()
             break;
     }
 
-    EventLoop::Add(&removeLocks);
+    EventLoop::Add(&removeCachedLocks);
 }
 
 void ShardLockManager::OnExpireLocks()
@@ -220,7 +274,7 @@ void ShardLockManager::OnExpireLocks()
     // in tree, locked
     lock->locked = false;
     numLocked--;
-    lock->unlockTime = EventLoop::Now() + LOCK_CACHE_TIME;
+    lock->unlockTime = EventLoop::Now() + maxCacheTime;
 
     // in lock expiry list
     ASSERT(lock->listExpiryNode.next != lock);
@@ -251,6 +305,20 @@ ShardLock* ShardLockManager::NewLock()
     if (!lock)
         lock = new ShardLock;
 
+    lock->Init();
+
+    // members cleared
+    ASSERT(lock->locked == false);
+    ASSERT(lock->expireTime == 0);
+    // not in lock tree
+    ASSERT(!lock->treeNode.IsInTree());
+    // not in lock cache list
+    ASSERT(lock->listCacheNode.next == lock);
+    // not in lock expiry list
+    ASSERT(lock->listExpiryNode.next == lock);
+    // not in lock pool list
+    ASSERT(lock->listPoolNode.next == lock);
+
     return lock;
 }
 
@@ -265,7 +333,7 @@ void ShardLockManager::DeleteLock(ShardLock* lock)
     // not in lock pool list
     ASSERT(lock->listPoolNode.next == lock);
 
-    if (lockPoolList.GetLength() < LOCK_POOL_SIZE)
+    if (lockPoolList.GetLength() < maxPoolCount)
     {
         // keep lock, put in object pool
         lockPoolList.Append(lock);

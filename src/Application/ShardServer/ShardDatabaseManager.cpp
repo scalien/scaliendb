@@ -6,8 +6,9 @@
 #include "Framework/Replication/ReplicationConfig.h"
 #include "Framework/Storage/StoragePageCache.h"
 
-#define SHARD_MIGRATION_WRITER    (shardServer->GetShardMigrationWriter())
-#define LOCK_MANAGER        (shardServer->GetLockManager())
+#define SHARD_MIGRATION_WRITER  (shardServer->GetShardMigrationWriter())
+#define LOCK_MANAGER            (shardServer->GetLockManager())
+#define WAITQUEUE_MANAGER       (shardServer->GetWaitQueueManager())
 
 static void WriteValue(
 Buffer &buffer, uint64_t paxosID, uint64_t commandID, ReadBuffer userValue)
@@ -348,7 +349,7 @@ void ShardDatabaseManager::Init(ShardServer* shardServer_)
     sc.SetSyncGranularity(      (uint64_t) configFile.GetInt64Value("database.syncGranularity",			16*MiB  ));
     sc.SetWriteGranularity(     (uint64_t) configFile.GetInt64Value("database.writeGranularity",		STORAGE_WRITE_GRANULARITY));
     sc.SetReplicatedLogSize(    (uint64_t) configFile.GetInt64Value("database.replicatedLogSize",		10*GiB  ));
-	sc.SetAbortWaitingListsNum( (uint64_t) configFile.GetInt64Value("database.abortWaitingListsNum",	0       ));
+    sc.SetAbortWaitingListsNum( (uint64_t) configFile.GetInt64Value("database.abortWaitingListsNum",	0       ));
     sc.SetListDataPageCacheSize((uint64_t) configFile.GetInt64Value("database.listDataPageCacheSize",   64*MB   ));
 
     envPath.Writef("%s", configFile.GetValue("database.dir", "db"));
@@ -581,9 +582,9 @@ uint64_t ShardDatabaseManager::ExecuteMessage(uint64_t quorumID, uint64_t paxosI
 {
 #define CHECK_CMD()                                             \
 {                                                               \
-	if (readPaxosID > paxosID ||                                \
-	 (readPaxosID == paxosID && readCommandID >= commandID))    \
-		break;                                                  \
+    if (readPaxosID > paxosID ||                                \
+     (readPaxosID == paxosID && readCommandID >= commandID))    \
+        break;                                                  \
 }
 
 #define RESPONSE_FAIL()                                         \
@@ -618,6 +619,7 @@ uint64_t ShardDatabaseManager::ExecuteMessage(uint64_t quorumID, uint64_t paxosI
     ShardDatabaseSequence* sequence;
     Buffer          shardIDs;
     ReadBuffer      parse;
+    ClientRequest*  request;
     
     contextID = QUORUM_DATABASE_DATA_CONTEXT;
     shardID = 0;
@@ -649,6 +651,9 @@ uint64_t ShardDatabaseManager::ExecuteMessage(uint64_t quorumID, uint64_t paxosI
                 ASSERT(message.clientRequest->session->IsTransactional());
                 LOCK_MANAGER->Unlock(message.clientRequest->session->lockKey);
                 Log_Debug("Lock %B released due to commit.", &message.clientRequest->session->lockKey);
+                request = WAITQUEUE_MANAGER->Pop(message.clientRequest->session->lockKey);
+                if (request)
+                    shardServer->OnClientRequest(request);
                 message.clientRequest->session->lockKey.Clear();
             }
             // nothing
@@ -967,21 +972,21 @@ void ShardDatabaseManager::OnExecuteLists()
     if (inactiveAsyncLists.GetLength() == 0)
         return;
     
-	if (environment.GetConfig().GetAbortWaitingListsNum() > 0)
-	{
-		if (environment.GetNumActiveListThreads() == environment.GetNumListThreads() &&
-			listRequests.GetLength() > environment.GetConfig().GetAbortWaitingListsNum())
-		{
-			Log_Debug("Aborting waiting list requests, wait queue got too long...");
-			FOREACH_FIRST (request, listRequests)
-			{
-				listRequests.Remove(request);
-				request->response.NoService();
-				request->OnComplete();
-				numAbortedListRequests++;
-			}
-		}
-	}
+    if (environment.GetConfig().GetAbortWaitingListsNum() > 0)
+    {
+        if (environment.GetNumActiveListThreads() == environment.GetNumListThreads() &&
+            listRequests.GetLength() > environment.GetConfig().GetAbortWaitingListsNum())
+        {
+            Log_Debug("Aborting waiting list requests, wait queue got too long...");
+            FOREACH_FIRST (request, listRequests)
+            {
+                listRequests.Remove(request);
+                request->response.NoService();
+                request->OnComplete();
+                numAbortedListRequests++;
+            }
+        }
+    }
     
     start = NowClock();
 

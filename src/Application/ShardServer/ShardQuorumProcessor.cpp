@@ -10,6 +10,7 @@
 #define DATABASE_MANAGER        (shardServer->GetDatabaseManager())
 #define HEARTBEAT_MANAGER       (shardServer->GetHeartbeatManager())
 #define LOCK_MANAGER            (shardServer->GetLockManager())
+#define WAITQUEUE_MANAGER       (shardServer->GetWaitQueueManager())
 
 static bool LessThan(uint64_t a, uint64_t b)
 {
@@ -480,6 +481,7 @@ void ShardQuorumProcessor::OnLeaseTimeout()
     migrateCache = 0;
 
     LOCK_MANAGER->UnlockAll();
+    WAITQUEUE_MANAGER->FailAll();
     DATABASE_MANAGER->OnLeaseTimeout();
 }
 
@@ -1152,9 +1154,8 @@ void ShardQuorumProcessor::StartTransaction(ClientRequest* request)
     else
     {
         // unable to acquire lock for major key
-        // TODO: put request into wait queue
-        request->response.Failed();
-        request->OnComplete();
+        // put on wait queue
+        WAITQUEUE_MANAGER->Push(request);
     }
 }
 
@@ -1210,7 +1211,8 @@ void ShardQuorumProcessor::RollbackTransaction(ClientRequest* request)
 
 bool ShardQuorumProcessor::ClearSessionTransaction(ClientSession* session)
 {
-    ClientRequest* request;
+    Buffer          lockKey;
+    ClientRequest*  request;
 
     if (session->transaction.GetLength() > 0)
     {
@@ -1233,7 +1235,12 @@ bool ShardQuorumProcessor::ClearSessionTransaction(ClientSession* session)
     }
 
     LOCK_MANAGER->Unlock(session->lockKey);
+    lockKey.Write(session->lockKey);
     session->Init();
+
+    request = WAITQUEUE_MANAGER->Pop(lockKey);
+    if (request)
+        shardServer->OnClientRequest(request);
 
     return true;
 }

@@ -19,7 +19,9 @@
     ReadBuffer::Cmp((param), "on") == 0 ||            \
     ReadBuffer::Cmp((param), "1") == 0) ? true : false)
 
-#define SHARD_MIGRATION_WRITER (shardServer->GetShardMigrationWriter())
+#define SHARD_MIGRATION_WRITER  (shardServer->GetShardMigrationWriter())
+#define LOCK_MANAGER            (shardServer->GetLockManager())
+#define WAITQUEUE_MANAGER       (shardServer->GetWaitQueueManager())
 #define PRINT_BOOL(str, b) { if ((b)) buffer.Appendf("%s: yes\n", str); else buffer.Appendf("%s: no\n", str); }
 
 void ShardHTTPClientSession::SetShardServer(ShardServer* shardServer_)
@@ -326,7 +328,6 @@ void ShardHTTPClientSession::PrintStatistics()
     FS_Stat                 fsStat;
     ShardDatabaseManager*   databaseManager;
     ShardQuorumProcessor*   quorumProcessor;
-    ShardLockManager*       lockManager;
     ReadBuffer              param;
     char                    humanBuf[100];
     bool                    humanize;
@@ -397,13 +398,31 @@ void ShardHTTPClientSession::PrintStatistics()
     buffer.Appendf("Log mutexLockCounter: %U\n", Log_GetMutex().lockCounter);
     buffer.Appendf("Log mutexLastLockDate: %U\n", Log_GetMutex().lastLockTime);
 
-    lockManager = shardServer->GetLockManager();
-    buffer.Append("  Category: User locks\n");
-    buffer.Appendf("numLocks: %u\n", lockManager->GetNumLocks());
-    buffer.Appendf("lockTreeCount: %u\n", lockManager->GetLockTreeCount());
-    buffer.Appendf("lockCacheListLength: %u\n", lockManager->GetLockCacheListLength());
-    buffer.Appendf("lockPoolListLength: %u\n", lockManager->GetLockPoolListLength());
-    buffer.Appendf("lockExpiryListLength: %u\n", lockManager->GetLockExpiryListLength());
+    buffer.Append("  Category: User locks: settings\n");
+    buffer.Appendf("lockExpireTime: %u\n", LOCK_MANAGER->GetLockExpireTime());
+    buffer.Appendf("maxCacheTime: %u\n", LOCK_MANAGER->GetMaxCacheTime());
+    buffer.Appendf("maxCacheCount: %u\n", LOCK_MANAGER->GetMaxCacheCount());
+    buffer.Appendf("maxPoolCount: %u\n", LOCK_MANAGER->GetMaxPoolCount());
+
+    buffer.Append("  Category: User locks: internal data structures\n");
+    buffer.Appendf("numLocks: %u\n", LOCK_MANAGER->GetNumLocks());
+    buffer.Appendf("lockTreeCount: %u\n", LOCK_MANAGER->GetTreeCount());
+    buffer.Appendf("lockCacheListLength: %u\n", LOCK_MANAGER->GetCacheListLength());
+    buffer.Appendf("lockPoolListLength: %u\n", LOCK_MANAGER->GetPoolListLength());
+    buffer.Appendf("lockExpiryListLength: %u\n", LOCK_MANAGER->GetExpiryListLength());
+
+    buffer.Append("  Category: User lock wait queues: settings\n");
+    buffer.Appendf("waitExpireTime: %u\n", WAITQUEUE_MANAGER->GetWaitExpireTime());
+    buffer.Appendf("maxCacheTime: %u\n", WAITQUEUE_MANAGER->GetMaxCacheTime());
+    buffer.Appendf("maxCacheCount: %u\n", WAITQUEUE_MANAGER->GetMaxCacheCount());
+    buffer.Appendf("maxPoolCount: %u\n", WAITQUEUE_MANAGER->GetMaxPoolCount());
+
+    buffer.Append("  Category: User lock wait queues: internal data structures\n");
+    buffer.Appendf("numWaitQueues: %u\n", WAITQUEUE_MANAGER->GetNumWaitQueues());
+    buffer.Appendf("queueCacheListLength: %u\n", WAITQUEUE_MANAGER->GetQueueCacheListLength());
+    buffer.Appendf("queuePoolListLength: %u\n", WAITQUEUE_MANAGER->GetQueuePoolListLength());
+    buffer.Appendf("nodeExpiryListLength: %u\n", WAITQUEUE_MANAGER->GetNodeExpiryListLength());
+    buffer.Appendf("nodePoolListLength: %u\n", WAITQUEUE_MANAGER->GetNodePoolListLength());
 
     buffer.Append("  Category: Replication\n");
     FOREACH (quorumProcessor, *shardServer->GetQuorumProcessors())
@@ -667,6 +686,7 @@ bool ShardHTTPClientSession::ProcessSettings()
 {
     ReadBuffer              param;
     bool                    boolValue;
+    uint64_t                u64;
     uint64_t                mergeCpuThreshold;
     uint64_t                mergeBufferSize;
     uint64_t                mergeYieldFactor;
@@ -678,6 +698,29 @@ bool ShardHTTPClientSession::ProcessSettings()
     uint64_t                listDataPageCacheSize;
     ShardQuorumProcessor*   quorumProcessor;
     char                    buf[100];
+
+#define CHECK_AND_SET_UINT64(pstr, func)                        \
+    if (HTTP_GET_OPT_PARAM(params, pstr, param))                \
+    {                                                           \
+        u64 = 0;                                                \
+        HTTP_GET_OPT_U64_PARAM(params, pstr, u64);              \
+        func(u64);                                              \
+        snprintf(buf, sizeof(buf), "%u", (unsigned) u64);       \
+        session.PrintPair(pstr, buf);                           \
+    }
+
+#define CHECK_AND_SET_POSITIVE_UINT64(pstr, func)               \
+    if (HTTP_GET_OPT_PARAM(params, pstr, param))                \
+    {                                                           \
+        u64 = 0;                                                \
+        HTTP_GET_OPT_U64_PARAM(params, pstr, u64);              \
+        if (u64 > 0)                                            \
+        {                                                       \
+            func(u64);                                          \
+            snprintf(buf, sizeof(buf), "%u", (unsigned) u64);   \
+            session.PrintPair(pstr, buf);                       \
+        }                                                       \
+    }       
 
     if (HTTP_GET_OPT_PARAM(params, "trace", param))
     {
@@ -802,6 +845,16 @@ bool ShardHTTPClientSession::ProcessSettings()
             session.PrintPair("ListDataPageCacheSize", buf);
         }
     }
+
+    CHECK_AND_SET_POSITIVE_UINT64("lockExpireTime", LOCK_MANAGER->SetLockExpireTime);
+    CHECK_AND_SET_UINT64("lockMaxCacheTime",        LOCK_MANAGER->SetMaxCacheTime);
+    CHECK_AND_SET_UINT64("lockMaxCacheCount",       LOCK_MANAGER->SetMaxCacheCount);
+    CHECK_AND_SET_UINT64("lockMaxPoolCount",        LOCK_MANAGER->SetMaxPoolCount);
+
+    CHECK_AND_SET_POSITIVE_UINT64("waitExpireTime", WAITQUEUE_MANAGER->SetWaitExpireTime);
+    CHECK_AND_SET_UINT64("waitQueueMaxCacheTime",   WAITQUEUE_MANAGER->SetMaxCacheTime);
+    CHECK_AND_SET_UINT64("waitQueueMaxCacheCount",  WAITQUEUE_MANAGER->SetMaxCacheCount);
+    CHECK_AND_SET_UINT64("waitQueueMaxPoolCount",   WAITQUEUE_MANAGER->SetMaxPoolCount);
 
     session.Flush();
 
