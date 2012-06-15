@@ -1,4 +1,5 @@
 #include "EventLoop.h"
+#include "System/IO/IOProcessor.h"
 
 static volatile uint64_t        now;
 static bool                     running;

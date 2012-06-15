@@ -345,6 +345,7 @@ void ShardHTTPClientSession::PrintStatistics()
     buffer.Appendf("numTCPBytesSent: %s\n", PrintableBytes(iostat.numTCPBytesSent, humanBuf, humanize));
     buffer.Appendf("numTCPBytesReceived: %s\n", PrintableBytes(iostat.numTCPBytesReceived, humanBuf, humanize));
     buffer.Appendf("numCompletions: %U\n", iostat.numCompletions);
+    buffer.Appendf("numLongCallbacks: %U\n", iostat.numLongCallbacks);
     buffer.Appendf("totalPollTime: %U\n", iostat.totalPollTime);
     buffer.Appendf("totalNumEvents: %U\n", iostat.totalNumEvents);
 

@@ -1,17 +1,5 @@
 #include "Timer.h"
-
-// This function is copy-pasted from IOProcessor_Windows
-static void CallWarnTimeout(Callable& callable)
-{
-    uint64_t    start;
-    uint64_t    elapsed;
-
-    start = NowClock();
-    Call(callable);
-    elapsed = NowClock() - start;
-    if (elapsed > 100)
-        Log_Debug("EventLoop callback elapsed time: %U", elapsed);
-}
+#include "System/IO/IOProcessor.h"
 
 Timer::Timer()
 {
@@ -51,7 +39,7 @@ uint64_t Timer::GetExpireTime()
 
 void Timer::Execute()
 {
-    CallWarnTimeout(callable);
+    IOProcessor::Call(callable);
 }
 
 YieldTimer::YieldTimer()

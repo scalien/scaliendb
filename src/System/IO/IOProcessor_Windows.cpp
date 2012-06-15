@@ -39,7 +39,7 @@ do                                  \
 #else // IOPROCESSOR_MULTITHREADED
 
 #define UNLOCKED_CALL(callable)     \
-    CallWarnTimeout(callable)
+    IOProcessor::Call(callable)
 
 #define UNLOCKED_ADD(ioop)          \
     IOProcessor::Add(ioop)
@@ -83,13 +83,14 @@ typedef InQueue<CallableItem> CallableQueue;
 typedef InList<IOOperation> OpList;
 
 // globals
-static HANDLE           iocp = NULL;        // global completion port handle
-static IODesc*          iods;               // pointer to allocated array of IODesc's
-static IODesc*          freeIods;           // pointer to the free list of IODesc's
-static IODesc           callback;           // special IODesc for handling IOProcessor::Complete events
+static HANDLE           iocp = NULL;                        // global completion port handle
+static IODesc*          iods;                               // pointer to allocated array of IODesc's
+static IODesc*          freeIods;                           // pointer to the free list of IODesc's
+static IODesc           callback;                           // special IODesc for handling IOProcessor::Complete events
 const FD                INVALID_FD = {-1, INVALID_SOCKET};  // special FD to indicate invalid value
 unsigned                SEND_BUFFER_SIZE = 8001;
 static volatile bool    terminated = false;
+static unsigned         longCallbackThreshold = 100;        // in millisec
 static unsigned         numIOProcClients = 0;
 static IOProcessorStat  iostat;
 static Mutex            callableMutex;
@@ -104,18 +105,6 @@ static LPFN_CONNECTEX   ConnectEx;
 bool ProcessTCPRead(TCPRead* tcpread);
 bool ProcessTCPWrite(TCPWrite* tcpwrite);
 void ProcessCompletionCallbacks();
-
-static void CallWarnTimeout(Callable& callable)
-{
-    uint64_t    start;
-    uint64_t    elapsed;
-
-    start = NowClock();
-    Call(callable);
-    elapsed = NowClock() - start;
-    if (elapsed > 100)
-        Log_Debug("IOProcessor callback elapsed time: %U", elapsed);
-}
 
 // helper function for FD -> IODesc mapping
 static IODesc* GetIODesc(const FD& fd)
@@ -794,6 +783,21 @@ bool IOProcessor::Complete(Callable* callable)
     return true;
 }
 
+void IOProcessor::Call(Callable& callable)
+{
+    uint64_t    start;
+    uint64_t    elapsed;
+
+    start = NowClock();
+    ::Call(callable);
+    elapsed = NowClock() - start;
+    if (elapsed > longCallbackThreshold)
+    {
+        Log_Debug("IOProcessor callback elapsed time: %U", elapsed);
+        iostat.numLongCallbacks++;
+    }
+}
+
 void ProcessCompletionCallbacks()
 {
     CallableItem*   item;
@@ -808,7 +812,7 @@ void ProcessCompletionCallbacks()
 
     while (item)
     {
-        CallWarnTimeout(item->callable);
+        IOProcessor::Call(item->callable);
         next = item->next;
         delete item;
         item = next;

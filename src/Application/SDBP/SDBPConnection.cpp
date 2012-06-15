@@ -4,6 +4,8 @@
 #include "SDBPRequestMessage.h"
 #include "SDBPResponseMessage.h"
 #include "Application/Common/ClientRequestCache.h"
+#include "System/Events/EventLoop.h"
+#include "System/IO/IOProcessor.h"
 #include "System/Config.h"
 
 static const unsigned keepAliveTimeout = 60*1000; // msec
