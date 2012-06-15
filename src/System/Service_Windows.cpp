@@ -1,5 +1,6 @@
 #ifdef PLATFORM_WINDOWS
 #include "System/Events/EventLoop.h"
+#include "System/IO/IOProcessor.h"
 #include "Service.h"
 #include <windows.h>
 #include <stdio.h>

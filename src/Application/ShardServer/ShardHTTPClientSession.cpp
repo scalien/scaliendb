@@ -347,6 +347,7 @@ void ShardHTTPClientSession::PrintStatistics()
     buffer.Appendf("numTCPBytesSent: %s\n", PrintableBytes(iostat.numTCPBytesSent, humanBuf, humanize));
     buffer.Appendf("numTCPBytesReceived: %s\n", PrintableBytes(iostat.numTCPBytesReceived, humanBuf, humanize));
     buffer.Appendf("numCompletions: %U\n", iostat.numCompletions);
+    buffer.Appendf("numLongCallbacks: %U\n", iostat.numLongCallbacks);
     buffer.Appendf("totalPollTime: %U\n", iostat.totalPollTime);
     buffer.Appendf("totalNumEvents: %U\n", iostat.totalNumEvents);
 
@@ -845,6 +846,8 @@ bool ShardHTTPClientSession::ProcessSettings()
             session.PrintPair("ListDataPageCacheSize", buf);
         }
     }
+
+    CHECK_AND_SET_POSITIVE_UINT64("maxChunkPerShard", shardServer->GetDatabaseManager()->GetEnvironment()->GetConfig().SetMaxChunkPerShard);
 
     CHECK_AND_SET_POSITIVE_UINT64("lockExpireTime", LOCK_MANAGER->SetLockExpireTime);
     CHECK_AND_SET_UINT64("lockMaxCacheTime",        LOCK_MANAGER->SetMaxCacheTime);

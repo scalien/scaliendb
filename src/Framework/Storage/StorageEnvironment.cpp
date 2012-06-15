@@ -1374,7 +1374,7 @@ void StorageEnvironment::TryMergeChunks()
         // find largest shard which has too many file chunks
         if (fmcShard == NULL || shardSize > fmcShardSize)
         {
-            if (shard->IsFragmentedMergeCandidate())
+            if (shard->IsFragmentedMergeCandidate(config.GetMaxChunkPerShard()))
             {
                 fmcShard = shard;
                 fmcShardSize = shardSize;

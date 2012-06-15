@@ -1,9 +1,8 @@
 #ifndef MESSAGECONNECTION_H
 #define MESSAGECONNECTION_H
 
-#include "System/Stopwatch.h"
-#include "System/Events/EventLoop.h"
 #include "System/Buffers/Buffer.h"
+#include "System/Events/Timer.h"
 #include "Framework/TCP/TCPConnection.h"
 #include "Message.h"
 

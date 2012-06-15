@@ -24,8 +24,9 @@ public:
     void        SetSyncGranularity(uint64_t syncGranularity);
     void        SetWriteGranularity(uint64_t writeGranularity);
     void        SetReplicatedLogSize(uint64_t replicatedLogSize);
-	void		SetAbortWaitingListsNum(uint64_t abortWaitingListsNum);
+    void		SetAbortWaitingListsNum(uint64_t abortWaitingListsNum);
     void        SetListDataPageCacheSize(uint64_t listDataPageCacheSize);
+    void        SetMaxChunkPerShard(unsigned maxChunkPerShard);
 
     uint64_t    GetChunkSize();
     uint64_t    GetLogSegmentSize();
@@ -37,8 +38,9 @@ public:
     uint64_t    GetSyncGranularity();
     uint64_t    GetWriteGranularity();
     uint64_t    GetNumLogSegmentFileChunks();
-	uint64_t	GetAbortWaitingListsNum();
+    uint64_t	GetAbortWaitingListsNum();
     uint64_t    GetListDataPageCacheSize();
+    unsigned    GetMaxChunkPerShard();
 
 private:
     uint64_t    chunkSize;
@@ -51,8 +53,9 @@ private:
     uint64_t    syncGranularity;
     uint64_t    writeGranularity;
     uint64_t    numLogSegmentFileChunks;
-	uint64_t	abortWaitingListsNum;
+    uint64_t	abortWaitingListsNum;
     uint64_t    listDataPageCacheSize;
+    unsigned    maxChunkPerShard;
 };
 
 #endif

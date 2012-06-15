@@ -31,6 +31,7 @@ public:
     uint64_t    totalPollTime;
     unsigned    lastNumEvents;
     uint64_t    totalNumEvents;
+    uint64_t    numLongCallbacks;
 };
 
 /*
@@ -47,13 +48,13 @@ public:
     static bool Init(int maxfd);
     static void Shutdown();
 
-
     static bool Add(IOOperation* ioop);
     static bool Remove(IOOperation* ioop);
 
     static bool Poll(int sleep);
 
     static bool Complete(Callable* callable);
+    static void Call(Callable& callable);
 
     static void BlockSignals(int blockMode);
 

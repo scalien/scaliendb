@@ -1,5 +1,9 @@
 #include "MessageConnection.h"
 
+#include "System/Events/EventLoop.h"
+#include "System/IO/IOProcessor.h"
+#include "System/Stopwatch.h"
+
 MessageConnection::MessageConnection()
 {
     resumeRead.SetCallable(MFUNC(MessageConnection, OnResumeRead));

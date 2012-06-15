@@ -25,6 +25,7 @@ void ConfigDatabaseManager::Init(bool restoreMode)
     sc.SetReplicatedLogSize(    (uint64_t) configFile.GetInt64Value("database.replicatedLogSize",		0       ));
     sc.SetAbortWaitingListsNum( (uint64_t) configFile.GetInt64Value("database.abortWaitingListsNum",	0       ));
     sc.SetListDataPageCacheSize((uint64_t) configFile.GetInt64Value("database.listDataPageCacheSize",   1*MB    ));
+    sc.SetMaxChunkPerShard(     (unsigned) configFile.GetIntValue  ("database.maxChunkPerShard",        10      ));
 
     envpath.Writef("%s", configFile.GetValue("database.dir", "db"));
     environment.Open(envpath, sc);

@@ -52,12 +52,17 @@ void StorageConfig::SetReplicatedLogSize(uint64_t replicatedLogSize)
 
 void StorageConfig::SetAbortWaitingListsNum(uint64_t abortWaitingListsNum_)
 {
-	abortWaitingListsNum = abortWaitingListsNum_;
+    abortWaitingListsNum = abortWaitingListsNum_;
 }
 
 void StorageConfig::SetListDataPageCacheSize(uint64_t listDataPageCacheSize_)
 {
     listDataPageCacheSize = listDataPageCacheSize_;
+}
+
+void StorageConfig::SetMaxChunkPerShard(unsigned maxChunkPerShard_)
+{
+    maxChunkPerShard = maxChunkPerShard_;
 }
 
 uint64_t StorageConfig::GetChunkSize()
@@ -112,10 +117,15 @@ uint64_t StorageConfig::GetNumLogSegmentFileChunks()
 
 uint64_t StorageConfig::GetAbortWaitingListsNum()
 {
-	return abortWaitingListsNum;
+    return abortWaitingListsNum;
 }
 
 uint64_t StorageConfig::GetListDataPageCacheSize()
 {
     return listDataPageCacheSize;
+}
+
+unsigned StorageConfig::GetMaxChunkPerShard()
+{
+    return maxChunkPerShard;
 }

@@ -68,7 +68,7 @@ public:
     void                OnChunkSerialized(StorageMemoChunk* memoChunk, StorageFileChunk* fileChunk);
     bool                IsMergeableType();
     bool                IsSplitMergeCandidate();
-    bool                IsFragmentedMergeCandidate();
+    bool                IsFragmentedMergeCandidate(unsigned maxChunkPerShard);
     void                GetMergeInputChunks(List<StorageFileChunk*>& inputChunks);
 
 

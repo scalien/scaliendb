@@ -1,5 +1,6 @@
 #include "TCPConnection.h"
 #include "System/Events/EventLoop.h"
+#include "System/IO/IOProcessor.h"
 
 TCPConnection::TCPConnection()
 {
