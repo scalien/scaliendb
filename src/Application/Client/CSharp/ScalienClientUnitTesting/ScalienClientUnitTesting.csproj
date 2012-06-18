@@ -96,6 +96,9 @@
     <Compile Include="..\ScalienClientUnitTestsVS\SimpleUnitTests.cs">
       <Link>SimpleUnitTests.cs</Link>
     </Compile>
+    <Compile Include="..\ScalienClientUnitTestsVS\TransactionTests.cs">
+      <Link>TransactionTests.cs</Link>
+    </Compile>
     <Compile Include="..\ScalienClientUnitTestsVS\Users.cs">
       <Link>Users.cs</Link>
     </Compile>
