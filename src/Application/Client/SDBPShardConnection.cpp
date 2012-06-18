@@ -4,6 +4,7 @@
 #include "Application/Common/ClientResponse.h"
 #include "Application/SDBP/SDBPRequestMessage.h"
 #include "Application/SDBP/SDBPResponseMessage.h"
+#include "System/Events/EventLoop.h"
 
 #define CLIENT_MUTEX_GUARD_DECLARE()    MutexGuard mutexGuard(client->mutex)
 #define CLIENT_MUTEX_LOCK()             mutexGuard.Lock()

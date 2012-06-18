@@ -878,6 +878,30 @@ SWIGEXPORT unsigned long long SWIGSTDCALL CSharp_SDBP_ResultNodeID(void * jarg1)
 }
 
 
+SWIGEXPORT unsigned long long SWIGSTDCALL CSharp_SDBP_ResultQuorumID(void * jarg1) {
+  unsigned long long jresult ;
+  ResultObj arg1 = (ResultObj) 0 ;
+  uint64_t result;
+  
+  arg1 = (ResultObj)jarg1; 
+  result = (uint64_t)SDBP_ResultQuorumID(arg1);
+  jresult = result; 
+  return jresult;
+}
+
+
+SWIGEXPORT unsigned long long SWIGSTDCALL CSharp_SDBP_ResultPaxosID(void * jarg1) {
+  unsigned long long jresult ;
+  ResultObj arg1 = (ResultObj) 0 ;
+  uint64_t result;
+  
+  arg1 = (ResultObj)jarg1; 
+  result = (uint64_t)SDBP_ResultPaxosID(arg1);
+  jresult = result; 
+  return jresult;
+}
+
+
 SWIGEXPORT unsigned int SWIGSTDCALL CSharp_SDBP_ResultElapsedTime(void * jarg1) {
   unsigned int jresult ;
   ResultObj arg1 = (ResultObj) 0 ;
@@ -982,26 +1006,6 @@ SWIGEXPORT unsigned long long SWIGSTDCALL CSharp_SDBP_GetMasterTimeout(void * ja
 }
 
 
-SWIGEXPORT char * SWIGSTDCALL CSharp_SDBP_GetJSONConfigState(void * jarg1) {
-  char * jresult ;
-  ClientObj arg1 = (ClientObj) 0 ;
-  std::string result;
-  
-  arg1 = (ClientObj)jarg1; 
-  result = SDBP_GetJSONConfigState(arg1);
-  jresult = SWIG_csharp_string_callback((&result)->c_str()); 
-  return jresult;
-}
-
-
-SWIGEXPORT void SWIGSTDCALL CSharp_SDBP_WaitConfigState(void * jarg1) {
-  ClientObj arg1 = (ClientObj) 0 ;
-  
-  arg1 = (ClientObj)jarg1; 
-  SDBP_WaitConfigState(arg1);
-}
-
-
 SWIGEXPORT void SWIGSTDCALL CSharp_SDBP_SetConsistencyMode(void * jarg1, int jarg2) {
   ClientObj arg1 = (ClientObj) 0 ;
   int arg2 ;
@@ -1029,6 +1033,38 @@ SWIGEXPORT void SWIGSTDCALL CSharp_SDBP_SetBatchLimit(void * jarg1, unsigned int
   arg1 = (ClientObj)jarg1; 
   arg2 = (unsigned int)jarg2; 
   SDBP_SetBatchLimit(arg1,arg2);
+}
+
+
+SWIGEXPORT char * SWIGSTDCALL CSharp_SDBP_GetJSONConfigState(void * jarg1) {
+  char * jresult ;
+  ClientObj arg1 = (ClientObj) 0 ;
+  std::string result;
+  
+  arg1 = (ClientObj)jarg1; 
+  result = SDBP_GetJSONConfigState(arg1);
+  jresult = SWIG_csharp_string_callback((&result)->c_str()); 
+  return jresult;
+}
+
+
+SWIGEXPORT void SWIGSTDCALL CSharp_SDBP_WaitConfigState(void * jarg1) {
+  ClientObj arg1 = (ClientObj) 0 ;
+  
+  arg1 = (ClientObj)jarg1; 
+  SDBP_WaitConfigState(arg1);
+}
+
+
+SWIGEXPORT int SWIGSTDCALL CSharp_SDBP_GetConnectivityStatus(void * jarg1) {
+  int jresult ;
+  ClientObj arg1 = (ClientObj) 0 ;
+  int result;
+  
+  arg1 = (ClientObj)jarg1; 
+  result = (int)SDBP_GetConnectivityStatus(arg1);
+  jresult = result; 
+  return jresult;
 }
 
 

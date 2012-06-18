@@ -159,6 +159,11 @@ namespace Scalien
             return scaliendb_client.SDBP_ResultNodeID(cptr);
         }
 
+        public UInt64 GetQuorumID()
+        {
+            return scaliendb_client.SDBP_ResultQuorumID(cptr);
+        }
+
         public UInt64 GetTableID() 
         {
             return scaliendb_client.SDBP_ResultTableID(cptr);
@@ -167,6 +172,11 @@ namespace Scalien
         public UInt64 GetDatabaseID()
         {
             return scaliendb_client.SDBP_ResultDatabaseID(cptr);
+        }
+
+        public UInt64 GetPaxosID()
+        {
+            return scaliendb_client.SDBP_ResultPaxosID(cptr);
         }
 
         public uint GetElapsedTime()

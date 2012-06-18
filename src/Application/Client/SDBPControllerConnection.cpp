@@ -7,6 +7,8 @@
 #include "Application/SDBP/SDBPRequestMessage.h"
 #include "Application/SDBP/SDBPResponseMessage.h"
 #include "Framework/Replication/PaxosLease/PaxosLease.h"
+#include "System/Events/EventLoop.h"
+#include "System/Stopwatch.h"
 
 #define GETCONFIGSTATE_TIMEOUT  (3*1000)
 #define RECONNECT_TIMEOUT       2000

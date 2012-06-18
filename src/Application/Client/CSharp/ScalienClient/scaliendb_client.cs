@@ -114,6 +114,16 @@ public class scaliendb_client {
     return ret;
   }
 
+  public unsafe static ulong SDBP_ResultQuorumID(SWIGTYPE_p_void result) {
+    ulong ret = scaliendb_clientPINVOKE.SDBP_ResultQuorumID(SWIGTYPE_p_void.getCPtr(result));
+    return ret;
+  }
+
+  public unsafe static ulong SDBP_ResultPaxosID(SWIGTYPE_p_void result) {
+    ulong ret = scaliendb_clientPINVOKE.SDBP_ResultPaxosID(SWIGTYPE_p_void.getCPtr(result));
+    return ret;
+  }
+
   public unsafe static uint SDBP_ResultElapsedTime(SWIGTYPE_p_void result) {
     uint ret = scaliendb_clientPINVOKE.SDBP_ResultElapsedTime(SWIGTYPE_p_void.getCPtr(result));
     return ret;
@@ -159,15 +169,6 @@ public class scaliendb_client {
     return ret;
   }
 
-  public unsafe static string SDBP_GetJSONConfigState(SWIGTYPE_p_void client) {
-    string ret = scaliendb_clientPINVOKE.SDBP_GetJSONConfigState(SWIGTYPE_p_void.getCPtr(client));
-    return ret;
-  }
-
-  public unsafe static void SDBP_WaitConfigState(SWIGTYPE_p_void client) {
-    scaliendb_clientPINVOKE.SDBP_WaitConfigState(SWIGTYPE_p_void.getCPtr(client));
-  }
-
   public unsafe static void SDBP_SetConsistencyMode(SWIGTYPE_p_void client, int consistencyMode) {
     scaliendb_clientPINVOKE.SDBP_SetConsistencyMode(SWIGTYPE_p_void.getCPtr(client), consistencyMode);
   }
@@ -178,6 +179,20 @@ public class scaliendb_client {
 
   public unsafe static void SDBP_SetBatchLimit(SWIGTYPE_p_void client, uint batchLimit) {
     scaliendb_clientPINVOKE.SDBP_SetBatchLimit(SWIGTYPE_p_void.getCPtr(client), batchLimit);
+  }
+
+  public unsafe static string SDBP_GetJSONConfigState(SWIGTYPE_p_void client) {
+    string ret = scaliendb_clientPINVOKE.SDBP_GetJSONConfigState(SWIGTYPE_p_void.getCPtr(client));
+    return ret;
+  }
+
+  public unsafe static void SDBP_WaitConfigState(SWIGTYPE_p_void client) {
+    scaliendb_clientPINVOKE.SDBP_WaitConfigState(SWIGTYPE_p_void.getCPtr(client));
+  }
+
+  public unsafe static int SDBP_GetConnectivityStatus(SWIGTYPE_p_void client) {
+    int ret = scaliendb_clientPINVOKE.SDBP_GetConnectivityStatus(SWIGTYPE_p_void.getCPtr(client));
+    return ret;
   }
 
   public unsafe static int SDBP_CreateDatabase(SWIGTYPE_p_void client, string name) {

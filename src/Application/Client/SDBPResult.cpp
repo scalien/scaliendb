@@ -205,6 +205,22 @@ uint64_t Result::GetNodeID()
     return requestCursor->connNodeID;
 }
 
+uint64_t Result::GetQuorumID()
+{
+    if (requestCursor == NULL)
+        return 0;
+    
+    return requestCursor->quorumID;
+}
+
+uint64_t Result::GetPaxosID()
+{
+    if (requestCursor == NULL)
+        return 0;
+    
+    return requestCursor->paxosID;
+}
+
 unsigned Result::GetElapsedTime()
 {
     if (requestCursor == NULL)

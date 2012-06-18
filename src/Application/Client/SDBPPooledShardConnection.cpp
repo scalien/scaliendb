@@ -2,6 +2,7 @@
 #include "SDBPShardConnection.h"
 #include "System/Containers/HashMap.h"
 #include "System/Threading/Mutex.h"
+#include "System/Events/EventLoop.h"
 
 using namespace SDBPClient;
 

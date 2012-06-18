@@ -341,6 +341,12 @@ class scaliendb_clientPINVOKE {
   [DllImport("scaliendb_client", EntryPoint="CSharp_SDBP_ResultNodeID")]
   public static extern ulong SDBP_ResultNodeID(HandleRef jarg1);
 
+  [DllImport("scaliendb_client", EntryPoint="CSharp_SDBP_ResultQuorumID")]
+  public static extern ulong SDBP_ResultQuorumID(HandleRef jarg1);
+
+  [DllImport("scaliendb_client", EntryPoint="CSharp_SDBP_ResultPaxosID")]
+  public static extern ulong SDBP_ResultPaxosID(HandleRef jarg1);
+
   [DllImport("scaliendb_client", EntryPoint="CSharp_SDBP_ResultElapsedTime")]
   public static extern uint SDBP_ResultElapsedTime(HandleRef jarg1);
 
@@ -368,12 +374,6 @@ class scaliendb_clientPINVOKE {
   [DllImport("scaliendb_client", EntryPoint="CSharp_SDBP_GetMasterTimeout")]
   public static extern ulong SDBP_GetMasterTimeout(HandleRef jarg1);
 
-  [DllImport("scaliendb_client", EntryPoint="CSharp_SDBP_GetJSONConfigState")]
-  public static extern string SDBP_GetJSONConfigState(HandleRef jarg1);
-
-  [DllImport("scaliendb_client", EntryPoint="CSharp_SDBP_WaitConfigState")]
-  public static extern void SDBP_WaitConfigState(HandleRef jarg1);
-
   [DllImport("scaliendb_client", EntryPoint="CSharp_SDBP_SetConsistencyMode")]
   public static extern void SDBP_SetConsistencyMode(HandleRef jarg1, int jarg2);
 
@@ -382,6 +382,15 @@ class scaliendb_clientPINVOKE {
 
   [DllImport("scaliendb_client", EntryPoint="CSharp_SDBP_SetBatchLimit")]
   public static extern void SDBP_SetBatchLimit(HandleRef jarg1, uint jarg2);
+
+  [DllImport("scaliendb_client", EntryPoint="CSharp_SDBP_GetJSONConfigState")]
+  public static extern string SDBP_GetJSONConfigState(HandleRef jarg1);
+
+  [DllImport("scaliendb_client", EntryPoint="CSharp_SDBP_WaitConfigState")]
+  public static extern void SDBP_WaitConfigState(HandleRef jarg1);
+
+  [DllImport("scaliendb_client", EntryPoint="CSharp_SDBP_GetConnectivityStatus")]
+  public static extern int SDBP_GetConnectivityStatus(HandleRef jarg1);
 
   [DllImport("scaliendb_client", EntryPoint="CSharp_SDBP_CreateDatabase")]
   public static extern int SDBP_CreateDatabase(HandleRef jarg1, string jarg2);
