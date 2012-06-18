@@ -173,7 +173,8 @@ private:
     uint64_t                migrateShardID;
     int64_t                 migrateCache; // in bytes
     bool                    blockReplication;
-    
+    bool                    mergeDisabled;
+
     ShardCatchupReader      catchupReader;
     ShardCatchupWriter      catchupWriter;
 

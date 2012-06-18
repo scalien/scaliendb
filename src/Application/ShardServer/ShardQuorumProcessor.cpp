@@ -46,6 +46,7 @@ ShardQuorumProcessor::ShardQuorumProcessor()
     resumeAppend.SetCallable(MFUNC(ShardQuorumProcessor, OnResumeAppend));
     resumeBlockedAppend.SetDelay(CLOCK_RESOLUTION);
     resumeBlockedAppend.SetCallable(MFUNC(ShardQuorumProcessor, OnResumeBlockedAppend));
+    mergeDisabled = false;
 }
 
 ShardQuorumProcessor::~ShardQuorumProcessor()
@@ -163,7 +164,13 @@ void ShardQuorumProcessor::OnSetConfigState()
     RegisterPaxosID(configQuorum->paxosID);
 
     if (configQuorum->IsActiveMember(MY_NODEID))
-    {                
+    {
+        if (mergeDisabled)
+        {
+            mergeDisabled = false;
+            DATABASE_MANAGER->GetEnvironment()->SetMergeEnabled(true); // enable
+        }
+
         if (configQuorum->isActivatingNode || configQuorum->activatingNodeID == MY_NODEID)
         {
             OnActivation();
@@ -203,6 +210,12 @@ void ShardQuorumProcessor::OnSetConfigState()
     }
     else if (configQuorum->IsInactiveMember(MY_NODEID))
     {
+        if (!mergeDisabled)
+        {
+            mergeDisabled = true;
+            DATABASE_MANAGER->GetEnvironment()->SetMergeEnabled(false); // disable
+        }
+
         if (IsCatchupActive())
             AbortCatchup();
 
