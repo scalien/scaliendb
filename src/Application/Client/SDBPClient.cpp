@@ -731,14 +731,21 @@ int Client::Add(uint64_t tableID, const ReadBuffer& key, int64_t number)
     if (InTransaction())
     {
         status = Get(tableID, key);
-        if (status != SDBP_SUCCESS)
-            return status;
-        status = result->GetValue(value);
-        if (status != SDBP_SUCCESS)
-            return status;
-        status = value.Readf("%I", &oldNumber);
-        if (status <= 0)
-            return SDBP_FAILED;
+        if (status == SDBP_FAILED) // dne
+        {
+            oldNumber = 0;
+        }
+        else
+        {
+            if (status != SDBP_SUCCESS)
+                return status;
+            status = result->GetValue(value);
+            if (status != SDBP_SUCCESS)
+                return status;
+            status = value.Readf("%I", &oldNumber);
+            if (status <= 0)
+                return SDBP_FAILED;
+        }
         newNumber = oldNumber + number;
         newValue.Writef("%I", newNumber);
         status = Set(tableID, key, newValue);
