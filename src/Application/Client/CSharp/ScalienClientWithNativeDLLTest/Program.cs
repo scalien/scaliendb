@@ -10,7 +10,8 @@ namespace Scalien
         public static void Main(string[] args)
         {
             NativeLoader.Load();
-            new ScalienClientUnitTesting.SimpleUnitTests().ListTestsWithoutProxies();
+            //new ScalienClientUnitTesting.SimpleUnitTests().ListTestsWithoutProxies();
+            new ScalienClientUnitTesting.ClientTests().TestNoPrimaryException();
         }
     }
 }

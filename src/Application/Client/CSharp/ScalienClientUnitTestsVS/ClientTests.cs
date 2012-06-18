@@ -173,5 +173,75 @@ namespace ScalienClientUnitTesting
                 thread.Join();
             }
         }
+
+        [TestMethod]
+        public void TestNoConnectionException()
+        {
+            try
+            {
+                // bad port
+                Client client = new Client(new string[] { "127.0.0.1:1" });
+                client.SetMasterTimeout(5 * 1000);
+                client.SetGlobalTimeout(10 * 1000);
+                string configState = client.GetJSONConfigState();
+            }
+            catch (SDBPException e)
+            {
+                Assert.IsTrue(e.Status == Status.SDBP_NOCONNECTION);
+                return;
+            }
+
+            Assert.Fail();
+        }
+
+        [TestMethod]
+        public void TestNoMasterException()
+        {
+            // This test is not working, because it always throws Status.SDBP_NOCONNECTION
+            try
+            {
+                // ensure that there is no master
+                Client client = new Client(new string[] { "192.168.2.118:7080", "192.168.2.119:7080", "192.168.2.120:7080" });
+                client.SetMasterTimeout(5 * 1000);
+                client.SetGlobalTimeout(10 * 1000);
+                string configState = client.GetJSONConfigState();
+            }
+            catch (SDBPException e)
+            {
+                Assert.IsTrue(e.Status == Status.SDBP_NOMASTER);
+                return;
+            }
+
+            Assert.Fail();
+        }
+
+        [TestMethod]
+        public void TestNoPrimaryException()
+        {
+            try
+            {
+                // ensure that there is no master
+                Client client = new Client(new string[] { "192.168.2.118:7080", "192.168.2.119:7080", "192.168.2.120:7080" });
+                client.SetMasterTimeout(5 * 1000);
+                client.SetGlobalTimeout(10 * 1000);
+                Client.SetTrace(true);
+                string configState = client.GetJSONConfigState();
+                Database db = client.GetDatabase("test_db");
+                Table table = db.GetTable("test_table");
+                for (int i = 0; i < 100; i++)
+                {
+                    table.Set("a", "1");
+                    client.Submit();
+                    Thread.Sleep(500);
+                }
+            }
+            catch (SDBPException e)
+            {
+                Assert.IsTrue(e.Status == Status.SDBP_FAILURE);
+                return;
+            }
+
+            Assert.Fail();
+        }
     }
 }

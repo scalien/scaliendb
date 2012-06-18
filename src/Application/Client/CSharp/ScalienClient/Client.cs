@@ -14,6 +14,10 @@ namespace Scalien
     public class SDBPException : Exception
     {
         private int status;
+        internal UInt64 nodeID;
+        internal UInt64 quorumID;
+        internal UInt64 tableID;
+        internal UInt64 paxosID;
 
         /// <summary>
         /// The status code of the exception.
@@ -26,16 +30,69 @@ namespace Scalien
             }
         }
 
+        /// <summary>
+        /// The nodeID of the server where the last command was sent
+        /// </summary>
+        public UInt64 NodeID
+        {
+            get
+            {
+                return nodeID;
+            }
+        }
+
+        /// <summary>
+        /// The quorumID of the command that generated the exception
+        /// </summary>
+        public UInt64 QuorumID
+        {
+            get
+            {
+                return quorumID;
+            }
+        }
+
+        /// <summary>
+        /// The tableID of the command that generated the exception
+        /// </summary>
+        public UInt64 TableID
+        {
+            get
+            {
+                return tableID;
+            }
+        }
+
+        /// <summary>
+        /// The paxosID of the command that generated the exception
+        /// </summary>
+        public UInt64 PaxosID
+        {
+            get
+            {
+                return paxosID;
+            }
+        }
+
         internal SDBPException(int status)
             : base(Scalien.Status.ToString(status) + " (code " + status + ")")
         {
-            this.status = status;
+            Init(status);
         }
 
         internal SDBPException(int status, string txt)
             : base(Scalien.Status.ToString(status) + " (code " + status + "): " + txt)
         {
+            Init(status);
+        }
+
+        private void Init(int status)
+        {
             this.status = status;
+            nodeID = 0;
+            quorumID = 0;
+            tableID = 0;
+            paxosID = 0;
         }
     }
 
@@ -226,32 +283,74 @@ namespace Scalien
         internal void CheckResultStatus(int status, string msg)
         {
             result = new Result(scaliendb_client.SDBP_GetResult(cptr));
-            CheckStatus(status, msg);
+            CheckStatus(result, status, msg);
         }
 
         internal void CheckResultStatus(int status)
         {
             result = new Result(scaliendb_client.SDBP_GetResult(cptr));
-            CheckStatus(status, null);
+            CheckStatus(result, status, null);
         }
 
-        internal void CheckStatus(int status, string msg)
+        internal void CheckStatus(Result result, int status, string msg)
         {
             if (status < 0)
             {
                 if (msg != null)
-                    throw new SDBPException(status, msg);
+                    throw CreateException(result, status, msg);
+
                 if (status == Status.SDBP_BADSCHEMA)
-                    throw new SDBPException(status, "No database or table is in use");
+                    throw CreateException(result, status, "No database or table is in use");
+
                 if (status == Status.SDBP_NOSERVICE)
-                    throw new SDBPException(status, "No server in the cluster was able to serve the request");
-                throw new SDBPException(status);
+                {
+                    CheckConnectivityStatus(result, status);
+                    throw CreateException(result, status, "No server in the cluster was able to serve the request");
+                }
+                
+                if (status == Status.SDBP_FAILURE)
+                {
+                    CheckConnectivityStatus(result, status);
+                    throw CreateException(result, status, "No server in the cluster was able to serve the request");
+                }
+
+                if (status == Status.SDBP_API_ERROR)
+                    throw CreateException(result, status, "API error: invalid call or bad arguments");
+                
+                throw CreateException(result, status, "Unknown exception");
             }
         }
 
-        internal void CheckStatus(int status)
+        private SDBPException CreateException(Result result, int status, string msg)
         {
-            CheckStatus(status, null);
+            SDBPException exception = new SDBPException(status, msg);
+
+            if (result != null && result.GetCommandStatus() != Status.SDBP_API_ERROR)
+            {
+                exception.tableID = result.GetTableID();
+                exception.quorumID = result.GetQuorumID();
+                exception.nodeID = result.GetNodeID();
+                exception.paxosID = result.GetPaxosID();
+            }
+
+            return exception;
+        }
+
+        internal void CheckConnectivityStatus(Result result, int status)
+        {
+            int connectivityStatus = GetConnectivityStatus();
+
+            if (connectivityStatus == Status.SDBP_NOCONNECTION)
+                throw CreateException(result, status, "Cannot connect to controllers");
+            if (connectivityStatus == Status.SDBP_NOMASTER)
+                throw CreateException(result, status, "Cannot find master controller");
+            if (connectivityStatus == Status.SDBP_NOPRIMARY)
+                throw CreateException(result, status, "Cannot find primary in quorum");
+        }
+
+        internal void CheckStatus(Result result, int status)
+        {
+            CheckStatus(result, status, null);
         }
 
         internal static byte[] StringToByteArray(string str)
@@ -521,7 +620,18 @@ namespace Scalien
         /// </summary>
         public string GetJSONConfigState()
         {
-            return scaliendb_client.SDBP_GetJSONConfigState(cptr);
+            string JSONConfigState = scaliendb_client.SDBP_GetJSONConfigState(cptr);
+            CheckConnectivityStatus(null, GetConnectivityStatus());
+            return JSONConfigState;
+        }
+
+        /// <summary>
+        /// Returns the connectivity status of the last command
+        /// </summary>
+        /// <returns>The connectivity status</returns>
+        internal int GetConnectivityStatus()
+        {
+            return scaliendb_client.SDBP_GetConnectivityStatus(cptr);
         }
 
         #endregion
@@ -651,7 +761,7 @@ namespace Scalien
                 if (status == Status.SDBP_FAILED)
                     return null;
                 result = new Result(scaliendb_client.SDBP_GetResult(cptr));
-                CheckStatus(status);
+                CheckStatus(result, status);
                 return result.GetValueBytes();
             }
 
@@ -684,9 +794,9 @@ namespace Scalien
             if (status < 0)
             {
                 if (status == Status.SDBP_BADSCHEMA)
-                    CheckStatus(status, "Batch limit exceeded");
+                    CheckStatus(result, status, "Batch limit exceeded");
                 else
-                    CheckStatus(status);
+                    CheckStatus(result, status);
             }
             result.Close();
         }
@@ -712,7 +822,7 @@ namespace Scalien
             result = new Result(scaliendb_client.SDBP_GetResult(cptr));
             if (status < 0)
             {
-                CheckStatus(status);
+                CheckStatus(result, status);
             }
             long number = result.GetSignedNumber();
             result.Close();
@@ -741,9 +851,9 @@ namespace Scalien
             if (status < 0)
             {
                 if (status == Status.SDBP_BADSCHEMA)
-                    CheckStatus(status, "Batch limit exceeded");
+                    CheckStatus(result, status, "Batch limit exceeded");
                 else
-                    CheckStatus(status);
+                    CheckStatus(result, status);
             }
             result.Close();
         }
@@ -769,7 +879,7 @@ namespace Scalien
             result = new Result(scaliendb_client.SDBP_GetResult(cptr));
             if (status < 0)
             {
-                CheckStatus(status);
+                CheckStatus(result, status);
             }
             result.Close();
         }
@@ -795,7 +905,7 @@ namespace Scalien
             result = new Result(scaliendb_client.SDBP_GetResult(cptr));
             if (status < 0)
             {
-                CheckStatus(status);
+                CheckStatus(result, status);
             }
             ulong number = result.GetNumber();
             result.Close();
@@ -854,7 +964,8 @@ namespace Scalien
         public void Submit()
         {
             int status = scaliendb_client.SDBP_Submit(cptr);
-            CheckStatus(status);
+            Result result = new Result(scaliendb_client.SDBP_GetResult(cptr));
+            CheckStatus(result, status);
         }
 
         /// <summary>
@@ -865,7 +976,7 @@ namespace Scalien
         public void Cancel()
         {
             int status = scaliendb_client.SDBP_Cancel(cptr);
-            CheckStatus(status);
+            CheckStatus(result, status);
         }
 
         #endregion
@@ -932,7 +1043,7 @@ namespace Scalien
             result = new Result(scaliendb_client.SDBP_GetResult(cptr));
             if (status < 0)
             {
-                CheckStatus(status);
+                CheckStatus(result, status);
             }
             result.Close();
         }
@@ -945,7 +1056,8 @@ namespace Scalien
         public void CommitTransaction()
         {
             int status = scaliendb_client.SDBP_CommitTransaction(cptr);
-            CheckStatus(status);
+            result = new Result(scaliendb_client.SDBP_GetResult(cptr));
+            CheckStatus(result, status);
         }
 
         /// <summary>
@@ -956,7 +1068,8 @@ namespace Scalien
         public void RollbackTransaction()
         {
             int status = scaliendb_client.SDBP_RollbackTransaction(cptr);
-            CheckStatus(status);
+            result = new Result(scaliendb_client.SDBP_GetResult(cptr));
+            CheckStatus(result, status);
         }
 
         #endregion

@@ -44,6 +44,8 @@ public:
     void                SetTimeoutStatus(int status);
 
     uint64_t            GetNodeID();
+    uint64_t            GetQuorumID();
+    uint64_t            GetPaxosID();
     unsigned            GetElapsedTime();
 
     int                 GetKey(ReadBuffer& key);

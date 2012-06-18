@@ -1,5 +1,6 @@
 #include "SDBPController.h"
 #include "SDBPControllerConnection.h"
+#include "System/Events/EventLoop.h"
 #include "System/Threading/Atomic.h"
 #include "System/Containers/InTreeMap.h"
 

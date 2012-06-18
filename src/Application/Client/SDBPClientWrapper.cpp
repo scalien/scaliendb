@@ -209,15 +209,11 @@ uint64_t SDBP_ResultDatabaseID(ResultObj result_)
     Result*     result = (Result*) result_;
     ReadBuffer  value;
     uint64_t    databaseID;
-    int         status;
-    
+
     if (!result)
         return 0;
     
-    status = result->GetDatabaseID(databaseID);
-    if (status < 0)
-        return 0;
-    
+    result->GetDatabaseID(databaseID);
     return databaseID;
 }
 
@@ -226,15 +222,11 @@ uint64_t SDBP_ResultTableID(ResultObj result_)
     Result*     result = (Result*) result_;
     ReadBuffer  value;
     uint64_t    tableID;
-    int         status;
     
     if (!result)
         return 0;
     
-    status = result->GetTableID(tableID);
-    if (status < 0)
-        return 0;
-    
+    result->GetTableID(tableID);
     return tableID;
 }
 
@@ -306,6 +298,26 @@ uint64_t SDBP_ResultNodeID(ResultObj result_)
         return SDBP_API_ERROR;
     
     return result->GetNodeID();
+}
+
+uint64_t SDBP_ResultQuorumID(ResultObj result_)
+{
+    Result*     result = (Result*) result_;
+    
+    if (!result)
+        return SDBP_API_ERROR;
+    
+    return result->GetQuorumID();
+}
+
+uint64_t SDBP_ResultPaxosID(ResultObj result_)
+{
+    Result*     result = (Result*) result_;
+    
+    if (!result)
+        return SDBP_API_ERROR;
+    
+    return result->GetPaxosID();
 }
 
 unsigned SDBP_ResultElapsedTime(ResultObj result_)
@@ -417,6 +429,13 @@ void SDBP_WaitConfigState(ClientObj client_)
     Client* client = (Client*) client_;
 
     client->WaitConfigState();
+}
+
+int SDBP_GetConnectivityStatus(ClientObj client_)
+{
+    Client* client = (Client*) client_;
+
+    return client->GetConnectivityStatus();
 }
 
 void SDBP_SetConsistencyMode(ClientObj client_, int consistencyMode)

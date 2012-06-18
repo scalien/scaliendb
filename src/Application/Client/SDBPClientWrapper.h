@@ -71,6 +71,8 @@ bool            SDBP_ResultIsFinished(ResultObj result);
 int             SDBP_ResultTransportStatus(ResultObj result);
 int             SDBP_ResultCommandStatus(ResultObj result);
 uint64_t        SDBP_ResultNodeID(ResultObj result);
+uint64_t        SDBP_ResultQuorumID(ResultObj result);
+uint64_t        SDBP_ResultPaxosID(ResultObj result);
 unsigned        SDBP_ResultElapsedTime(ResultObj result);
 
 /*
@@ -99,12 +101,21 @@ void            SDBP_SetMasterTimeout(ClientObj client, uint64_t timeout);
 uint64_t        SDBP_GetGlobalTimeout(ClientObj client);
 uint64_t        SDBP_GetMasterTimeout(ClientObj client);
 
-std::string     SDBP_GetJSONConfigState(ClientObj client);
-void            SDBP_WaitConfigState(ClientObj client);
-
 void            SDBP_SetConsistencyMode(ClientObj client, int consistencyMode);
 void            SDBP_SetBatchMode(ClientObj client, int batchMode);
 void            SDBP_SetBatchLimit(ClientObj client, unsigned batchLimit);
+
+/*
+===============================================================================================
+
+ Client state
+
+===============================================================================================
+*/
+
+std::string     SDBP_GetJSONConfigState(ClientObj client);
+void            SDBP_WaitConfigState(ClientObj client);
+int             SDBP_GetConnectivityStatus(ClientObj client);
 
 /*
 ===============================================================================================

@@ -7,6 +7,7 @@
 #include "System/Common.h"
 #include "System/Macros.h"
 #include "System/IO/IOProcessor.h"
+#include "System/Events/EventLoop.h"
 #include "System/Threading/ThreadPool.h"
 #include "System/Threading/LockGuard.h"
 #include "Framework/Replication/PaxosLease/PaxosLease.h"
