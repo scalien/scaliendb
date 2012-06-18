@@ -731,8 +731,9 @@ int Client::Add(uint64_t tableID, const ReadBuffer& key, int64_t number)
     if (InTransaction())
     {
         status = Get(tableID, key);
-        if (status == SDBP_FAILED) // dne
+        if (status == SDBP_FAILED)
         {
+            // key does not exist, default is 0
             oldNumber = 0;
         }
         else
