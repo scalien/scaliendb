@@ -10,7 +10,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Scalien;
 using System.Threading;
 
-namespace ScalienClientUnitTestsVS
+namespace ScalienClientUnitTesting
 {
     /// <summary>
     /// Summary description for TransactionTests
@@ -25,23 +25,6 @@ namespace ScalienClientUnitTestsVS
             //
         }
 
-        private TestContext testContextInstance;
-
-        /// <summary>
-        ///Gets or sets the test context which provides
-        ///information about and functionality for the current test run.
-        ///</summary>
-        public TestContext TestContext
-        {
-            get
-            {
-                return testContextInstance;
-            }
-            set
-            {
-                testContextInstance = value;
-            }
-        }
 
         #region Additional test attributes
         //
@@ -66,11 +49,24 @@ namespace ScalienClientUnitTestsVS
         #endregion
 
         [TestMethod]
-        public void TestMethod1()
+        public void TestAddNotExisting()
         {
-            //
-            // TODO: Add test logic here
-            //
+            var client = new Client(Utils.GetConfigNodes());
+            var quorum = client.GetQuorum("Storage");
+            var database = client.GetDatabase("test_db");
+            var table = database.GetTable("test_table");
+            byte[] majorKey = Utils.StringToByteArray("tx");
+            byte[] addKey = Utils.StringToByteArray("add");
+
+            // make sure key does not exist
+            table.Delete(addKey);
+            client.Submit();
+
+            using (client.Transaction(quorum, majorKey))
+            {
+                table.Set("x", "x");
+                table.Add(addKey, 1);
+            }
         }
     }
 }
