@@ -56,6 +56,7 @@ typedef intptr_t            ssize_t;
 #define strncasecmp         _strnicmp
 #define localtime_r(t, tm)  localtime_s(tm, t)
 #define __func__            __FUNCTION__
+#define THREAD_LOCAL        __declspec(thread)
 
 #else // end Windows, start Unix
 
@@ -79,6 +80,8 @@ typedef intptr_t            ssize_t;
 #include <inttypes.h>
 #include <unistd.h>
 #include <stdlib.h>
+
+#define THREAD_LOCAL        __thread
 
 #endif // end Unix
 
