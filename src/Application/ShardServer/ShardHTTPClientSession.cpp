@@ -399,31 +399,31 @@ void ShardHTTPClientSession::PrintStatistics()
     buffer.Appendf("Log mutexLockCounter: %U\n", Log_GetMutex().lockCounter);
     buffer.Appendf("Log mutexLastLockDate: %U\n", Log_GetMutex().lastLockTime);
 
-    buffer.Append("  Category: User locks: settings\n");
-    buffer.Appendf("lockExpireTime: %u\n", LOCK_MANAGER->GetLockExpireTime());
-    buffer.Appendf("maxCacheTime: %u\n", LOCK_MANAGER->GetMaxCacheTime());
-    buffer.Appendf("maxCacheCount: %u\n", LOCK_MANAGER->GetMaxCacheCount());
-    buffer.Appendf("maxPoolCount: %u\n", LOCK_MANAGER->GetMaxPoolCount());
-
-    buffer.Append("  Category: User locks: internal data structures\n");
+    buffer.Append("  Category: Locks\n");
     buffer.Appendf("numLocks: %u\n", LOCK_MANAGER->GetNumLocks());
+    // user settings
+    buffer.Appendf("lockExpireTime: %u\n", LOCK_MANAGER->GetLockExpireTime());
+    buffer.Appendf("lockMaxCacheTime: %u\n", LOCK_MANAGER->GetMaxCacheTime());
+    buffer.Appendf("lockMaxCacheCount: %u\n", LOCK_MANAGER->GetMaxCacheCount());
+    buffer.Appendf("lockMaxPoolCount: %u\n", LOCK_MANAGER->GetMaxPoolCount());
+    // internal structures
     buffer.Appendf("lockTreeCount: %u\n", LOCK_MANAGER->GetTreeCount());
     buffer.Appendf("lockCacheListLength: %u\n", LOCK_MANAGER->GetCacheListLength());
     buffer.Appendf("lockPoolListLength: %u\n", LOCK_MANAGER->GetPoolListLength());
     buffer.Appendf("lockExpiryListLength: %u\n", LOCK_MANAGER->GetExpiryListLength());
 
-    buffer.Append("  Category: User lock wait queues: settings\n");
-    buffer.Appendf("waitExpireTime: %u\n", WAITQUEUE_MANAGER->GetWaitExpireTime());
-    buffer.Appendf("maxCacheTime: %u\n", WAITQUEUE_MANAGER->GetMaxCacheTime());
-    buffer.Appendf("maxCacheCount: %u\n", WAITQUEUE_MANAGER->GetMaxCacheCount());
-    buffer.Appendf("maxPoolCount: %u\n", WAITQUEUE_MANAGER->GetMaxPoolCount());
-
-    buffer.Append("  Category: User lock wait queues: internal data structures\n");
+    buffer.Append("  Category: Lock wait queues\n");
     buffer.Appendf("numWaitQueues: %u\n", WAITQUEUE_MANAGER->GetNumWaitQueues());
-    buffer.Appendf("queueCacheListLength: %u\n", WAITQUEUE_MANAGER->GetQueueCacheListLength());
-    buffer.Appendf("queuePoolListLength: %u\n", WAITQUEUE_MANAGER->GetQueuePoolListLength());
-    buffer.Appendf("nodeExpiryListLength: %u\n", WAITQUEUE_MANAGER->GetNodeExpiryListLength());
-    buffer.Appendf("nodePoolListLength: %u\n", WAITQUEUE_MANAGER->GetNodePoolListLength());
+    // user settings
+    buffer.Appendf("waitQueueExpireTime: %u\n", WAITQUEUE_MANAGER->GetWaitExpireTime());
+    buffer.Appendf("waitQueueMaxCacheTime: %u\n", WAITQUEUE_MANAGER->GetMaxCacheTime());
+    buffer.Appendf("waitQueueMaxCacheCount: %u\n", WAITQUEUE_MANAGER->GetMaxCacheCount());
+    buffer.Appendf("waitQueueMaxPoolCount: %u\n", WAITQUEUE_MANAGER->GetMaxPoolCount());
+    // internal structures
+    buffer.Appendf("waitQueueCacheListLength: %u\n", WAITQUEUE_MANAGER->GetQueueCacheListLength());
+    buffer.Appendf("waitQueuePoolListLength: %u\n", WAITQUEUE_MANAGER->GetQueuePoolListLength());
+    buffer.Appendf("waitQueueNodeExpiryListLength: %u\n", WAITQUEUE_MANAGER->GetNodeExpiryListLength());
+    buffer.Appendf("waitQueueNodePoolListLength: %u\n", WAITQUEUE_MANAGER->GetNodePoolListLength());
 
     buffer.Append("  Category: Replication\n");
     FOREACH (quorumProcessor, *shardServer->GetQuorumProcessors())
