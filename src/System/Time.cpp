@@ -57,7 +57,7 @@ void InitializeWindowsTimer()
     // convert system start time to Unix timestamp
     winBaseMillisec = (tv.tv_sec * 1000LL + tv.tv_usec / 1000) - winPrevMillisec;
     
-	InitializeCriticalSection(&timerCritSec);
+    InitializeCriticalSection(&timerCritSec);
 
     winTimeInitialized = 1;
 }
@@ -66,7 +66,7 @@ int gettimeofday(struct timeval *tv, void*)
 {
     uint64_t    elapsedTime;
     uint32_t    winMsec;
-	uint64_t	prevMsec;
+    uint64_t	prevMsec;
     uint64_t    msec;
     
     // by default gettimeofday uses the standard Windows clock, which has 15 msec resolution
@@ -76,21 +76,21 @@ int gettimeofday(struct timeval *tv, void*)
     if (!winTimeInitialized)
         InitializeWindowsTimer();
 
-	// avoid race conditions
-	prevMsec = winPrevMillisec;
+    // avoid race conditions
+    prevMsec = winPrevMillisec;
     winMsec = timeGetTime();
 
-	// handle overflow
+    // handle overflow
     if (winMsec < prevMsec)
-	{
-		Log_Trace("overflow");
+    {
+        Log_Trace("overflow");
         elapsedTime = (uint64_t)(0x100000000LL - prevMsec) + winMsec;
-	}
+    }
     else
         elapsedTime = winMsec - prevMsec;
 
     winPrevMillisec = winMsec;
-	winElapsed += elapsedTime;
+    winElapsed += elapsedTime;
 
     msec = winBaseMillisec + winElapsed;
     tv->tv_usec = (msec % 1000) * 1000;
@@ -101,10 +101,14 @@ int gettimeofday(struct timeval *tv, void*)
 
 #endif // _WIN32
 
+// Returns strictly increasing values when queried from the same thread.
+// If you want to have strictly increasing time within different threads,
+// then use NowClock()
 uint64_t Now()
 {
-    uint64_t now;
-    struct timeval tv;
+    static THREAD_LOCAL uint64_t    prevNow;
+    uint64_t                        now;
+    struct timeval                  tv;
     
     gettimeofday(&tv, NULL);
     
@@ -112,6 +116,16 @@ uint64_t Now()
     now *= 1000;
     now += tv.tv_usec / 1000;
     now += clockCorrectionMsec;
+
+    // system clock went backwards
+    if (prevNow > now)
+    {
+        Log_Debug("Negative system clock adjustment");
+        // update plus some more to make time strictly increasing
+        now = prevNow + CLOCK_RESOLUTION;
+    }
+
+    prevNow = now;
 
     return now;
 }
