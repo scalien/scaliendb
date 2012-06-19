@@ -48,9 +48,9 @@
     <Compile Include="Utils.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\ScalienClient\ScalienClient.csproj">
-      <Project>{DF54D3CC-307F-4C2B-B6E7-EE9B22CB2879}</Project>
-      <Name>ScalienClient</Name>
+    <ProjectReference Include="..\ScalienClientWithNativeDLL\ScalienClientWithNativeDLL.csproj">
+      <Project>{1F71EFCD-BBCF-4A2F-B1ED-C2B74ADD44C1}</Project>
+      <Name>ScalienClientWithNativeDLL</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

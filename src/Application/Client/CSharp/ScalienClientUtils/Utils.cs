@@ -412,6 +412,14 @@ namespace Scalien
             return new ConfigFile().GetStringArrayValue("controllers");
         }
 
+        public static Client GetClient()
+        {
+            if (new ConfigFile().GetBoolValue("nativeLoader", true))
+                NativeLoader.Load();
+            
+            return new Client(GetConfigNodes());
+        }
+
         public static byte[] NextKey(byte[] key)
         {
             byte[] nextKey = new byte[key.Length];

@@ -51,7 +51,7 @@ namespace ScalienClientUnitTesting
         [TestMethod]
         public void TestAddNotExisting()
         {
-            var client = new Client(Utils.GetConfigNodes());
+            var client = Utils.GetClient();
             var quorum = client.GetQuorum("Storage");
             var database = client.GetDatabase("test_db");
             var table = database.GetTable("test_table");
