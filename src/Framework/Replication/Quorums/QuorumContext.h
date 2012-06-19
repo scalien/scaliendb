@@ -34,6 +34,7 @@ public:
     virtual uint64_t            GetPaxosID()                                                    = 0;
     virtual uint64_t            GetHighestPaxosID()                                             = 0;
     virtual uint64_t            GetLastLearnChosenTime()                                        = 0;
+    virtual uint64_t            GetReplicationThroughput()                                      = 0;
 
     virtual Quorum*             GetQuorum()                                                     = 0;
     virtual QuorumDatabase*     GetDatabase()                                                   = 0;

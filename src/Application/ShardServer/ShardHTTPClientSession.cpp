@@ -429,7 +429,10 @@ void ShardHTTPClientSession::PrintStatistics()
     FOREACH (quorumProcessor, *shardServer->GetQuorumProcessors())
     {
         buffer.Appendf("quorum[%U].messageListLength: %u\n", quorumProcessor->GetQuorumID(), 
-            quorumProcessor->GetMessageListLength());
+         quorumProcessor->GetMessageListLength());
+        buffer.Appendf("quorum[%U].replicationThroughput: %u\n", quorumProcessor->GetQuorumID(), 
+            quorumProcessor->GetReplicationThroughput());
+
     }
 
     session.Print(buffer);

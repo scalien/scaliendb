@@ -27,6 +27,7 @@ void ReplicatedLog::Init(QuorumContext* context_)
 
     lastRequestChosenTime = 0;
     lastLearnChosenTime = 0;
+    replicationThroughput = 0;
 
     EventLoop::Add(&canaryTimer);
     
@@ -42,6 +43,11 @@ void ReplicatedLog::Shutdown()
 uint64_t ReplicatedLog::GetLastLearnChosenTime()
 {
     return lastLearnChosenTime;
+}
+
+uint64_t ReplicatedLog::GetReplicationThroughput()
+{
+    return replicationThroughput;
 }
 
 void ReplicatedLog::Stop()
@@ -415,7 +421,6 @@ bool ReplicatedLog::OnLearnChosen(PaxosMessage& imsg)
         return true;
     }
     
-    lastLearnChosenTime = EventLoop::Now();
     ProcessLearnChosen(imsg.nodeID, runID);
 
 #ifdef RLOG_DEBUG_MESSAGES
@@ -485,10 +490,25 @@ void ReplicatedLog::OnCanaryTimeout()
 
 void ReplicatedLog::ProcessLearnChosen(uint64_t nodeID, uint64_t runID)
 {
-    bool    ownAppend;
-    Buffer  learnedValue;
+    bool        ownAppend;
+    uint64_t    now;
+    Buffer      learnedValue;
 
     learnedValue.Write(acceptor.state.acceptedValue);
+
+    if (lastLearnChosenTime > 0)
+    {
+        now = EventLoop::Now();
+        if (now > lastLearnChosenTime)
+        {
+            // byte / msec = kbyte / sec
+            replicationThroughput = learnedValue.GetLength() / (now - lastLearnChosenTime);
+            // convert to byte / sec
+            replicationThroughput *= 1000;
+        }
+    }
+
+    lastLearnChosenTime = EventLoop::Now();
 
 #ifdef RLOG_DEBUG_MESSAGES
     Log_Debug("Round completed for paxosID = %U", paxosID);
