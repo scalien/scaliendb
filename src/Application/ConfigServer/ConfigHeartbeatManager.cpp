@@ -246,17 +246,12 @@ void ConfigHeartbeatManager::TrySplitShardActions(ClusterMessage& message)
         {
             if (itQuorumShardInfo->quorumID != itQuorum->quorumID)
                 continue;
-                
-            configTable = CONFIG_STATE->GetTable(itQuorumShardInfo->shardID);
-            if (configTable != NULL)
+            
+            configShard = CONFIG_STATE->GetShard(itQuorumShardInfo->shardID);
+            if (configShard)
             {
-                if (configTable->shards.GetLength() == 1)
-                {
-                    configShard = CONFIG_STATE->GetShard(*(configTable->shards.First()));
-                    ASSERT(configShard);
-                    if (configShard->state == CONFIG_SHARD_STATE_TRUNC_CREATING)
-                        configServer->GetQuorumProcessor()->TryTruncateTableComplete(configTable->tableID);
-                }
+                if (configShard->state == CONFIG_SHARD_STATE_TRUNC_CREATING)
+                    configServer->GetQuorumProcessor()->TryTruncateTableComplete(configShard->tableID);
             }
                 
             if (!isSplitCreating && itQuorumShardInfo->isSplitable &&
