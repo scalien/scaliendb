@@ -153,6 +153,11 @@ uint64_t ShardQuorumContext::GetLastLearnChosenTime()
     return replicatedLog.GetLastLearnChosenTime();
 }
 
+uint64_t ShardQuorumContext::GetReplicationThroughput()
+{
+    return replicatedLog.GetReplicationThroughput();
+}
+
 Quorum* ShardQuorumContext::GetQuorum()
 {
     return &quorum;

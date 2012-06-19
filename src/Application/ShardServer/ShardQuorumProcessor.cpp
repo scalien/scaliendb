@@ -147,6 +147,11 @@ uint64_t ShardQuorumProcessor::GetLastLearnChosenTime()
     return quorumContext.GetLastLearnChosenTime();
 }
 
+uint64_t ShardQuorumProcessor::GetReplicationThroughput()
+{
+    return quorumContext.GetReplicationThroughput();
+}
+
 ConfigQuorum* ShardQuorumProcessor::GetConfigQuorum()
 {
     return CONFIG_STATE->GetQuorum(GetQuorumID());

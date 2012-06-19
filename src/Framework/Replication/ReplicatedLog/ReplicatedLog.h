@@ -26,6 +26,7 @@ public:
     void                    Shutdown();
 
     uint64_t                GetLastLearnChosenTime();
+    uint64_t                GetReplicationThroughput();
     void                    SetAlwaysUseDatabaseCatchup(bool alwaysUseDatabaseCatchup);
 
     void                    Stop();
@@ -84,6 +85,7 @@ private:
     bool                    appendDummyNext;
     uint64_t                lastRequestChosenTime;
     uint64_t                lastLearnChosenTime;
+    uint64_t                replicationThroughput;
     Countdown               canaryTimer;
 };
 #endif

@@ -126,6 +126,11 @@ uint64_t ConfigQuorumContext::GetLastLearnChosenTime()
     return replicatedLog.GetLastLearnChosenTime();
 }
 
+uint64_t ConfigQuorumContext::GetReplicationThroughput()
+{
+    return replicatedLog.GetReplicationThroughput();
+}
+
 Quorum* ConfigQuorumContext::GetQuorum()
 {
     return &quorum;
