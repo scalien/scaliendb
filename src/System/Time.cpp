@@ -104,6 +104,10 @@ int gettimeofday(struct timeval *tv, void*)
 // Returns strictly increasing values when queried from the same thread.
 // If you want to have strictly increasing time within different threads,
 // then use NowClock()
+//
+// Do NOT call Log functions from here, because logging may use 
+// timestamps by calling Now() and then it would result in an infinite
+// loop.
 uint64_t Now()
 {
     static THREAD_LOCAL uint64_t    prevNow;
@@ -120,8 +124,11 @@ uint64_t Now()
     // system clock went backwards
     if (prevNow > now)
     {
-        Log_Debug("Negative system clock adjustment");
-        // update plus some more to make time strictly increasing
+        // Handling an edge case when Clock-thread is not running or
+        // system clock was changed since last UpdateTime and clock
+        // was not corrected since then.
+        
+        // Make time strictly increasing
         now = prevNow + CLOCK_RESOLUTION;
     }
 
@@ -193,7 +200,7 @@ void StartClock()
     clockStarted = 1;
     clockThread = ThreadPool::Create(1);
     clockThread->Start();
-    clockThread->Execute(Callable(CFunc(ClockThread)));
+    clockThread->Execute(CFunc(ClockThread));
 }
 
 void StopClock()
