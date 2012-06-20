@@ -591,6 +591,9 @@
     <ClCompile Include="..\src\Application\ShardServer\ShardLockManager.cpp">
       <Filter>Application\ShardServer</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\Application\ShardServer\ShardWaitQueueManager.cpp">
+      <Filter>Application\ShardServer</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\Application\Client\SDBPClient.h">
@@ -1144,6 +1147,9 @@
       <Filter>Framework\Storage</Filter>
     </ClInclude>
     <ClInclude Include="..\src\Application\ShardServer\ShardLockManager.h">
+      <Filter>Application\ShardServer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Application\ShardServer\ShardWaitQueueManager.h">
       <Filter>Application\ShardServer</Filter>
     </ClInclude>
   </ItemGroup>
