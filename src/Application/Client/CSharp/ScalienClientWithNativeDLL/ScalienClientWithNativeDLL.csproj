@@ -80,6 +80,9 @@
     <Compile Include="..\ScalienClient\SDBP_NodeParams.cs">
       <Link>SDBP_NodeParams.cs</Link>
     </Compile>
+    <Compile Include="..\ScalienClient\SDBPException.cs">
+      <Link>SDBPException.cs</Link>
+    </Compile>
     <Compile Include="..\ScalienClient\Sequence.cs">
       <Link>Sequence.cs</Link>
     </Compile>

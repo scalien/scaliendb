@@ -114,6 +114,7 @@
     <Compile Include="Result.cs" />
     <Compile Include="scaliendb_client.cs" />
     <Compile Include="scaliendb_clientPINVOKE.cs" />
+    <Compile Include="SDBPException.cs" />
     <Compile Include="SDBP_Buffer.cs" />
     <Compile Include="SDBP_NodeParams.cs" />
     <Compile Include="Sequence.cs" />
