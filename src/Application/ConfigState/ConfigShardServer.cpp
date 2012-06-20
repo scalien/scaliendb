@@ -4,10 +4,10 @@ QuorumInfo::QuorumInfo()
 {
     quorumID = 0;
     paxosID = 0;
-    isSendingCatchup = false;
-    catchupBytesSent = 0;
-    catchupBytesTotal = 0;
-    catchupThroughput = 0;
+    needCatchup = false;
+    unused1 = 0;
+    unused2 = 0;
+    unused3 = 0;
 }
 
 bool QuorumInfo::ReadList(ReadBuffer& buffer, List<QuorumInfo>& quorumInfos)
@@ -24,8 +24,8 @@ bool QuorumInfo::ReadList(ReadBuffer& buffer, List<QuorumInfo>& quorumInfos)
     {
         read = buffer.Readf(":%U:%U:%b:%U:%U:%U",
          &quorumInfo.quorumID, &quorumInfo.paxosID,
-         &quorumInfo.isSendingCatchup, &quorumInfo.catchupBytesSent,
-         &quorumInfo.catchupBytesTotal, &quorumInfo.catchupThroughput);
+         &quorumInfo.needCatchup, &quorumInfo.unused1,
+         &quorumInfo.unused2, &quorumInfo.unused3);
         if (read < 4)
             return false;
         buffer.Advance(read);
@@ -43,8 +43,8 @@ bool QuorumInfo::WriteList(Buffer& buffer, List<QuorumInfo>& quorumInfos)
     {
         buffer.Appendf(":%U:%U:%b:%U:%U:%U",
          it->quorumID, it->paxosID,
-         it->isSendingCatchup, it->catchupBytesSent,
-         it->catchupBytesTotal, it->catchupThroughput);
+         it->needCatchup, it->unused1,
+         it->unused2, it->unused3);
     }
     
     return true;

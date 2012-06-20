@@ -22,10 +22,10 @@ public:
     uint64_t            quorumID;
     uint64_t            paxosID;
 
-    bool                isSendingCatchup;
-    uint64_t            catchupBytesSent;
-    uint64_t            catchupBytesTotal;
-    uint64_t            catchupThroughput;
+    bool                needCatchup;
+    uint64_t            unused1;
+    uint64_t            unused2;
+    uint64_t            unused3;
         
     static bool         ReadList(ReadBuffer& buffer, List<QuorumInfo>& quorumInfos);
     static bool         WriteList(Buffer& buffer, List<QuorumInfo>& quorumInfos);

@@ -354,18 +354,14 @@ void JSONConfigState::WriteQuorumInfo(QuorumInfo* info)
     json->PrintComma();
     JSON_NUMBER(info, paxosID);
     json->PrintComma();
-    JSON_BOOL(info, isSendingCatchup);
-    
-    if (info->isSendingCatchup)
-    {
-        json->PrintComma();
-        JSON_NUMBER(info, catchupBytesSent);
-        json->PrintComma();
-        JSON_NUMBER(info, catchupBytesTotal);
-        json->PrintComma();
-        JSON_NUMBER(info, catchupThroughput);
-    }
-    
+    JSON_BOOL(info, needCatchup);
+
+    // for backward compatibility
+    json->PrintComma();
+    json->PrintString("isSendingCatchup");
+    json->PrintColon();
+    json->PrintBool(false);
+
     json->PrintObjectEnd();    
 }
 
