@@ -83,6 +83,7 @@ TEST_ADD(TestMemoryOutOfMemoryError);
 TEST_ADD(TestShardExtensionBasic);
 TEST_ADD(TestStorageAsyncList);
 TEST_ADD(TestStorageSet);
+TEST_ADD(TestTimeMultithreadedNow);
 TEST_ADD(TestTimingBasicWrite);
 TEST_ADD(TestTimingSnprintf);
 TEST_ADD(TestTimingFileSystemWrite);
