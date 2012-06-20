@@ -426,7 +426,7 @@ void ShardHTTPClientSession::PrintStatistics()
         buffer.Appendf("quorum[%U].messageListLength: %u\n", quorumProcessor->GetQuorumID(), 
          quorumProcessor->GetMessageListLength());
         buffer.Appendf("quorum[%U].replicationThroughput: %u\n", quorumProcessor->GetQuorumID(), 
-            quorumProcessor->GetReplicationThroughput());
+            PrintableBytes(quorumProcessor->GetReplicationThroughput(), humanBuf, humanize));
 
     }
 
