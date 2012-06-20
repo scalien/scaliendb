@@ -11,7 +11,9 @@ namespace Scalien
         {
             NativeLoader.Load();
             //new ScalienClientUnitTesting.SimpleUnitTests().ListTestsWithoutProxies();
-            new ScalienClientUnitTesting.ClientTests().TestNoPrimaryException();
+            ScalienClientUnitTesting.FailOverTests.minCrashSleepTime = 600;
+            ScalienClientUnitTesting.FailOverTests.randomCrashSleepTime = 3000;
+            new ScalienClientUnitTesting.FailOverTests().TestRandomCrashServer();
         }
     }
 }

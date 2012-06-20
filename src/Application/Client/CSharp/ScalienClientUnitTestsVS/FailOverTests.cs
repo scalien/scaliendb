@@ -71,6 +71,14 @@ namespace ScalienClientUnitTesting
     [TestClass]
     public class FailOverTests
     {
+        public static string debugKey = "N0226tpF27HnXqP";
+        public static int minInactiveSleepTime = 10;
+        public static int randomInactiveSleepTime = 30;
+        public static int minCrashSleepTime = 300;
+        public static int randomCrashSleepTime = 600;
+        public static int numAllowedInactiveNodes = 0;
+        public static int crashInterval = 300;
+
         public void Killer(Object param)
         {
             string victim;
@@ -335,7 +343,6 @@ namespace ScalienClientUnitTesting
         public void TestRandomCrashShardServer()
         {
             var client = new Client(Utils.GetConfigNodes());
-            var debugKey = "N0226tpF27HnXqP";
 
             Random random = new Random();
 
@@ -347,9 +354,9 @@ namespace ScalienClientUnitTesting
                 var quorum = configState.quorums[0];
                 var numShardServers = shardServers.Count;
 
-                if (quorum.inactiveNodes.Count > 0)
+                if (quorum.inactiveNodes.Count > numAllowedInactiveNodes)
                 {
-                    var sleepTime = random.Next(10, 10 + random.Next(30));
+                    var sleepTime = random.Next(minInactiveSleepTime, minInactiveSleepTime + random.Next(randomInactiveSleepTime));
                     Console.WriteLine("Inactive found, sleeping {0}...", sleepTime);
                     Thread.Sleep(sleepTime * 1000);
                     continue;
@@ -363,7 +370,7 @@ namespace ScalienClientUnitTesting
                         var shardHttpURI = ConfigStateHelpers.GetShardServerURL(shardServer);
                         Console.WriteLine("Killing {0}", shardHttpURI);
                         Utils.HTTP.GET(Utils.HTTP.BuildUri(shardHttpURI, "debug?randomcrash&key=" + debugKey + "&interval=300"));
-                        var sleepTime = random.Next(600, 600 + random.Next(900));
+                        var sleepTime = random.Next(minCrashSleepTime, minCrashSleepTime + random.Next(randomCrashSleepTime));
                         Console.WriteLine("Sleeping {0}...", sleepTime);
                         Thread.Sleep(sleepTime * 1000);
                     }
@@ -373,18 +380,73 @@ namespace ScalienClientUnitTesting
         }
 
         [TestMethod]
+        public void TestRandomCrashServer()
+        {
+            var client = Utils.GetClient();
+
+            Random random = new Random();
+
+            while (true)
+            {
+                var configState = Utils.GetFullConfigState(client);
+                var shardServers = configState.shardServers;
+                var quorum = configState.quorums[0];
+                var numShardServers = shardServers.Count;
+
+                if (quorum.inactiveNodes.Count > numAllowedInactiveNodes)
+                {
+                    var inactiveSleepTime = random.Next(minInactiveSleepTime, minInactiveSleepTime + random.Next(randomInactiveSleepTime));
+                    Utils.Log("Inactive found, sleeping {0} until {1}...", inactiveSleepTime, DateTime.Now.AddSeconds(inactiveSleepTime).ToString("u"));
+                    Thread.Sleep(inactiveSleepTime * 1000);
+                    continue;
+                }
+
+                var httpURI = "";
+                if (random.Next(2) == 0)
+                {
+                    // select controller
+                    var victimController = configState.controllers[random.Next(configState.controllers.Count)];
+                    httpURI = ConfigStateHelpers.GetControllerURL(victimController);
+                    Utils.Log("Killing controller {0}", victimController.nodeID);
+                }
+                else
+                {
+                    // select shard server
+                    var victimNodeID = quorum.activeNodes[random.Next(quorum.activeNodes.Count)];
+                    foreach (var shardServer in shardServers)
+                    {
+                        if (shardServer.nodeID == victimNodeID)
+                        {
+                            httpURI = ConfigStateHelpers.GetShardServerURL(shardServer);
+                            Utils.Log("Killing shard server {0}", shardServer.nodeID);
+                            break;
+                        }
+                    }
+                }
+
+
+                if (httpURI != "")
+                {
+                    Utils.HTTP.GET(Utils.HTTP.BuildUri(httpURI, "debug?randomcrash&key=" + debugKey + "&interval=" + crashInterval * 1000));
+                }
+
+                var sleepTime = random.Next(minCrashSleepTime, minCrashSleepTime + random.Next(randomCrashSleepTime));
+                Utils.Log("Sleeping {0} until {1}...", sleepTime, DateTime.Now.AddSeconds(sleepTime).ToString("u"));
+                Thread.Sleep(sleepTime * 1000);
+            }
+        }
+
+        [TestMethod]
         public void TestRandomSleepShardServer()
         {
             var client = new Client(Utils.GetConfigNodes());
-            var debugKey = "N0226tpF27HnXqP";
             var sleepInterval = 4;
 
             Random random = new Random();
 
             while (true)
             {
-                var jsonConfigState = client.GetJSONConfigState();
-                var configState = Utils.JsonDeserialize<ConfigState>(System.Text.Encoding.UTF8.GetBytes(jsonConfigState));
+                var configState = Utils.GetFullConfigState(client);
                 var shardServers = configState.shardServers;
                 var quorum = configState.quorums[0];
                 var numShardServers = shardServers.Count;
@@ -419,7 +481,6 @@ namespace ScalienClientUnitTesting
         public void TestRandomSleepPrimaryShardServer()
         {
             var client = new Client(Utils.GetConfigNodes());
-            var debugKey = "N0226tpF27HnXqP";
             var sleepInterval = 4;
 
             Random random = new Random();
