@@ -243,14 +243,9 @@ void ShardHTTPClientSession::PrintStatus()
             valbuf.Writef("primary: %U, paxosID: %U/%U, No replication round seen since start...", primaryID, paxosID, highestPaxosID);
         }
 
-        if (it->IsCatchupActive())
-        {
-            valbuf.Appendf(", catchup active (sent: %s/%s, aggregate throughput: %s/s)",
-             HumanBytes(it->GetCatchupBytesSent(), humanBytesSent),
-             HumanBytes(it->GetCatchupBytesTotal(), humanBytesTotal),
-             HumanBytes(it->GetCatchupThroughput(), humanThroughput)
-             );
-        }
+        if (it->NeedCatchup())
+            valbuf.Appendf(" *** NEED MANUAL CATCHUP! ***");
+
         valbuf.NullTerminate();
         
         session.PrintPair(keybuf.GetBuffer(), valbuf.GetBuffer());

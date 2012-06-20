@@ -1118,8 +1118,6 @@ function createQuorumDiv(configState, quorum)
 				infoText += " repl = " + paxosID + "]";
 			else
 				infoText += " repl = " + quorumInfo["paxosID"] + "]";
-			if (quorumInfo["isSendingCatchup"])
-				catchupText += "Shard server " + nodeID + " is sending catchup: " + scaliendb.util.humanBytes(quorumInfo["catchupBytesSent"]) + "/" + scaliendb.util.humanBytes(quorumInfo["catchupBytesTotal"]) + " (" + scaliendb.util.humanBytes(quorumInfo["catchupThroughput"]) + "/s)";
 		}
 		if (nodeID == primaryID)
 		{
@@ -1149,7 +1147,11 @@ function createQuorumDiv(configState, quorum)
 		var quorumInfo = scaliendb.getQuorumInfo(configState, nodeID, quorum["quorumID"]);
 		var infoText = " [prio = " + priority + ", ";
 		if (quorumInfo != null)
+		{
 			infoText += " repl = " + quorumInfo["paxosID"] + "]";
+			if (quorumInfo["needCatchup"])
+				catchupText = "<b>Node " + nodeID + " needs manual catchup!</b>";
+		}
 		if (shardServer["hasHeartbeat"] && primaryID != null)
 			html += ' <a class="no-line" style="color:black" title="Activate shard server" href="javascript:activateNode(' + quorum["quorumID"] + ", " + nodeID + ')"><span class="shardserver-number healthy">' + nodeID + infoText + ' (click to activate)</span></a> ';
 		else

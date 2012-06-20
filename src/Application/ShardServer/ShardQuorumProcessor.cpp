@@ -66,6 +66,7 @@ void ShardQuorumProcessor::Init(ConfigQuorum* configQuorum, ShardServer* shardSe
     migrateNodeID = 0;
     migrateCache = 0;
     blockReplication = false;
+    needCatchup = false;
     appendState.Reset();
     appendDelay = 0;
     prevAppendTime = 0;
@@ -365,23 +366,7 @@ void ShardQuorumProcessor::OnAppend(uint64_t paxosID, Buffer& value, bool ownApp
 
 void ShardQuorumProcessor::OnStartCatchup()
 {
-    CatchupMessage  msg;
-
-    if (catchupReader.IsActive() || !quorumContext.IsLeaseKnown())
-        return;
-    
-    quorumContext.StopReplication();
-    
-    msg.CatchupRequest(MY_NODEID, quorumContext.GetQuorumID());
-    
-    CONTEXT_TRANSPORT->SendQuorumMessage(
-     quorumContext.GetLeaseOwner(), quorumContext.GetQuorumID(), msg);
-     
-    catchupReader.Begin();
-    
-    Log_Message("Catchup started from node %U", quorumContext.GetLeaseOwner());
-
-    quorumContext.OnCatchupStarted();
+    needCatchup = true;
 }
 
 void ShardQuorumProcessor::OnCatchupMessage(CatchupMessage& message)
@@ -791,6 +776,11 @@ uint64_t ShardQuorumProcessor::GetCatchupBytesTotal()
 uint64_t ShardQuorumProcessor::GetCatchupThroughput()
 {
     return catchupWriter.GetThroughput();
+}
+
+bool ShardQuorumProcessor::NeedCatchup()
+{
+    return needCatchup;
 }
 
 void ShardQuorumProcessor::OnShardMigrationClusterMessage(uint64_t nodeID, ClusterMessage& clusterMessage)

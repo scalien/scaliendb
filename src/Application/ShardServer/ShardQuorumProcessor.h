@@ -112,6 +112,7 @@ public:
     uint64_t                GetCatchupBytesSent();
     uint64_t                GetCatchupBytesTotal();
     uint64_t                GetCatchupThroughput();
+    bool                    NeedCatchup();
 
     uint64_t                GetMigrateShardID();
     void                    OnShardMigrationClusterMessage(uint64_t nodeID, ClusterMessage& message);
@@ -175,6 +176,7 @@ private:
     int64_t                 migrateCache; // in bytes
     bool                    blockReplication;
     bool                    mergeDisabled;
+    bool                    needCatchup;
 
     ShardCatchupReader      catchupReader;
     ShardCatchupWriter      catchupWriter;
