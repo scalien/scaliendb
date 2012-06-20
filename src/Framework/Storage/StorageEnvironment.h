@@ -164,6 +164,8 @@ public:
                              InSortedList<ShardSize>& shardSizes,
                              StorageShard::IsMergeCandidateFunc IsMergeCandidateFunc);
     void                    MergeChunk(StorageShard* shard);
+    unsigned                GetNumWriteToc100();
+    unsigned                GetNumWriteToc1000();
 
     Buffer                  envPath;
     Buffer                  chunkPath;
@@ -197,6 +199,8 @@ private:
     bool                    shuttingDown;
     bool                    writingTOC;
     bool                    dumpMemoChunks;
+    unsigned                numWriteToc100;
+    unsigned                numWriteToc1000;
 };
 
 #endif
