@@ -385,6 +385,8 @@ void ShardHTTPClientSession::PrintStatistics()
     buffer.Appendf("logFileDiskUsage: %s\n", PrintableBytes(databaseManager->GetEnvironment()->GetLogSegmentDiskUsage(), humanBuf, humanize));
     buffer.Appendf("numShards: %u\n", databaseManager->GetEnvironment()->GetNumShards());
     buffer.Appendf("numFileChunks: %u\n", databaseManager->GetEnvironment()->GetNumFileChunks());
+    buffer.Appendf("numWriteToc100: %u\n", databaseManager->GetEnvironment()->GetNumWriteToc100());
+    buffer.Appendf("numWriteToc1000: %u\n", databaseManager->GetEnvironment()->GetNumWriteToc1000());
 
     buffer.Append("  Category: Mutexes\n");
     buffer.Appendf("StorageFileDeleter mutexLockCounter: %U\n", StorageFileDeleter::GetMutex().lockCounter);

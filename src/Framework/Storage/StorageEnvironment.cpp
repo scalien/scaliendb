@@ -82,6 +82,8 @@ StorageEnvironment::StorageEnvironment()
     mergeCpuThreshold = STORAGE_DEFAULT_MERGE_CPU_THRESHOLD; // run if CPU % is less than 50%
     numFinishedMergeJobs = 0;
     dumpMemoChunks = false;
+    numWriteToc100 = 0;
+    numWriteToc1000 = 0;
 }
 
 bool StorageEnvironment::Open(Buffer& envPath_, StorageConfig config_)
@@ -1702,8 +1704,11 @@ void StorageEnvironment::WriteTOC()
 {
     StorageEnvironmentWriter    writer;
     char                        humanBuf[5];
+    Stopwatch                   sw;
 
     Log_Debug("WriteTOC started");
+
+    sw.Start();
 
     writingTOC = true;
     if (!writer.Write(this))
@@ -1716,7 +1721,13 @@ void StorageEnvironment::WriteTOC()
         STOP_FAIL(1);
     }
     writingTOC = false;
-    
+
+    sw.Stop();
+    if (sw.Elapsed() > 100)
+        numWriteToc100++;
+    if (sw.Elapsed() > 1000)
+        numWriteToc1000++;
+
     Log_Debug("WriteTOC finished");
 }
 
@@ -1825,3 +1836,14 @@ static inline bool operator==(const ReadBuffer& a, const ReadBuffer& b)
 {
     return ReadBuffer::Cmp(a, b) == 0 ? true : false;
 }
+
+unsigned StorageEnvironment::GetNumWriteToc100()
+{
+    return numWriteToc100;
+}
+
+unsigned StorageEnvironment::GetNumWriteToc1000()
+{
+    return numWriteToc1000;
+}
+
