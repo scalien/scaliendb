@@ -61,6 +61,11 @@ void ShardMessage::ShardMigrationComplete(uint64_t shardID_)
     shardID = shardID_;
 }
 
+void ShardMessage::StartTransaction()
+{
+    type = SHARDMESSAGE_START_TRANSACTION;
+}
+
 int ShardMessage::Read(ReadBuffer& buffer)
 {
     int read;
@@ -85,6 +90,7 @@ int ShardMessage::Read(ReadBuffer& buffer)
              &type, &tableID, &key);
             break;
         // Transactions
+        case SHARDMESSAGE_START_TRANSACTION:
         case SHARDMESSAGE_COMMIT_TRANSACTION:
             read = buffer.Readf("%c",
              &type);
@@ -141,6 +147,7 @@ bool ShardMessage::Append(Buffer& buffer)
              type, tableID, &key);
             break;
         // Transactions
+        case SHARDMESSAGE_START_TRANSACTION:
         case SHARDMESSAGE_COMMIT_TRANSACTION:
             buffer.Appendf("%c",
              type);

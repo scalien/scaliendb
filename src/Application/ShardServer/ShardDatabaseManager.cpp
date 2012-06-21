@@ -659,6 +659,9 @@ uint64_t ShardDatabaseManager::ExecuteMessage(uint64_t quorumID, uint64_t paxosI
             if (!environment.Delete(contextID, shardID, message.key))
                 RESPONSE_FAIL();
             break;
+        case SHARDMESSAGE_START_TRANSACTION:
+            // nothing
+            break;
         case SHARDMESSAGE_COMMIT_TRANSACTION:
             if (message.clientRequest)
             {

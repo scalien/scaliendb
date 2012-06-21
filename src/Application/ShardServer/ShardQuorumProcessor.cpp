@@ -1021,6 +1021,7 @@ void ShardQuorumProcessor::TryAppend()
     numMessages = 0;
     Buffer& nextValue = quorumContext.GetNextValue();
     prevMessage = NULL;
+    inTransaction = false;
     FOREACH (message, shardMessages)
     {
         if (message->configPaxosID > CONFIG_STATE->paxosID)
@@ -1034,18 +1035,11 @@ void ShardQuorumProcessor::TryAppend()
         nextValue.Appendf(" ");
         numMessages++;
 
-        if (message->clientRequest &&
-          message->clientRequest->session->IsTransactional() &&
-          prevMessage != NULL &&
-          prevMessage->clientRequest->session == message->clientRequest->session)
-        {
-                inTransaction = true;
-        }
-        else
-        {
-                inTransaction = false;
-        }
-        
+        if (message->type == SHARDMESSAGE_START_TRANSACTION)
+            inTransaction = true;
+        else if (message->type == SHARDMESSAGE_COMMIT_TRANSACTION)
+            inTransaction = false;
+
         if (!inTransaction)
         {
             if (message->type == SHARDMESSAGE_SPLIT_SHARD || nextValue.GetLength() >= DATABASE_REPLICATION_SIZE)
@@ -1058,6 +1052,7 @@ void ShardQuorumProcessor::TryAppend()
 
         prevMessage = message;
     }
+    ASSERT(!inTransaction);
 
     // replication and disk write rate control
     prevAppendTime = EventLoop::Now();
@@ -1075,6 +1070,7 @@ void ShardQuorumProcessor::TryAppend()
 
 void ShardQuorumProcessor::OnResumeAppend()
 {
+    bool            inTransaction;
     int             read;
     int64_t         prevMigrateCache;
     uint64_t        start;
@@ -1089,6 +1085,7 @@ void ShardQuorumProcessor::OnResumeAppend()
         return;
     }
 
+    inTransaction = false;
     start = NowClock();
     while (appendState.value.GetLength() > 0)
     {
@@ -1108,6 +1105,11 @@ void ShardQuorumProcessor::OnResumeAppend()
 
         prevMigrateCache = migrateCache;
         
+        if (shardMessage.type == SHARDMESSAGE_START_TRANSACTION)
+            inTransaction = true;
+        else if (shardMessage.type == SHARDMESSAGE_COMMIT_TRANSACTION)
+            inTransaction = false;
+
         ExecuteMessage(appendState.paxosID, appendState.commandID,
          (appendState.currentAppend ? itShardMessage : &shardMessage), appendState.currentAppend);
 
@@ -1121,9 +1123,11 @@ void ShardQuorumProcessor::OnResumeAppend()
 
         appendState.commandID++;
 
-        TRY_YIELD_RETURN(resumeAppend, start);
+        if (!inTransaction)
+            TRY_YIELD_RETURN(resumeAppend, start);
     }
-    
+    ASSERT(!inTransaction);
+
     Log_Debug("numOps: %U", appendState.commandID);
     
     appendState.Reset();
@@ -1180,11 +1184,15 @@ void ShardQuorumProcessor::CommitTransaction(ClientRequest* request)
         return;
     }
 
+    message = messageCache.Acquire();
+    message->StartTransaction();
+    message->clientRequest = NULL;
+    shardMessages.Append(message);
+
     request->session->transaction.Append(request);
 
     // session->transaction is a list of ClientRequests, like:
     // Set - Set - Delete - Delete - Set - ... - Commit
-
     FOREACH(it, request->session->transaction)
     {
         ASSERT(it->type == CLIENTREQUEST_SET ||
@@ -1195,6 +1203,7 @@ void ShardQuorumProcessor::CommitTransaction(ClientRequest* request)
         message->clientRequest = it;
         shardMessages.Append(message);
     }
+    ASSERT(shardMessages.Last()->type == SHARDMESSAGE_COMMIT_TRANSACTION);
 
     EventLoop::TryAdd(&tryAppend);
 }

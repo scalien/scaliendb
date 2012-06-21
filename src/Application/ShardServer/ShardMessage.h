@@ -7,6 +7,7 @@
 #define SHARDMESSAGE_ADD                    'a'
 #define SHARDMESSAGE_SEQUENCE_ADD           'A'
 #define SHARDMESSAGE_DELETE                 'X'
+#define SHARDMESSAGE_START_TRANSACTION      '<'
 #define SHARDMESSAGE_COMMIT_TRANSACTION     '>'
 #define SHARDMESSAGE_SPLIT_SHARD            'z'
 #define SHARDMESSAGE_TRUNCATE_TABLE         'y'
@@ -58,6 +59,8 @@ public:
     void            ShardMigrationDelete(uint64_t shardID, ReadBuffer& key);
     void            ShardMigrationComplete(uint64_t shardID);
     
+    void            StartTransaction();
+
     // Serialization
     int             Read(ReadBuffer& buffer);
     bool            Append(Buffer& buffer);
