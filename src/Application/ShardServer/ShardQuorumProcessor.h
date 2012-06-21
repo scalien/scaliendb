@@ -153,7 +153,6 @@ private:
     void                    StartTransaction(ClientRequest* request);
     void                    CommitTransaction(ClientRequest* request);
     void                    RollbackTransaction(ClientRequest* request);
-    bool                    ClearSessionTransaction(ClientSession* session);
 
     bool                    isPrimary;
     uint64_t                highestProposalID;

@@ -1,5 +1,6 @@
 #include "ShardLockManager.h"
 #include "System/Events/EventLoop.h"
+#include "Application/ShardServer/ShardServer.h"
 
 static inline int KeyCmp(const Buffer& a, const Buffer& b)
 {
@@ -22,6 +23,7 @@ void ShardLock::Init()
     locked = false;
     unlockTime = 0;
     expireTime = 0;
+    session = NULL;
 }
 
 ShardLockManager::ShardLockManager()
@@ -37,8 +39,9 @@ ShardLockManager::ShardLockManager()
     maxPoolCount = LOCK_POOL_COUNT;
 }
 
-void ShardLockManager::Init()
+void ShardLockManager::Init(ShardServer* shardServer_)
 {
+    shardServer = shardServer_;
     EventLoop::Add(&removeCachedLocks);
     EventLoop::Add(&expireLocks);
 }
@@ -114,7 +117,7 @@ unsigned ShardLockManager::GetMaxPoolCount()
     return maxPoolCount;
 }
 
-bool ShardLockManager::TryLock(ReadBuffer key)
+bool ShardLockManager::TryLock(ReadBuffer key, ClientSession* session)
 {
     int         cmpres;
     Buffer      keyBuffer;
@@ -150,6 +153,7 @@ bool ShardLockManager::TryLock(ReadBuffer key)
 
     // in tree, not locked
     lock->locked = true;
+    lock->session = session;
     numLocked++;
     lock->expireTime = EventLoop::Now() + lockExpireTime;
     // add to expiry list
@@ -220,6 +224,8 @@ void ShardLockManager::OnRemoveCachedLocks()
     {
         // should be unlocked
         ASSERT(!lock->locked);
+        // session should be NULL
+        ASSERT(lock->session == NULL);
         // not in lock expiry list
         ASSERT(lock->listExpiryNode.next == lock);
         // not in lock pool list
@@ -242,8 +248,9 @@ void ShardLockManager::OnRemoveCachedLocks()
 
 void ShardLockManager::OnExpireLocks()
 {
-    uint64_t    now;
-    ShardLock*  lock;
+    uint64_t        now;
+    ShardLock*      lock;
+    ClientSession*  session;
 
     now = EventLoop::Now();
 
@@ -251,6 +258,8 @@ void ShardLockManager::OnExpireLocks()
     {
         // should be locked
         ASSERT(lock->locked);
+        // session is set
+        ASSERT(lock->session);
         // in tree
         ASSERT(lock->treeNode.IsInTree());
         // not in lock cache list
@@ -261,7 +270,9 @@ void ShardLockManager::OnExpireLocks()
         if (lock->expireTime < now)
         {
             Log_Debug("Lock %B will be unlocked due to expiry", &lock->key);
+            session = lock->session;
             Unlock(lock); // modifies lockExpiryList
+            shardServer->ClearSessionTransaction(session);
         }
         else
             break; // list is sorted because it is always appended
@@ -274,6 +285,7 @@ void ShardLockManager::OnExpireLocks()
 {
     // in tree, locked
     lock->locked = false;
+    lock->session = NULL;
     numLocked--;
     lock->unlockTime = EventLoop::Now() + maxCacheTime;
 
@@ -311,6 +323,7 @@ ShardLock* ShardLockManager::NewLock()
 
     // members cleared
     ASSERT(lock->locked == false);
+    ASSERT(lock->session == NULL);
     ASSERT(lock->expireTime == 0);
     // not in lock tree
     ASSERT(!lock->treeNode.IsInTree());

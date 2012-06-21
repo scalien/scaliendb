@@ -27,7 +27,7 @@ void ShardServer::Init(ShardServerApp* app, bool restoreMode, bool setNodeID, ui
     startTimestamp = Now();
     numRequests = 0;
 
-    lockManager.Init();
+    lockManager.Init(this);
     waitQueueManager.Init();
     databaseManager.Init(this); 
     heartbeatManager.Init(this);
@@ -330,6 +330,42 @@ void ShardServer::OnConnectionEnd(uint64_t /*nodeID*/, Endpoint /*endpoint*/)
 bool ShardServer::OnAwaitingNodeID(Endpoint /*endpoint*/)
 {
     // always drop
+    return true;
+}
+
+bool ShardServer::ClearSessionTransaction(ClientSession* session)
+{
+    Buffer          lockKey;
+    ClientRequest*  request;
+
+    if (session->transaction.GetLength() > 0)
+    {
+        if (session->transaction.Last()->type == CLIENTREQUEST_COMMIT_TRANSACTION)
+        {
+            // client already sent a commit, and
+            // shard messages are queued for replication
+            // and replication has possibly began
+            // cannot clear!
+            Log_Debug("Cannot clear session transaction due to possibly replicating commit...");
+            return false;
+        }
+    }
+
+    FOREACH_POP(request, session->transaction)
+    {
+        ASSERT(request->type != CLIENTREQUEST_UNDEFINED);
+        request->response.NoResponse();
+        request->OnComplete(); // request deletes itself
+    }
+
+    lockManager.Unlock(session->lockKey);
+    lockKey.Write(session->lockKey);
+    session->Init();
+
+    request = waitQueueManager.Pop(lockKey);
+    if (request)
+        OnClientRequest(request);
+
     return true;
 }
 

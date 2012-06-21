@@ -12,6 +12,9 @@
 #define LOCK_CACHE_COUNT            (10*1000)
 #define LOCK_POOL_COUNT             (10*1000)
 
+class ShardServer;
+class ClientSession;
+
 /*
 ===============================================================================================
 
@@ -34,6 +37,7 @@ public:
     uint64_t        expireTime;
     uint64_t        unlockTime;
     Buffer          key;
+    ClientSession*  session;
 
     TreeNode        treeNode;
     ListNode        listCacheNode;
@@ -61,8 +65,8 @@ class ShardLockManager
 public:
     ShardLockManager();
 
-    void            Init();
-    void            Shutdown(); // TODO
+    void            Init(ShardServer* shardServer);
+    void            Shutdown();
     
     // internal data structures stats
     unsigned        GetNumLocks();
@@ -84,7 +88,7 @@ public:
     unsigned        GetMaxPoolCount();
 
     // locking interface
-    bool            TryLock(ReadBuffer key);
+    bool            TryLock(ReadBuffer key, ClientSession* session);
     bool            IsLocked(ReadBuffer key);
     void            Unlock(ReadBuffer key);
     void            UnlockAll();
@@ -104,6 +108,7 @@ private:
     LockExpiryList  lockExpiryList;
     Countdown       removeCachedLocks;
     Timer           expireLocks;
+    ShardServer*    shardServer;
 
     unsigned        lockExpireTime;
     unsigned        maxCacheTime;

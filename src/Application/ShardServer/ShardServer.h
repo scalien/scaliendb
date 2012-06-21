@@ -57,6 +57,9 @@ public:
     bool                    OnAwaitingNodeID(Endpoint endpoint);
     // ========================================================================================
 
+    // for ShardLockManager and ShardQuorumProcessor:
+    bool                    ClearSessionTransaction(ClientSession* session);
+
     bool                    IsLeaseKnown(uint64_t quorumID);
     bool                    IsLeaseOwner(uint64_t quorumID);
     uint64_t                GetLeaseOwner(uint64_t quorumID);
