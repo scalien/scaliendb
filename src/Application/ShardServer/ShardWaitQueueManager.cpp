@@ -69,7 +69,6 @@ ShardWaitQueueManager::ShardWaitQueueManager()
     removeCachedWaitQueues.SetCallable(MFUNC(ShardWaitQueueManager, OnRemoveCachedWaitQueues));
     removeCachedWaitQueues.SetDelay(WAITQUEUE_CHECK_FREQUENCY);
     expireRequests.SetCallable(MFUNC(ShardWaitQueueManager, OnExpireRequests));
-    expireRequests.SetDelay(WAITQUEUE_CHECK_FREQUENCY);
 
     numWaiting = 0;
     waitExpireTime = WAITQUEUE_EXPIRE_TIME;
@@ -93,6 +92,7 @@ void ShardWaitQueueManager::Shutdown()
     queueCacheList.Clear();
     queueTree.DeleteTree();
     queuePoolList.DeleteList();
+    UpdateExpireRequestsTimeout();
 }
 
 unsigned ShardWaitQueueManager::GetNumWaitQueues()
@@ -201,6 +201,7 @@ void ShardWaitQueueManager::Push(ClientRequest* request)
     // add to expiry list
     nodeExpiryList.Append(waitQueueNode);
     waitQueueNode->request = request;
+    UpdateExpireRequestsTimeout();
 
     // add to actual wait queue
     waitQueue->nodes.Append(waitQueueNode);
@@ -313,7 +314,7 @@ void ShardWaitQueueManager::OnExpireRequests()
             break; // list is sorted because it is always appended
     }
 
-    EventLoop::Add(&expireRequests);
+    UpdateExpireRequestsTimeout();
 }
 
 ClientRequest* ShardWaitQueueManager::Pop(ShardWaitQueue* waitQueue)
@@ -350,6 +351,7 @@ ClientRequest* ShardWaitQueueManager::Pop(ShardWaitQueue* waitQueue)
 
     request = waitQueueNode->request;
     nodeExpiryList.Remove(waitQueueNode);
+    UpdateExpireRequestsTimeout();
     waitQueueNode->Init();
     DeleteWaitQueueNode(waitQueueNode);
 
@@ -428,5 +430,20 @@ void ShardWaitQueueManager::DeleteWaitQueueNode(ShardWaitQueueNode* waitQueueNod
     {
         // don't keep, delete it for real
         delete waitQueueNode;
+    }
+}
+
+void ShardWaitQueueManager::UpdateExpireRequestsTimeout()
+{
+    ShardWaitQueueNode* waitQueueNode;
+
+    EventLoop::Remove(&expireRequests);
+
+    waitQueueNode = nodeExpiryList.First();
+    if (waitQueueNode)
+    {
+        ASSERT(waitQueueNode->expireTime > 0);
+        expireRequests.SetExpireTime(waitQueueNode->expireTime);
+        EventLoop::Add(&expireRequests);
     }
 }
