@@ -1,5 +1,6 @@
 #include "ShardHTTPClientSession.h"
 #include "ShardServer.h"
+#include "System/Registry.h"
 #include "System/Config.h"
 #include "System/Common.h"
 #include "System/FileSystem.h"
@@ -326,6 +327,7 @@ void ShardHTTPClientSession::PrintStatistics()
     ReadBuffer              param;
     char                    humanBuf[100];
     bool                    humanize;
+    RegistryNode*           registryNode;
 
     humanize = true;
     if (HTTP_GET_OPT_PARAM(params, "humanize", param))
@@ -385,8 +387,14 @@ void ShardHTTPClientSession::PrintStatistics()
     buffer.Appendf("logFileDiskUsage: %s\n", PrintableBytes(databaseManager->GetEnvironment()->GetLogSegmentDiskUsage(), humanBuf, humanize));
     buffer.Appendf("numShards: %u\n", databaseManager->GetEnvironment()->GetNumShards());
     buffer.Appendf("numFileChunks: %u\n", databaseManager->GetEnvironment()->GetNumFileChunks());
-    buffer.Appendf("numWriteToc100: %u\n", databaseManager->GetEnvironment()->GetNumWriteToc100());
-    buffer.Appendf("numWriteToc1000: %u\n", databaseManager->GetEnvironment()->GetNumWriteToc1000());
+
+    for (registryNode = Registry::First(); registryNode != NULL; registryNode = Registry::Next(registryNode))
+    {
+        registryNode->AppendKey(buffer);
+        buffer.Append(": ");
+        registryNode->AppendValue(buffer);
+        buffer.Appendf("\n");
+    }
 
     buffer.Append("  Category: Mutexes\n");
     buffer.Appendf("StorageFileDeleter mutexLockCounter: %U\n", StorageFileDeleter::GetMutex().lockCounter);

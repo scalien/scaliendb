@@ -19,7 +19,7 @@ ReadBuffer::ReadBuffer(const char* s)
     length = strlen(s);
 }
 
-ReadBuffer::ReadBuffer(Buffer& buffer)
+ReadBuffer::ReadBuffer(const Buffer& buffer)
 {
     Wrap(buffer);
 }
@@ -52,7 +52,7 @@ void ReadBuffer::Wrap(char* buffer_, unsigned length_)
     length = length_;
 }
 
-void ReadBuffer::Wrap(Buffer& buffer_)
+void ReadBuffer::Wrap(const Buffer& buffer_)
 {
     buffer = buffer_.GetBuffer();
     length = buffer_.GetLength();

@@ -302,6 +302,7 @@ void ShardWaitQueueManager::OnExpireRequests()
 
         if (waitQueueNode->expireTime < now)
         {
+            Log_Debug("Expiring start transaction for lock %B.", &waitQueueNode->waitQueue->key);
             waitQueue = waitQueueNode->waitQueue;
             // first in waitQueue
             ASSERT(waitQueue->nodes.GetLength() > 0);
