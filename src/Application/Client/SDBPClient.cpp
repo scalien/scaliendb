@@ -1328,13 +1328,6 @@ void Client::SetMaster(int64_t master_)
     }
 }
 
-void Client::UpdateConnectivityStatus()
-{
-    // TODO: check all connection's connect status
-    // if there aren't any connected nodes, set the
-    // connectivityStatus to NOCONNECTION
-}
-
 void Client::OnGlobalTimeout()
 {
     Log_Debug("Global timeout");
