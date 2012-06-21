@@ -103,7 +103,7 @@ namespace Scalien
                         }
                     }
                 }
-                catch (Exception e)
+                catch (Exception)
                 {
                     return null;
                 }
@@ -418,6 +418,24 @@ namespace Scalien
                 NativeLoader.Load();
             
             return new Client(GetConfigNodes());
+        }
+
+        public static void Log(string fmt, params object[] args)
+        {
+            Console.WriteLine(DateTime.Now.ToString("u") + ": " + fmt, args);
+        }
+
+        public static ConfigState GetFullConfigState(Client client, int controllerHttpPort = 8080)
+        {
+            var jsonConfigState = client.GetJSONConfigState();
+            var configState = Utils.JsonDeserialize<ConfigState>(System.Text.Encoding.UTF8.GetBytes(jsonConfigState));
+            var master = configState.master;
+            if (master < 0)
+                return null;
+            var masterHost = client.Nodes[master].Split(new char[] {':'})[0];
+            var url = "http://" + masterHost + ":" + controllerHttpPort + "/json/getconfigstate";
+            var bytes = Utils.HTTP.BinaryGET(url);
+            return Utils.JsonDeserialize<ConfigState>(bytes);
         }
 
         public static byte[] NextKey(byte[] key)

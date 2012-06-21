@@ -157,7 +157,6 @@ private:
     Request*                CreateGetConfigState();
     int64_t                 GetMaster();
     void                    SetMaster(int64_t master);
-    void                    UpdateConnectivityStatus();
     void                    OnGlobalTimeout();
     void                    OnMasterTimeout();
     void                    SetConfigState(ConfigState& configState);

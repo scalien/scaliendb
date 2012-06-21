@@ -488,6 +488,11 @@ namespace Scalien
             return "http://" + GetEndpointWithPort(shardServer.endpoint, shardServer.httpPort) + "/";
         }
 
+        public static string GetControllerURL(ConfigState.Controller controller, uint controllerPort = 8080)
+        {
+            return "http://" + GetEndpointWithPort(controller.endpoint, controllerPort) + "/";
+        }
+
         public static bool TryDeleteDatabase(Client client, string databaseName)
         {
             try

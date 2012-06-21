@@ -215,6 +215,7 @@
     <ClCompile Include="..\src\Application\ShardServer\ShardQuorumProcessor.cpp" />
     <ClCompile Include="..\src\Application\ShardServer\ShardServer.cpp" />
     <ClCompile Include="..\src\Application\ShardServer\ShardServerApp.cpp" />
+    <ClCompile Include="..\src\Application\ShardServer\ShardWaitQueueManager.cpp" />
     <ClCompile Include="..\src\Framework\Clustering\ClusterConnection.cpp" />
     <ClCompile Include="..\src\Framework\Clustering\ClusterServer.cpp" />
     <ClCompile Include="..\src\Framework\Clustering\ClusterTransport.cpp" />
@@ -393,6 +394,7 @@
     <ClInclude Include="..\src\Application\ShardServer\ShardQuorumProcessor.h" />
     <ClInclude Include="..\src\Application\ShardServer\ShardServer.h" />
     <ClInclude Include="..\src\Application\ShardServer\ShardServerApp.h" />
+    <ClInclude Include="..\src\Application\ShardServer\ShardWaitQueueManager.h" />
     <ClInclude Include="..\src\Framework\Clustering\ClusterConnection.h" />
     <ClInclude Include="..\src\Framework\Clustering\ClusterServer.h" />
     <ClInclude Include="..\src\Framework\Clustering\ClusterTransport.h" />

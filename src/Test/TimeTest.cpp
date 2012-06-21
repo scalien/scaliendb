@@ -2,6 +2,7 @@
 
 #include "System/StopWatch.h"
 #include "System/Platform.h"
+#include "System/Threading/ThreadPool.h"
 
 #include <stdio.h>
 
@@ -44,4 +45,31 @@ TEST_DEFINE(TestClock)
     return 0;
 }
 
-TEST_MAIN(TestClock);
+static void TestTimeMultithreadedNow_ThreadFunc()
+{
+    uint64_t    now;
+
+    now = Now();
+    MSleep(30 * 1000);
+    now = Now();
+}
+
+TEST_DEFINE(TestTimeMultithreadedNow)
+{
+    ThreadPool*     threads;
+
+    StopClock();
+
+    threads = ThreadPool::Create(1);
+
+    threads->Execute(CFunc(TestTimeMultithreadedNow_ThreadFunc));
+
+    threads->Start();
+
+
+    
+    threads->WaitStop();
+
+    return TEST_SUCCESS;
+}
+

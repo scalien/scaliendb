@@ -156,7 +156,7 @@ namespace ScalienClientUnitTesting
                         if (method.GetCustomAttributes(typeof(TestMethodAttribute), false).GetLength(0) > 0)
                         {
                             var testName = testClass.type.Name + "." + method.Name;
-                            var query = from test in tests where test.StartsWith(testName) select test;
+                            var query = from test in tests where test.Length <= testName.Length && test.StartsWith(testName) select test;
                             if (!query.Any())
                                 continue;
 

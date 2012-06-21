@@ -3,9 +3,11 @@
 #include "Application/Client/SDBPClientWrapper.h"
 #include "System/Common.h"
 #include "System/Config.h"
+#include "System/Stopwatch.h"
 #include "System/Threading/ThreadPool.h"
 #include "System/Threading/Atomic.h"
 #include "System/Events/Deferred.h"
+#include "System/IO/IOProcessor.h"
 
 using namespace SDBPClient;
 
