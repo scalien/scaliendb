@@ -193,7 +193,7 @@ int64_t FS_FileSeek(FD fd, uint64_t offset, int whence_)
     return ret;
 }
 
-int FS_FileTruncate(FD fd, uint64_t length)
+bool FS_FileTruncate(FD fd, uint64_t length)
 {
     int ret;
     
@@ -201,9 +201,12 @@ int FS_FileTruncate(FD fd, uint64_t length)
 
     ret = ftruncate(fd, length);
     if (ret < 0)
+    {
         Log_Errno("%d", fd);
+        return false;
+    }
     
-    return ret;
+    return true;
 }
 
 int64_t FS_FileSize(FD fd)

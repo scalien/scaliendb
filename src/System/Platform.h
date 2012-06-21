@@ -80,8 +80,14 @@ typedef intptr_t            ssize_t;
 #include <inttypes.h>
 #include <unistd.h>
 #include <stdlib.h>
+#include <stdio.h>
 
+// __thread keyword is not suported on OSX
+#ifdef PLATFORM_DARWIN
+#define THREAD_LOCAL
+#else
 #define THREAD_LOCAL        __thread
+#endif
 
 #endif // end Unix
 
