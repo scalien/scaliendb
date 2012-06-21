@@ -228,7 +228,7 @@ void Buffer::Append(const char* str)
     Append(str, strlen(str));
 }
 
-void Buffer::Append(Buffer& other)
+void Buffer::Append(const Buffer& other)
 {
     Append(other.GetBuffer(), other.GetLength());
 }
@@ -333,37 +333,37 @@ void Buffer::Init()
     prev = next = this;
 }
 
-unsigned Buffer::GetSize()
+unsigned Buffer::GetSize() const
 {
     return size;
 }
 
-char* Buffer::GetBuffer()
+char* Buffer::GetBuffer() const
 {
     return buffer;
 }
 
-unsigned Buffer::GetLength()
+unsigned Buffer::GetLength() const
 {
     return length;
 }
 
-unsigned Buffer::GetRemaining()
+unsigned Buffer::GetRemaining() const
 {
     return size - length;
 }
 
-char* Buffer::GetPosition()
+char* Buffer::GetPosition() const
 {
     return buffer + length;
 }
 
-uint32_t Buffer::GetChecksum()
+uint32_t Buffer::GetChecksum() const
 {
     return ChecksumBuffer(buffer, length);
 }
 
-ReadBuffer Buffer::GetReadBuffer()
+ReadBuffer Buffer::GetReadBuffer() const
 {
     return ReadBuffer(*this);
 }

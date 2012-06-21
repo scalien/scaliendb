@@ -1,6 +1,7 @@
 #ifndef STORAGEENVIRONMENT_H
 #define STORAGEENVIRONMENT_H
 
+#include "System/Registry.h"
 #include "System/Buffers/Buffer.h"
 #include "System/Containers/InList.h"
 #include "System/Containers/ArrayList.h"
@@ -164,8 +165,6 @@ public:
                              InSortedList<ShardSize>& shardSizes,
                              StorageShard::IsMergeCandidateFunc IsMergeCandidateFunc);
     void                    MergeChunk(StorageShard* shard);
-    unsigned                GetNumWriteToc100();
-    unsigned                GetNumWriteToc1000();
 
     Buffer                  envPath;
     Buffer                  chunkPath;
@@ -199,8 +198,8 @@ private:
     bool                    shuttingDown;
     bool                    writingTOC;
     bool                    dumpMemoChunks;
-    unsigned                numWriteToc100;
-    unsigned                numWriteToc1000;
+    uint64_t*               numWriteToc100;
+    uint64_t*               numWriteToc1000;
 };
 
 #endif

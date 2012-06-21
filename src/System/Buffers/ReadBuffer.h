@@ -20,14 +20,14 @@ public:
     ReadBuffer();
     ReadBuffer(char* buffer, unsigned length);
     ReadBuffer(const char* s);
-    ReadBuffer(Buffer& buffer);
+    ReadBuffer(const Buffer& buffer);
     
     void                Reset();
     void                SetBuffer(char* buffer);
     void                SetLength(unsigned length);
     void                Wrap(const char* buffer);
     void                Wrap(char* buffer, unsigned length);
-    void                Wrap(Buffer& buffer);
+    void                Wrap(const Buffer& buffer);
     
     int                 Readf(const char* format, ...);
 

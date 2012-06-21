@@ -48,7 +48,7 @@ public:
     void                Append(char c);
     void                Append(const char* buffer, unsigned length);
     void                Append(const char* str);
-    void                Append(Buffer& other);
+    void                Append(const Buffer& other);
     void                Append(ReadBuffer other);
     void                Append(char c, unsigned num);
 
@@ -69,13 +69,13 @@ public:
     void                SetLength(unsigned length);
 
     void                Init();
-    unsigned            GetSize();
-    char*               GetBuffer();
-    unsigned            GetLength();
-    unsigned            GetRemaining();
-    char*               GetPosition();
-    uint32_t            GetChecksum();
-    ReadBuffer          GetReadBuffer();
+    unsigned            GetSize() const;
+    char*               GetBuffer() const;
+    unsigned            GetLength() const;
+    unsigned            GetRemaining() const;
+    char*               GetPosition() const;
+    uint32_t            GetChecksum() const;
+    ReadBuffer          GetReadBuffer() const;
     
     void                Clear();
     void                Reset();
