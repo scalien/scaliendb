@@ -127,20 +127,20 @@ private:
     void                DeleteWaitQueue(ShardWaitQueue* waitQueue);
     ShardWaitQueueNode* NewWaitQueueNode();
     void                DeleteWaitQueueNode(ShardWaitQueueNode* waitQueueNode);
-    unsigned            numWaiting;
-    Countdown           removeCachedWaitQueues;
-    Countdown           expireRequests;
+    void                UpdateExpireRequestsTimeout();
 
+    unsigned            numWaiting;
+    unsigned            waitExpireTime;
+    unsigned            maxCacheTime;
+    unsigned            maxCacheCount;
+    unsigned            maxPoolCount;
+    Timer               expireRequests;
+    Countdown           removeCachedWaitQueues;
     QueueTree           queueTree;
     QueueCacheList      queueCacheList;
     QueuePoolList       queuePoolList;
     NodeExpiryList      nodeExpiryList;
     NodePoolList        nodePoolList;
-
-    unsigned            waitExpireTime;
-    unsigned            maxCacheTime;
-    unsigned            maxCacheCount;
-    unsigned            maxPoolCount;
 };
 
 #endif

@@ -447,8 +447,10 @@ void ShardDatabaseManager::DeleteQuorum(uint64_t quorumID)
 
 void ShardDatabaseManager::SetShards(SortedList<uint64_t>& shards)
 {
-    uint64_t*       itShardID;
-    ConfigShard*    shard;
+    bool                    createShard;
+    uint64_t*               itShardID;
+    ConfigShard*            shard;
+    ShardQuorumProcessor*   quorumProcessor;
 
     FOREACH (itShardID, shards)
     {
@@ -457,7 +459,18 @@ void ShardDatabaseManager::SetShards(SortedList<uint64_t>& shards)
         
         if (shard->state == CONFIG_SHARD_STATE_NORMAL)
         {
+            quorumProcessor = shardServer->GetQuorumProcessor(shard->quorumID);
+            if (!quorumProcessor)
+                continue;
+            
+            createShard = false;
+            // create shard if DB has been cleared
+            if (REPLICATION_CONFIG->GetRunID() == 1 && quorumProcessor->GetPaxosID() == 0)
+                createShard = true;
             if (shard->firstKey.GetLength() == 0 && shard->lastKey.GetLength() == 0)
+                createShard = true;
+            
+            if (createShard)
             {
                environment.CreateShard(shard->quorumID, QUORUM_DATABASE_DATA_CONTEXT, *itShardID, shard->tableID,
                 shard->firstKey, shard->lastKey, true, STORAGE_SHARD_TYPE_STANDARD);

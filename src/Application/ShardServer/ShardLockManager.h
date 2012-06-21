@@ -95,6 +95,7 @@ private:
     void            Unlock(ShardLock* lock);
     ShardLock*      NewLock();
     void            DeleteLock(ShardLock* lock);
+    void            UpdateExpireLockTimeout();
 
     unsigned        numLocked;
     LockTree        lockTree;
@@ -102,7 +103,7 @@ private:
     LockPoolList    lockPoolList;
     LockExpiryList  lockExpiryList;
     Countdown       removeCachedLocks;
-    Countdown       expireLocks;
+    Timer           expireLocks;
 
     unsigned        lockExpireTime;
     unsigned        maxCacheTime;
