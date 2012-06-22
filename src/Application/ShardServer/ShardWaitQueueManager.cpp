@@ -69,7 +69,6 @@ ShardWaitQueueManager::ShardWaitQueueManager()
 {
     removeCachedWaitQueues.SetCallable(MFUNC(ShardWaitQueueManager, OnRemoveCachedWaitQueues));
     removeCachedWaitQueues.SetDelay(WAITQUEUE_CHECK_FREQUENCY);
-    expireRequests.SetCallable(MFUNC(ShardWaitQueueManager, OnExpireRequests));
 
     numWaiting = 0;
     waitExpireTime = WAITQUEUE_EXPIRE_TIME;
@@ -78,11 +77,10 @@ ShardWaitQueueManager::ShardWaitQueueManager()
     maxPoolCount = WAITQUEUE_POOL_COUNT;
 }
 
-void ShardWaitQueueManager::Init(ShardServer* shardServer_)
+void ShardWaitQueueManager::Init(const Callable& onExpireRequests)
 {
+    expireRequests.SetCallable(onExpireRequests);
     EventLoop::Add(&removeCachedWaitQueues);
-    EventLoop::Add(&expireRequests);
-    shardServer = shardServer_;
 }
 
 void ShardWaitQueueManager::Shutdown()
@@ -286,8 +284,6 @@ void ShardWaitQueueManager::OnExpireRequests()
     ShardWaitQueue*     waitQueue;
     ShardWaitQueueNode* waitQueueNode;
     ClientRequest*      request;
-
-    shardServer->GetLockManager()->OnExpireLocks();
 
     now = EventLoop::Now();
     

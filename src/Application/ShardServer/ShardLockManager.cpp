@@ -1,6 +1,6 @@
 #include "ShardLockManager.h"
+#include "ShardTransactionManager.h"
 #include "System/Events/EventLoop.h"
-#include "Application/ShardServer/ShardServer.h"
 
 static inline int KeyCmp(const Buffer& a, const Buffer& b)
 {
@@ -30,7 +30,6 @@ ShardLockManager::ShardLockManager()
 {
     removeCachedLocks.SetCallable(MFUNC(ShardLockManager, OnRemoveCachedLocks));
     removeCachedLocks.SetDelay(LOCK_CHECK_FREQUENCY);
-    expireLocks.SetCallable(MFUNC(ShardLockManager, OnExpireLocks));
     
     numLocked = 0;
     lockExpireTime = LOCK_EXPIRE_TIME;
@@ -39,11 +38,10 @@ ShardLockManager::ShardLockManager()
     maxPoolCount = LOCK_POOL_COUNT;
 }
 
-void ShardLockManager::Init(ShardServer* shardServer_)
+void ShardLockManager::Init(const Callable& onExpireLocks)
 {
-    shardServer = shardServer_;
+    expireLocks.SetCallable(onExpireLocks);
     EventLoop::Add(&removeCachedLocks);
-    EventLoop::Add(&expireLocks);
 }
 
 void ShardLockManager::Shutdown()
@@ -246,7 +244,7 @@ void ShardLockManager::OnRemoveCachedLocks()
     EventLoop::Add(&removeCachedLocks);
 }
 
-void ShardLockManager::OnExpireLocks()
+void ShardLockManager::OnExpireLocks(ShardTransactionManager* transactionManager)
 {
     uint64_t        now;
     ShardLock*      lock;
@@ -272,7 +270,7 @@ void ShardLockManager::OnExpireLocks()
             Log_Debug("Lock %B will be unlocked due to expiry", &lock->key);
             session = lock->session;
             Unlock(lock); // modifies lockExpiryList
-            shardServer->ClearSessionTransaction(session);
+            transactionManager->ClearSessionTransaction(session);
         }
         else
             break; // list is sorted because it is always appended

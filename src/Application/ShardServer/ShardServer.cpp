@@ -27,22 +27,11 @@ void ShardServer::Init(ShardServerApp* app, bool restoreMode, bool setNodeID, ui
     startTimestamp = Now();
     numRequests = 0;
 
-    lockManager.Init(this);
-    waitQueueManager.Init(this);
     databaseManager.Init(this); 
     heartbeatManager.Init(this);
+    transactionManager.Init(this);
     migrationWriter.Init(this);
-
-    lockManager.SetLockExpireTime(configFile.GetIntValue("      lock.expireTime", LOCK_EXPIRE_TIME));
-    lockManager.SetMaxCacheTime(configFile.GetIntValue("        lock.maxCacheTime", LOCK_CACHE_TIME));
-    lockManager.SetMaxCacheCount(configFile.GetIntValue("       lock.maxCacheCount", LOCK_CACHE_COUNT));
-    lockManager.SetMaxPoolCount(configFile.GetIntValue("        lock.maxPoolCount", LOCK_POOL_COUNT));
-
-    waitQueueManager.SetWaitExpireTime(configFile.GetIntValue(" waitQueue.expireTime", WAITQUEUE_EXPIRE_TIME));
-    waitQueueManager.SetMaxCacheTime(configFile.GetIntValue("   waitQueue.maxCacheTime", WAITQUEUE_CACHE_TIME));
-    waitQueueManager.SetMaxCacheCount(configFile.GetIntValue("  waitQueue.maxCacheCount", WAITQUEUE_CACHE_COUNT));
-    waitQueueManager.SetMaxPoolCount(configFile.GetIntValue("   waitQueue.maxPoolCount", WAITQUEUE_POOL_COUNT));
-
+    
     REQUEST_CACHE->Init(configFile.GetIntValue("requestCache.size", 100*1000));
 
     if (restoreMode)
@@ -94,11 +83,10 @@ void ShardServer::Shutdown()
 
     quorumProcessors.DeleteList();
     databaseManager.Shutdown();
-    waitQueueManager.Shutdown();
-    lockManager.Shutdown();
     CONTEXT_TRANSPORT->Shutdown();
     REPLICATION_CONFIG->Shutdown();
     REQUEST_CACHE->Shutdown();
+    transactionManager.Shutdown();
 }
 
 ShardQuorumProcessor* ShardServer::GetQuorumProcessor(uint64_t quorumID)
@@ -124,16 +112,6 @@ ShardDatabaseManager* ShardServer::GetDatabaseManager()
     return &databaseManager;
 }
 
-ShardLockManager* ShardServer::GetLockManager()
-{
-    return &lockManager;
-}
-
-ShardWaitQueueManager* ShardServer::GetWaitQueueManager()
-{
-    return &waitQueueManager;
-}
-
 ShardMigrationWriter* ShardServer::GetShardMigrationWriter()
 {
     return &migrationWriter;
@@ -142,6 +120,11 @@ ShardMigrationWriter* ShardServer::GetShardMigrationWriter()
 ShardHeartbeatManager* ShardServer::GetHeartbeatManager()
 {
     return &heartbeatManager;
+}
+
+ShardTransactionManager* ShardServer::GetTransactionManager()
+{
+    return &transactionManager;
 }
 
 ConfigState* ShardServer::GetConfigState()
@@ -225,7 +208,7 @@ void ShardServer::OnClientClose(ClientSession* session)
         request->OnComplete();
     }
 
-    lockManager.Unlock(session->lockKey);
+    transactionManager.GetLockManager()->Unlock(session->lockKey);
     Log_Debug("Lock %B released due to disconnect.", &session->lockKey);
     
     session->Init();
@@ -330,42 +313,6 @@ void ShardServer::OnConnectionEnd(uint64_t /*nodeID*/, Endpoint /*endpoint*/)
 bool ShardServer::OnAwaitingNodeID(Endpoint /*endpoint*/)
 {
     // always drop
-    return true;
-}
-
-bool ShardServer::ClearSessionTransaction(ClientSession* session)
-{
-    Buffer          lockKey;
-    ClientRequest*  request;
-
-    if (session->transaction.GetLength() > 0)
-    {
-        if (session->transaction.Last()->type == CLIENTREQUEST_COMMIT_TRANSACTION)
-        {
-            // client already sent a commit, and
-            // shard messages are queued for replication
-            // and replication has possibly began
-            // cannot clear!
-            Log_Debug("Cannot clear session transaction due to possibly replicating commit...");
-            return false;
-        }
-    }
-
-    FOREACH_POP(request, session->transaction)
-    {
-        ASSERT(request->type != CLIENTREQUEST_UNDEFINED);
-        request->response.NoResponse();
-        request->OnComplete(); // request deletes itself
-    }
-
-    lockManager.Unlock(session->lockKey);
-    lockKey.Write(session->lockKey);
-    session->Init();
-
-    request = waitQueueManager.Pop(lockKey);
-    if (request)
-        OnClientRequest(request);
-
     return true;
 }
 

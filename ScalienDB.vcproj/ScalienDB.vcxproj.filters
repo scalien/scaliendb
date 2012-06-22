@@ -511,6 +511,9 @@
     <ClCompile Include="..\src\System\Registry.cpp">
       <Filter>System</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\Application\ShardServer\ShardTransactionManager.cpp">
+      <Filter>Application\ShardServer</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\System\Common.h">
@@ -1043,6 +1046,9 @@
     </ClInclude>
     <ClInclude Include="..\src\System\Registry.h">
       <Filter>System</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Application\ShardServer\ShardTransactionManager.h">
+      <Filter>Application\ShardServer</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

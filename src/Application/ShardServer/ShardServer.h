@@ -7,8 +7,7 @@
 #include "ShardQuorumProcessor.h"
 #include "ShardDatabaseManager.h"
 #include "ShardHeartbeatManager.h"
-#include "ShardLockManager.h"
-#include "ShardWaitQueueManager.h"
+#include "ShardTransactionManager.h"
 #include "ShardMigrationWriter.h"
 
 class ShardServerApp;
@@ -32,10 +31,9 @@ public:
     ShardQuorumProcessor*   GetQuorumProcessor(uint64_t quorumID);
     QuorumProcessorList*    GetQuorumProcessors();
     ShardDatabaseManager*   GetDatabaseManager();
-    ShardLockManager*       GetLockManager();
-    ShardWaitQueueManager*  GetWaitQueueManager();
     ShardMigrationWriter*   GetShardMigrationWriter();
     ShardHeartbeatManager*  GetHeartbeatManager();
+    ShardTransactionManager* GetTransactionManager();
     ConfigState*            GetConfigState();
     ShardServerApp*         GetShardServerApp();
 
@@ -56,9 +54,6 @@ public:
     void                    OnConnectionEnd(uint64_t nodeID, Endpoint endpoint);
     bool                    OnAwaitingNodeID(Endpoint endpoint);
     // ========================================================================================
-
-    // for ShardLockManager and ShardQuorumProcessor:
-    bool                    ClearSessionTransaction(ClientSession* session);
 
     bool                    IsLeaseKnown(uint64_t quorumID);
     bool                    IsLeaseOwner(uint64_t quorumID);
@@ -85,8 +80,7 @@ private:
     QuorumProcessorList     quorumProcessors;
     ShardHeartbeatManager   heartbeatManager;
     ShardDatabaseManager    databaseManager;
-    ShardLockManager        lockManager;
-    ShardWaitQueueManager   waitQueueManager;
+    ShardTransactionManager transactionManager;
     ShardMigrationWriter    migrationWriter;
     ShardServerApp*         shardServerApp;
     uint64_t                startTimestamp;

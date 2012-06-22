@@ -7,8 +7,8 @@
 #include "Framework/Storage/StoragePageCache.h"
 
 #define SHARD_MIGRATION_WRITER  (shardServer->GetShardMigrationWriter())
-#define LOCK_MANAGER            (shardServer->GetLockManager())
-#define WAITQUEUE_MANAGER       (shardServer->GetWaitQueueManager())
+#define LOCK_MANAGER            (shardServer->GetTransactionManager()->GetLockManager())
+#define WAITQUEUE_MANAGER       (shardServer->GetTransactionManager()->GetWaitQueueManager())
 
 static void WriteValue(
 Buffer &buffer, uint64_t paxosID, uint64_t commandID, ReadBuffer userValue)

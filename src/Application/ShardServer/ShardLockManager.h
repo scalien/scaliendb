@@ -12,7 +12,6 @@
 #define LOCK_CACHE_COUNT            (10*1000)
 #define LOCK_POOL_COUNT             (10*1000)
 
-class ShardServer;
 class ClientSession;
 
 /*
@@ -59,13 +58,12 @@ class ShardLockManager
     typedef InNodeList<ShardLock, &ShardLock::listCacheNode>    LockCacheList;
     typedef InNodeList<ShardLock, &ShardLock::listExpiryNode>   LockExpiryList;
     typedef InNodeList<ShardLock, &ShardLock::listPoolNode>     LockPoolList;
-
-    // create ShardLock cache
+    friend class ShardTransactionManager;
 
 public:
     ShardLockManager();
 
-    void            Init(ShardServer* shardServer);
+    void            Init(const Callable& onExpireLocks);
     void            Shutdown();
     
     // internal data structures stats
@@ -93,10 +91,9 @@ public:
     void            Unlock(ReadBuffer key);
     void            UnlockAll();
 
-    void            OnExpireLocks();
-
 private:
     void            OnRemoveCachedLocks();
+    void            OnExpireLocks(ShardTransactionManager* transactionManager);
     void            Unlock(ShardLock* lock);
     ShardLock*      NewLock();
     void            DeleteLock(ShardLock* lock);
@@ -109,7 +106,6 @@ private:
     LockExpiryList  lockExpiryList;
     Countdown       removeCachedLocks;
     Timer           expireLocks;
-    ShardServer*    shardServer;
 
     unsigned        lockExpireTime;
     unsigned        maxCacheTime;

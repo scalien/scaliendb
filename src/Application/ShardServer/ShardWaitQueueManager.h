@@ -14,7 +14,6 @@
 
 class ClientRequest;
 class ShardWaitQueue;
-class ShardServer;
 
 /*
 ===============================================================================================
@@ -88,11 +87,12 @@ class ShardWaitQueueManager
     typedef InNodeList<ShardWaitQueueNode, &ShardWaitQueueNode::listPoolNode>   NodePoolList;
     typedef InNodeList<ShardWaitQueue, &ShardWaitQueue::listCacheNode>          QueueCacheList;
     typedef InNodeList<ShardWaitQueue, &ShardWaitQueue::listPoolNode>           QueuePoolList;
+    friend class ShardTransactionManager;
 
 public:
     ShardWaitQueueManager();
 
-    void                Init(ShardServer* shardServer);
+    void                Init(const Callable& onExpireRequests);
     void                Shutdown();
 
     // internal data structures stats
@@ -142,7 +142,6 @@ private:
     QueuePoolList       queuePoolList;
     NodeExpiryList      nodeExpiryList;
     NodePoolList        nodePoolList;
-    ShardServer*        shardServer;
 };
 
 #endif

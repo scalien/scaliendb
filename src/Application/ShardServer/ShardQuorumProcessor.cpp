@@ -9,8 +9,9 @@
 #define SHARD_MIGRATION_WRITER  (shardServer->GetShardMigrationWriter())
 #define DATABASE_MANAGER        (shardServer->GetDatabaseManager())
 #define HEARTBEAT_MANAGER       (shardServer->GetHeartbeatManager())
-#define LOCK_MANAGER            (shardServer->GetLockManager())
-#define WAITQUEUE_MANAGER       (shardServer->GetWaitQueueManager())
+#define TRANSACTION_MANAGER     (shardServer->GetTransactionManager())
+#define LOCK_MANAGER            (shardServer->GetTransactionManager()->GetLockManager())
+#define WAITQUEUE_MANAGER       (shardServer->GetTransactionManager()->GetWaitQueueManager())
 
 static bool LessThan(uint64_t a, uint64_t b)
 {
@@ -80,7 +81,6 @@ void ShardQuorumProcessor::Init(ConfigQuorum* configQuorum, ShardServer* shardSe
 void ShardQuorumProcessor::Shutdown()
 {
     ShardMessage*   message;
-    ClientRequest*  request;
     
     leaseRequests.DeleteList();
   
@@ -92,10 +92,7 @@ void ShardQuorumProcessor::Shutdown()
         if (message->clientRequest->session->IsTransactional())
         {
             // clear session list so clean up code does not assert
-            FOREACH_POP(request, message->clientRequest->session->transaction)
-            { 
-            // no body
-            }
+            message->clientRequest->session->transaction.Clear();
             message->clientRequest->session->Init();
         }
 
@@ -522,7 +519,7 @@ void ShardQuorumProcessor::OnClientRequest(ClientRequest* request)
         // lock expired
         Log_Debug("Client sending transactional command but is not holding the lock");
         
-        shardServer->ClearSessionTransaction(request->session);
+        TRANSACTION_MANAGER->ClearSessionTransaction(request->session);
         request->response.Failed();
         request->OnComplete();
         return;
@@ -534,7 +531,7 @@ void ShardQuorumProcessor::OnClientRequest(ClientRequest* request)
         // and it's replicating, and we haven't answered yet
         // don't allow commands in this state
         Log_Debug("Transactional command received but currently replicating the previous commit");
-        shardServer->ClearSessionTransaction(request->session);
+        TRANSACTION_MANAGER->ClearSessionTransaction(request->session);
         request->response.Failed();
         request->OnComplete();
         return;
@@ -545,7 +542,7 @@ void ShardQuorumProcessor::OnClientRequest(ClientRequest* request)
     {
         Log_Trace();
         if (request->session->IsTransactional())
-            shardServer->ClearSessionTransaction(request->session);
+            TRANSACTION_MANAGER->ClearSessionTransaction(request->session);
         request->response.NoService();
         request->OnComplete();
         return;
@@ -559,7 +556,7 @@ void ShardQuorumProcessor::OnClientRequest(ClientRequest* request)
     {
         Log_Trace();
         if (request->session->IsTransactional())
-            shardServer->ClearSessionTransaction(request->session);
+            TRANSACTION_MANAGER->ClearSessionTransaction(request->session);
         request->response.NoService();
         request->OnComplete();
         return;
@@ -583,7 +580,7 @@ void ShardQuorumProcessor::OnClientRequest(ClientRequest* request)
         {
             Log_Debug("Client sending commit but is not holding the lock");
             if (request->session->IsTransactional())
-                shardServer->ClearSessionTransaction(request->session);
+                TRANSACTION_MANAGER->ClearSessionTransaction(request->session);
             request->response.Failed();
             request->OnComplete();
             return;
@@ -605,7 +602,7 @@ void ShardQuorumProcessor::OnClientRequest(ClientRequest* request)
     {
         // TODO: move this to a better place
         if (request->session->IsTransactional())
-            shardServer->ClearSessionTransaction(request->session);
+            TRANSACTION_MANAGER->ClearSessionTransaction(request->session);
         request->response.Failed();
         request->OnComplete();
         return;
@@ -635,7 +632,7 @@ void ShardQuorumProcessor::OnClientRequest(ClientRequest* request)
     if (!IsPrimary())
     {
         if (request->session->IsTransactional())
-            shardServer->ClearSessionTransaction(request->session);
+            TRANSACTION_MANAGER->ClearSessionTransaction(request->session);
         request->response.NoService();
         request->OnComplete();
         return;
@@ -1222,7 +1219,7 @@ void ShardQuorumProcessor::RollbackTransaction(ClientRequest* request)
         return;
     }
 
-    if (shardServer->ClearSessionTransaction(request->session))
+    if (TRANSACTION_MANAGER->ClearSessionTransaction(request->session))
         request->response.OK();
     else
         request->response.Failed();

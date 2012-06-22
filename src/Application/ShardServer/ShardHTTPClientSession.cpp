@@ -21,8 +21,8 @@
     ReadBuffer::Cmp((param), "1") == 0) ? true : false)
 
 #define SHARD_MIGRATION_WRITER  (shardServer->GetShardMigrationWriter())
-#define LOCK_MANAGER            (shardServer->GetLockManager())
-#define WAITQUEUE_MANAGER       (shardServer->GetWaitQueueManager())
+#define LOCK_MANAGER            (shardServer->GetTransactionManager()->GetLockManager())
+#define WAITQUEUE_MANAGER       (shardServer->GetTransactionManager()->GetWaitQueueManager())
 #define PRINT_BOOL(str, b) { if ((b)) buffer.Appendf("%s: yes\n", str); else buffer.Appendf("%s: no\n", str); }
 
 void ShardHTTPClientSession::SetShardServer(ShardServer* shardServer_)
@@ -277,7 +277,7 @@ void ShardHTTPClientSession::PrintStatus()
     valbuf.NullTerminate();
     session.PrintPair("Number of clients", valbuf.GetBuffer());
     
-    valbuf.Writef("%u", shardServer->GetLockManager()->GetNumLocks());
+    valbuf.Writef("%u", LOCK_MANAGER->GetNumLocks());
     valbuf.NullTerminate();
     session.PrintPair("Number of locks", valbuf.GetBuffer());
 
