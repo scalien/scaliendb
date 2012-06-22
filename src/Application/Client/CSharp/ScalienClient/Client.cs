@@ -248,6 +248,7 @@ namespace Scalien
 
         private void UpdateException(SDBPException exception, Result result)
         {
+            exception.result = result;
             if (result != null && result.GetCommandStatus() != Status.SDBP_API_ERROR)
             {
                 exception.tableID = result.GetTableID();
@@ -966,7 +967,7 @@ namespace Scalien
             {
                 if (status == Status.SDBP_FAILED)
                 {
-                    TransactionException exception = new TransactionException(status, "Lock timeout");
+                    TransactionException exception = new LockTimeoutException(status);
                     UpdateException(exception, result);
                     throw exception;
                 }
@@ -988,12 +989,13 @@ namespace Scalien
             {
                 if (status == Status.SDBP_FAILED)
                 {
-                    TransactionException exception = new TransactionException(status, "Lock expired");
+                    TransactionException exception = new LockExpiryException(status);
                     UpdateException(exception, result);
                     throw exception;
                 }
                 CheckStatus(result, status);
             }
+            result.Close();
         }
 
         /// <summary>
@@ -1006,6 +1008,7 @@ namespace Scalien
             int status = scaliendb_client.SDBP_RollbackTransaction(cptr);
             result = new Result(scaliendb_client.SDBP_GetResult(cptr));
             CheckStatus(result, status);
+            result.Close();
         }
 
         #endregion

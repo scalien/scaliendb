@@ -23,7 +23,7 @@ TEST_DEFINE(TestSafeFormattingBasic)
     ret = SFWritef(buf, sizeof(buf), "{0}", i);
     c = 'X';
     ret = SFWritef(buf, sizeof(buf), "{0}", c);
-    f = 1.2;
+    f = 1.2f;
     ret = SFWritef(buf, sizeof(buf), "{0}", f);
     pi = &i;
     ret = SFWritef(buf, sizeof(buf), "{0}", *pi);

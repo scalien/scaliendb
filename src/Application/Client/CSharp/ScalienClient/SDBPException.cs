@@ -15,6 +15,7 @@ namespace Scalien
         internal UInt64? quorumID;
         internal UInt64? tableID;
         internal UInt64? paxosID;
+        internal Result result;
 
         /// <summary>
         /// The status code of the exception.
@@ -99,6 +100,21 @@ namespace Scalien
             : base(status, txt)
         {
         }
-        
+    }
+
+    public class LockTimeoutException : TransactionException
+    {
+        internal LockTimeoutException(int status)
+            : base(status, "Lock timeout")
+        {
+        }
+    }
+
+    public class LockExpiryException : TransactionException
+    {
+        internal LockExpiryException(int status)
+            : base(status, "Lock expired")
+        {
+        }
     }
 }

@@ -55,11 +55,15 @@ int SFWrite(char* buffer, size_t size, const char* fmt, const FormatStack& forma
     
     f = fmt;
 
+    // TODO: handle edge cases, buffer overflows etc.
     while (*f)
     {
         // start of a formatted argument
         if (*f == '{')
         {
+            if (f[1] == 0 || f[2] == 0)
+                return -1;
+
             pos = f[1] - '0';
             arg = formatStack.args[pos];
             ret = WriteArg(buffer, size, arg);

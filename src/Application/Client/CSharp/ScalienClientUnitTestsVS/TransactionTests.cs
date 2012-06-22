@@ -122,7 +122,7 @@ namespace ScalienClientUnitTesting
             {
                 client2.StartTransaction(quorum2, majorKey);
             }
-            catch (TransactionException e)
+            catch (LockTimeoutException e)
             {
                 Assert.Fail("");
             }
@@ -148,8 +148,6 @@ namespace ScalienClientUnitTesting
             var database3 = client3.GetDatabase(databaseName);
             var table3 = database3.GetTable(tableName);
 
-            //Client.SetTrace(true);
-
             testLockFailureException_counter += 1;
             byte[] majorKey = Utils.StringToByteArray("TestLockFailureException" + testLockFailureException_counter);
 
@@ -164,7 +162,7 @@ namespace ScalienClientUnitTesting
                 {
                     clients[i].StartTransaction(quorums[i], majorKey);
                 }
-                catch (TransactionException e)
+                catch (LockTimeoutException e)
                 {
                     Interlocked.Increment(ref numExceptions);
                 }

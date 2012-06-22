@@ -203,6 +203,7 @@
     <ClCompile Include="..\src\System\Formatting.cpp" />
     <ClCompile Include="..\src\System\Log.cpp" />
     <ClCompile Include="..\src\System\Registry.cpp" />
+    <ClCompile Include="..\src\System\SafeFormatting.cpp" />
     <ClCompile Include="..\src\System\Service_Posix.cpp" />
     <ClCompile Include="..\src\System\Service_Windows.cpp" />
     <ClCompile Include="..\src\System\Stopwatch.cpp" />
@@ -354,6 +355,7 @@
     <ClInclude Include="..\src\System\Platform.h" />
     <ClInclude Include="..\src\System\PointerGuard.h" />
     <ClInclude Include="..\src\System\Registry.h" />
+    <ClInclude Include="..\src\System\SafeFormatting.h" />
     <ClInclude Include="..\src\System\Service.h" />
     <ClInclude Include="..\src\System\Stopwatch.h" />
     <ClInclude Include="..\src\System\Threading\Atomic.h" />
@@ -369,7 +371,6 @@
     <ClInclude Include="..\src\System\Containers\InQueue.h" />
     <ClInclude Include="..\src\System\Containers\InSortedList.h" />
     <ClInclude Include="..\src\System\Containers\InTreeMap.h" />
-    <ClInclude Include="..\src\System\Containers\InTreeMap2.h" />
     <ClInclude Include="..\src\System\Containers\List.h" />
     <ClInclude Include="..\src\System\Containers\SortedList.h" />
     <ClInclude Include="..\src\System\Events\Callable.h" />

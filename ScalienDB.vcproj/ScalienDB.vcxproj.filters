@@ -514,6 +514,9 @@
     <ClCompile Include="..\src\Application\ShardServer\ShardTransactionManager.cpp">
       <Filter>Application\ShardServer</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\System\SafeFormatting.cpp">
+      <Filter>System</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\System\Common.h">
@@ -571,9 +574,6 @@
       <Filter>System\Containers</Filter>
     </ClInclude>
     <ClInclude Include="..\src\System\Containers\InTreeMap.h">
-      <Filter>System\Containers</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\System\Containers\InTreeMap2.h">
       <Filter>System\Containers</Filter>
     </ClInclude>
     <ClInclude Include="..\src\System\Containers\List.h">
@@ -1049,6 +1049,9 @@
     </ClInclude>
     <ClInclude Include="..\src\Application\ShardServer\ShardTransactionManager.h">
       <Filter>Application\ShardServer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\System\SafeFormatting.h">
+      <Filter>System</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
