@@ -23,6 +23,8 @@ void StorageConfig::SetMemoChunkCacheSize(uint64_t memoChunkCacheSize_)
 void StorageConfig::SetLogSize(uint64_t logSize_)
 {
     numUnbackedLogSegments = logSize_ / logSegmentSize;
+    if (numUnbackedLogSegments == 0)
+        numUnbackedLogSegments = 1;
 }
 
 void StorageConfig::SetMergeBufferSize(uint64_t mergeBufferSize_)
@@ -48,6 +50,8 @@ void StorageConfig::SetWriteGranularity(uint64_t writeGranularity_)
 void StorageConfig::SetReplicatedLogSize(uint64_t replicatedLogSize)
 {
     numLogSegmentFileChunks = replicatedLogSize / chunkSize;
+    if (numLogSegmentFileChunks == 0)
+        numLogSegmentFileChunks = 1;
 }
 
 void StorageConfig::SetAbortWaitingListsNum(uint64_t abortWaitingListsNum_)
