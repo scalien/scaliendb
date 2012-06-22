@@ -1,4 +1,5 @@
 #include "Test.h"
+#include "System/FileSystem.h"
 #include "Application/ConfigState/ConfigState.h"
 #include "Application/ConfigServer/JSONConfigState.h"
 #include "Application/HTTP/JSONSession.h"
@@ -26,5 +27,40 @@ TEST_DEFINE(TestConfigStateJSON)
     
     TEST_LOG("%.*s\n\n", jsonOutput.GetLength(), jsonOutput.GetBuffer());
     
+    return TEST_SUCCESS;
+}
+
+TEST_DEFINE(TestConfigStateCopy)
+{
+    ConfigState     configState;
+    ConfigState     configStateCopy;
+    Buffer          buffer;
+    ReadBuffer      rb;
+    FD              fd;
+    int64_t         fileSize;
+
+    fd = FS_Open("configState", FS_READONLY);
+    fileSize = FS_FileSize(fd);
+    buffer.Allocate(fileSize);
+
+    FS_FileRead(fd, buffer.GetBuffer(), fileSize);
+    FS_FileClose(fd);
+
+    buffer.SetLength(fileSize);
+    rb.Wrap(buffer);
+    configState.Read(rb);
+
+    /////////////////////
+    // Profile from here
+    /////////////////////
+
+    TEST_LOG("File opened, configState read, sleeping 15 seconds...");
+    MSleep(15 * 1000);
+
+    for (int i = 0; i < 100000; i++)
+    {
+        configStateCopy = configState;
+    }
+
     return TEST_SUCCESS;
 }

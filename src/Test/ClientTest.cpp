@@ -1169,7 +1169,9 @@ TEST_DEFINE(TestClientPrintableList)
     static volatile uint64_t    counter;
     static volatile uint64_t    errorCounter;
     static uint64_t             prevTimestamp;
+    static uint64_t             nodeCounters[10];
     uint64_t                    elapsed;
+    uint64_t                    nodeID;
     int                         ret;
 
     if (prevTimestamp == 0)
@@ -1178,14 +1180,18 @@ TEST_DEFINE(TestClientPrintableList)
     TEST(SetupDefaultClient(client));
 
     startKey.Wrap(buffer, sizeof(buffer) - 1);
-    client.SetConsistencyMode(SDBP_CONSISTENCY_ANY);
+    client.SetConsistencyMode(SDBP_CONSISTENCY_RYW);
     while (true)
     {
         RandomBufferFromSet(buffer, sizeof(buffer) - 1, printableChars, sizeof(printableChars) - 1);
         ret = client.ListKeys(defaultTableID, startKey, "", "", 1, true, false);
         if (ret != SDBP_SUCCESS)
             AtomicIncrementU64(errorCounter);
+
         result = client.GetResult();
+        nodeID = result->GetNodeID();
+        if (nodeID >= 100)
+            AtomicIncrementU64(nodeCounters[nodeID - 100]);
         delete result;
         
         currentCounter = AtomicIncrementU64(counter);
@@ -1194,6 +1200,7 @@ TEST_DEFINE(TestClientPrintableList)
             elapsed = Now() - prevTimestamp;
             prevTimestamp = Now();
             Log_Message("%U: %u rps, errors %U", currentCounter, (int)(1000.0 / elapsed * 1000), errorCounter);
+            Log_Message("%U %U %U", nodeCounters[0], nodeCounters[1], nodeCounters[2]);
         }
     }
 
