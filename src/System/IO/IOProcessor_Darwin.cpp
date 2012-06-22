@@ -59,6 +59,7 @@ static volatile bool    terminated;
 static volatile int     numClient = 0;
 static IOProcessorStat  iostat;
 static Mutex            mutex;
+static unsigned         longCallbackThreshold = 100;        // in millisec
 
 static bool AddKq(int ident, short filter, IOOperation* ioop);
 static void ProcessAsyncOp();
@@ -468,6 +469,21 @@ bool IOProcessor::Complete(Callable* callable)
         return true;
     
     return false;
+}
+
+void IOProcessor::Call(Callable& callable)
+{
+    uint64_t    start;
+    uint64_t    elapsed;
+
+    start = NowClock();
+    ::Call(callable);
+    elapsed = NowClock() - start;
+    if (elapsed > longCallbackThreshold)
+    {
+        Log_Debug("IOProcessor callback elapsed time: %U", elapsed);
+        iostat.numLongCallbacks++;
+    }
 }
 
 void ProcessAsyncOp()

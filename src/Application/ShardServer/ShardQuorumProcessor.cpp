@@ -92,7 +92,10 @@ void ShardQuorumProcessor::Shutdown()
         if (message->clientRequest->session->IsTransactional())
         {
             // clear session list so clean up code does not assert
-            FOREACH_POP(request, message->clientRequest->session->transaction); // no body
+            FOREACH_POP(request, message->clientRequest->session->transaction)
+            { 
+            // no body
+            }
             message->clientRequest->session->Init();
         }
 
@@ -1096,6 +1099,7 @@ void ShardQuorumProcessor::OnResumeAppend()
         ASSERT(appendState.value.GetCharAt(0) == ' ');
         appendState.value.Advance(1);
 
+        itShardMessage = NULL;  // suppress compiler warning
         if (appendState.currentAppend)
         {
             // find this message in the shardMessages list
