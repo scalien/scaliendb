@@ -142,6 +142,13 @@
 		78CD47B3130C26C30022BC9F /* StorageFileChunkLister.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 78CD47B1130C26C30022BC9F /* StorageFileChunkLister.cpp */; };
 		9A2FEBCA1535E18F003EC62D /* StorageFileDeleter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9A2FEBC81535E18F003EC62D /* StorageFileDeleter.cpp */; };
 		9A2FEBCB1535E18F003EC62D /* StorageFileDeleter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9A2FEBC81535E18F003EC62D /* StorageFileDeleter.cpp */; };
+		9A2FEC161593B240003EC62D /* Registry.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9A2FEC141593B240003EC62D /* Registry.cpp */; };
+		9A2FEC171593B240003EC62D /* Registry.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9A2FEC141593B240003EC62D /* Registry.cpp */; };
+		9A2FEC3B1593B696003EC62D /* ShardWaitQueueManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9A2FEC391593B696003EC62D /* ShardWaitQueueManager.cpp */; };
+		9A2FEC3C1593B696003EC62D /* ShardWaitQueueManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9A2FEC391593B696003EC62D /* ShardWaitQueueManager.cpp */; };
+		9A2FEC491593B7CB003EC62D /* SafeFormattingTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9A2FEC471593B7CB003EC62D /* SafeFormattingTest.cpp */; };
+		9A2FEC4C1593B7EC003EC62D /* SafeFormatting.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9A2FEC4A1593B7EC003EC62D /* SafeFormatting.cpp */; };
+		9A2FEC4D1593B7EC003EC62D /* SafeFormatting.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9A2FEC4A1593B7EC003EC62D /* SafeFormatting.cpp */; };
 		9A466D60135F435300108B07 /* JSONBufferWriter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9A466D5F135F435300108B07 /* JSONBufferWriter.cpp */; };
 		9A466D61135F435300108B07 /* JSONBufferWriter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9A466D5F135F435300108B07 /* JSONBufferWriter.cpp */; };
 		9A4671891366FEDC00108B07 /* EndpointTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9A4671881366FEDC00108B07 /* EndpointTest.cpp */; };
@@ -622,6 +629,13 @@
 		9A2FEB98150F6847003EC62D /* NativeLoader.cs */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = NativeLoader.cs; path = Client/CSharp/ScalienClientWithNativeDLL/NativeLoader.cs; sourceTree = "<group>"; };
 		9A2FEBC81535E18F003EC62D /* StorageFileDeleter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = StorageFileDeleter.cpp; sourceTree = "<group>"; };
 		9A2FEBC91535E18F003EC62D /* StorageFileDeleter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StorageFileDeleter.h; sourceTree = "<group>"; };
+		9A2FEC141593B240003EC62D /* Registry.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Registry.cpp; sourceTree = "<group>"; };
+		9A2FEC151593B240003EC62D /* Registry.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Registry.h; sourceTree = "<group>"; };
+		9A2FEC391593B696003EC62D /* ShardWaitQueueManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ShardWaitQueueManager.cpp; sourceTree = "<group>"; };
+		9A2FEC3A1593B696003EC62D /* ShardWaitQueueManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ShardWaitQueueManager.h; sourceTree = "<group>"; };
+		9A2FEC471593B7CB003EC62D /* SafeFormattingTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SafeFormattingTest.cpp; path = Test/SafeFormattingTest.cpp; sourceTree = "<group>"; };
+		9A2FEC4A1593B7EC003EC62D /* SafeFormatting.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SafeFormatting.cpp; sourceTree = "<group>"; };
+		9A2FEC4B1593B7EC003EC62D /* SafeFormatting.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SafeFormatting.h; sourceTree = "<group>"; };
 		9A466D5E135F435300108B07 /* JSONBufferWriter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JSONBufferWriter.h; sourceTree = "<group>"; };
 		9A466D5F135F435300108B07 /* JSONBufferWriter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = JSONBufferWriter.cpp; sourceTree = "<group>"; };
 		9A466F431361906800108B07 /* test.php */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.php; name = test.php; path = Client/PHP/test.php; sourceTree = "<group>"; };
@@ -1100,6 +1114,8 @@
 		543DE68812BFBB420069786A /* ShardServer */ = {
 			isa = PBXGroup;
 			children = (
+				9A2FEC391593B696003EC62D /* ShardWaitQueueManager.cpp */,
+				9A2FEC3A1593B696003EC62D /* ShardWaitQueueManager.h */,
 				543DE68A12BFBB420069786A /* ShardCatchupReader.h */,
 				543DE68912BFBB420069786A /* ShardCatchupReader.cpp */,
 				543DE68C12BFBB420069786A /* ShardCatchupWriter.h */,
@@ -1221,6 +1237,10 @@
 		54B7F74211BE5EF30076BC62 /* System */ = {
 			isa = PBXGroup;
 			children = (
+				9A2FEC4A1593B7EC003EC62D /* SafeFormatting.cpp */,
+				9A2FEC4B1593B7EC003EC62D /* SafeFormatting.h */,
+				9A2FEC141593B240003EC62D /* Registry.cpp */,
+				9A2FEC151593B240003EC62D /* Registry.h */,
 				543121301366DDC40029D6A8 /* Threading */,
 				546E254B11EF5CF700867EE1 /* Buffers */,
 				54B7F74811BE5EF30076BC62 /* Containers */,
@@ -1457,6 +1477,7 @@
 		9AE8196512D4BFD30038BDB1 /* Test */ = {
 			isa = PBXGroup;
 			children = (
+				9A2FEC471593B7CB003EC62D /* SafeFormattingTest.cpp */,
 				9A90525D14DB079800261797 /* CrashReporterTest.cpp */,
 				9ABFE55514715AFA0085B06B /* LogTest.cpp */,
 				9ACBF22A141E60EB00297EE1 /* MemoryTest.cpp */,
@@ -1696,6 +1717,10 @@
 				9A90525A14DB075B00261797 /* CrashReporter_Windows.cpp in Sources */,
 				542B69F814E558CD00FA8C0A /* ClientSession.cpp in Sources */,
 				9A2FEBCB1535E18F003EC62D /* StorageFileDeleter.cpp in Sources */,
+				9A2FEC171593B240003EC62D /* Registry.cpp in Sources */,
+				9A2FEC3C1593B696003EC62D /* ShardWaitQueueManager.cpp in Sources */,
+				9A2FEC491593B7CB003EC62D /* SafeFormattingTest.cpp in Sources */,
+				9A2FEC4D1593B7EC003EC62D /* SafeFormatting.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1854,6 +1879,9 @@
 				9A90554314E5720E00261797 /* ClientSession.cpp in Sources */,
 				9A90558D14EA877E00261797 /* SDBPRequestProxy.cpp in Sources */,
 				9A2FEBCA1535E18F003EC62D /* StorageFileDeleter.cpp in Sources */,
+				9A2FEC161593B240003EC62D /* Registry.cpp in Sources */,
+				9A2FEC3B1593B696003EC62D /* ShardWaitQueueManager.cpp in Sources */,
+				9A2FEC4C1593B7EC003EC62D /* SafeFormatting.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1886,6 +1914,7 @@
 					"-DPLATFORM_DARWIN",
 					"-D__STDC_FORMAT_MACROS",
 					"-DDEBUG",
+					"-DHAVE_PTHREADS",
 				);
 				PRELINK_LIBS = "";
 				PRODUCT_NAME = ScalienDB;

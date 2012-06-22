@@ -13,7 +13,7 @@ static inline const Buffer& Key(const ShardWaitQueue* waitQueue)
 }
 
 ShardWaitQueueNode::ShardWaitQueueNode()
- : listWaitQueueNode(this), listPoolNode(this), listExpiryNode(this)
+ : listWaitQueueNode(this), listExpiryNode(this), listPoolNode(this)
 {
     Init();
 }
@@ -238,7 +238,7 @@ void ShardWaitQueueManager::FailAll()
 
     FOREACH(waitQueue, queueTree)
     {
-        while (request = Pop(waitQueue))
+        while ((request = Pop(waitQueue)) != NULL)
             Fail(request);
     }
 }

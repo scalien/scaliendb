@@ -80,6 +80,7 @@ TEST_ADD(TestLogRotateMultiThreaded);
 TEST_ADD(TestLogTraceBuffer);
 TEST_ADD(TestManualBasic);
 TEST_ADD(TestMemoryOutOfMemoryError);
+TEST_ADD(TestSafeFormattingBasic);
 TEST_ADD(TestShardExtensionBasic);
 TEST_ADD(TestStorageAsyncList);
 TEST_ADD(TestStorageSet);

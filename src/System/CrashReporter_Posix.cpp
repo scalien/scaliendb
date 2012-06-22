@@ -24,7 +24,6 @@ void CrashReporter::ReportSystemEvent(const char* ident)
     UNUSED(ident);
 }
 
-#ifdef DEBUG
 // Crash testing functionality support. Should NOT be included in release versions!
 void CrashReporter::TimedCrash(unsigned intervalMsec)
 {
@@ -35,6 +34,5 @@ void CrashReporter::RandomCrash(unsigned intervalMsec)
 {
     UNUSED(intervalMsec);
 }
-#endif // DEBUG
 
 #endif
