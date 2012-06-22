@@ -18,6 +18,11 @@ namespace ScalienClientUnitTesting
     [TestClass]
     public class ClientTests
     {
+        public ClientTests()
+        {
+            NativeLoader.Load();
+        }
+
         [TestMethod]
         public void CreateClientPerRequest()
         {

@@ -144,7 +144,7 @@
       <OpenMPSupport>true</OpenMPSupport>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>ws2_32.lib;mswsock.lib;winmm.lib;psapi.lib;dbghelp.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>ws2_32.lib;mswsock.lib;winmm.lib;psapi.lib;dbghelp.lib;pdh.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <OptimizeReferences>true</OptimizeReferences>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -281,6 +281,7 @@
     <ClCompile Include="..\src\System\FileSystem.cpp" />
     <ClCompile Include="..\src\System\Formatting.cpp" />
     <ClCompile Include="..\src\System\Log.cpp" />
+    <ClCompile Include="..\src\System\Registry.cpp" />
     <ClCompile Include="..\src\System\Stopwatch.cpp" />
     <ClCompile Include="..\src\System\Threading\Signal_Posix.cpp" />
     <ClCompile Include="..\src\System\Threading\Signal_Windows.cpp" />
@@ -475,6 +476,7 @@
     <ClInclude Include="..\src\System\Macros.h" />
     <ClInclude Include="..\src\System\Platform.h" />
     <ClInclude Include="..\src\System\PointerGuard.h" />
+    <ClInclude Include="..\src\System\Registry.h" />
     <ClInclude Include="..\src\System\Stopwatch.h" />
     <ClInclude Include="..\src\System\Threading\Atomic.h" />
     <ClInclude Include="..\src\System\Threading\LockGuard.h" />

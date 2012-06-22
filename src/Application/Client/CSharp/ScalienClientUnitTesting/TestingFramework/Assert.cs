@@ -31,7 +31,8 @@ namespace ScalienClientUnitTesting
         }
         public static void IsTrue(bool cond)
         {
-            if (cond != true) Throw("Assert.IsTrue failed");
+            if (cond != true) 
+                Throw("Assert.IsTrue failed");
         }
         public static void IsTrue(bool cond, string message)
         {

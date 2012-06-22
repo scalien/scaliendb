@@ -35,7 +35,7 @@ namespace Scalien
         }
     }
 
-    public class Result
+    internal class Result
     {
         private SWIGTYPE_p_void cptr;
 
@@ -154,29 +154,39 @@ namespace Scalien
             return keyvals;
         }
 
-        public UInt64 GetNodeID()
+        private delegate UInt64 ResultUIn64Getter(SWIGTYPE_p_void result);
+        private UInt64? GetID(ResultUIn64Getter getter, UInt64 unknownValue)
         {
-            return scaliendb_client.SDBP_ResultNodeID(cptr);
+            UInt64 retval = getter(cptr);
+            if (retval == unknownValue)
+                return null;
+            
+            return retval;
         }
 
-        public UInt64 GetQuorumID()
+        public UInt64? GetNodeID()
         {
-            return scaliendb_client.SDBP_ResultQuorumID(cptr);
+            return GetID(scaliendb_client.SDBP_ResultNodeID, UInt64.MaxValue);
         }
 
-        public UInt64 GetTableID() 
+        public UInt64? GetQuorumID()
         {
-            return scaliendb_client.SDBP_ResultTableID(cptr);
+            return GetID(scaliendb_client.SDBP_ResultQuorumID, 0);
         }
 
-        public UInt64 GetDatabaseID()
+        public UInt64? GetTableID() 
         {
-            return scaliendb_client.SDBP_ResultDatabaseID(cptr);
+            return GetID(scaliendb_client.SDBP_ResultTableID, 0);
         }
 
-        public UInt64 GetPaxosID()
+        public UInt64? GetDatabaseID()
         {
-            return scaliendb_client.SDBP_ResultPaxosID(cptr);
+            return GetID(scaliendb_client.SDBP_ResultDatabaseID, 0);
+        }
+
+        public UInt64? GetPaxosID()
+        {
+            return GetID(scaliendb_client.SDBP_ResultPaxosID, 0);
         }
 
         public uint GetElapsedTime()

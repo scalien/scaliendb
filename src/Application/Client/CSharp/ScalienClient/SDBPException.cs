@@ -92,4 +92,13 @@ namespace Scalien
             paxosID = null;
         }
     }
+
+    public class TransactionException : SDBPException
+    {
+        internal TransactionException(int status, string txt)
+            : base(status, txt)
+        {
+        }
+        
+    }
 }

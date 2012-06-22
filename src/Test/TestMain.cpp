@@ -49,6 +49,7 @@ TEST_ADD(TestCommonHumanBytes);
 TEST_ADD(TestCommonHumanBytesBrute);
 TEST_ADD(TestCommonRandomDistribution);
 TEST_ADD(TestCommonUInt64ToBufferWithBase);
+TEST_ADD(TestConfigStateCopy);
 TEST_ADD(TestConfigStateJSON);
 TEST_ADD(TestEndpointValidity);
 TEST_ADD(TestFileSystemDiskSpace);

@@ -5,7 +5,7 @@ using System.Text;
 using System.Collections.Specialized;
 using System.Text.RegularExpressions;
 
-namespace ScalienClientUtils
+namespace Scalien
 {
     /// <summary>
     /// Arguments class

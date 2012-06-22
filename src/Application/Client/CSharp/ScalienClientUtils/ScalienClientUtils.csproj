@@ -41,6 +41,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Arguments.cs" />
     <Compile Include="ConfigFile.cs" />
     <Compile Include="ConfigState.cs" />
     <Compile Include="ConfigStateHelpers.cs" />

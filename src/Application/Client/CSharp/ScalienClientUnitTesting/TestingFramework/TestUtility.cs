@@ -74,10 +74,12 @@ namespace ScalienClientUnitTesting
 
         static void Main(string[] args)
         {
+            Scalien.Arguments arguments = new Scalien.Arguments(args);
+
             var tests = new List<string>();
-            if (args.Length > 0)
+            if (arguments["f"] != null)
             {
-                var filename = args[0];
+                var filename = arguments["f"];
                 using (var file = new System.IO.StreamReader(filename))
                 {
                     string line;
@@ -89,8 +91,20 @@ namespace ScalienClientUnitTesting
                     }
                 }
             }
+            
+            if (arguments["t"] != null)
+            {
+                var test = arguments["t"];
+                tests.Add(test);
+            }
 
-            new TestUtility().RunTests(tests);
+            int numRuns = 1;
+            if (arguments["n"] != null)
+            {
+                numRuns = Int32.Parse(arguments["n"]);
+            }
+
+            new TestUtility().RunTests(tests, numRuns);
         }
 
         public void WriteLine(string msg)
@@ -100,7 +114,46 @@ namespace ScalienClientUnitTesting
             sw.Flush();
         }
 
-        public void RunTests(List<string> tests)
+        public List<TestClass> GetOrderedTestClasses(List<TestClass> testClasses)
+        {
+            // Ordering tests by dependencies
+            var orderedTestClasses = new List<TestClass>();
+            foreach (var testClass in testClasses)
+            {
+                testClass.instance = Activator.CreateInstance(testClass.type);
+                orderedTestClasses.Add(testClass);
+            }
+            return orderedTestClasses;
+        }
+
+        public List<TestClass> LoadTestClassesByTypeNames(List<string> tests, Type[] types)
+        {
+            var testClasses = new List<TestClass>();
+
+            // Finding tests
+            foreach (Type cls in types)
+            {
+                if (cls.GetCustomAttributes(typeof(TestClassAttribute), false).GetLength(0) > 0)
+                {
+                    var query = from test in tests where test.StartsWith(cls.Name + ".") select test;
+                    if (!query.Any())
+                        continue;
+
+                    WriteLine("\n -- Loading unit tests from " + cls.Name + " -- \n");
+                    var testClass = new TestClass();
+                    testClass.type = cls;
+                    //testClass.instance = Activator.CreateInstance(cls);
+                    if (cls.Name.ToString() == "FileTableTest")
+                        testClasses.Add(testClass);
+                    else
+                        testClasses.Insert(0, testClass);
+                }
+            }
+
+            return testClasses;
+        }
+
+        public void RunTests(List<string> tests, int numRuns)
         {
             try
             {
@@ -110,45 +163,14 @@ namespace ScalienClientUnitTesting
                 fs = new FileStream("out.txt", FileMode.Create);
                 sw = new StreamWriter(fs);
 
-                Assembly assem = Assembly.GetEntryAssembly();
+                Type[] types = Assembly.GetEntryAssembly().GetTypes();
 
-                Type[] types = assem.GetTypes();
-
-                var testClasses = new List<TestClass>();
                 var failedTests = new List<string>();
-
-                // Finding tests
-                foreach (Type cls in types)
-                {
-                    if (cls.GetCustomAttributes(typeof(TestClassAttribute), false).GetLength(0) > 0)
-                    {
-                        var query = from test in tests where test.StartsWith(cls.Name + ".") select test;
-                        if (!query.Any())
-                            continue;
-
-                        WriteLine("\n -- Loading unit tests from TestClass: " + cls.Name + " -- \n");
-                        var testClass = new TestClass();
-                        testClass.type = cls;
-                        //testClass.instance = Activator.CreateInstance(cls);
-                        if (cls.Name.ToString() == "FileTableTest")
-                            testClasses.Add(testClass);
-                        else
-                            testClasses.Insert(0, testClass);
-                    }
-                }
-
-                // Ordering tests by dependencies
-                var orderedTestClasses = new List<TestClass>();
-                foreach (var testClass in testClasses)
-                {
-                    testClass.instance = Activator.CreateInstance(testClass.type);
-                    orderedTestClasses.Add(testClass);
-                }
-                testClasses = orderedTestClasses;
+                var testClasses = GetOrderedTestClasses(LoadTestClassesByTypeNames(tests, types));
 
                 foreach (var testClass in testClasses)
                 {
-                    WriteLine("\n -- Running unit tests from TestClass: " + testClass.type.Name.ToString() + " -- \n");
+                    WriteLine("\n -- Running unit tests from  " + testClass.type.Name.ToString() + " -- \n");
 
                     MemberInfo[] methods = testClass.type.GetMethods();
                     foreach (MemberInfo method in methods)
@@ -156,30 +178,38 @@ namespace ScalienClientUnitTesting
                         if (method.GetCustomAttributes(typeof(TestMethodAttribute), false).GetLength(0) > 0)
                         {
                             var testName = testClass.type.Name + "." + method.Name;
-                            var query = from test in tests where test.Length <= testName.Length && test.StartsWith(testName) select test;
+                            var query = from test in tests where test.Length <= testName.Length && testName.StartsWith(test) select test;
                             if (!query.Any())
                                 continue;
 
-                            numTests += 1;
-                            // call test method
-                            WriteLine("  |\n  |\n  |->  Running unit test: " + testClass.type.Name.ToString() + " :: " + method.Name.ToString());
-
-                            try
+                            for (int i = 0; i < numRuns; i++)
                             {
-                                testClass.type.InvokeMember(method.Name.ToString(), BindingFlags.InvokeMethod | BindingFlags.Instance | BindingFlags.Public, null, testClass.instance, null);
+                                numTests += 1;
+                                WriteLine("  |\n  |\n  |->  Running unit test[" + i + "]: " + testClass.type.Name.ToString() + "." + method.Name.ToString());
 
-                                WriteLine("  |\n  |->  Test finished ok!");
-                                numSucceeded += 1;
-                            }
-                            catch (TargetInvocationException exception)
-                            {
-                                if (exception.InnerException is UnitTestException)
-                                    WriteLine("  |\n  |->  Test failed: " + ((UnitTestException)exception.InnerException).GetMessage());
-                                else
-                                    WriteLine("  |\n  |->  Test failed: " + exception.GetBaseException().ToString());
+                                try
+                                {
+                                    // call test method
+                                    testClass.type.InvokeMember(method.Name.ToString(), BindingFlags.InvokeMethod | BindingFlags.Instance | BindingFlags.Public, null, testClass.instance, null);
 
-                                var name = testClass.type.Name.ToString() + "." + method.Name.ToString();
-                                failedTests.Add(name);
+                                    WriteLine("  |\n  |->  Test finished ok!");
+                                    numSucceeded += 1;
+                                }
+                                catch (TargetInvocationException exception)
+                                {
+                                    if (exception.InnerException is UnitTestException)
+                                        WriteLine("  |\n  |->  Test failed: " + ((UnitTestException)exception.InnerException).GetMessage());
+                                    else
+                                    {
+                                        WriteLine("  |\n  |->  Test failed: " + exception.GetBaseException().ToString());
+                                        //throw exception;
+                                    }
+
+                                    var name = testClass.type.Name.ToString() + "." + method.Name.ToString();
+                                    failedTests.Add(name);
+                                    if (numRuns > 0)
+                                        break;
+                                }
                             }
                         }
                         if (method.GetCustomAttributes(typeof(ExpectedExceptionAttribute), false).GetLength(0) > 0)

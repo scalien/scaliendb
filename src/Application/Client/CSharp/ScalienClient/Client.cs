@@ -240,7 +240,14 @@ namespace Scalien
         private SDBPException CreateException(Result result, int status, string msg)
         {
             SDBPException exception = new SDBPException(status, msg);
+            
+            UpdateException(exception, result);
 
+            return exception;
+        }
+
+        private void UpdateException(SDBPException exception, Result result)
+        {
             if (result != null && result.GetCommandStatus() != Status.SDBP_API_ERROR)
             {
                 exception.tableID = result.GetTableID();
@@ -248,8 +255,6 @@ namespace Scalien
                 exception.nodeID = result.GetNodeID();
                 exception.paxosID = result.GetPaxosID();
             }
-
-            return exception;
         }
 
         internal void CheckConnectivityStatus(Result result, int status)
@@ -959,6 +964,12 @@ namespace Scalien
             result = new Result(scaliendb_client.SDBP_GetResult(cptr));
             if (status < 0)
             {
+                if (status == Status.SDBP_FAILED)
+                {
+                    TransactionException exception = new TransactionException(status, "Lock timeout");
+                    UpdateException(exception, result);
+                    throw exception;
+                }
                 CheckStatus(result, status);
             }
             result.Close();
@@ -973,7 +984,16 @@ namespace Scalien
         {
             int status = scaliendb_client.SDBP_CommitTransaction(cptr);
             result = new Result(scaliendb_client.SDBP_GetResult(cptr));
-            CheckStatus(result, status);
+            if (status < 0)
+            {
+                if (status == Status.SDBP_FAILED)
+                {
+                    TransactionException exception = new TransactionException(status, "Lock expired");
+                    UpdateException(exception, result);
+                    throw exception;
+                }
+                CheckStatus(result, status);
+            }
         }
 
         /// <summary>
