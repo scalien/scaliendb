@@ -219,7 +219,7 @@ bool ConfigState::CompleteMessage(ConfigMessage& message)
         
         default:
             ASSERT_FAIL();
-			return false;
+            return false;
     }
 }
 
@@ -1421,7 +1421,8 @@ void ConfigState::OnTruncateTableComplete(ConfigMessage& message)
     table = GetTable(message.tableID);
     // make sure table exists
     ASSERT(table != NULL);
-    ASSERT(table->shards.GetLength() == 1);
+    // commented out due to a fix in Truncate
+    //ASSERT(table->shards.GetLength() == 1);
     
     shard = GetShard(*(table->shards.First()));
     ASSERT(shard->state == CONFIG_SHARD_STATE_TRUNC_CREATING);
