@@ -92,10 +92,11 @@ public:
     bool            IsLocked(ReadBuffer key);
     void            Unlock(ReadBuffer key);
     void            UnlockAll();
-    
+
+    void            OnExpireLocks();
+
 private:
     void            OnRemoveCachedLocks();
-    void            OnExpireLocks();
     void            Unlock(ShardLock* lock);
     ShardLock*      NewLock();
     void            DeleteLock(ShardLock* lock);

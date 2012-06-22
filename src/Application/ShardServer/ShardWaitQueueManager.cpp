@@ -1,6 +1,7 @@
 #include "ShardWaitQueueManager.h"
 #include "System/Events/EventLoop.h"
 #include "Application/Common/ClientRequest.h"
+#include "Application/ShardServer/ShardServer.h"
 
 static inline int KeyCmp(const Buffer& a, const Buffer& b)
 {
@@ -77,10 +78,11 @@ ShardWaitQueueManager::ShardWaitQueueManager()
     maxPoolCount = WAITQUEUE_POOL_COUNT;
 }
 
-void ShardWaitQueueManager::Init()
+void ShardWaitQueueManager::Init(ShardServer* shardServer_)
 {
     EventLoop::Add(&removeCachedWaitQueues);
     EventLoop::Add(&expireRequests);
+    shardServer = shardServer_;
 }
 
 void ShardWaitQueueManager::Shutdown()
@@ -284,6 +286,8 @@ void ShardWaitQueueManager::OnExpireRequests()
     ShardWaitQueue*     waitQueue;
     ShardWaitQueueNode* waitQueueNode;
     ClientRequest*      request;
+
+    shardServer->GetLockManager()->OnExpireLocks();
 
     now = EventLoop::Now();
     

@@ -14,6 +14,7 @@
 
 class ClientRequest;
 class ShardWaitQueue;
+class ShardServer;
 
 /*
 ===============================================================================================
@@ -91,7 +92,7 @@ class ShardWaitQueueManager
 public:
     ShardWaitQueueManager();
 
-    void                Init();
+    void                Init(ShardServer* shardServer);
     void                Shutdown();
 
     // internal data structures stats
@@ -141,6 +142,7 @@ private:
     QueuePoolList       queuePoolList;
     NodeExpiryList      nodeExpiryList;
     NodePoolList        nodePoolList;
+    ShardServer*        shardServer;
 };
 
 #endif
