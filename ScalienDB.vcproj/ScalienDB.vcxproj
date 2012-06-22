@@ -367,7 +367,6 @@
     <ClInclude Include="..\src\System\Containers\InQueue.h" />
     <ClInclude Include="..\src\System\Containers\InSortedList.h" />
     <ClInclude Include="..\src\System\Containers\InTreeMap.h" />
-    <ClInclude Include="..\src\System\Containers\InTreeMap2.h" />
     <ClInclude Include="..\src\System\Containers\List.h" />
     <ClInclude Include="..\src\System\Containers\SortedList.h" />
     <ClInclude Include="..\src\System\Events\Callable.h" />
