@@ -129,6 +129,7 @@ namespace ScalienClientUnitTesting
 
         }
 
+        static int testLockFailureException_counter;
         [TestMethod]
         public void TestLockFailureException()
         {
@@ -147,7 +148,10 @@ namespace ScalienClientUnitTesting
             var database3 = client3.GetDatabase(databaseName);
             var table3 = database3.GetTable(tableName);
 
-            byte[] majorKey = Utils.StringToByteArray("TestLockFailureException");
+            //Client.SetTrace(true);
+
+            testLockFailureException_counter += 1;
+            byte[] majorKey = Utils.StringToByteArray("TestLockFailureException" + testLockFailureException_counter);
 
             client1.StartTransaction(quorum1, majorKey);
 
