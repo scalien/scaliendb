@@ -25,7 +25,7 @@ namespace Scalien
         private ulong quorumID;
         private string name;
 
-        internal ulong QuorumID
+        public ulong QuorumID
         {
             get
             {

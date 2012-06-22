@@ -989,6 +989,24 @@ namespace Scalien
             {
                 if (status == Status.SDBP_FAILED)
                 {
+                    // If the nodeID of the StartTransaction differs from the nodeID of the CommitTransaction
+                    // then there was a primary failover
+                    result.Begin();
+                    UInt64? startNodeID = result.GetNodeID();
+                    UInt64? commitNodeID = null;
+                    while (!result.IsEnd())
+                    {
+                        commitNodeID = result.GetNodeID();
+                        result.Next();
+                    }
+                    
+                    if (startNodeID != commitNodeID)
+                    {
+                        // Primary failover happened
+                    }
+
+                    result.Begin();
+
                     TransactionException exception = new LockExpiryException(status);
                     UpdateException(exception, result);
                     throw exception;

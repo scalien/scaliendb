@@ -26,6 +26,46 @@ namespace Scalien
 
         public class HTTP
         {
+            public class QueryBuilder
+            {
+                private string query;
+                private bool first;
+
+                public QueryBuilder(string path)
+                {
+                    query = path;
+                    first = true;
+                }
+
+                public QueryBuilder Add(string name, string value = null)
+                {
+                    if (first)
+                    {
+                        query += "?";
+                        first = false;
+                    }
+                    else
+                    {
+                        query += "&";
+                    }
+
+                    query += Utils.HTTP.RequestUriString(Utils.StringToByteArray(name));
+                    if (value != null)
+                        query += "=" + Utils.HTTP.RequestUriString(Utils.StringToByteArray(value));
+
+                    return this;
+                }
+
+                public string Query
+                {
+                    get
+                    {
+                        return query;
+                    }
+                }
+            }
+
+
             public static string BuildUri(params object[] args)
             {
                 string uri = "";
@@ -79,7 +119,7 @@ namespace Scalien
                 }
                 catch (Exception e)
                 {
-                    return e.Message;
+                    return null;
                 }
             }
 

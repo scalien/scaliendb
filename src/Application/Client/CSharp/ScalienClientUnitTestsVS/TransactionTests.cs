@@ -22,7 +22,9 @@ namespace ScalienClientUnitTesting
         public static string quorumName = "Storage";
         public static string databaseName = "test_db";
         public static string tableName = "test_table";
-        public static int lockTimeout = 3 * 1000;
+        public static int lockTimeout = 10 * 1000;
+        public static string debugKey = "N0226tpF27HnXqP";
+        public static int sleepInterval = 10;
 
         public TransactionTests()
         {
@@ -148,8 +150,8 @@ namespace ScalienClientUnitTesting
             var database3 = client3.GetDatabase(databaseName);
             var table3 = database3.GetTable(tableName);
 
-            testLockFailureException_counter += 1;
-            byte[] majorKey = Utils.StringToByteArray("TestLockFailureException" + testLockFailureException_counter);
+            var counter = Interlocked.Increment(ref testLockFailureException_counter);
+            byte[] majorKey = Utils.StringToByteArray("TestLockFailureException" + counter);
 
             client1.StartTransaction(quorum1, majorKey);
 
@@ -171,5 +173,36 @@ namespace ScalienClientUnitTesting
             Assert.IsTrue(numExceptions == 1);
         }
 
+        static int testPrimaryFailoverWhileLockHeld_counter;
+        [TestMethod]
+        public void TestPrimaryFailoverWhileLockHeld()
+        {
+            var client = Utils.GetClient();
+            var quorum = client.GetQuorum(quorumName);
+            var database = client.GetDatabase(databaseName);
+            var table = database.GetTable(tableName);
+
+            var counter = Interlocked.Increment(ref testLockFailureException_counter);
+            byte[] majorKey = Utils.StringToByteArray("TestPrimaryFailoverWhileLockHeld" + counter);
+
+            client.StartTransaction(quorum, majorKey);
+
+            // make primary sleep and lose lease
+            var query = ClusterHelpers.SleepAction(debugKey, sleepInterval);
+            ClusterHelpers.PrimaryShardServerHTTPAction(client, quorum, query);
+
+            table.Set("x", "x");
+
+            try
+            {
+                client.CommitTransaction();
+            }
+            catch (TransactionException e)
+            {
+                return;
+            }
+
+            Assert.Fail("Missed exception due to primary failover");
+        }
     }
 }

@@ -42,6 +42,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Arguments.cs" />
+    <Compile Include="ClusterHelpers.cs" />
     <Compile Include="ConfigFile.cs" />
     <Compile Include="ConfigState.cs" />
     <Compile Include="ConfigStateHelpers.cs" />
