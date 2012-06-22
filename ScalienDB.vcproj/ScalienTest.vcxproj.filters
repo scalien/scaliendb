@@ -597,6 +597,12 @@
     <ClCompile Include="..\src\System\Registry.cpp">
       <Filter>System</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\Test\SafeFormattingTest.cpp">
+      <Filter>Test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\System\SafeFormatting.cpp">
+      <Filter>System</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\Application\Client\SDBPClient.h">
@@ -1156,6 +1162,9 @@
       <Filter>Application\ShardServer</Filter>
     </ClInclude>
     <ClInclude Include="..\src\System\Registry.h">
+      <Filter>System</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\System\SafeFormatting.h">
       <Filter>System</Filter>
     </ClInclude>
   </ItemGroup>

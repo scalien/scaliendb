@@ -282,6 +282,7 @@
     <ClCompile Include="..\src\System\Formatting.cpp" />
     <ClCompile Include="..\src\System\Log.cpp" />
     <ClCompile Include="..\src\System\Registry.cpp" />
+    <ClCompile Include="..\src\System\SafeFormatting.cpp" />
     <ClCompile Include="..\src\System\Stopwatch.cpp" />
     <ClCompile Include="..\src\System\Threading\Signal_Posix.cpp" />
     <ClCompile Include="..\src\System\Threading\Signal_Windows.cpp" />
@@ -316,6 +317,7 @@
     <ClCompile Include="..\src\Test\LogTest.cpp" />
     <ClCompile Include="..\src\Test\ManualTest.cpp" />
     <ClCompile Include="..\src\Test\MemoryTest.cpp" />
+    <ClCompile Include="..\src\Test\SafeFormattingTest.cpp" />
     <ClCompile Include="..\src\Test\ShardExtensionTest.cpp" />
     <ClCompile Include="..\src\Test\StorageTest.cpp" />
     <ClCompile Include="..\src\Test\Test.cpp" />
@@ -477,6 +479,7 @@
     <ClInclude Include="..\src\System\Platform.h" />
     <ClInclude Include="..\src\System\PointerGuard.h" />
     <ClInclude Include="..\src\System\Registry.h" />
+    <ClInclude Include="..\src\System\SafeFormatting.h" />
     <ClInclude Include="..\src\System\Stopwatch.h" />
     <ClInclude Include="..\src\System\Threading\Atomic.h" />
     <ClInclude Include="..\src\System\Threading\LockGuard.h" />

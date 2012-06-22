@@ -6,6 +6,14 @@
 class Buffer;
 class ReadBuffer;
 
+/*
+===============================================================================================
+
+ TypedArg is a helper class for providing typed arguments for formatting
+
+===============================================================================================
+*/
+
 class TypedArg
 {
 public:
@@ -25,35 +33,31 @@ public:
     
     Type    type;
     void*   pointer;
-
-    void    Set(char c);
-    void    Set(char* s);
-    void    Set(const char* s);
-    void    Set(int32_t i);
-    void    Set(uint32_t u);
-    void    Set(int64_t i);
-    void    Set(uint64_t u);    
-    void    Set(float f);
-    void    Set(double d);
-    void    Set(const Buffer& buffer);
-    void    Set(const ReadBuffer& readBuffer);
 };
+
+/*
+===============================================================================================
+
+ FormatStack is a helper class for providing a stack of arguments
+
+===============================================================================================
+*/
 
 class FormatStack
 {
 public:
     FormatStack(TypedArg* args_, size_t numArgs_) : args(args_), numArgs(numArgs_) {}
 
-    void     Add(size_t pos, const char& c);
-    void     Add(size_t pos, const char* s);
-    void     Add(size_t pos, const int32_t& i);
-    void     Add(size_t pos, const uint32_t& u);
-    void     Add(size_t pos, const int64_t& i);
-    void     Add(size_t pos, const uint64_t& u);
-    void     Add(size_t pos, const float& f);
-    void     Add(size_t pos, const double& d);
-    void     Add(size_t pos, const Buffer& buffer);
-    void     Add(size_t pos, const ReadBuffer& readBuffer);
+    void        Add(size_t pos, const char& c);
+    void        Add(size_t pos, const char* s);
+    void        Add(size_t pos, const int32_t& i);
+    void        Add(size_t pos, const uint32_t& u);
+    void        Add(size_t pos, const int64_t& i);
+    void        Add(size_t pos, const uint64_t& u);
+    void        Add(size_t pos, const float& f);
+    void        Add(size_t pos, const double& d);
+    void        Add(size_t pos, const Buffer& buffer);
+    void        Add(size_t pos, const ReadBuffer& readBuffer);
     
     TypedArg*   args;
     size_t      numArgs;
