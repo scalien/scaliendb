@@ -55,6 +55,7 @@ public:
 
     static bool Complete(Callable* callable);
     static void Call(Callable& callable);
+    static void SetCallbackThreshold(unsigned callbackThreshold);
 
     static void BlockSignals(int blockMode);
 

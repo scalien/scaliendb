@@ -225,7 +225,7 @@ bool IOProcessorUnregisterSocket(FD& fd)
 
 BOOL WINAPI ConsoleCtrlHandler(DWORD /*ctrlType*/)
 {
-    Callable    emptyCallable;
+    static Callable     emptyCallable;
 
     if (terminated)
     {
@@ -796,6 +796,11 @@ void IOProcessor::Call(Callable& callable)
         Log_Debug("IOProcessor callback elapsed time: %U", elapsed);
         iostat.numLongCallbacks++;
     }
+}
+
+void IOProcessor::SetCallbackThreshold(unsigned callbackThreshold_)
+{
+    longCallbackThreshold = callbackThreshold_;
 }
 
 void ProcessCompletionCallbacks()
