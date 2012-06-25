@@ -83,7 +83,6 @@ int gettimeofday(struct timeval *tv, void*)
     // handle overflow
     if (winMsec < prevMsec)
     {
-        Log_Trace("overflow");
         elapsedTime = (uint64_t)(0x100000000LL - prevMsec) + winMsec;
     }
     else
