@@ -335,6 +335,7 @@
     <ClCompile Include="..\src\Framework\Storage\StorageUnwrittenChunkLister.cpp" />
     <ClCompile Include="..\src\Framework\Storage\StorageWriteChunkJob.cpp" />
     <ClCompile Include="..\src\Main.cpp" />
+    <ClCompile Include="..\src\System\Watchdog.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\Application\ShardServer\ShardLockManager.h" />
@@ -515,6 +516,7 @@
     <ClInclude Include="..\src\Framework\Storage\StorageShardProxy.h" />
     <ClInclude Include="..\src\Framework\Storage\StorageUnwrittenChunkLister.h" />
     <ClInclude Include="..\src\Framework\Storage\StorageWriteChunkJob.h" />
+    <ClInclude Include="..\src\System\Watchdog.h" />
     <ClInclude Include="..\src\Version.h" />
     <ClInclude Include="ScalienDB.resource.h" />
   </ItemGroup>
