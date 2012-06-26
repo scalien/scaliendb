@@ -1024,13 +1024,16 @@ void ShardQuorumProcessor::TryAppend()
     inTransaction = false;
     FOREACH (message, shardMessages)
     {
-        if (message->configPaxosID > CONFIG_STATE->paxosID)
+        if (!inTransaction && message->configPaxosID > CONFIG_STATE->paxosID)
             break;
 
         // make sure split shard messages are replicated by themselves
         if (numMessages != 0 && message->type == SHARDMESSAGE_SPLIT_SHARD)
+        {
+            ASSERT(!inTransaction);
             break;
-        
+        }
+
         message->Append(nextValue);
         nextValue.Appendf(" ");
         numMessages++;
