@@ -721,13 +721,11 @@ struct PerformanceCounterQuery
 static DWORD WINAPI PerformancePollThread(LPVOID)
 {
     unsigned                i;
-    unsigned                numCounters;
     PDH_STATUS              status;
     PDH_FMT_COUNTERVALUE    counterValue;
     PerformanceCounterQuery pcq[3];
 
     // Initialize counters
-    numCounters = SIZE(pcq);
     memset(pcq, 0, sizeof(pcq));
 
     pcq[0].path = "\\Processor(_Total)\\% Processor Time";
@@ -952,12 +950,12 @@ uint32_t FromLittle16(uint32_t num)
 
 uint32_t NextPowerOfTwo(uint32_t x)
 {
-	x--;
-	x |= x >> 1;
-	x |= x >> 2;
-	x |= x >> 4;
-	x |= x >> 8;
-	x |= x >> 16;
-	x++;
-	return x;
+    x--;
+    x |= x >> 1;
+    x |= x >> 2;
+    x |= x >> 4;
+    x |= x >> 8;
+    x |= x >> 16;
+    x++;
+    return x;
 }
