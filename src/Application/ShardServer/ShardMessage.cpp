@@ -2,6 +2,7 @@
 
 ShardMessage::ShardMessage()
 {
+    type = SHARDMESSAGE_UNDEFINED;
     prev = next = this;
     clientRequest = NULL;
     configPaxosID = 0;
