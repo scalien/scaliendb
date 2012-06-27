@@ -1582,7 +1582,6 @@ void StorageEnvironment::OnChunkSerialize(StorageSerializeChunkJob* job)
 {
     Buffer              tmp;
     StorageFileChunk*   fileChunk;
-    StorageShard*       shard;
 
     if (!job->memoChunk->deleted)
     {
@@ -1590,8 +1589,6 @@ void StorageEnvironment::OnChunkSerialize(StorageSerializeChunkJob* job)
         ASSERT(fileChunk);
         OnChunkSerialized(job->memoChunk, fileChunk);
         fileChunks.Append(fileChunk);
-
-        shard = GetFirstShard(fileChunk);
     }
 
     deleteChunkJobs.Execute(new StorageDeleteMemoChunkJob(job->memoChunk));
@@ -1795,8 +1792,10 @@ void StorageEnvironment::OnChunkSerialized(StorageMemoChunk* memoChunk, StorageF
     pChunk = (StorageChunk*) memoChunk;
     
     FOREACH (itShard, shards)
+    {
         if (itShard->GetChunks().Contains(pChunk))
             itShard->OnChunkSerialized(memoChunk, fileChunk);
+    }
 }
 
 unsigned StorageEnvironment::GetNumShards(StorageChunk* chunk)
