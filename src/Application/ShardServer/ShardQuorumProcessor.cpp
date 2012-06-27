@@ -265,8 +265,10 @@ void ShardQuorumProcessor::OnReceiveLease(uint64_t nodeID, ClusterMessage& messa
     }
 
     FOREACH (itLease, leaseRequests)
+    {
         if (itLease->proposalID == message.proposalID)
             break;
+    }
 
     if (!itLease)
     {
