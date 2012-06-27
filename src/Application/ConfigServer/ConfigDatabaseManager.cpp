@@ -115,11 +115,8 @@ bool ConfigDatabaseManager::ShardExists(uint64_t tableID, ReadBuffer firstKey)
 
 void ConfigDatabaseManager::Read()
 {
-    bool                ret;
     ReadBuffer          value;
     int                 read;
-    
-    ret =  true;
     
     if (!systemConfigShard.Get(ReadBuffer("state"), value))
     {
