@@ -19,6 +19,9 @@
 UrlParam::UrlParam()
 {
     numParams = 0;
+    url = NULL;
+    len = 0;
+    sep = 0;
 }
 
 bool UrlParam::Init(const char* url_, int len_, char sep_)
