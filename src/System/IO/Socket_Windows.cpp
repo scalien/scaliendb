@@ -302,7 +302,7 @@ unsigned long iftonl(const char* interface_)
     len = strlen(interface_);
     
     a = BufferToUInt64(interface_ + pos, len - pos, &nread);
-    if (nread < 0 || a > 255)
+    if (nread == 0 || a > 255)
         return INADDR_NONE;
     
     pos += nread;
@@ -310,7 +310,7 @@ unsigned long iftonl(const char* interface_)
         return INADDR_NONE;
     
     b = BufferToUInt64(interface_ + pos, len - pos, &nread);
-    if (nread < 0 || b > 255)
+    if (nread == 0 || b > 255)
         return INADDR_NONE;
     
     pos += nread;
@@ -318,7 +318,7 @@ unsigned long iftonl(const char* interface_)
         return INADDR_NONE;
 
     c = BufferToUInt64(interface_ + pos, len - pos, &nread);
-    if (nread < 0 || c > 255)
+    if (nread == 0 || c > 255)
         return INADDR_NONE;
     
     pos += nread;
@@ -326,7 +326,7 @@ unsigned long iftonl(const char* interface_)
         return INADDR_NONE;
 
     d = BufferToUInt64(interface_ + pos, len - pos, &nread);
-    if (nread < 0 || d > 255)
+    if (nread == 0 || d > 255)
         return INADDR_NONE;
     
     pos += nread;
