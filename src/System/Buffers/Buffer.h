@@ -42,7 +42,7 @@ public:
     void                Write(const char* buffer, unsigned length);
     void                Write(const char* str);
     void                Write(const Buffer& other);
-    void                Write(const ReadBuffer other);
+    void                Write(const ReadBuffer& other);
     void                Write(char c, unsigned num);
 
     void                Append(char c);
