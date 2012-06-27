@@ -1001,7 +1001,6 @@ void ShardQuorumProcessor::TryAppend()
     bool            inTransaction;
     unsigned        numMessages;
     ShardMessage*   message;
-    ShardMessage*   prevMessage;
     
     if (shardMessages.GetLength() == 0 || quorumContext.IsAppending())
         return;
@@ -1022,7 +1021,6 @@ void ShardQuorumProcessor::TryAppend()
     
     numMessages = 0;
     Buffer& nextValue = quorumContext.GetNextValue();
-    prevMessage = NULL;
     inTransaction = false;
     FOREACH (message, shardMessages)
     {
@@ -1054,8 +1052,6 @@ void ShardQuorumProcessor::TryAppend()
              SHARD_MIGRATION_WRITER->GetShardID() == message->clientRequest->shardID)
                 break;
         }
-
-        prevMessage = message;
     }
     ASSERT(!inTransaction);
 
