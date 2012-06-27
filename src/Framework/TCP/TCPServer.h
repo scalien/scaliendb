@@ -42,7 +42,7 @@ public:
 
 protected:
     void                    OnConnect();
-	void					OnClose();
+    void					OnClose();
     Conn*                   GetConn();
     void                    InitConn(Conn* conn);
     bool                    IsManaged();
@@ -76,7 +76,7 @@ TCPServer<T, Conn>::~TCPServer()
             delete conn;
     }
 
-	IOProcessor::Remove(&tcpread);
+    IOProcessor::Remove(&tcpread);
 }
 
 template<class T, class Conn>
@@ -98,7 +98,7 @@ bool TCPServer<T, Conn>::Init(int port_, bool listen, int backlog_)
         return false;
 
     tcpread.Listen(listener.fd, MFUNC(TCPServer, OnConnect));
-	tcpread.onClose = MFUNC(TCPServer, OnClose);
+    tcpread.onClose = MFUNC(TCPServer, OnClose);
     tcpread.priority = true;
 
     if (listen)
@@ -209,7 +209,7 @@ void TCPServer<T, Conn>::OnConnect()
 template<class T, class Conn>
 void TCPServer<T, Conn>::OnClose()
 {
-	// there was an error while accepting the socket and it was closed
+    // there was an error while accepting the socket and it was closed
     IOProcessor::Add(&tcpread);
 }
 
