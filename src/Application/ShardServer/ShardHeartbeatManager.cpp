@@ -15,6 +15,8 @@ ShardHeartbeatManager::ShardHeartbeatManager()
 
     activationTimeout.SetCallable(MFUNC(ShardHeartbeatManager, OnActivationTimeout));
     activationTimeout.SetDelay(ACTIVATION_TIMEOUT);
+
+    shardServer = NULL;
 }
 
 void ShardHeartbeatManager::Init(ShardServer* shardServer_)
