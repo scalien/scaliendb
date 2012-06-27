@@ -2,6 +2,8 @@
 
 Watchdog::Watchdog()
 {
+    timeout = 0;
+    flag = false;
     thread = NULL;
     running = false;
 }
