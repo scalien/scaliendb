@@ -694,10 +694,10 @@ void Log(const char* file, int line, const char* func, int type, const char* fmt
     int         size;
 
     // In debug mode enable ERRNO type messages
-    if ((type == LOG_TYPE_TRACE || type == LOG_TYPE_ERRNO) && !trace && traceBuffer == NULL)
+    if (type == LOG_TYPE_TRACE && !trace && traceBuffer == NULL)
         return;
 
-    if ((type == LOG_TYPE_DEBUG) && !debug && traceBuffer == NULL)
+    if ((type == LOG_TYPE_DEBUG || type == LOG_TYPE_ERRNO) && !debug && traceBuffer == NULL)
         return;
 
     buf[maxLine - 1] = 0;
