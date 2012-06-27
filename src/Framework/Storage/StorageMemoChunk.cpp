@@ -162,48 +162,40 @@ void StorageMemoChunk::AsyncGet(StorageAsyncGet* asyncGet)
 
 bool StorageMemoChunk::Set(ReadBuffer key, ReadBuffer value)
 {
-    int                     cmpres;
-    StorageMemoKeyValue*    it;
+    StorageMemoKeyValue* kv;
     
     ASSERT(key.GetLength() > 0);
 
-    if (keyValues.GetCount() != 0)
+    kv = keyValues.Get(key);
+    if (kv)
     {
-        it = keyValues.Locate<const ReadBuffer&>(key, cmpres);
-        if (cmpres == 0)
-        {
-            it->Set(key, value, this);
-            return true;
-        }
-    }   
+        kv->Set(key, value, this);
+        return true;
+    }
 
-    it = NewStorageMemoKeyValue();
-    it->Set(key, value, this);
-    keyValues.Insert<const ReadBuffer>(it);
+    kv = NewStorageMemoKeyValue();
+    kv->Set(key, value, this);
+    keyValues.Insert<const ReadBuffer>(kv);
     
     return true;
 }
 
 bool StorageMemoChunk::Delete(ReadBuffer key)
 {
-    int                     cmpres;
-    StorageMemoKeyValue*    it;
+    StorageMemoKeyValue* kv;
 
     ASSERT(key.GetLength() > 0);
     
-    if (keyValues.GetCount() != 0)
+    kv = keyValues.Get(key);
+    if (kv)
     {
-        it = keyValues.Locate<const ReadBuffer&>(key, cmpres);
-        if (cmpres == 0)
-        {
-            it->Delete(key, this);
-            return true;
-        }
-    }   
+        kv->Delete(key, this);
+        return true;
+    }
 
-    it = NewStorageMemoKeyValue();
-    it->Delete(key, this);
-    keyValues.Insert<const ReadBuffer>(it);
+    kv = NewStorageMemoKeyValue();
+    kv->Delete(key, this);
+    keyValues.Insert<const ReadBuffer>(kv);
     
     return true;
 }
