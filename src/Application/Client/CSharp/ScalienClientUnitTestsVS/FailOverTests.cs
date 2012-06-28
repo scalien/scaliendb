@@ -439,7 +439,7 @@ namespace ScalienClientUnitTesting
         [TestMethod]
         public void TestRandomSleepShardServer()
         {
-            var client = new Client(Utils.GetConfigNodes());
+            var client = Utils.GetClient();
             var sleepInterval = 4;
 
             Random random = new Random();
@@ -447,11 +447,9 @@ namespace ScalienClientUnitTesting
             while (true)
             {
                 var configState = Utils.GetFullConfigState(client);
-                var shardServers = configState.shardServers;
-                var quorum = configState.quorums[0];
-                var numShardServers = shardServers.Count;
+                var quorum = configState == null ? null : configState.quorums[0];
 
-                if (quorum.inactiveNodes.Count > 0)
+                if (configState == null || quorum.inactiveNodes.Count > 0)
                 {
                     var sleepTime = random.Next(sleepInterval * 2, sleepInterval * 2 + random.Next(sleepInterval * 2));
                     Console.WriteLine("Inactive found, sleeping {0}...", sleepTime);
@@ -459,6 +457,7 @@ namespace ScalienClientUnitTesting
                     continue;
                 }
 
+                var shardServers = configState.shardServers;
                 var victimNodeID = quorum.activeNodes[random.Next(quorum.activeNodes.Count)];
                 foreach (var shardServer in shardServers)
                 {
