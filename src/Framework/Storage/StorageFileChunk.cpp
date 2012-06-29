@@ -778,22 +778,34 @@ bool StorageFileChunk::ReadPage(uint64_t offset, Buffer& buffer, bool keysOnly)
     size = STORAGE_DEFAULT_PAGE_GRAN;
     buffer.Allocate(size);
     if ((nread = FS_FileReadOffs(fd, buffer.GetBuffer(), size, offset)) != (ssize_t) size)
+    {
+        Log_Message("ReadPage failing, size = %u, offset = %U, nread = %I", size, offset, (int64_t)nread);
         return false;
+    }
     if (nread < 4)
+    {
+        Log_Message("ReadPage failing, nread = %I", (int64_t)nread);
         return false;
-        
+    }
+
     buffer.SetLength(nread);
     // first 4 bytes on all pages is the page size
     parse.Wrap(buffer);
     if (!parse.ReadLittle32(size))
+    {
+        Log_Message("ReadPage failing, size = %u", size);
         return false;
+    }
 
     if (keysOnly)
     {
         // read only keys
         parse.Advance(8);
         if (!parse.ReadLittle32(keysSize))
+        {
+            Log_Message("ReadPage failing, keysSize = %u", keysSize);
             return false;
+        }
         size = 16 + keysSize;
     }
     
@@ -809,7 +821,10 @@ bool StorageFileChunk::ReadPage(uint64_t offset, Buffer& buffer, bool keysOnly)
         // read rest
         buffer.Allocate(size);
         if (FS_FileReadOffs(fd, buffer.GetPosition(), rest, offset + buffer.GetLength()) != (ssize_t) rest)
+        {
+            Log_Message("ReadPage failing, rest = %u, offset = %U, buffer.GetLength() = %u", rest, offset, buffer.GetLength());
             return false;
+        }
         buffer.SetLength(size);
     }
     
