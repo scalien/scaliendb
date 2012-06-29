@@ -29,6 +29,7 @@ private:
     ReadBuffer              ReadFromFileBuffer(FD fd, uint64_t len);
     void                    ReplayLogSegments(uint64_t trackID);
     bool                    ReplayLogSegment(uint64_t trackID, Buffer& filename);
+    bool                    ReplayLogSegmentOpt(uint64_t trackID, Buffer& filename);
     void                    DeleteOrphanedChunks();
     void                    DeleteOrphanedTracks();
     
