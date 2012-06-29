@@ -55,7 +55,9 @@ do                                  \
 // http://msdn.microsoft.com/en-us/library/ms737524(VS.85).aspx
 #define ACCEPT_ADDR_LEN     (sizeof(sockaddr_in) + 16)
 #define MAX_TCP_READ        8192
+#define WRITE_BUFFER_SIZE   8000
 
+enum CancelPhase {NotCanceled, CancelStarted, CancelCompleted};
 
 // this structure is used for storing Windows/IOCP specific data
 struct IODesc
@@ -63,11 +65,17 @@ struct IODesc
     IOOperation*    read;
     IOOperation*    write;
 
+    CancelPhase     readCancel;
+    CancelPhase     writeCancel;
+
     OVERLAPPED      ovlRead;            // for accept/recv
     OVERLAPPED      ovlWrite;           // for connect/send
 
     FD              acceptFd;           // with a listening socket, the accepted FD is stored here
     byte            acceptData[2 * ACCEPT_ADDR_LEN];    // TODO allocate dynamically
+
+    WSABUF          wsabuf;
+    byte            writeBuffer[WRITE_BUFFER_SIZE];
 
     IODesc*         next;               // pointer for free list handling
 };
@@ -88,9 +96,9 @@ static IODesc*          iods;                               // pointer to alloca
 static IODesc*          freeIods;                           // pointer to the free list of IODesc's
 static IODesc           callback;                           // special IODesc for handling IOProcessor::Complete events
 const FD                INVALID_FD = {-1, INVALID_SOCKET};  // special FD to indicate invalid value
-unsigned                SEND_BUFFER_SIZE = 8001;
+unsigned                SEND_BUFFER_SIZE = WRITE_BUFFER_SIZE + 1;
 static volatile bool    terminated = false;
-static unsigned         longCallbackThreshold = 100;        // in millisec
+static unsigned         longCallbackThreshold = 500;        // in millisec
 static unsigned         numIOProcClients = 0;
 static IOProcessorStat  iostat;
 static Mutex            callableMutex;
@@ -187,6 +195,8 @@ bool IOProcessorRegisterSocket(FD& fd)
     iod->next = NULL;
     iod->read = NULL;
     iod->write = NULL;
+    iod->readCancel = NotCanceled;
+    iod->writeCancel = NotCanceled;
 
     fd.index = iod - iods;
 
@@ -197,11 +207,91 @@ bool IOProcessorRegisterSocket(FD& fd)
     return true;
 }
 
+// Cancel an unfinished async operation
+static bool CancelIOOperation(IODesc* iod, IOOperation* ioop)
+{
+    int             ret;
+    int             error;
+    LPOVERLAPPED    lpOverlapped;
+    DWORD           numBytes;
+    DWORD           flags;
+    CancelPhase*    cancel;
+    
+    // Select the type of operation and change cancel state to CancelStarted
+    if (ioop->type == IOOperation::TCP_READ)
+    {
+        lpOverlapped = &iod->ovlRead;
+        iod->read = NULL;
+        cancel = &iod->readCancel;
+    }
+    else
+    {
+        lpOverlapped = &iod->ovlWrite;
+        iod->write = NULL;
+        cancel = &iod->writeCancel;
+    }
+    *cancel = CancelStarted;
+
+    // Try canceling the ongoing async operation
+    ret = CancelIoEx((HANDLE)ioop->fd.handle, lpOverlapped);
+    if (ret == 0 && WSAGetLastError() != ERROR_OPERATION_ABORTED)
+    {
+        error = WSAGetLastError();
+        if (error == ERROR_NOT_FOUND)
+        {
+            // The operation was not found. Either it was already finished or it is canceled.
+            // We expect either a failed notification or a notification with cleared IOOps and
+            // with cancel state in CancelStarted
+            Log_Message("ERROR_NOT_FOUND, expecting unhandled case to follow, %d", iod - iods);
+            return false;
+        }
+
+        // Should not happen: this may be a sign of an error
+        Log_Message("cancel last error: %d, iod: %d", WSAGetLastError(), iod - iods);
+        Log_Errno();
+        ASSERT_FAIL();
+        return false;
+    }
+ 
+    // Get the status of the async operation
+    ret = WSAGetOverlappedResult(ioop->fd.handle, lpOverlapped, &numBytes, FALSE, &flags);
+    if (ret == 0)
+    {
+        error = WSAGetLastError();
+        if (error == ERROR_NOT_FOUND)
+        {
+            // 
+            Log_Message("ERROR_NOT_FOUND, result expecting unhandled case to follow, %d", iod - iods);
+            *cancel = CancelCompleted;
+            return true;
+        }
+
+        // The operation was canceled, expecting a failed notification in Poll
+        Log_Message("cancel result last error: %d, iod: %d", WSAGetLastError(), iod - iods);
+        Log_Errno();
+        return false;
+    }
+
+    *cancel = CancelCompleted;
+
+    // cancel completed
+    return true;
+}
+
+// Put iod back to the freelist
+static void FreeIODesc(IODesc* iod)
+{
+    if (iod->next != NULL)
+        Log_Message("iodesc: %d", iod - iods);
+    ASSERT(iod->next == NULL);
+    iod->next = freeIods;
+    freeIods = iod;
+}
+
 // put back the IODesc to the free list and cancel all IO and put back FD
 bool IOProcessorUnregisterSocket(FD& fd)
 {
     IODesc*     iod;
-    BOOL        ret;
 
     Log_Trace("fd = %d", fd.index);
 
@@ -210,22 +300,34 @@ bool IOProcessorUnregisterSocket(FD& fd)
 #endif
 
     iod = &iods[fd.index];
-    iod->next = freeIods;
-    freeIods = iod;
 
-    ret = CancelIo((HANDLE)fd.handle);
-    if (ret == 0)
+    if (iod->write)
     {
-        Log_Errno("IOProcessorUnregisterSocket: CancelIo");
-        return false;
+        ASSERT(iod->write->next == iod->write);
+        CancelIOOperation(iod, iod->write);
     }
+    else
+        iod->writeCancel = CancelCompleted;
+
+    if (iod->read)
+    {
+        ASSERT(iod->read->next == iod->read);
+        CancelIOOperation(iod, iod->read);
+    }
+    else
+        iod->readCancel = CancelCompleted;
+
+    if (iod->readCancel == CancelCompleted && iod->writeCancel == CancelCompleted)
+        FreeIODesc(iod);
+    else
+        iostat.numDanglingIods += 1;
 
     return true;
 }
 
 BOOL WINAPI ConsoleCtrlHandler(DWORD /*ctrlType*/)
 {
-    static Callable     emptyCallable;
+    Callable    emptyCallable;
 
     if (terminated)
     {
@@ -319,6 +421,7 @@ static bool RequestReadNotification(IOOperation* ioop)
 
 //  Log_Trace("fd.index = %d", ioop->fd.index);
 
+    ASSERT(ioop->active == false);
     iod = GetIODesc(ioop->fd);
 
     ASSERT(iod->read == NULL);
@@ -348,38 +451,45 @@ static bool RequestReadNotification(IOOperation* ioop)
     return true;
 }
 
-static bool RequestWriteNotification(IOOperation* ioop)
+static bool StartAsyncWrite(TCPWrite* tcpwrite)
 {
-    DWORD   numBytes;
-    WSABUF  wsabuf;
-    IODesc* iod;
-    int     ret;
+    DWORD       numBytes;
+    IODesc*     iod;
+    int         ret;
+    size_t      len;
 
-//  Log_Trace("fd.index = %d", ioop->fd.index);
+    ASSERT(tcpwrite->active == false);
 
-    iod = GetIODesc(ioop->fd);
+    iostat.numTCPWrites++;
+
+    iod = GetIODesc(tcpwrite->fd);
 
     ASSERT(iod->write == NULL);
 
-    wsabuf.buf = NULL;
-    wsabuf.len = 0;
+    // Copy the buffer
+    len = MIN(tcpwrite->buffer->GetLength() - tcpwrite->transferred, WRITE_BUFFER_SIZE);
+    memcpy(iod->writeBuffer, tcpwrite->buffer->GetBuffer() + tcpwrite->transferred, len);
+
+    iod->wsabuf.buf = (char*) iod->writeBuffer;
+    iod->wsabuf.len = len;
 
     memset(&iod->ovlWrite, 0, sizeof(OVERLAPPED));
-    ret = WSASend(ioop->fd.handle, &wsabuf, 1, &numBytes, 0, &iod->ovlWrite, NULL);
+    ret = WSASend(tcpwrite->fd.handle, &iod->wsabuf, 1, &numBytes, 0, &iod->ovlWrite, NULL);
+
     if (ret == SOCKET_ERROR)
     {
         ret = WSAGetLastError();
         if (ret != WSA_IO_PENDING)
         {
-            Log_Debug("RequestWriteNotification ret = %d", ret);
-            //Call(ioop->onClose);
-            pendingOnClose.Append(ioop);
+            Log_Debug("StartAsyncWrite failed, error = %d", ret);
+            pendingOnClose.Append(tcpwrite);
             return false;
         }
     }
 
-    iod->write = ioop;
-    ioop->active = true;
+    iod->write = tcpwrite;
+    ASSERT(tcpwrite->next == tcpwrite); // make sure it's not in a pending list
+    tcpwrite->active = true;
 
     return true;
 }
@@ -391,6 +501,8 @@ static bool StartAsyncAccept(IOOperation* ioop)
     BOOL    acceptRet;
     IODesc* iod;
     int     ret;
+
+     ASSERT(ioop->active == false);
 
     iod = GetIODesc(ioop->fd);
 
@@ -476,7 +588,7 @@ bool IOProcessor_UnprotectedAdd(IOOperation* ioop)
     if (ioop->type == IOOperation::TCP_READ)
         return RequestReadNotification(ioop);
     else if (ioop->type == IOOperation::TCP_WRITE)
-        return RequestWriteNotification(ioop);
+        return StartAsyncWrite((TCPWrite*) ioop);
     else
         ASSERT_FAIL();
 
@@ -492,11 +604,9 @@ bool IOProcessor::Add(IOOperation* ioop)
     return IOProcessor_UnprotectedAdd(ioop);
 }
 
+// EXPERIMENTAL
 bool IOProcessor_UnprotectedRemove(IOOperation *ioop)
 {
-    int         ret;
-    IODesc*     iod;
-
     // if the ioop is in the pendingOnClose list, then remove it
     // this is imoortant if a read and a write both receive OnClose events
     // the read's runs, while the write's is in the pendingOnClose list
@@ -506,60 +616,22 @@ bool IOProcessor_UnprotectedRemove(IOOperation *ioop)
     // see #209
     if (IN_PENDING_ONCLOSE(ioop))
     {
+        ASSERT(pendingOnClose.Contains(ioop));
         pendingOnClose.Remove(ioop);
         return true;
     }
+    ASSERT(!pendingOnClose.Contains(ioop));
+
     if (!ioop->active)
         return true;
 
-    ioop->active = false;
     if (ioop->next != ioop)
     {
-        // it's in pendingOps
-        pendingOps.Remove(ioop);
-        return true;
+        ASSERT(pendingOps.Contains(ioop));
+        pendingOps.Remove(ioop); // it's in pendingOps
     }
 
-    //if (ioop->type == IOOperation::TCP_READ)
-    //{
-    //    tcpread = (TCPRead*) ioop;
-    //    if (tcpread->listening)
-    //        ASSERT_FAIL(); // Remove() not supported for listening sockets
-    //}
-
-    iod = GetIODesc(ioop->fd);
-
-    ret = CancelIo((HANDLE)ioop->fd.handle);
-    if (ret == 0)
-    {
-        Log_Errno();
-        return false;
-    }
-
-    if (ioop->type == IOOperation::TCP_READ)
-    {
-        iod->read = NULL;
-        if (iod->write != NULL)
-        {
-            ASSERT(iod->write->active);
-            ioop = iod->write;
-            iod->write = NULL;
-            ioop->active = false;
-            IOProcessor_UnprotectedAdd(ioop);
-        }
-    }
-    else
-    {
-        iod->write = NULL;
-        if (iod->read != NULL)
-        {
-            ASSERT(iod->read->active);
-            ioop = iod->read;
-            iod->read = NULL;
-            ioop->active = false;
-            IOProcessor_UnprotectedAdd(ioop);
-        }
-    }
+    ioop->active = false;
 
     return true;
 }
@@ -611,9 +683,8 @@ bool IOProcessor::Poll(int msec)
 #endif
 
     startTime = NowClock();
-    FOREACH_FIRST (ioop, pendingOnClose)
+    FOREACH_POP (ioop, pendingOnClose)
     {
-        pendingOnClose.Remove(ioop);
         UNLOCKED_CALL(ioop->onClose);
         elapsed = NowClock() - startTime;
         if (elapsed > YIELD_TIME)
@@ -645,6 +716,26 @@ bool IOProcessor::Poll(int msec)
         // ret == FALSE && overlapped != NULL: a completion packet for a failed I/O operation was dequeued
         if (ret || overlapped)
         {
+            // failed and already canceled operation
+            if (ret == FALSE && overlapped != NULL)
+            {
+                Log_Message("Canceled case, iod: %d", iod - iods);
+                if (overlapped == &iod->ovlRead && iod->readCancel == CancelStarted)
+                    iod->readCancel = CancelCompleted;
+
+                if (overlapped == &iod->ovlWrite && iod->writeCancel == CancelStarted)
+                    iod->writeCancel = CancelCompleted;
+             
+                if (iod->readCancel == CancelCompleted && iod->writeCancel == CancelCompleted)
+                {
+                    FreeIODesc(iod);
+                    iostat.numDanglingIods -= 1;
+
+                    timeout = 0;
+                    continue;
+                }
+            }
+
             if (iod == &callback)
             {
                 ProcessCompletionCallbacks();
@@ -716,6 +807,26 @@ bool IOProcessor::Poll(int msec)
                     }
                 }
             }
+            else
+            {
+                // canceled operation
+                Log_Message("Unhandled case, iod: %d", iod - iods);
+
+                if (overlapped == &iod->ovlRead && iod->readCancel == CancelStarted)
+                    iod->readCancel = CancelCompleted;
+
+                if (overlapped == &iod->ovlWrite && iod->writeCancel == CancelStarted)
+                    iod->writeCancel = CancelCompleted;
+             
+                if (iod->readCancel == CancelCompleted && iod->writeCancel == CancelCompleted)
+                {
+                    FreeIODesc(iod);
+                    iostat.numDanglingIods -= 1;
+
+                    timeout = 0;
+                    continue;
+                }
+            }
             timeout = 0;
         }
         else
@@ -730,9 +841,8 @@ bool IOProcessor::Poll(int msec)
     }
 
     startTime = NowClock();
-    FOREACH_FIRST (ioop, pendingOnClose)
+    FOREACH_POP (ioop, pendingOnClose)
     {
-        pendingOnClose.Remove(ioop);
         UNLOCKED_CALL(ioop->onClose);
         elapsed = NowClock() - startTime;
         if (elapsed > YIELD_TIME)
@@ -740,9 +850,8 @@ bool IOProcessor::Poll(int msec)
     }
 
     startTime = NowClock();
-    FOREACH_FIRST(ioop, pendingOps)
+    FOREACH_POP(ioop, pendingOps)
     {
-        pendingOps.Remove(ioop);
         if (ioop->type == IOOperation::TCP_READ)
             ProcessTCPRead((TCPRead*)ioop);
         else if (ioop->type == IOOperation::TCP_WRITE)
@@ -793,7 +902,7 @@ void IOProcessor::Call(Callable& callable)
     elapsed = NowClock() - start;
     if (elapsed > longCallbackThreshold)
     {
-        Log_Debug("IOProcessor callback elapsed time: %U", elapsed);
+        Log_Message("Callback elapsed time: %U", elapsed);
         iostat.numLongCallbacks++;
     }
 }
@@ -883,51 +992,30 @@ bool ProcessTCPRead(TCPRead* tcpread)
 
 bool ProcessTCPWrite(TCPWrite* tcpwrite)
 {
-    int         ret;
-    WSABUF      wsabuf;
     Callable    callable;
     DWORD       numBytes;
-    DWORD       error;
-
-    iostat.numTCPWrites++;
-
+    IODesc*     iod;
+  
     if (tcpwrite->buffer == NULL)
         callable = tcpwrite->onComplete; // tcp connect case
     else
     {
-        // handle tcp write partial writes
-        wsabuf.buf = (char*) tcpwrite->buffer->GetBuffer() + tcpwrite->transferred;
-        // the -1 is actually a windows bug, for more info see:
-        // http://support.microsoft.com/kb/823764/EN-US/
-        wsabuf.len = MIN(tcpwrite->buffer->GetLength() - tcpwrite->transferred, SEND_BUFFER_SIZE - 1);
+        iod = GetIODesc(tcpwrite->fd);
+        numBytes = iod->wsabuf.len;
 
-        // perform non-blocking write
-        ret = WSASend(tcpwrite->fd.handle, &wsabuf, 1, &numBytes, 0, NULL, NULL);
-        if (ret == SOCKET_ERROR)
+        iostat.numTCPBytesSent += numBytes;
+        tcpwrite->transferred += numBytes;
+
+        if (tcpwrite->transferred == tcpwrite->buffer->GetLength())
+            callable = tcpwrite->onComplete;
+        else if (tcpwrite->transferred < tcpwrite->buffer->GetLength())
         {
-            error = GetLastError();
-            if (error == WSAEWOULDBLOCK)
-            {
-                tcpwrite->active = false; // otherwise Add() returns
-                IOProcessor_UnprotectedAdd(tcpwrite);
-            }
-            else
-                callable = tcpwrite->onClose;
+            iod->write = NULL;
+            tcpwrite->active = false; // otherwise Add() returns
+            IOProcessor_UnprotectedAdd(tcpwrite);
         }
-        else if (numBytes == 0)
-            callable = tcpwrite->onClose;
         else
-        {
-            iostat.numTCPBytesSent += numBytes;
-            tcpwrite->transferred += numBytes;
-            if (tcpwrite->transferred == tcpwrite->buffer->GetLength())
-                callable = tcpwrite->onComplete;
-            else
-            {
-                tcpwrite->active = false; // otherwise Add() returns
-                IOProcessor_UnprotectedAdd(tcpwrite);
-            }
-        }
+            ASSERT_FAIL();
     }
 
     if (callable.IsSet())

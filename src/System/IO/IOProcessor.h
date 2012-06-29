@@ -32,6 +32,7 @@ public:
     unsigned    lastNumEvents;
     uint64_t    totalNumEvents;
     uint64_t    numLongCallbacks;
+    int         numDanglingIods;
 };
 
 /*

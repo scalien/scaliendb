@@ -341,12 +341,13 @@ void ShardHTTPClientSession::PrintStatistics()
     buffer.Appendf("numPolls: %U\n", iostat.numPolls);
     buffer.Appendf("numTCPReads: %U\n", iostat.numTCPReads);
     buffer.Appendf("numTCPWrites: %U\n", iostat.numTCPWrites);
-    buffer.Appendf("numTCPBytesSent: %s\n", PrintableBytes(iostat.numTCPBytesSent, humanBuf, humanize));
     buffer.Appendf("numTCPBytesReceived: %s\n", PrintableBytes(iostat.numTCPBytesReceived, humanBuf, humanize));
+    buffer.Appendf("numTCPBytesSent: %s\n", PrintableBytes(iostat.numTCPBytesSent, humanBuf, humanize));
     buffer.Appendf("numCompletions: %U\n", iostat.numCompletions);
     buffer.Appendf("numLongCallbacks: %U\n", iostat.numLongCallbacks);
     buffer.Appendf("totalPollTime: %U\n", iostat.totalPollTime);
     buffer.Appendf("totalNumEvents: %U\n", iostat.totalNumEvents);
+    buffer.Appendf("numDanglingIods: %d\n", iostat.numDanglingIods);
 
     FS_GetStats(&fsStat);
     buffer.Append("  Category: FileSystem\n");
@@ -435,7 +436,7 @@ void ShardHTTPClientSession::PrintStatistics()
     {
         buffer.Appendf("quorum[%U].messageListLength: %u\n", quorumProcessor->GetQuorumID(), 
          quorumProcessor->GetMessageListLength());
-        buffer.Appendf("quorum[%U].replicationThroughput: %u\n", quorumProcessor->GetQuorumID(), 
+        buffer.Appendf("quorum[%U].replicationThroughput: %s\n", quorumProcessor->GetQuorumID(), 
             PrintableBytes(quorumProcessor->GetReplicationThroughput(), humanBuf, humanize));
 
     }
