@@ -58,8 +58,6 @@ ShardQuorumProcessor::~ShardQuorumProcessor()
 void ShardQuorumProcessor::Init(ConfigQuorum* configQuorum, ShardServer* shardServer_)
 {
     shardServer = shardServer_;
-    catchupWriter.Init(this);
-    catchupReader.Init(this);
     isPrimary = false;
     highestProposalID = 0;
     configID = 0;
@@ -107,11 +105,6 @@ void ShardQuorumProcessor::Shutdown()
     EventLoop::TryRemove(&leaseTimeout);
     EventLoop::TryRemove(&tryAppend);
     EventLoop::TryRemove(&resumeAppend);
-
-    if (catchupReader.IsActive())
-        catchupReader.Abort();
-    if (catchupWriter.IsActive())
-        catchupWriter.Abort();
     
     CONTEXT_TRANSPORT->RemoveQuorumContext(&quorumContext);
     quorumContext.Shutdown();
@@ -173,6 +166,7 @@ void ShardQuorumProcessor::OnSetConfigState()
     {
         if (mergeDisabled)
         {
+            // re-enable merge if it was disabled for the duration of catchup
             mergeDisabled = false;
             DATABASE_MANAGER->GetEnvironment()->SetMergeEnabled(true); // enable
         }
@@ -218,12 +212,10 @@ void ShardQuorumProcessor::OnSetConfigState()
     {
         if (!mergeDisabled)
         {
+            // disable merge while I'm inactive, so catchup is fast(er)
             mergeDisabled = true;
             DATABASE_MANAGER->GetEnvironment()->SetMergeEnabled(false); // disable
         }
-
-        if (IsCatchupActive())
-            AbortCatchup();
 
         if (IsPrimary())
             OnLeaseTimeout();
@@ -367,46 +359,6 @@ void ShardQuorumProcessor::OnAppend(uint64_t paxosID, Buffer& value, bool ownApp
 void ShardQuorumProcessor::OnStartCatchup()
 {
     needCatchup = true;
-}
-
-void ShardQuorumProcessor::OnCatchupMessage(CatchupMessage& message)
-{
-    switch (message.type)
-    {
-        case CATCHUPMESSAGE_REQUEST:
-            if (!catchupWriter.IsActive())
-                catchupWriter.Begin(message);
-            break;
-        case CATCHUPMESSAGE_BEGIN_SHARD:
-            if (catchupReader.IsActive())
-                catchupReader.OnBeginShard(message);
-            break;
-        case CATCHUPMESSAGE_SET:
-            if (catchupReader.IsActive())
-                catchupReader.OnSet(message);
-            break;
-        case CATCHUPMESSAGE_DELETE:
-            if (catchupReader.IsActive())
-                catchupReader.OnDelete(message);
-            break;
-        case CATCHUPMESSAGE_COMMIT:
-            if (catchupReader.IsActive())
-            {
-                catchupReader.OnCommit(message);
-                quorumContext.OnCatchupComplete(message.paxosID); // this commits
-                quorumContext.ContinueReplication();
-            }
-            break;
-        case CATCHUPMESSAGE_ABORT:
-            if (catchupReader.IsActive())
-            {
-                catchupReader.OnAbort(message);
-                quorumContext.ContinueReplication();
-            }
-            break;
-        default:
-            ASSERT_FAIL();
-    }
 }
 
 bool ShardQuorumProcessor::IsPaxosBlocked()
@@ -659,10 +611,7 @@ void ShardQuorumProcessor::RegisterPaxosID(uint64_t paxosID)
 void ShardQuorumProcessor::TryReplicationCatchup()
 {
     // this is called if we're an inactive node and we should probably try to catchup
-    
-    if (catchupReader.IsActive())
-        return;
-    
+     
     quorumContext.TryReplicationCatchup();
 }
 
@@ -751,31 +700,6 @@ void ShardQuorumProcessor::StopReplication()
 void ShardQuorumProcessor::ContinueReplication()
 {
     quorumContext.ContinueReplication();
-}
-
-bool ShardQuorumProcessor::IsCatchupActive()
-{
-    return catchupWriter.IsActive();
-}
-
-void ShardQuorumProcessor::AbortCatchup()
-{
-    catchupWriter.Abort();
-}
-
-uint64_t ShardQuorumProcessor::GetCatchupBytesSent()
-{
-    return catchupWriter.GetBytesSent();
-}
-
-uint64_t ShardQuorumProcessor::GetCatchupBytesTotal()
-{
-    return catchupWriter.GetBytesTotal();
-}
-
-uint64_t ShardQuorumProcessor::GetCatchupThroughput()
-{
-    return catchupWriter.GetThroughput();
 }
 
 bool ShardQuorumProcessor::NeedCatchup()
@@ -964,8 +888,6 @@ void ShardQuorumProcessor::ExecuteMessage(uint64_t paxosID, uint64_t commandID,
     else
     {
         shardID = DATABASE_MANAGER->ExecuteMessage(GetQuorumID(), paxosID, commandID, *shardMessage);
-        if (shardMessage->type == SHARDMESSAGE_SET || shardMessage->type == SHARDMESSAGE_DELETE)
-            catchupWriter.OnShardMessage(paxosID, commandID, shardID, *shardMessage);
     }
 
     if (!ownCommand)
