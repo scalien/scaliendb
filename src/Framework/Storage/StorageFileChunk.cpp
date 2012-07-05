@@ -237,8 +237,7 @@ void StorageFileChunk::AsyncGet(StorageAsyncGet* asyncGet)
         if (bloomPage == NULL)
         {
             asyncGet->stage = StorageAsyncGet::BLOOM_PAGE;
-            asyncGet->threadPool->Execute(
-             MFunc<StorageAsyncGet, &StorageAsyncGet::AsyncLoadPage>(asyncGet)); // evicted, load back
+            asyncGet->threadPool->Execute(MFUNC_OF(StorageAsyncGet, AsyncLoadPage, asyncGet)); // evicted, load back
             return;
         }
         if (bloomPage->IsCached())
@@ -253,8 +252,7 @@ void StorageFileChunk::AsyncGet(StorageAsyncGet* asyncGet)
     if (indexPage == NULL)
     {
         asyncGet->stage = StorageAsyncGet::INDEX_PAGE;
-        asyncGet->threadPool->Execute(
-         MFunc<StorageAsyncGet, &StorageAsyncGet::AsyncLoadPage>(asyncGet)); // evicted, load back
+        asyncGet->threadPool->Execute(MFUNC_OF(StorageAsyncGet, AsyncLoadPage, asyncGet)); // evicted, load back
         return;
     }
     if (indexPage->IsCached())
@@ -270,8 +268,7 @@ void StorageFileChunk::AsyncGet(StorageAsyncGet* asyncGet)
         asyncGet->stage = StorageAsyncGet::DATA_PAGE;
         asyncGet->index = index;
         asyncGet->offset = offset;
-        asyncGet->threadPool->Execute(
-         MFunc<StorageAsyncGet, &StorageAsyncGet::AsyncLoadPage>(asyncGet)); // evicted, load back
+        asyncGet->threadPool->Execute(MFUNC_OF(StorageAsyncGet, AsyncLoadPage, asyncGet)); // evicted, load back
         return;
     }
 

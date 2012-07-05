@@ -278,7 +278,7 @@ void StorageAsyncList::OnResult(StorageAsyncListResult* result)
     }
 
     result->onComplete = onComplete;
-    callable = MFunc<StorageAsyncListResult, &StorageAsyncListResult::OnComplete>(result);
+    callable = MFUNC_OF(StorageAsyncListResult, OnComplete, result);
     IOProcessor::Complete(&callable);
 }
 

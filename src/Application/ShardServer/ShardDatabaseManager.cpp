@@ -923,7 +923,7 @@ void ShardDatabaseManager::OnExecuteReads()
 
         asyncGet.request = itRequest;
         asyncGet.key = key;
-        asyncGet.onComplete = MFunc<ShardDatabaseAsyncGet, &ShardDatabaseAsyncGet::OnRequestComplete>(&asyncGet);
+        asyncGet.onComplete = MFUNC_OF(ShardDatabaseAsyncGet, OnRequestComplete, &asyncGet);
         asyncGet.active = true;
         asyncGet.async = false;
         if (!environment.TryNonblockingGet(contextID, shardID, &asyncGet))
@@ -960,7 +960,7 @@ void ShardDatabaseManager::OnExecuteReads()
             asyncGet.skipMemoChunk = true;
         asyncGet.request = itRequest;
         asyncGet.key = key;
-        asyncGet.onComplete = MFunc<ShardDatabaseAsyncGet, &ShardDatabaseAsyncGet::OnRequestComplete>(&asyncGet);
+        asyncGet.onComplete = MFUNC_OF(ShardDatabaseAsyncGet, OnRequestComplete, &asyncGet);
         asyncGet.active = true;
         asyncGet.async = false;
         environment.AsyncGet(contextID, shardID, &asyncGet);
@@ -1108,7 +1108,7 @@ void ShardDatabaseManager::OnExecuteLists()
         asyncList->startWithLastKey = request->findByLastKey;
         asyncList->shardFirstKey.Write(configShard->firstKey);
         asyncList->shardLastKey.Write(configShard->lastKey);
-        asyncList->onComplete = MFunc<ShardDatabaseAsyncList, &ShardDatabaseAsyncList::OnShardComplete>(asyncList);
+        asyncList->onComplete = MFUNC_OF(ShardDatabaseAsyncList, OnShardComplete, asyncList);
         
         Log_Debug("List[%U] shard: shardFirstKey: %B, shardLastKey: %B", 
          asyncList->requestID, &asyncList->shardFirstKey, &asyncList->shardLastKey);
