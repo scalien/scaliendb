@@ -116,6 +116,7 @@ static void RunApplication()
     IOProcessor::Shutdown();
     StopClock();
     configFile.Shutdown();
+    Registry::Shutdown();
 
     // This is here and not the end of main(), because logging may be turned off by then
     Log_Message(IDENT " exited normally");

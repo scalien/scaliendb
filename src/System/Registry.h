@@ -52,7 +52,9 @@ class Registry
     typedef InTreeMap<RegistryNode> RegistryTree;
 
 public:
-    bool                    Exists(const ReadBuffer& key);
+    static void             Shutdown();
+
+    static bool             Exists(const ReadBuffer& key);
 
     static int64_t*         GetIntPtr(const ReadBuffer& key);
     static uint64_t*        GetUintPtr(const ReadBuffer& key);
