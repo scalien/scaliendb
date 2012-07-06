@@ -50,6 +50,11 @@ void RegistryNode::AppendKey(Buffer& buffer) const
     buffer.Append(key);
 }
 
+void Registry::Shutdown()
+{
+    registryTree.DeleteTree();
+}
+
 bool Registry::Exists(const ReadBuffer& key)
 {
     Buffer          keyBuffer;

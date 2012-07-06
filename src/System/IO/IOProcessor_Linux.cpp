@@ -30,7 +30,7 @@ do                                  \
     if (!callable.IsSet())          \
         break;                      \
     mutex.Unlock();                 \
-    Call(callable);                 \
+    IOProcessor::Call(callable);    \
     mutex.Lock();                   \
 } while (0)
 
@@ -45,7 +45,7 @@ do                                  \
 #else // IOPROCESSOR_MULTITHREADED
 
 #define UNLOCKED_CALL(callable)     \
-    Call(callable)
+    IOProcessor::Call(callable)
 
 #define UNLOCKED_ADD(ioop)          \
     IOProcessor::Add(ioop)
@@ -123,6 +123,7 @@ static volatile int     numClient = 0;
 static volatile bool	running = false;
 static IOProcessorStat  iostat;
 static Mutex            mutex;
+static uint64_t		longCallbackThreshold = 1000;
 
 static bool             AddEvent(int fd, uint32_t filter, IOOperation* ioop);
 static void             ProcessAsyncOp();
@@ -602,6 +603,21 @@ bool IOProcessor::Complete(Callable* callable)
     }
     
     return true;
+}
+
+void IOProcessor::Call(Callable& callable)
+{
+    uint64_t    start;
+    uint64_t    elapsed;
+
+    start = NowClock();
+    ::Call(callable);
+    elapsed = NowClock() - start;
+    if (elapsed >= longCallbackThreshold)
+    {
+        Log_Message("Callback elapsed time: %U", elapsed);
+        iostat.numLongCallbacks++;
+    }
 }
 
 void ProcessIOOperation(IOOperation* ioop)
