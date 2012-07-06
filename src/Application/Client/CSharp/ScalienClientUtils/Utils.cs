@@ -6,6 +6,7 @@ using System.IO;
 using System.Net;
 using System.Runtime.Serialization.Json;
 using System.Runtime.InteropServices;
+using System.Net.Sockets;
 
 namespace Scalien
 {
@@ -449,15 +450,24 @@ namespace Scalien
 
         public static string[] GetConfigNodes()
         {
-            return new ConfigFile().GetStringArrayValue("controllers");
+            return ConfigFile.Config.GetStringArrayValue("controllers");
         }
 
         public static Client GetClient()
         {
-            if (new ConfigFile().GetBoolValue("nativeLoader", true))
+            if (ConfigFile.Config.GetBoolValue("nativeLoader", true))
                 NativeLoader.Load();
             
             return new Client(GetConfigNodes());
+        }
+
+        public static IPAddress GetLocalIP()
+        {
+            var ipAddress = Dns.GetHostAddresses(Dns.GetHostName()).First(addr => addr.AddressFamily == AddressFamily.InterNetwork);
+            if (ipAddress != null)
+                return ipAddress;
+
+            return IPAddress.Loopback;
         }
 
         public static void Log(string fmt, params object[] args)
@@ -468,6 +478,8 @@ namespace Scalien
         public static ConfigState GetFullConfigState(Client client, int controllerHttpPort = 8080)
         {
             var jsonConfigState = client.GetJSONConfigState();
+            if (jsonConfigState == null)
+                return null;
             var configState = Utils.JsonDeserialize<ConfigState>(System.Text.Encoding.UTF8.GetBytes(jsonConfigState));
             var master = configState.master;
             if (master < 0)

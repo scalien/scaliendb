@@ -4,6 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Reflection;
 using System.IO;
+using System.Diagnostics;
+using System.Net;
+using System.Net.Sockets;
+using System.Collections;
+
+using Scalien;
 
 namespace ScalienClientUnitTesting
 {
@@ -71,6 +77,7 @@ namespace ScalienClientUnitTesting
     {
         private FileStream fs;
         private StreamWriter sw;
+        private TestDatabase testDatabase;
 
         static void Main(string[] args)
         {
@@ -104,6 +111,12 @@ namespace ScalienClientUnitTesting
                 numRuns = Int32.Parse(arguments["n"]);
             }
 
+            if (arguments["c"] != null)
+            {
+                Scalien.ConfigFile.Filename = arguments["c"];
+                var configFile = Scalien.ConfigFile.Config;
+            }
+
             new TestUtility().RunTests(tests, numRuns);
         }
 
@@ -126,6 +139,38 @@ namespace ScalienClientUnitTesting
             return orderedTestClasses;
         }
 
+        public void LoadTestSpecificConfiguration(TestClass cls)
+        {
+            MemberInfo[] staticMembers = cls.type.GetMembers(BindingFlags.Static | BindingFlags.Public);
+            foreach (var member in staticMembers)
+            {
+                var configName = cls.type.Name + "." + member.Name;
+                if (Scalien.ConfigFile.Config[configName] != null)
+                {
+                    FieldInfo fieldInfo = cls.type.GetField(member.Name);
+                    var typeName = fieldInfo.FieldType.FullName;
+                    switch (typeName)
+                    {
+                        case "System.Int32":
+                            int intValue = Scalien.ConfigFile.Config.GetIntValue(configName, (int) fieldInfo.GetValue(cls));
+                            fieldInfo.SetValue(cls, (object) intValue);
+                            break;
+
+                        case "System.Int64":
+                            Int64 int64Value = Scalien.ConfigFile.Config.GetInt64Value(configName, (Int64)fieldInfo.GetValue(cls));
+                            fieldInfo.SetValue(cls, (object)int64Value);
+                            break;
+
+                        case "System.String":
+                            string stringValue = Scalien.ConfigFile.Config.GetStringValue(configName, (string)fieldInfo.GetValue(cls));
+                            fieldInfo.SetValue(cls, (object)stringValue);
+                            break;
+
+                    }
+                }
+            }
+        }
+
         public List<TestClass> LoadTestClassesByTypeNames(List<string> tests, Type[] types)
         {
             var testClasses = new List<TestClass>();
@@ -142,6 +187,7 @@ namespace ScalienClientUnitTesting
                     WriteLine("\n -- Loading unit tests from " + cls.Name + " -- \n");
                     var testClass = new TestClass();
                     testClass.type = cls;
+                    LoadTestSpecificConfiguration(testClass);
                     //testClass.instance = Activator.CreateInstance(cls);
                     if (cls.Name.ToString() == "FileTableTest")
                         testClasses.Add(testClass);
@@ -153,8 +199,55 @@ namespace ScalienClientUnitTesting
             return testClasses;
         }
 
+        #region Error reporting
+        private void LogError(Exception exception)
+        {
+            if (testDatabase == null)
+                return;
+
+            ErrorLogEntry error = new ErrorLogEntry();
+
+            var exceptionStackTrace = new ExceptionStackTrace(exception);
+
+            error.CommandLine = Environment.CommandLine;
+            error.ExceptionMessage = exceptionStackTrace.Message;
+            error.ExceptionType = exception.GetType().FullName;
+            error.ExceptionSource = exceptionStackTrace.Source;
+            error.ExceptionStackTrace = exceptionStackTrace.StackTrace;
+            error.FileName = exceptionStackTrace.FileName;
+            error.HostName = System.Environment.MachineName;
+            error.IPAddress = Utils.GetLocalIP().GetAddressBytes();
+            error.LineNumber = exceptionStackTrace.LineNumber;
+            error.ProcessID = Process.GetCurrentProcess().Id;
+            error.TestID = testDatabase.GetCurrentTestID();
+
+            testDatabase.LogError(error);
+        }
+
+        private void TryOpenErrorDatabase()
+        {
+            testDatabase = null;
+            try
+            {
+                testDatabase = new TestDatabase(@"Data Source = localhost; Initial Catalog = ScalienTesting; user id=test; password=test");
+            }
+            catch (Exception e)
+            {
+            }
+        }
+
+        private void StartTest(string name)
+        {
+            if (testDatabase != null)
+                testDatabase.StartTest(name);
+        }
+
+        #endregion
+
         public void RunTests(List<string> tests, int numRuns)
         {
+            TryOpenErrorDatabase();
+
             try
             {
                 int numTests = 0;
@@ -182,6 +275,8 @@ namespace ScalienClientUnitTesting
                             if (!query.Any())
                                 continue;
 
+                            StartTest(testName);
+
                             for (int i = 0; i < numRuns; i++)
                             {
                                 numTests += 1;
@@ -198,12 +293,14 @@ namespace ScalienClientUnitTesting
                                 catch (TargetInvocationException exception)
                                 {
                                     if (exception.InnerException is UnitTestException)
-                                        WriteLine("  |\n  |->  Test failed: " + ((UnitTestException)exception.InnerException).GetMessage());
+                                        WriteLine("  |\n  |->  Test failed: " + ((UnitTestException)exception.InnerException).Message);
                                     else
                                     {
                                         WriteLine("  |\n  |->  Test failed: " + exception.GetBaseException().ToString());
                                         //throw exception;
                                     }
+
+                                    LogError(exception.InnerException);
 
                                     var name = testClass.type.Name.ToString() + "." + method.Name.ToString();
                                     failedTests.Add(name);

@@ -46,7 +46,11 @@
     <Compile Include="ConfigFile.cs" />
     <Compile Include="ConfigState.cs" />
     <Compile Include="ConfigStateHelpers.cs" />
+    <Compile Include="ErrorLogger.cs" />
+    <Compile Include="ExceptionStackTrace.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TestDatabase.cs" />
+    <Compile Include="ErrorLogEntry.cs" />
     <Compile Include="Utils.cs" />
   </ItemGroup>
   <ItemGroup>

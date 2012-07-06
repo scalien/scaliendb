@@ -5,19 +5,40 @@ using System.Text;
 
 using System.IO;
 using System.Reflection;
+using System.Collections.Specialized;
 
 namespace Scalien
 {
     public class ConfigFile
     {
-        private Dictionary<string, string> conf;
+        public static string Filename = "config.txt";
+        public static ConfigFile Config
+        {
+            get
+            {
+                lock (typeof(ConfigFile))
+                {
+                    if (instance == null)
+                        instance = new ConfigFile();
+                    return instance;
+                }
+            }
+        }
+        
+        private static ConfigFile instance;
+        private StringDictionary conf;
  
         public ConfigFile(string filePath = null)
         {
-            conf = new Dictionary<string, string>();
+            Open(filePath);
+        }
+
+        private void Open(string filePath)
+        {
+            conf = new StringDictionary();
 
             if (filePath == null)
-                filePath = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "config.txt");
+                filePath = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), Filename);
 
             try
             {
@@ -32,7 +53,7 @@ namespace Scalien
                         if (line.Contains('#'))
                             line = line.Substring(0, line.IndexOf('#'));
 
-                        string[] kvParts = line.Split(new char[] { '=' });
+                        string[] kvParts = line.Split(new char[] { '=' }, 2);
                         if (kvParts.Length > 1)
                         {
                             string keyPart = kvParts[0].Trim();
@@ -101,6 +122,15 @@ namespace Scalien
                 return false;
 
             throw new FormatException();
+        }
+
+        // Retrieve a parameter value if it exists
+        public string this[string Param]
+        {
+            get
+            {
+                return (conf[Param]);
+            }
         }
 
     }

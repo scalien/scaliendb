@@ -7,19 +7,11 @@ namespace ScalienClientUnitTesting
 {
     class UnitTestException : Exception
     {
-        private string message;
-
-        public UnitTestException()
+        public UnitTestException() 
         {
-            message = "";
         }
-        public UnitTestException(string msg)
+        public UnitTestException(string msg) : base(msg)
         {
-            message = msg;
-        }
-        public string GetMessage()
-        {
-            return message;
         }
     }
 
