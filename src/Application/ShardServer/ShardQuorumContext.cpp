@@ -284,9 +284,6 @@ void ShardQuorumContext::OnMessage(ReadBuffer buffer)
                 }
             }
             break;
-        case CATCHUP_PROTOCOL_ID:           // 'C'
-            OnCatchupMessage(buffer);
-            break;
         default:
             ASSERT_FAIL();
             break;
@@ -343,12 +340,4 @@ void ShardQuorumContext::OnPaxosMessage(ReadBuffer buffer)
     RegisterPaxosID(msg.paxosID);
     replicatedLog.RegisterPaxosID(msg.paxosID, msg.nodeID);
     replicatedLog.OnMessage(msg);
-}
-
-void ShardQuorumContext::OnCatchupMessage(ReadBuffer buffer)
-{
-    CatchupMessage msg;
-    
-    msg.Read(buffer);
-    quorumProcessor->OnCatchupMessage(msg);
 }

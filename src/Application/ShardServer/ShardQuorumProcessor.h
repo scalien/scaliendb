@@ -6,8 +6,6 @@
 #include "Application/Common/ClientRequest.h"
 #include "ShardMessage.h"
 #include "ShardQuorumContext.h"
-#include "ShardCatchupReader.h"
-#include "ShardCatchupWriter.h"
 
 class ShardServer;
 
@@ -106,12 +104,6 @@ public:
     void                    StopReplication();
     void                    ContinueReplication();
 
-    // Catchup sending:
-    bool                    IsCatchupActive();
-    void                    AbortCatchup();
-    uint64_t                GetCatchupBytesSent();
-    uint64_t                GetCatchupBytesTotal();
-    uint64_t                GetCatchupThroughput();
     bool                    NeedCatchup();
 
     uint64_t                GetMigrateShardID();
@@ -131,7 +123,6 @@ public:
     void                    OnStartProposing();
     void                    OnAppend(uint64_t paxosID, Buffer& value, bool ownAppend);
     void                    OnStartCatchup();
-    void                    OnCatchupMessage(CatchupMessage& message);
     bool                    IsPaxosBlocked();
     // ========================================================================================
 
@@ -176,9 +167,6 @@ private:
     bool                    blockReplication;
     bool                    mergeDisabled;
     bool                    needCatchup;
-
-    ShardCatchupReader      catchupReader;
-    ShardCatchupWriter      catchupWriter;
 
     Countdown               requestLeaseTimeout;
     Countdown               activationTimeout;

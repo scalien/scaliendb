@@ -84,7 +84,6 @@ public:
 
 private:
     void                            OnPaxosMessage(ReadBuffer buffer);
-    void                            OnCatchupMessage(ReadBuffer buffer);
     
     bool                            isReplicationActive;
     uint64_t                        quorumID;

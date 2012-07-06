@@ -72,7 +72,7 @@ int ShardMessage::Read(ReadBuffer& buffer)
     int read;
     
     if (buffer.GetLength() < 1)
-        return false;
+        return 0;
     
     switch (buffer.GetCharAt(0))
     {
@@ -123,7 +123,7 @@ int ShardMessage::Read(ReadBuffer& buffer)
              &type, &shardID);
             break;
         default:
-            return false;
+            return 0;
     }
     
     return read;
