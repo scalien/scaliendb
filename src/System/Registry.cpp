@@ -52,15 +52,14 @@ void RegistryNode::AppendKey(Buffer& buffer) const
 
 bool Registry::Exists(const ReadBuffer& key)
 {
-    int             cmpres;
     Buffer          keyBuffer;
     RegistryNode*   node;
     
     keyBuffer.Write(key);
     
-    node = registryTree.Locate(keyBuffer, cmpres);
+    node = registryTree.Get(keyBuffer);
     
-    if (FOUND_IN_TREE(node, cmpres))
+    if (node)
         return true;
 
     return false;
