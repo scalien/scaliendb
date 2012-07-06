@@ -25,6 +25,60 @@
 #define WAITQUEUE_MANAGER       (shardServer->GetTransactionManager()->GetWaitQueueManager())
 #define PRINT_BOOL(str, b) { if ((b)) buffer.Appendf("%s: yes\n", str); else buffer.Appendf("%s: no\n", str); }
 
+/*
+===============================================================================================
+
+ Debug code
+
+===============================================================================================
+*/
+
+static uint64_t     infiniteLoopIntervalEnd;
+static YieldTimer   infiniteLoopYieldTimer;
+
+static void TimedInfiniteLoop()
+{
+    uint64_t    now;
+
+    Log_Message("Async infinite loop started, expire in %U", infiniteLoopIntervalEnd);
+
+    while (true)
+    {
+        now = ::Now();
+        if (now > infiniteLoopIntervalEnd)
+            break;
+    }
+
+    Log_Message("Async infinite loop finished");
+}
+
+static void YieldTimerInfiniteLoop()
+{
+    uint64_t    now;
+    uint64_t    start;
+
+    start = ::Now();
+    while (true)
+    {
+        now = ::Now();
+        if (now > infiniteLoopIntervalEnd)
+            break;
+
+        TRY_YIELD_RETURN(infiniteLoopYieldTimer, start);
+    }
+
+    Log_Message("Yield infinite loop finished");
+}
+
+
+/*
+===============================================================================================
+
+ ShardHTTPClientSession
+
+===============================================================================================
+*/
+
 void ShardHTTPClientSession::SetShardServer(ShardServer* shardServer_)
 {
     shardServer = shardServer_;
@@ -619,6 +673,38 @@ void ShardHTTPClientSession::ProcessDebugCommand()
         session.Print("Start sleeping");
         MSleep(sleep * 1000);
         session.Print("Sleep finished");
+    }
+
+    if (HTTP_GET_OPT_PARAM(params, "asyncInfiniteLoop", param))
+    {
+        static ThreadPool* asyncInfiniteLoopThread;
+        uint64_t infiniteLoopIntervalSec = 60;
+        HTTP_GET_OPT_U64_PARAM(params, "interval", infiniteLoopIntervalSec);
+        snprintf(buf, sizeof(buf), "Looping for %u sec", (unsigned int) infiniteLoopIntervalSec);
+        session.Print(buf);
+        Log_Message("%s", buf);
+        if (asyncInfiniteLoopThread == NULL)
+        {
+            asyncInfiniteLoopThread = ThreadPool::Create(1);
+            asyncInfiniteLoopThread->Start();
+        }
+        infiniteLoopIntervalEnd = NowClock() + infiniteLoopIntervalSec * 1000;
+        asyncInfiniteLoopThread->Execute(CFunc(TimedInfiniteLoop));
+    }
+
+    if (HTTP_GET_OPT_PARAM(params, "yieldInfiniteLoop", param))
+    {
+        uint64_t infiniteLoopIntervalSec = 60;
+        HTTP_GET_OPT_U64_PARAM(params, "interval", infiniteLoopIntervalSec);
+        snprintf(buf, sizeof(buf), "Looping for %u sec", (unsigned int) infiniteLoopIntervalSec);
+        session.Print(buf);
+        Log_Message("%s", buf);
+        if (!infiniteLoopYieldTimer.IsActive())
+        {
+            infiniteLoopIntervalEnd = NowClock() + infiniteLoopIntervalSec * 1000;
+            infiniteLoopYieldTimer.SetCallable(CFunc(YieldTimerInfiniteLoop));
+            EventLoop::Add(&infiniteLoopYieldTimer);
+        }
     }
 
     if (HTTP_GET_OPT_PARAM(params, "stop", param))
