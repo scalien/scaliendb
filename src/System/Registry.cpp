@@ -50,6 +50,23 @@ void RegistryNode::AppendKey(Buffer& buffer) const
     buffer.Append(key);
 }
 
+bool Registry::Exists(const ReadBuffer& key)
+{
+    int             cmpres;
+    Buffer          keyBuffer;
+    RegistryNode*   node;
+    
+    keyBuffer.Write(key);
+    
+    node = registryTree.Locate(keyBuffer, cmpres);
+    
+    if (FOUND_IN_TREE(node, cmpres))
+        return true;
+
+    return false;
+}
+
+
 int64_t* Registry::GetIntPtr(const ReadBuffer& key)
 {
     RegistryNode* node;
