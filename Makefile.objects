@@ -54,6 +54,7 @@ ALL_OBJECTS = \
 	$(BUILD_DIR)/Application/ShardServer/ShardQuorumProcessor.o \
 	$(BUILD_DIR)/Application/ShardServer/ShardServer.o \
 	$(BUILD_DIR)/Application/ShardServer/ShardServerApp.o \
+	$(BUILD_DIR)/Application/ShardServer/ShardTransactionManager.o \
 	$(BUILD_DIR)/Application/ShardServer/ShardWaitQueueManager.o \
 	$(BUILD_DIR)/Framework/Clustering/ClusterConnection.o \
 	$(BUILD_DIR)/Framework/Clustering/ClusterServer.o \

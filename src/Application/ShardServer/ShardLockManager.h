@@ -52,6 +52,8 @@ public:
 ===============================================================================================
 */
 
+class ShardTransactionManager;
+
 class ShardLockManager
 {
     typedef InTreeMap<ShardLock>                                LockTree;
