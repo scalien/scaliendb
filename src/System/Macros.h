@@ -195,6 +195,12 @@ do {                                                                            
         break;                                                                  \
     }
 
+#define LOG_TIMEOUT(timeout, msg)                                                       \
+    do {                                                                                \
+        if (NowClock() > EventLoop::Now() && NowClock() - EventLoop::Now() > timeout)   \
+            Log_Message("Timeout: %U: %s", NowClock() - EventLoop::Now(), msg);         \
+    } while (false)
+
 /*
 ===============================================================================================
 
