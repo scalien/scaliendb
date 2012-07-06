@@ -63,6 +63,10 @@ void ShardHeartbeatManager::OnHeartbeatTimeout()
         quorumInfo.needCatchup = itQuorumProcessor->NeedCatchup();
         quorumInfoList.Append(quorumInfo);
         
+        // don't collect shard info when not primary
+        if (!itQuorumProcessor->IsPrimary())
+            continue;
+
         configQuorum = configState->GetQuorum(itQuorumProcessor->GetQuorumID());
         FOREACH (itShardID, configQuorum->shards)
         {
@@ -106,6 +110,8 @@ void ShardHeartbeatManager::OnHeartbeatTimeout()
     shardServer->BroadcastToControllers(msg);
 
     Log_Trace("Broadcasting heartbeat to controllers");
+
+    LOG_TIMEOUT(1000, "OnHeartbeatTimeout");
 }
 
 void ShardHeartbeatManager::OnActivation()
