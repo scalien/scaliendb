@@ -98,7 +98,7 @@ static IODesc           callback;                           // special IODesc fo
 const FD                INVALID_FD = {-1, INVALID_SOCKET};  // special FD to indicate invalid value
 unsigned                SEND_BUFFER_SIZE = WRITE_BUFFER_SIZE + 1;
 static volatile bool    terminated = false;
-static unsigned         longCallbackThreshold = 500;        // in millisec
+static unsigned         longCallbackThreshold = 1000;        // in millisec
 static unsigned         numIOProcClients = 0;
 static IOProcessorStat  iostat;
 static Mutex            callableMutex;
@@ -900,9 +900,9 @@ void IOProcessor::Call(Callable& callable)
     start = NowClock();
     ::Call(callable);
     elapsed = NowClock() - start;
-    if (elapsed > longCallbackThreshold)
+    if (elapsed >= longCallbackThreshold)
     {
-        Log_Message("Callback elapsed time: %U", elapsed);
+        Log_Message("Callback elapsed time: %U in %s", elapsed, callable.GetType());
         iostat.numLongCallbacks++;
     }
 }

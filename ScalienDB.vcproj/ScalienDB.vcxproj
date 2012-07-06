@@ -516,6 +516,7 @@
     <ClInclude Include="..\src\Framework\Storage\StorageShardProxy.h" />
     <ClInclude Include="..\src\Framework\Storage\StorageUnwrittenChunkLister.h" />
     <ClInclude Include="..\src\Framework\Storage\StorageWriteChunkJob.h" />
+    <ClInclude Include="..\src\System\TypeInfo.h" />
     <ClInclude Include="..\src\System\Watchdog.h" />
     <ClInclude Include="..\src\Version.h" />
     <ClInclude Include="ScalienDB.resource.h" />

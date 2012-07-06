@@ -3,6 +3,7 @@
 
 #include "System/Common.h"
 #include "System/Buffers/Buffer.h"
+#include "System/TypeInfo.h"
 #include <stdlib.h>
 
 #define MFUNC_NAME2(T, Func) T "::" Func "()"
@@ -21,7 +22,7 @@
 class Callable
 {
 public:
-    Callable() : func(NULL), arg(NULL), typeName("") {}
+    Callable() : func(NULL), arg(NULL), typeInfo("<Callable>") {}
     
     void Execute()      { if (!func) return; func(arg); }
     bool IsSet()        { return func != NULL; }
@@ -29,11 +30,12 @@ public:
 
     bool operator==(const Callable& other) { return (func == other.func && arg == other.arg); }
 
-    const char* GetType() { return typeName; }
+    const char* GetType() { return typeInfo.GetType(); }
 
 protected:
-    Callable(void (*func_)(void*), void* arg_) : func(func_), arg(arg_) {}
-    const char* typeName;
+    TypeInfo    typeInfo;
+
+    Callable(void (*func_)(void*), void* arg_, const char* name_) : func(func_), arg(arg_), typeInfo(name_) {}
 
 private:
     void    (*func)(void*);
@@ -56,7 +58,7 @@ inline void Call(Callable& callable)
 class CFunc : public Callable
 {
 public:
-    CFunc(void (*func_)(void)) : Callable(Thunk, (void*) func_) {}
+    CFunc(void (*func_)(void)) : Callable(Thunk, (void*) func_, "<CFunc>") {}
 
 private:
     static void Thunk(void* arg)
@@ -78,10 +80,7 @@ template<class Type, void (Type::*Member)()>
 class MFunc : public Callable
 {
 public:
-    MFunc(Type* obj, const char* name) : Callable(Thunk, obj)
-    {
-        typeName = name;
-    }
+    MFunc(Type* obj, const char* name) : Callable(Thunk, obj, name) {}
 
 private:
     static void Thunk(void* arg)

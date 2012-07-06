@@ -1059,6 +1059,9 @@
     <ClInclude Include="..\src\System\Watchdog.h">
       <Filter>System</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\System\TypeInfo.h">
+      <Filter>System</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="ScalienDB.rc" />
