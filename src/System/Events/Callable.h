@@ -32,14 +32,14 @@ public:
 
     const char* GetType() { return typeInfo.GetType(); }
 
-protected:
-    TypeInfo    typeInfo;
-
-    Callable(void (*func_)(void*), void* arg_, const char* name_) : func(func_), arg(arg_), typeInfo(name_) {}
-
 private:
     void    (*func)(void*);
     void    *arg;
+
+protected:
+    Callable(void (*func_)(void*), void* arg_, const char* name_) : func(func_), arg(arg_), typeInfo(name_) {}
+
+    TypeInfo    typeInfo;
 };
 
 inline void Call(Callable& callable)
