@@ -845,6 +845,110 @@ void SetMemoryLimit(uint64_t limit)
 #endif
 }
 
+#ifdef _WIN32
+BOOL SetPrivilege(
+    HANDLE hToken,          // access token handle
+    LPCTSTR lpszPrivilege,  // name of privilege to enable/disable
+    BOOL bEnablePrivilege   // to enable or disable privilege
+    ) 
+{
+    TOKEN_PRIVILEGES tp;
+    LUID luid;
+
+    if ( !LookupPrivilegeValue( 
+            NULL,            // lookup privilege on local system
+            lpszPrivilege,   // privilege to lookup 
+            &luid ) )        // receives LUID of privilege
+    {
+        Log_Errno();
+        return FALSE; 
+    }
+
+    tp.PrivilegeCount = 1;
+    tp.Privileges[0].Luid = luid;
+    if (bEnablePrivilege)
+        tp.Privileges[0].Attributes = SE_PRIVILEGE_ENABLED;
+    else
+        tp.Privileges[0].Attributes = 0;
+
+    // Enable the privilege or disable all privileges.
+
+    if ( !AdjustTokenPrivileges(
+           hToken, 
+           FALSE, 
+           &tp, 
+           sizeof(TOKEN_PRIVILEGES), 
+           (PTOKEN_PRIVILEGES) NULL, 
+           (PDWORD) NULL) )
+    { 
+        Log_Errno();
+        return FALSE; 
+    } 
+
+    if (GetLastError() == ERROR_NOT_ALL_ASSIGNED)
+    {
+        printf("The token does not have the specified privilege. \n");
+        return FALSE;
+    } 
+
+    return TRUE;
+}
+
+BOOL EnableIncreaseQuotaPrivilege()
+{
+    BOOL    ret;
+    DWORD   error;
+    HANDLE  token;
+
+    ret = OpenProcessToken(GetCurrentProcess(), TOKEN_ADJUST_PRIVILEGES, &token);
+    if (ret == FALSE)
+    {
+        error = GetLastError();
+        Log_Errno();
+        return FALSE;
+    }
+
+    ret = SetPrivilege(token, "SeIncreaseQuotaPrivilege", TRUE);
+    if (ret == FALSE)
+        return FALSE;
+
+    ret = CloseHandle(token);
+    if (ret == FALSE)
+    {
+        error = GetLastError();
+        Log_Errno();
+        return FALSE;
+    }
+
+    return TRUE;
+}
+#endif
+
+void SetMaxFileCacheSize(uint64_t maxFileCacheSize)
+{
+#ifdef _WIN32
+    BOOL    ret;
+    SIZE_T  maximumFileCacheSize;
+    DWORD   error;
+
+    ret = EnableIncreaseQuotaPrivilege();
+    if (ret == FALSE)
+    {
+        return;
+    }
+
+    maximumFileCacheSize = maxFileCacheSize;
+    ret = ::SetSystemFileCacheSize(0, maximumFileCacheSize, FILE_CACHE_MAX_HARD_ENABLE);
+    if (ret == FALSE)
+    {
+        error = GetLastError();
+        Log_Errno();
+    }
+#else
+    // Linux & Mac does not have this feature
+#endif
+}
+
 static uint32_t const crctab[256] =
 {
   0x00000000,

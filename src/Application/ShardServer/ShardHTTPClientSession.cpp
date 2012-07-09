@@ -795,6 +795,16 @@ bool ShardHTTPClientSession::ProcessSettings()
     ShardQuorumProcessor*   quorumProcessor;
     char                    buf[100];
 
+#define CHECK_AND_SET_REGISTRY_UINT64(pstr)                     \
+    if (HTTP_GET_OPT_PARAM(params, pstr, param))                \
+    {                                                           \
+        u64 = 0;                                                \
+        HTTP_GET_OPT_U64_PARAM(params, pstr, u64);              \
+        *(Registry::GetUintPtr(pstr)) = u64;                    \
+        snprintf(buf, sizeof(buf), "%u", (unsigned) u64);       \
+        session.PrintPair(pstr, buf);                           \
+    }
+
 #define CHECK_AND_SET_UINT64(pstr, func)                        \
     if (HTTP_GET_OPT_PARAM(params, pstr, param))                \
     {                                                           \
@@ -953,6 +963,8 @@ bool ShardHTTPClientSession::ProcessSettings()
     CHECK_AND_SET_UINT64("waitQueueMaxCacheTime",   WAITQUEUE_MANAGER->SetMaxCacheTime);
     CHECK_AND_SET_UINT64("waitQueueMaxCacheCount",  WAITQUEUE_MANAGER->SetMaxCacheCount);
     CHECK_AND_SET_UINT64("waitQueueMaxPoolCount",   WAITQUEUE_MANAGER->SetMaxPoolCount);
+
+    CHECK_AND_SET_POSITIVE_UINT64("system.maxFileCacheSize", SetMaxFileCacheSize);
 
     session.Flush();
 
