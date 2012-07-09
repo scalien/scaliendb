@@ -38,6 +38,7 @@ void ShardQuorumContext::Init(ConfigQuorum* configQuorum,
 void ShardQuorumContext::Shutdown()
 {
     replicatedLog.Shutdown();
+    paxosMessageQueue.DeleteQueue();
 }
 
 void ShardQuorumContext::SetQuorumNodes(SortedList<uint64_t>& activeNodes)
@@ -306,6 +307,7 @@ void ShardQuorumContext::OnMessageProcessed()
         message = paxosMessageQueue.Dequeue();
         buffer.Wrap(*message);
         OnMessage(buffer);
+        delete message;
     }
 }
 
