@@ -35,8 +35,6 @@ static uint64_t         nodeID = 0;
 
 int main(int argc, char** argv)
 {
-    SetMemoryLeakReports();
-
     try
     {
         // crash reporter messes up the debugging on Windows
@@ -307,6 +305,8 @@ static void ConfigureSystemSettings()
     GetTotalCpuUsage();
 
     SeedRandom();
+    
+    SetMemoryLeakReports();
 }
 
 static bool IsController()
