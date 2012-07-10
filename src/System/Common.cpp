@@ -849,29 +849,37 @@ void SetMemoryLimit(uint64_t limit)
 
 void SetMemoryLeakReports()
 {
+#ifdef _DEBUG
 #ifdef _CRTDBG_MAP_ALLOC
    HANDLE hLogFile;
 
    hLogFile = CreateFile("leakrep.txt", GENERIC_WRITE, 
-      FILE_SHARE_WRITE, NULL, CREATE_ALWAYS, 
-      FILE_ATTRIBUTE_NORMAL, NULL);
+	  FILE_SHARE_WRITE, NULL, CREATE_ALWAYS, 
+	  FILE_ATTRIBUTE_NORMAL, NULL);
 
    _CrtSetReportMode( _CRT_WARN, _CRTDBG_MODE_FILE );
-   _CrtSetReportFile( _CRT_WARN, _CRTDBG_FILE_STDOUT );
    _CrtSetReportFile( _CRT_WARN, hLogFile);
    _CrtSetReportMode( _CRT_ERROR, _CRTDBG_MODE_FILE );
-   _CrtSetReportFile( _CRT_ERROR, _CRTDBG_FILE_STDOUT );
    _CrtSetReportFile( _CRT_ERROR, hLogFile);
    _CrtSetReportMode( _CRT_ASSERT, _CRTDBG_MODE_FILE );
-   _CrtSetReportFile( _CRT_ASSERT, _CRTDBG_FILE_STDOUT );
    _CrtSetReportFile( _CRT_ASSERT, hLogFile);
+#endif
 #endif
 }
 
 void ReportMemoryLeaks()
 {
+#ifdef _DEBUG
 #ifdef _CRTDBG_MAP_ALLOC
-    _CrtDumpMemoryLeaks();
+    int ret;
+    
+    ret = _CrtDumpMemoryLeaks();
+
+    if (ret == TRUE)
+        printf("Memory leak found... Check leakrep.txt");
+    else
+        printf("No memory leak found...");
+#endif
 #endif
 }
 
