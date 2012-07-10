@@ -23,6 +23,15 @@ private:
     InList<T>                   freeList;
 };
 
+#ifdef _DEBUG
+#ifdef _CRTDBG_MAP_ALLOC
+// undef new because InCache uses placement new
+// if we see memleaks without source traces
+// then it's coming from InCache
+#undef new
+#endif
+#endif
+
 template<class T>
 void InCache<T>::Init(uint64_t size)
 {

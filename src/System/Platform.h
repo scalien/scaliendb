@@ -11,6 +11,14 @@
 
 #ifdef _WIN32 // start Windows
 
+#ifdef _DEBUG
+#ifdef _CRTDBG_MAP_ALLOC
+#include <crtdbg.h>
+#define DEBUG_NEW new(_NORMAL_BLOCK, __FILE__, __LINE__)
+#define new DEBUG_NEW
+#endif
+#endif
+
 #ifdef _WIN64
 #define PLATFORM_STRING     "Windows 64-bit"
 #else
@@ -52,7 +60,11 @@ typedef intptr_t            ssize_t;
 #define _CRT_RAND_S
 
 #define snprintf            _snprintf
+
+#if !(defined _DEBUG && defined _CRTDBG_MAP_ALLOC)
 #define strdup              _strdup
+#endif
+
 #define strncasecmp         _strnicmp
 #define localtime_r(t, tm)  localtime_s(tm, t)
 #define __func__            __FUNCTION__

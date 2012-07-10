@@ -35,6 +35,15 @@ static uint64_t         nodeID = 0;
 
 int main(int argc, char** argv)
 {
+#ifdef _CRTDBG_MAP_ALLOC
+   _CrtSetReportMode( _CRT_WARN, _CRTDBG_MODE_FILE );
+   _CrtSetReportFile( _CRT_WARN, _CRTDBG_FILE_STDOUT );
+   _CrtSetReportMode( _CRT_ERROR, _CRTDBG_MODE_FILE );
+   _CrtSetReportFile( _CRT_ERROR, _CRTDBG_FILE_STDOUT );
+   _CrtSetReportMode( _CRT_ASSERT, _CRTDBG_MODE_FILE );
+   _CrtSetReportFile( _CRT_ASSERT, _CRTDBG_FILE_STDOUT );
+#endif
+
     try
     {
         // crash reporter messes up the debugging on Windows
@@ -56,6 +65,10 @@ int main(int argc, char** argv)
     {
         STOP_FAIL(1, "Unexpected exception happened");
     }
+
+#ifdef _CRTDBG_MAP_ALLOC
+    _CrtDumpMemoryLeaks();
+#endif
 
     return 0;
 }
