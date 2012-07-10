@@ -337,7 +337,6 @@ void ShardDatabaseManager::Init(ShardServer* shardServer_)
 {
     Buffer                      envPath;
     StorageConfig               sc;
-    ShardDatabaseAsyncList*     asyncList;
     
     sc.SetChunkSize(            (uint64_t) configFile.GetInt64Value("database.chunkSize",				64*MiB  ));
     sc.SetLogSegmentSize(       (uint64_t) configFile.GetInt64Value("database.logSegmentSize",			64*MiB  ));
@@ -376,10 +375,12 @@ void ShardDatabaseManager::Init(ShardServer* shardServer_)
     asyncGet.manager = this;
 
     // Initialize async LIST operations
-    for (int i = 0; i < configFile.GetIntValue("database.numAsyncThreads", 10); i++)
+    numAsyncLists = configFile.GetIntValue("database.numAsyncThreads", 10);
+    asyncLists = new ShardDatabaseAsyncList*[numAsyncLists];
+    for (unsigned i = 0; i < numAsyncLists; i++)
     {
-        asyncList = new ShardDatabaseAsyncList(this);
-        inactiveAsyncLists.Append(asyncList);
+        asyncLists[i] = new ShardDatabaseAsyncList(this);
+        inactiveAsyncLists.Append(asyncLists[i]);
     }
 
     // Used for identifying async requests
@@ -391,18 +392,26 @@ void ShardDatabaseManager::Init(ShardServer* shardServer_)
 
 void ShardDatabaseManager::Shutdown()
 {
-    ShardMap::Node*     node;
+    ShardMap::Node* node;
     
     FOREACH (node, quorumPaxosShards)
         delete node->Value();
     FOREACH (node, quorumLogShards)
         delete node->Value();
     
-    // TODO: delete async list ops
-    //asyncList.Clear();
     readRequests.DeleteList();
     environment.Close();
     StoragePageCache::Shutdown();
+    StorageDataPageCache::Shutdown();
+
+    inactiveAsyncLists.ClearMembers();
+    for (unsigned i = 0; i < numAsyncLists; i++)
+    {
+        asyncLists[i]->Clear();
+        delete asyncLists[i];
+    }
+
+    delete[] asyncLists;
 }
 
 StorageEnvironment* ShardDatabaseManager::GetEnvironment()
