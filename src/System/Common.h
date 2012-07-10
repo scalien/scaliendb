@@ -82,6 +82,8 @@ uint32_t        GetTotalCpuUsage();
 uint32_t        GetDiskReadsPerSec();
 uint32_t        GetDiskWritesPerSec();
 void            SetMemoryLimit(uint64_t limit);
+void            SetMemoryLeakReports();
+void            ReportMemoryLeaks();
 
 uint32_t        ChecksumBuffer(const char* buffer, unsigned length);
 
