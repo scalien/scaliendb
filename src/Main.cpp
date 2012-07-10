@@ -35,6 +35,8 @@ static uint64_t         nodeID = 0;
 
 int main(int argc, char** argv)
 {
+    SetMemoryLeakReports();
+
     try
     {
         // crash reporter messes up the debugging on Windows
@@ -56,6 +58,8 @@ int main(int argc, char** argv)
     {
         STOP_FAIL(1, "Unexpected exception happened");
     }
+
+    ReportMemoryLeaks();
 
     return 0;
 }

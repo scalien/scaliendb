@@ -721,11 +721,13 @@ struct PerformanceCounterQuery
 static DWORD WINAPI PerformancePollThread(LPVOID)
 {
     unsigned                i;
+    unsigned                numCounters;
     PDH_STATUS              status;
     PDH_FMT_COUNTERVALUE    counterValue;
     PerformanceCounterQuery pcq[3];
 
     // Initialize counters
+    numCounters = SIZE(pcq);
     memset(pcq, 0, sizeof(pcq));
 
     pcq[0].path = "\\Processor(_Total)\\% Processor Time";
@@ -842,6 +844,42 @@ void SetMemoryLimit(uint64_t limit)
     ret = setrlimit(RLIMIT_AS, &rlim);
     if (ret < 0)
         Log_Errno();
+#endif
+}
+
+void SetMemoryLeakReports()
+{
+#ifdef _DEBUG
+#ifdef _CRTDBG_MAP_ALLOC
+   HANDLE hLogFile;
+
+   hLogFile = CreateFile("leakrep.txt", GENERIC_WRITE, 
+      FILE_SHARE_WRITE, NULL, CREATE_ALWAYS, 
+      FILE_ATTRIBUTE_NORMAL, NULL);
+
+   _CrtSetReportMode( _CRT_WARN, _CRTDBG_MODE_FILE );
+   _CrtSetReportFile( _CRT_WARN, hLogFile);
+   _CrtSetReportMode( _CRT_ERROR, _CRTDBG_MODE_FILE );
+   _CrtSetReportFile( _CRT_ERROR, hLogFile);
+   _CrtSetReportMode( _CRT_ASSERT, _CRTDBG_MODE_FILE );
+   _CrtSetReportFile( _CRT_ASSERT, hLogFile);
+#endif
+#endif
+}
+
+void ReportMemoryLeaks()
+{
+#ifdef _DEBUG
+#ifdef _CRTDBG_MAP_ALLOC
+    int ret;
+    
+    ret = _CrtDumpMemoryLeaks();
+
+    if (ret == TRUE)
+        printf("Memory leak found... Check leakrep.txt");
+    else
+        printf("No memory leak found...");
+#endif
 #endif
 }
 
