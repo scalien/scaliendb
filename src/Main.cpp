@@ -10,9 +10,6 @@
 #include "Application/Common/ContextTransport.h"
 #include "Application/ConfigServer/ConfigServerApp.h"
 #include "Application/ShardServer/ShardServerApp.h"
-#ifdef _CRTDBG_MAP_ALLOC
-#include <windows.h>
-#endif
 
 #define    IDENT            "ScalienDB"
 
