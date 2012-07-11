@@ -17,7 +17,8 @@ class StorageDeleteFileChunkJob : public Job
 {
 public:
     StorageDeleteFileChunkJob(StorageFileChunk* chunk);
-    
+    ~StorageDeleteFileChunkJob();
+
     void                Execute();
     void                OnComplete();
 
