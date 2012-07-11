@@ -21,6 +21,8 @@ StorageShard::StorageShard()
     recoveryLogSegmentID = 0;
     recoveryLogCommandID = 0;
     storageType = STORAGE_SHARD_TYPE_STANDARD;
+    
+    InvalidateCachedValues();
 }
 
 StorageShard::~StorageShard()
@@ -73,11 +75,17 @@ void StorageShard::SetLogCommandID(uint64_t logCommandID_)
 void StorageShard::SetFirstKey(ReadBuffer firstKey_)
 {
     firstKey.Write(firstKey_);
+
+    // This happens on shard splitting
+    InvalidateCachedValues();
 }
 
 void StorageShard::SetLastKey(ReadBuffer lastKey_)
 {
     lastKey.Write(lastKey_);
+
+    // This happens on shard splitting
+    InvalidateCachedValues();
 }
 
 void StorageShard::SetUseBloomFilter(bool useBloomFilter_)
@@ -132,72 +140,21 @@ ReadBuffer StorageShard::GetLastKey()
 
 ReadBuffer StorageShard::GetMidpoint()
 {
-    unsigned                i;
-    StorageChunk**          itChunk;
-    ReadBuffer              midpoint;
-    SortedList<ReadBuffer>  midpoints;
-    ReadBuffer*             itMidpoint;
+    ReadBuffer  midpoint;
 
-    midpoint = memoChunk->GetMidpoint();
-    if (midpoint.GetLength() > 0)
-        midpoints.Add(midpoint);
+    if (IsPrecomputeNecessary())
+        PrecomputeCachedValues();
 
-    FOREACH (itChunk, chunks)
-    {
-        midpoint = (*itChunk)->GetMidpoint();
-        if (midpoint.GetLength() > 0)
-            midpoints.Add(midpoint);
-    }
-
-    i = 0;
-    FOREACH (itMidpoint, midpoints)
-    {
-        if (i >= (midpoints.GetLength() / 2))
-            return *itMidpoint;
-        i++;
-    }
-    
-    return ReadBuffer();     
+    midpoint.Wrap(cachedMidpoint);
+    return midpoint;
 }
 
 uint64_t StorageShard::GetSize()
 {
-    uint64_t            size;
-    StorageFileChunk*   chunk;
-    StorageChunk**      itChunk;
-    ReadBuffer          firstKey;
-    ReadBuffer          lastKey;
+    if (IsPrecomputeNecessary())
+        PrecomputeCachedValues();
 
-    size = memoChunk->GetSize();
-    
-    FOREACH (itChunk, chunks)
-    {
-        if ((*itChunk)->GetChunkState() != StorageChunk::Written)
-        {
-            size += (*itChunk)->GetSize();
-            continue;
-        }
-        
-        chunk = (StorageFileChunk*) *itChunk;
-        firstKey = chunk->GetFirstKey();
-        lastKey = chunk->GetLastKey();
-        
-        if (firstKey.GetLength() > 0 && !RangeContains(firstKey))
-        {
-            size += chunk->GetPartialSize(GetFirstKey(), GetLastKey());
-            continue;
-        }
-
-        if (lastKey.GetLength() > 0 && !RangeContains(lastKey))
-        {
-            size += chunk->GetPartialSize(GetFirstKey(), GetLastKey());
-            continue;
-        }
-
-        size += chunk->GetSize();
-    }
-    
-    return size;
+    return cachedSize;
 }
 
 bool StorageShard::UseBloomFilter()
@@ -212,25 +169,29 @@ char StorageShard::GetStorageType()
 
 bool StorageShard::IsSplitable()
 {
-    StorageChunk**  itChunk;
+    if (IsPrecomputeNecessary())
+        PrecomputeCachedValues();
+
+    return cachedSplitable;
+}
+
+bool StorageShard::IsChunkSplitable(StorageChunk* chunk)
+{
     ReadBuffer      firstKey;
     ReadBuffer      lastKey;
 
-    FOREACH (itChunk, chunks)
-    {
-        firstKey = (*itChunk)->GetFirstKey();
-        lastKey = (*itChunk)->GetLastKey();
+    firstKey = chunk->GetFirstKey();
+    lastKey = chunk->GetLastKey();
 
-        if (ReadBuffer::Cmp((*itChunk)->GetMidpoint(), "ScalienDB-Midpoint") == 0)
-            return false;
+    if (ReadBuffer::Cmp(chunk->GetMidpoint(), "ScalienDB-Midpoint") == 0)
+        return false;
         
-        if (firstKey.GetLength() > 0 && !RangeContains(firstKey))
-            return false;
+    if (firstKey.GetLength() > 0 && !RangeContains(firstKey))
+        return false;
 
-        if (lastKey.GetLength() > 0 && !RangeContains(lastKey))
-            return false;
-    }
-    
+    if (lastKey.GetLength() > 0 && !RangeContains(lastKey))
+        return false;
+
     return true;
 }
 
@@ -381,4 +342,77 @@ void StorageShard::GetMergeInputChunks(List<StorageFileChunk*>& inputChunks)
     }
 
     ASSERT(inputChunks.GetLength() > 1);
+}
+
+void StorageShard::InvalidateCachedValues()
+{
+    cachedMidpoint.Reset();
+    cachedSize = 0;
+    cachedNumChunks = 0;
+    cachedSplitable = false;
+}
+
+void StorageShard::PrecomputeCachedValues()
+{
+    unsigned                i;
+    StorageChunk**          itChunk;
+    ReadBuffer              midpoint;
+    SortedList<ReadBuffer>  midpoints;
+    ReadBuffer*             itMidpoint;
+    uint64_t                size;
+    uint64_t                chunkSize;
+    bool                    splitable;
+
+    InvalidateCachedValues();
+
+    midpoint = memoChunk->GetMidpoint();
+    if (midpoint.GetLength() > 0)
+        midpoints.Add(midpoint);
+
+    size = 0;
+    splitable = true;
+    FOREACH (itChunk, chunks)
+    {
+        if ((*itChunk)->GetChunkState() == StorageChunk::Written)
+        {
+            chunkSize = 0;
+            midpoint = ((StorageFileChunk*)(*itChunk))->GetPartialMidpointAndSize(firstKey, lastKey, chunkSize);
+            size += chunkSize;
+        }
+        else
+        {
+            midpoint = (*itChunk)->GetMidpoint();
+            size += (*itChunk)->GetSize();
+        }
+
+        splitable &= IsChunkSplitable(*itChunk);
+
+        if (midpoint.GetLength() > 0)
+            midpoints.Add(midpoint);
+    }
+
+    i = 0;
+    FOREACH (itMidpoint, midpoints)
+    {
+        if (i >= (midpoints.GetLength() / 2))
+        {
+            cachedMidpoint.Write(midpoint);
+            cachedSize = size;
+            cachedNumChunks = chunks.GetLength();
+            cachedSplitable = splitable;
+            return;
+        }
+        i++;
+    }
+}
+
+bool StorageShard::IsPrecomputeNecessary()
+{
+    // If the number of chunks did not change and the size of the memoChunk
+    // is not significant compared to the size of the shard, then we can safely assume
+    // the shard is not changed.
+    if (chunks.GetLength() == cachedNumChunks && cachedSize > memoChunk->GetSize() * 2)
+        return false;
+
+    return true;
 }

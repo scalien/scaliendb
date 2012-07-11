@@ -53,6 +53,7 @@ public:
     ReadBuffer          GetFirstKey();
     ReadBuffer          GetLastKey();
     ReadBuffer          GetMidpoint();
+    ReadBuffer          GetIndexKey(uint32_t index);
     uint64_t            GetFirstDatapageOffset();
     uint64_t            GetLastDatapageOffset();
     uint32_t            GetOffsetIndex(uint64_t& offset);

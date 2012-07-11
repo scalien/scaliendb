@@ -100,6 +100,19 @@ ReadBuffer StorageIndexPage::GetMidpoint()
     return indexTree.Mid()->key;
 }
 
+ReadBuffer StorageIndexPage::GetIndexKey(uint32_t index)
+{
+    StorageIndexRecord* it;
+
+    FOREACH (it, indexTree)
+    {
+        if (it->index == index)
+            return it->key;
+    }
+    
+    return ReadBuffer();
+}
+
 uint64_t StorageIndexPage::GetFirstDatapageOffset()
 {
     ASSERT(indexTree.First() != NULL);

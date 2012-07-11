@@ -341,6 +341,28 @@ ReadBuffer StorageFileChunk::GetMidpoint()
     return headerPage.GetMidpoint();
 }
 
+ReadBuffer StorageFileChunk::GetPartialMidpointAndSize(ReadBuffer firstKey, ReadBuffer lastKey, uint64_t& size)
+{
+    uint64_t    firstOffset;
+    uint64_t    lastOffset;
+    uint32_t    firstIndex;
+    uint32_t    lastIndex;
+    
+    if (indexPage == NULL)
+        return GetMidpoint();
+
+    firstIndex = 0;
+    firstOffset = 0;
+    indexPage->Locate(firstKey, firstIndex, firstOffset);
+    
+    lastIndex = indexPage->GetNumDataPages() - 1;
+    lastOffset = fileSize;
+    indexPage->Locate(lastKey, lastIndex, lastOffset);
+
+    size = lastOffset - firstOffset;
+    return indexPage->GetIndexKey(firstIndex + (lastIndex - firstIndex) / 2);
+}
+
 bool StorageFileChunk::IsEmpty()
 {
     return (numDataPages == 0);
