@@ -410,6 +410,7 @@ void IOProcessor::Shutdown()
     iocp = NULL;
     SetConsoleCtrlHandler(ConsoleCtrlHandler, FALSE);
     WSACleanup();
+    callableQueue.DeleteQueue();
 }
 
 static bool RequestReadNotification(IOOperation* ioop)
