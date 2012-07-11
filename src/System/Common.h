@@ -83,7 +83,7 @@ uint32_t        GetDiskReadsPerSec();
 uint32_t        GetDiskWritesPerSec();
 void            SetMemoryLimit(uint64_t limit);
 void            SetMaxFileCacheSize(uint64_t maxFileCacheSize);
-void            SetMemoryLeakReports();
+void            SetMemoryLeakReports(const char* filename);
 void            ReportMemoryLeaks();
 
 uint32_t        ChecksumBuffer(const char* buffer, unsigned length);
