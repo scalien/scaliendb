@@ -306,7 +306,7 @@ static void ConfigureSystemSettings()
 
     SeedRandom();
     
-    SetMemoryLeakReports();
+    SetMemoryLeakReports(IsController() ? "controllerleakreport.txt" : "shardleakreport.txt");
 }
 
 static bool IsController()
