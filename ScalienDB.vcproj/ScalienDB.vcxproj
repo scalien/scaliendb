@@ -113,7 +113,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>..\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;PLATFORM_WINDOWS;DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;PLATFORM_WINDOWS;DEBUG;NO_NED_NAMESPACE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <PrecompiledHeader>
@@ -165,7 +165,7 @@
       <Optimization>MaxSpeed</Optimization>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <AdditionalIncludeDirectories>..\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;PLATFORM_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;PLATFORM_WINDOWS;NO_NED_NAMESPACE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <PrecompiledHeader>
@@ -202,6 +202,8 @@
     <ClCompile Include="..\src\System\FileSystem.cpp" />
     <ClCompile Include="..\src\System\Formatting.cpp" />
     <ClCompile Include="..\src\System\Log.cpp" />
+    <ClCompile Include="..\src\System\Memory\Memory.cpp" />
+    <ClCompile Include="..\src\System\Memory\nedmalloc.c" />
     <ClCompile Include="..\src\System\Registry.cpp" />
     <ClCompile Include="..\src\System\SafeFormatting.cpp" />
     <ClCompile Include="..\src\System\Service_Posix.cpp" />
@@ -266,8 +268,6 @@
     <ClCompile Include="..\src\Application\SDBP\SDBPRequestMessage.cpp" />
     <ClCompile Include="..\src\Application\SDBP\SDBPResponseMessage.cpp" />
     <ClCompile Include="..\src\Application\SDBP\SDBPServer.cpp" />
-    <ClCompile Include="..\src\Application\ShardServer\ShardCatchupReader.cpp" />
-    <ClCompile Include="..\src\Application\ShardServer\ShardCatchupWriter.cpp" />
     <ClCompile Include="..\src\Application\ShardServer\ShardDatabaseManager.cpp" />
     <ClCompile Include="..\src\Application\ShardServer\ShardHeartbeatManager.cpp" />
     <ClCompile Include="..\src\Application\ShardServer\ShardHTTPClientSession.cpp" />
@@ -352,6 +352,9 @@
     <ClInclude Include="..\src\System\Formatting.h" />
     <ClInclude Include="..\src\System\Log.h" />
     <ClInclude Include="..\src\System\Macros.h" />
+    <ClInclude Include="..\src\System\Memory\malloc.c.h" />
+    <ClInclude Include="..\src\System\Memory\nedmalloc.h" />
+    <ClInclude Include="..\src\System\Memory\Memory.h" />
     <ClInclude Include="..\src\System\Platform.h" />
     <ClInclude Include="..\src\System\PointerGuard.h" />
     <ClInclude Include="..\src\System\Registry.h" />
@@ -434,8 +437,6 @@
     <ClInclude Include="..\src\Application\SDBP\SDBPRequestMessage.h" />
     <ClInclude Include="..\src\Application\SDBP\SDBPResponseMessage.h" />
     <ClInclude Include="..\src\Application\SDBP\SDBPServer.h" />
-    <ClInclude Include="..\src\Application\ShardServer\ShardCatchupReader.h" />
-    <ClInclude Include="..\src\Application\ShardServer\ShardCatchupWriter.h" />
     <ClInclude Include="..\src\Application\ShardServer\ShardDatabaseManager.h" />
     <ClInclude Include="..\src\Application\ShardServer\ShardHeartbeatManager.h" />
     <ClInclude Include="..\src\Application\ShardServer\ShardHTTPClientSession.h" />
@@ -477,7 +478,6 @@
     <ClInclude Include="..\src\Framework\TCP\TCPServer.h" />
     <ClInclude Include="..\src\Framework\Storage\BloomFilter.h" />
     <ClInclude Include="..\src\Framework\Storage\FDGuard.h" />
-    <ClInclude Include="..\src\Framework\Storage\PointerGuard.h" />
     <ClInclude Include="..\src\Framework\Storage\StorageArchiveLogSegmentJob.h" />
     <ClInclude Include="..\src\Framework\Storage\StorageAsyncBulkCursor.h" />
     <ClInclude Include="..\src\Framework\Storage\StorageAsyncGet.h" />

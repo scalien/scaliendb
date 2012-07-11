@@ -70,6 +70,8 @@ typedef intptr_t            ssize_t;
 #define __func__            __FUNCTION__
 #define THREAD_LOCAL        __declspec(thread)
 
+#include "System/Memory/Memory.h"
+
 #else // end Windows, start Unix
 
 #ifdef PLATFORM_LINUX

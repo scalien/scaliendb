@@ -76,6 +76,9 @@
     <Filter Include="Framework\Storage">
       <UniqueIdentifier>{57bf3195-21fe-4988-8cea-5a624c1e4511}</UniqueIdentifier>
     </Filter>
+    <Filter Include="System\Memory">
+      <UniqueIdentifier>{66ceb663-649c-42e0-a82f-d63ab688f24c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\System\Common.cpp">
@@ -266,12 +269,6 @@
     </ClCompile>
     <ClCompile Include="..\src\Application\SDBP\SDBPServer.cpp">
       <Filter>Application\SDBP</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\Application\ShardServer\ShardCatchupReader.cpp">
-      <Filter>Application\ShardServer</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\Application\ShardServer\ShardCatchupWriter.cpp">
-      <Filter>Application\ShardServer</Filter>
     </ClCompile>
     <ClCompile Include="..\src\Application\ShardServer\ShardDatabaseManager.cpp">
       <Filter>Application\ShardServer</Filter>
@@ -516,6 +513,12 @@
     </ClCompile>
     <ClCompile Include="..\src\System\SafeFormatting.cpp">
       <Filter>System</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\System\Memory\nedmalloc.c">
+      <Filter>System\Memory</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\System\Memory\Memory.cpp">
+      <Filter>System\Memory</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -765,12 +768,6 @@
     <ClInclude Include="..\src\Application\SDBP\SDBPServer.h">
       <Filter>Application\SDBP</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\Application\ShardServer\ShardCatchupReader.h">
-      <Filter>Application\ShardServer</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\Application\ShardServer\ShardCatchupWriter.h">
-      <Filter>Application\ShardServer</Filter>
-    </ClInclude>
     <ClInclude Include="..\src\Application\ShardServer\ShardDatabaseManager.h">
       <Filter>Application\ShardServer</Filter>
     </ClInclude>
@@ -892,9 +889,6 @@
       <Filter>Framework\Storage</Filter>
     </ClInclude>
     <ClInclude Include="..\src\Framework\Storage\FDGuard.h">
-      <Filter>Framework\Storage</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\Framework\Storage\PointerGuard.h">
       <Filter>Framework\Storage</Filter>
     </ClInclude>
     <ClInclude Include="..\src\Framework\Storage\StorageArchiveLogSegmentJob.h">
@@ -1052,6 +1046,15 @@
     </ClInclude>
     <ClInclude Include="..\src\System\SafeFormatting.h">
       <Filter>System</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\System\Memory\malloc.c.h">
+      <Filter>System\Memory</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\System\Memory\nedmalloc.h">
+      <Filter>System\Memory</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\System\Memory\Memory.h">
+      <Filter>System\Memory</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
