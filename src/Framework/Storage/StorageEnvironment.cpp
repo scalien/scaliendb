@@ -1029,7 +1029,7 @@ void StorageEnvironment::DeleteShard(uint16_t contextID, uint64_t shardID, bool 
 
     if (shard->GetMemoChunk() != NULL)
     {
-        deleteChunkJobs.Enqueue(new StorageDeleteMemoChunkJob(shard->GetMemoChunk()));
+        deleteChunkJobs.Enqueue(new StorageDeleteMemoChunkJob(shard->GetMemoChunk())); // Enqueue() instead of Execute() because WriteTOC() is required before
         shard->memoChunk = NULL;
     }
 
@@ -1044,7 +1044,7 @@ void StorageEnvironment::DeleteShard(uint16_t contextID, uint64_t shardID, bool 
             if (serializeChunkJobs.IsActive() && SERIALIZECHUNKJOB->memoChunk == memoChunk)
                 memoChunk->deleted = true;
             else
-                deleteChunkJobs.Enqueue(new StorageDeleteMemoChunkJob(memoChunk));
+                deleteChunkJobs.Enqueue(new StorageDeleteMemoChunkJob(memoChunk)); // Enqueue() instead of Execute() because WriteTOC() is required before
         }
         else
         {
@@ -1059,7 +1059,7 @@ void StorageEnvironment::DeleteShard(uint16_t contextID, uint64_t shardID, bool 
             else
             {
                 fileChunk->RemovePagesFromCache();
-                deleteChunkJobs.Enqueue(new StorageDeleteFileChunkJob(fileChunk));
+                deleteChunkJobs.Enqueue(new StorageDeleteFileChunkJob(fileChunk)); // Enqueue() instead of Execute() because WriteTOC() is required before
             }
         }
     }
@@ -1072,6 +1072,7 @@ void StorageEnvironment::DeleteShard(uint16_t contextID, uint64_t shardID, bool 
     
     if (!bulkDelete)
     {
+        // WriteTOC() is required before any chunks are deleted
         WriteTOC();
         deleteChunkJobs.Execute();    
     }
@@ -1460,18 +1461,12 @@ void StorageEnvironment::TryDeleteFileChunks()
         if (shard->GetStorageType() == STORAGE_SHARD_TYPE_LOG)
         {
             if (TryDeleteLogTypeFileChunk(shard))
-            {
-                WriteTOC();
                 return;
-            }
         }
         else if (shard->GetStorageType() == STORAGE_SHARD_TYPE_DUMP)
         {
             if (TryDeleteDumpTypeFileChunk(shard))
-            {
-                WriteTOC();
                 return;
-            }
         }
     }
 }
@@ -1492,7 +1487,11 @@ bool StorageEnvironment::TryDeleteLogTypeFileChunk(StorageShard* shard)
     fileChunk->RemovePagesFromCache();
     fileChunks.Remove(fileChunk);
     shard->GetChunks().Remove(chunk);
+
     deleteChunkJobs.Enqueue(new StorageDeleteFileChunkJob(fileChunk));
+    WriteTOC();
+    deleteChunkJobs.Execute();
+
     return true;
 }
 
@@ -1509,13 +1508,18 @@ bool StorageEnvironment::TryDeleteDumpTypeFileChunk(StorageShard* shard)
         chunk = *itChunk;
         if (chunk->GetChunkState() != StorageChunk::Written)
             continue;
+
         if (writtenFound)
         {
             fileChunk = (StorageFileChunk*) chunk;
             fileChunk->RemovePagesFromCache();
             fileChunks.Remove(fileChunk);
             shard->GetChunks().Remove(chunk);
+
             deleteChunkJobs.Enqueue(new StorageDeleteFileChunkJob(fileChunk));
+            WriteTOC();
+            deleteChunkJobs.Execute();
+
             return true;
         }
         writtenFound = true;
