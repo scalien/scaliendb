@@ -403,6 +403,7 @@ void ShardDatabaseManager::Shutdown()
     readRequests.DeleteList();
     environment.Close();
     StoragePageCache::Shutdown();
+    StorageDataPageCache::Shutdown();
 }
 
 StorageEnvironment* ShardDatabaseManager::GetEnvironment()
