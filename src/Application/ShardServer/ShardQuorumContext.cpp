@@ -306,6 +306,7 @@ void ShardQuorumContext::OnMessageProcessed()
         message = paxosMessageQueue.Dequeue();
         buffer.Wrap(*message);
         OnMessage(buffer);
+        delete message;
     }
 }
 
