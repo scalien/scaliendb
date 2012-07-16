@@ -106,6 +106,9 @@ bool StorageChunkMerger::Merge(
     fd.Close();
     
     mergeChunk->written = true;
+    // unload data pages, because we don't want to add them
+    // to the cache to avoid throwing out other pages
+    mergeChunk->UnloadDataPages();
 
     // Don't unload index and bloom page
     onFinish.Unset();

@@ -1669,7 +1669,11 @@ void StorageEnvironment::OnChunkMerge(StorageMergeChunkJob* job)
     if (shard != NULL && job->mergeChunk->written && !job->mergeChunk->IsEmpty())
     {
         fileChunks.Append(job->mergeChunk);
-        job->mergeChunk->AddPagesToCache();
+        // the merge job unloaded mergeChunk's data pages,
+        // because we don't want to add them
+        // to the cache to avoid throwing out other pages
+        // only add the meta pages to the cache
+        job->mergeChunk->AddMetaPagesToCache();
     }
     else
     {
