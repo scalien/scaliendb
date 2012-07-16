@@ -32,7 +32,7 @@ public:
     uint64_t    GetLogSegmentSize();
     uint64_t    GetFileChunkCacheSize();
     uint64_t    GetMemoChunkCacheSize();
-    uint64_t    GetNumUnbackedLogSegments();
+    uint64_t    GetNumLogSegments();
     uint64_t    GetMergeBufferSize();
     uint64_t    GetMergeYieldFactor();
     uint64_t    GetSyncGranularity();
@@ -47,7 +47,7 @@ private:
     uint64_t    logSegmentSize;
     uint64_t    fileChunkCacheSize;
     uint64_t    memoChunkCacheSize;
-    uint64_t    numUnbackedLogSegments;
+    uint64_t    numLogSegments;
     uint64_t    mergeBufferSize;
     uint64_t    mergeYieldFactor;
     uint64_t    syncGranularity;

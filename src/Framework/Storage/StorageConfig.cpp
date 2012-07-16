@@ -22,9 +22,9 @@ void StorageConfig::SetMemoChunkCacheSize(uint64_t memoChunkCacheSize_)
 
 void StorageConfig::SetLogSize(uint64_t logSize_)
 {
-    numUnbackedLogSegments = logSize_ / logSegmentSize;
-    if (numUnbackedLogSegments == 0)
-        numUnbackedLogSegments = 1;
+    numLogSegments = logSize_ / logSegmentSize;
+    if (numLogSegments == 0)
+        numLogSegments = 1;
 }
 
 void StorageConfig::SetMergeBufferSize(uint64_t mergeBufferSize_)
@@ -89,9 +89,9 @@ uint64_t StorageConfig::GetMemoChunkCacheSize()
     return memoChunkCacheSize;
 }
 
-uint64_t StorageConfig::GetNumUnbackedLogSegments()
+uint64_t StorageConfig::GetNumLogSegments()
 {
-    return numUnbackedLogSegments;
+    return numLogSegments;
 }
 
 uint64_t StorageConfig::GetMergeBufferSize()

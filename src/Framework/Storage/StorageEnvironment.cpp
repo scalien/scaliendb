@@ -1281,11 +1281,11 @@ void StorageEnvironment::TrySerializeChunks()
         //        goto Candidate;
         //}
 
-        if (logSegment->GetLogSegmentID() <= config.GetNumUnbackedLogSegments())
+        if (logSegment->GetLogSegmentID() <= config.GetNumLogSegments())
             continue;
         if (memoChunk->GetMinLogSegmentID() == 0)
             continue;
-        if (memoChunk->GetMinLogSegmentID() >= (logSegment->GetLogSegmentID() - config.GetNumUnbackedLogSegments()))
+        if (memoChunk->GetMinLogSegmentID() >= (logSegment->GetLogSegmentID() - config.GetNumLogSegments()))
             continue;
 
 Candidate:
