@@ -522,7 +522,7 @@ bool StorageEnvironment::Set(uint16_t contextID, uint64_t shardID, ReadBuffer ke
     {
         // approximate size
         keyValueSize = key.GetLength() + value.GetLength();
-        while (memoChunk->GetSize() + keyValueSize > config.GetChunkSize() && config.GetNumLogSegmentFileChunks() == 0)
+        while (memoChunk->GetSize() + keyValueSize > config.GetChunkSize() && config.GetNumLogShardFileChunks() == 0)
             memoChunk->RemoveFirst();
     }
     
@@ -683,7 +683,7 @@ bool StorageEnvironment::PushMemoChunk(uint16_t contextID, uint64_t shardID)
     if (shard == NULL)
         return false;
 
-    if (shard->GetStorageType() == STORAGE_SHARD_TYPE_LOG && config.GetNumLogSegmentFileChunks() == 0)
+    if (shard->GetStorageType() == STORAGE_SHARD_TYPE_LOG && config.GetNumLogShardFileChunks() == 0)
         return false; // never serialize log storage shards if we don't want file chunks
     
     memoChunk = shard->GetMemoChunk();            
@@ -1258,7 +1258,7 @@ void StorageEnvironment::TrySerializeChunks()
         if (memoChunk->GetSize() == 0)
             continue;
 
-        if (shard->GetStorageType() == STORAGE_SHARD_TYPE_LOG && config.GetNumLogSegmentFileChunks() == 0)
+        if (shard->GetStorageType() == STORAGE_SHARD_TYPE_LOG && config.GetNumLogShardFileChunks() == 0)
             continue; // never serialize log storage shards if we don't want filechunks
         
         logSegment = logManager.GetHead(shard->GetTrackID());
@@ -1476,7 +1476,7 @@ bool StorageEnvironment::TryDeleteLogTypeFileChunk(StorageShard* shard)
     StorageFileChunk*   fileChunk;
     StorageChunk*       chunk;
 
-    if (shard->GetChunks().GetLength() <= config.GetNumLogSegmentFileChunks())
+    if (shard->GetChunks().GetLength() <= config.GetNumLogShardFileChunks())
         return false;
 
     chunk = *(shard->GetChunks().First());
