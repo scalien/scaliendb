@@ -52,28 +52,10 @@ unsigned StoragePageCache::GetNumPages()
 
 void StoragePageCache::AddMetaPage(StoragePage* page)
 {
-    StoragePage*    it;
-
-    if (page->GetMemorySize() > maxSize)
-        return;
+    ASSERT(page->GetMemorySize() < maxSize);
 
     while (size + page->GetMemorySize() > maxSize)
-    {
-        if (dataPages.GetLength() > 0)
-        {
-            it = dataPages.First();
-            size -= it->GetMemorySize();
-            dataPages.Remove(it);
-            it->Unload();
-        }
-        else
-        {
-            it = metaPages.First();
-            size -= it->GetMemorySize();
-            metaPages.Remove(it);
-            it->Unload();
-        }
-    }
+        RemoveOnePage();
 
     size += page->GetMemorySize();
     metaPages.Append(page);
@@ -81,22 +63,10 @@ void StoragePageCache::AddMetaPage(StoragePage* page)
 
 void StoragePageCache::AddDataPage(StoragePage* page, bool bulk)
 {
-    StoragePage*    it;
-
-    if (page->GetMemorySize() > maxSize)
-        return;
+    ASSERT(page->GetMemorySize() < maxSize);
 
     while (size + page->GetMemorySize() > maxSize)
-    {
-        // the cache is full with metaPages
-        if (dataPages.GetLength() == 0)
-            return;
-
-        it = dataPages.First();
-        size -= it->GetMemorySize();
-        dataPages.Remove(it);
-        it->Unload();        
-    }
+        RemoveOnePage();
     
     size += page->GetMemorySize();
 
@@ -128,4 +98,26 @@ void StoragePageCache::RegisterDataHit(StoragePage* page)
 {
     dataPages.Remove(page);
     dataPages.Append(page);
+}
+
+void StoragePageCache::RemoveOnePage()
+{
+    StoragePage* page;
+
+    if (dataPages.GetLength() > 0)
+    {
+        page = dataPages.First();
+        ASSERT(page);
+        size -= page->GetMemorySize();
+        dataPages.Remove(page);
+        page->Unload();
+    }
+    else if (metaPages.GetLength() > 0)
+    {
+        page = metaPages.First();
+        ASSERT(page);
+        size -= page->GetMemorySize();
+        metaPages.Remove(page);
+        page->Unload();
+    }
 }

@@ -61,6 +61,9 @@ public:
     bool                IsEmpty();
     
     void                AddPagesToCache();
+    void                AddMetaPagesToCache();
+    void                AddDataPagesToCache();
+    void                UnloadDataPages();
     void                RemovePagesFromCache();
 
     void                OnBloomPageEvicted();

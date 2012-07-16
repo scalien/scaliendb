@@ -305,8 +305,11 @@ static void ConfigureSystemSettings()
     GetTotalCpuUsage();
 
     SeedRandom();
-    
-    SetMemoryLeakReports(IsController() ? "controllerleakreport.txt" : "shardleakreport.txt");
+
+    if (IsController())
+        SetMemoryLeakReports("controller_leaks.txt");
+    else
+        SetMemoryLeakReports("shard_leaks.txt");
 }
 
 static bool IsController()

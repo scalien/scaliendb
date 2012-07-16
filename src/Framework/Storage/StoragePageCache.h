@@ -34,6 +34,8 @@ public:
     static void                 RegisterDataHit(StoragePage* page);
 
 private:
+    static void                 RemoveOnePage();
+
     static uint64_t             size;
     static uint64_t             maxSize;
     static PageList             metaPages;

@@ -876,7 +876,7 @@ void ReportMemoryLeaks()
     ret = _CrtDumpMemoryLeaks();
 
     if (ret == TRUE)
-        printf("Memory leak found... Check leakrep.txt");
+        printf("Memory leak found...");
     else
         printf("No memory leak found...");
 #endif

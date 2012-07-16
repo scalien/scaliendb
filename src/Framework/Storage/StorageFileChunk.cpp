@@ -370,6 +370,21 @@ bool StorageFileChunk::IsEmpty()
 
 void StorageFileChunk::AddPagesToCache()
 {
+    AddDataPagesToCache();
+    AddMetaPagesToCache();
+}
+
+void StorageFileChunk::AddMetaPagesToCache()
+{
+    if (UseBloomFilter() && bloomPage != NULL)
+        StoragePageCache::AddMetaPage(bloomPage);
+
+    if (indexPage != NULL)
+        StoragePageCache::AddMetaPage(indexPage);
+}
+
+void StorageFileChunk::AddDataPagesToCache()
+{
     uint32_t i;
     
     for (i = 0; i < numDataPages; i++)
@@ -377,12 +392,20 @@ void StorageFileChunk::AddPagesToCache()
         if (dataPages[i] != NULL)
             StoragePageCache::AddDataPage(dataPages[i], true);
     }
+}
 
-    if (UseBloomFilter() && bloomPage != NULL)
-        StoragePageCache::AddMetaPage(bloomPage);
+void StorageFileChunk::UnloadDataPages()
+{
+    unsigned i;
 
-    if (indexPage != NULL)
-        StoragePageCache::AddMetaPage(indexPage);
+    for (i = 0; i < numDataPages; i++)
+    {
+        if (dataPages[i])
+        {
+            delete dataPages[i];
+            dataPages[i] = NULL;
+        }
+    }
 }
 
 void StorageFileChunk::RemovePagesFromCache()
