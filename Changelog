@@ -1,0 +1,93 @@
+
+ +--------------+
+ |    2.6.0     |
+ +--------------+
+
+	- Unified callback calls in IOProcessor to have statistics on long callbacks. Debug only.
+
+	- Added database.maxChunkPerShard config variable and maxChunkPerShard HTTP setting. This was hardcoded before, its value was 10, this is also the new default setting.
+
+	- Transaction code.
+
+	- Client only: SDBPException::NodeID, QuorumID, TableID, PaxosID can be queried. Better exception handling.
+
+	- Disable merge if shard server is inactive.
+
+	- Keep track of replication throughput and report on 'stats' page of shard server (units: byte/sec).
+
+	- Fixed Now() to return increasing values.
+
+	- Changed shard HTTP /stats output _ordering only_. 
+
+	- Fixed truncate table phase 2. Until now truncated table's new shards were stuck with state == CONFIG_SHARD_STATE_TRUNC_CREATING.
+
+	- Fixed possible bug due to logging when clock goes backwards (remove one Log_Debug).
+
+	- Disabled database catchup.
+	  The lagging shard server signals that is needs catchup and it's up to the admin to perform manual catchup.
+	  Also updated HTTP output and the webadmin.
+	  Backward compatible.
+	  INSTALL NEW WEBADMIN!
+
+	- Count number of WriteTOC() that take more than 100 and 1000 msec, display on stats page.
+
+	- Fixed bug where shard aren't recreated if a shard server's db folder is deleted.
+
+	- Added Registry module.
+
+	- Temporarily removed ASSERT which checks that there is exactly 1 shard in the table after truncate. Put this back in the next version.
+
+	- Fixed bug where:
+	  If database.replicatedLogSize == 0 (default in the controller) then log type shard (the one holding the accepted:XXXX replicated log) is not written to filechunk. But log type shard also do not hinder log segment removal, so the this data can get lost, ie. the memo chunk will be empty after restart. Subsequently, this led to the PaxosAcceptor trying to read the last accepted value and running into:
+	  ASSERT(state.acceptedValue.GetLength() > 0);
+	  The fix is the set numLogSegmentFileChunks to at least 1.
+	  DID NOT FIX THE BUG.
+
+	- Added new exception types to C# client.
+
+	- Added additional logs. Exact page read failure when reading from disk is reported using Log_Messages.
+
+	- Added an optimized function for reading log segments: it reads the entire log segment into a buffer. DID NOT HELP, LOG SEGMENT PROCESSING SEEMS CPU LIMITED.
+
+	- Added memleak tracing under Windows. Use _CRTDBG_MAP_ALLOC in the VS Project to turn it on. Under DEBUG builds _only_.
+	- Different filenames for controller and shard server leak report file.
+
+	- Fixed bug where Execute() was not called after JobProcessor::Enqueue(). This did not really result in a memleak.
+
+	- Data page cache shutdown was not called. This did not really result in a memleak.
+
+	- Fix bug where paxos message queue item is not deleted. Fixed a memleak.
+
+	- Fix bug where data pages were not added to the cache, but were not unloaded from memory (we still had pointers in the filechunk dataPages array), which resulted in a kind of memleak.
+
+	- After chunk merge, the new chunk's data pages are not added to the page cache.
+
+	- Added IOProcessor memory usage to HTTP output.
+
+	- Added Watchdog class. NOT USED.
+
+	- Fixed activation bug: Fixed missing variable from operator= in class ConfigShardServer. 
+
+	- *** Fixed IOCP async cancel cases ***
+	  Fixes bug where the master controller's IO thread is at 100% CPU, resulting in +8% overall CPU usage for that server.
+
+	- Added basic typeinfo to callbacks. 
+
+	- Added optimization to shard server to not send quorumInfos when not primary.
+
+	- Added infinite loop testing code. Debug only.
+
+	- Added filesystem cache size limiter feature. Calls SetSystemFileCacheSize Win32 function. Not called by default.
+
+	- Fixed ShardDatabaseManager shutdown to have a clean exit with everything deallocated.
+
+	- Added destructor to StorageDeleteFileChunkJob. For proper memory deallocation when server is shut down.
+
+	+ Added optimization for calculating shard midpoint and size. 
+
+	- Added IOProcessor related memory usage tracking.
+
+ +--------------+
+ |    2.5.3     |
+ +--------------+
+
