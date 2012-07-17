@@ -43,7 +43,6 @@
  */
 
 
-// EXPERIMENTAL
 #ifdef DEBUG
 #define ASSERT(expr)                                                    \
     do {                                                                \
@@ -51,7 +50,6 @@
         {                                                               \
             PrintStackTrace();                                          \
             Log_Flush();                                                \
-            while (true) ;                                              \
             if (IsAssertCritical())                                     \
                 assert(expr);                                           \
             else                                                        \

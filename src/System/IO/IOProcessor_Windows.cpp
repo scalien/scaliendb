@@ -242,12 +242,12 @@ static bool CancelIOOperation(IODesc* iod, IOOperation* ioop)
             // The operation was not found. Either it was already finished or it is canceled.
             // We expect either a failed notification or a notification with cleared IOOps and
             // with cancel state in CancelStarted
-            Log_Message("ERROR_NOT_FOUND, expecting unhandled case to follow, %d", iod - iods);
+            Log_Debug("ERROR_NOT_FOUND, expecting canceled case to follow, %d", iod - iods);
             return false;
         }
 
         // Should not happen: this may be a sign of an error
-        Log_Message("cancel last error: %d, iod: %d", WSAGetLastError(), iod - iods);
+        Log_Message("IOProcessor cancel last error: %d, iod: %d", WSAGetLastError(), iod - iods);
         Log_Errno();
         ASSERT_FAIL();
         return false;
@@ -261,13 +261,13 @@ static bool CancelIOOperation(IODesc* iod, IOOperation* ioop)
         if (error == ERROR_NOT_FOUND)
         {
             // 
-            Log_Message("ERROR_NOT_FOUND, result expecting unhandled case to follow, %d", iod - iods);
+            Log_Debug("ERROR_NOT_FOUND, result expecting canceled case to follow, %d", iod - iods);
             *cancel = CancelCompleted;
             return true;
         }
 
         // The operation was canceled, expecting a failed notification in Poll
-        Log_Message("cancel result last error: %d, iod: %d", WSAGetLastError(), iod - iods);
+        Log_Debug("cancel result last error: %d, iod: %d", WSAGetLastError(), iod - iods);
         Log_Errno();
         return false;
     }
@@ -282,7 +282,7 @@ static bool CancelIOOperation(IODesc* iod, IOOperation* ioop)
 static void FreeIODesc(IODesc* iod)
 {
     if (iod->next != NULL)
-        Log_Message("iodesc: %d", iod - iods);
+        Log_Debug("iodesc: %d", iod - iods);
     ASSERT(iod->next == NULL);
     iod->next = freeIods;
     freeIods = iod;
@@ -606,7 +606,6 @@ bool IOProcessor::Add(IOOperation* ioop)
     return IOProcessor_UnprotectedAdd(ioop);
 }
 
-// EXPERIMENTAL
 bool IOProcessor_UnprotectedRemove(IOOperation *ioop)
 {
     // if the ioop is in the pendingOnClose list, then remove it
@@ -634,6 +633,13 @@ bool IOProcessor_UnprotectedRemove(IOOperation *ioop)
     }
 
     ioop->active = false;
+
+    // There used to be a CancelIo call here, but that does not always finished
+    // synchronously.
+    // So the cancelation is done in UnregisterSocket, which is always called
+    // after IOProcessor::Remove in TCPConnection and Remove is not called from
+    // anywhere else in the code. After UnregisterSocket, the cancelation may
+    // finish asyncronously.
 
     return true;
 }
@@ -721,7 +727,7 @@ bool IOProcessor::Poll(int msec)
             // failed and already canceled operation
             if (ret == FALSE && overlapped != NULL)
             {
-                Log_Message("Canceled case, iod: %d", iod - iods);
+                Log_Debug("Canceled and failed case, iod: %d", iod - iods);
                 if (overlapped == &iod->ovlRead && iod->readCancel == CancelStarted)
                     iod->readCancel = CancelCompleted;
 
@@ -812,7 +818,7 @@ bool IOProcessor::Poll(int msec)
             else
             {
                 // canceled operation
-                Log_Message("Unhandled case, iod: %d", iod - iods);
+                Log_Debug("Canceled case, iod: %d", iod - iods);
 
                 if (overlapped == &iod->ovlRead && iod->readCancel == CancelStarted)
                     iod->readCancel = CancelCompleted;
