@@ -391,7 +391,7 @@ unsigned ShardServer::GetSDBPPort()
     return configFile.GetIntValue("sdbp.port", 7080);
 }
 
-void ShardServer::GetMemoryUsageBuffer(Buffer& buffer)
+void ShardServer::GetMemoryUsageBuffer(Buffer& buffer, ByteFormatType formatType)
 {
     uint64_t                shardMemoryUsage;
     uint64_t                logSegmentMemoryUsage;
@@ -403,29 +403,29 @@ void ShardServer::GetMemoryUsageBuffer(Buffer& buffer)
     uint64_t                connectionMemoryUsage;
     IOProcessorStat         iostat;
     ShardQuorumProcessor*   quorumProcessor;
-    char                    humanBuf[5];
+    char                    humanBuf[100];
 
     buffer.Clear();
     totalMemory = 0;
 
     shardMemoryUsage = GetDatabaseManager()->GetEnvironment()->GetShardMemoryUsage();
-    buffer.Appendf("Shard memory usage: %s\n", HumanBytes(shardMemoryUsage, humanBuf));
+    buffer.Appendf("Shard memory usage: %s\n", FormatBytes(shardMemoryUsage, humanBuf, formatType));
     totalMemory += shardMemoryUsage;
 
     logSegmentMemoryUsage = GetDatabaseManager()->GetEnvironment()->GetLogSegmentMemoryUsage();
-    buffer.Appendf("Log segment memory usage: %s\n", HumanBytes(logSegmentMemoryUsage, humanBuf));
+    buffer.Appendf("Log segment memory usage: %s\n", FormatBytes(logSegmentMemoryUsage, humanBuf, formatType));
     totalMemory += logSegmentMemoryUsage;
 
     buffer.Appendf("File chunk memory usage: %s\n", 
      HumanBytes(GetDatabaseManager()->GetEnvironment()->GetChunkFileMemoryUsage(), humanBuf));
 
-    buffer.Appendf("Storage cache usage: %s\n", HumanBytes(StoragePageCache::GetSize(), humanBuf));
+    buffer.Appendf("Storage cache usage: %s\n", FormatBytes(StoragePageCache::GetSize(), humanBuf, formatType));
     totalMemory += StoragePageCache::GetSize();
 
-    buffer.Appendf("Storage list page cache usage: %s\n", HumanBytes(StorageDataPageCache::GetCacheSize(), humanBuf));
+    buffer.Appendf("Storage list page cache usage: %s\n", FormatBytes(StorageDataPageCache::GetCacheSize(), humanBuf, formatType));
     totalMemory += StorageDataPageCache::GetCacheSize();
 
-    buffer.Appendf("Client request cache usage: %s\n", HumanBytes(REQUEST_CACHE->GetMemorySize(), humanBuf));
+    buffer.Appendf("Client request cache usage: %s\n", FormatBytes(REQUEST_CACHE->GetMemorySize(), humanBuf, formatType));
     totalMemory += REQUEST_CACHE->GetMemorySize();
 
     quorumMessageCacheSize = 0;
@@ -439,28 +439,28 @@ void ShardServer::GetMemoryUsageBuffer(Buffer& buffer)
         quorumAppendStateSize += quorumProcessor->GetShardAppendStateSize();
         quorumContextSize += quorumProcessor->GetQuorumContextSize();
     }
-    buffer.Appendf("Message cache usage: %s\n", HumanBytes(quorumMessageCacheSize, humanBuf));
+    buffer.Appendf("Message cache usage: %s\n", FormatBytes(quorumMessageCacheSize, humanBuf, formatType));
     totalMemory += quorumMessageCacheSize;
 
-    buffer.Appendf("Message list usage: %s\n", HumanBytes(quorumMessageListSize, humanBuf));
+    buffer.Appendf("Message list usage: %s\n", FormatBytes(quorumMessageListSize, humanBuf, formatType));
     totalMemory += quorumMessageListSize;
 
-    buffer.Appendf("Shard append state usage: %s\n", HumanBytes(quorumAppendStateSize, humanBuf));
+    buffer.Appendf("Shard append state usage: %s\n", FormatBytes(quorumAppendStateSize, humanBuf, formatType));
     totalMemory += quorumAppendStateSize;
 
-    buffer.Appendf("Shard quorum context usage: %s\n", HumanBytes(quorumContextSize, humanBuf));
+    buffer.Appendf("Shard quorum context usage: %s\n", FormatBytes(quorumContextSize, humanBuf, formatType));
     totalMemory += quorumContextSize;
 
     connectionMemoryUsage = GetShardServerApp()->GetMemoryUsage();
-    buffer.Appendf("Connection memory usage: %s\n", HumanBytes(connectionMemoryUsage, humanBuf));
+    buffer.Appendf("Connection memory usage: %s\n", FormatBytes(connectionMemoryUsage, humanBuf, formatType));
     totalMemory += connectionMemoryUsage;
 
     IOProcessor::GetStats(&iostat);
-    buffer.Appendf("IOProcessor memory usage: %s\n", HumanBytes(iostat.memoryUsage, humanBuf));
+    buffer.Appendf("IOProcessor memory usage: %s\n", FormatBytes(iostat.memoryUsage, humanBuf, formatType));
     totalMemory += iostat.memoryUsage;
 
-    buffer.Appendf("Total memory usage: %s\n", HumanBytes(totalMemory, humanBuf));
-    buffer.Appendf("Total memory usage reported by system: %s\n", HumanBytes(GetProcessMemoryUsage(), humanBuf));
+    buffer.Appendf("Total memory usage: %s\n", FormatBytes(totalMemory, humanBuf, formatType));
+    buffer.Appendf("Total memory usage reported by system: %s\n", FormatBytes(GetProcessMemoryUsage(), humanBuf, formatType));
 }
 
 unsigned ShardServer::GetNumSDBPClients()

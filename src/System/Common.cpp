@@ -101,7 +101,7 @@ const char* HumanBytes(uint64_t bytes, char buf[5])
     return buf;
 }
 
-const char* SIBytes(uint64_t bytes, char buf[5])
+const char* IECBytes(uint64_t bytes, char buf[5])
 {
     const char  units[] = "kMGTPEZY";
     uint64_t    n;
@@ -117,6 +117,31 @@ const char* SIBytes(uint64_t bytes, char buf[5])
     
     snprintf(buf, 5, "%" PRIu64 "%c", n, u == 0 ? units[sizeof(units) - 1] : units[u - 1]);
     return buf;
+}
+
+const char* FormatBytes(uint64_t bytes, char buf[100], ByteFormatType type)
+{
+    int     ret;
+
+    if (type == BYTE_FORMAT_HUMAN)
+    {
+        return HumanBytes(bytes, buf);
+    }
+    if (type == BYTE_FORMAT_IEC)
+    {
+        return IECBytes(bytes, buf);
+    }
+    else // if (type == BYTE_FORMAT_RAW)
+    {
+        ret = Writef(buf, 100, "%U", bytes);
+        if (ret < 0 || ret >= 100)
+            return "";
+        
+        // terminate the buffer with zero
+        buf[ret] = 0;
+        
+        return buf;
+    }
 }
 
 const char* HumanTime(char buf[27])
