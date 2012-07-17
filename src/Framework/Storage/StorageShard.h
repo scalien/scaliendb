@@ -57,6 +57,7 @@ public:
     bool                UseBloomFilter();
     char                GetStorageType();
     bool                IsSplitable();
+    bool                IsChunkSplitable(StorageChunk* chunk);
     bool                IsBackingLogSegment(uint64_t trackID, uint64_t logSegmentID);
     
     bool                RangeContains(ReadBuffer key);
@@ -78,6 +79,10 @@ public:
     StorageMemoChunk*   memoChunk;
 
 private:
+    void                InvalidateCachedValues();
+    bool                IsPrecomputeNecessary();
+    void                PrecomputeCachedValues();
+
     uint64_t            trackID;
     uint16_t            contextID;
     uint64_t            shardID;
@@ -93,6 +98,12 @@ private:
     
     uint64_t            recoveryLogSegmentID; // only used
     uint32_t            recoveryLogCommandID; // during log recovery
+
+    // optimizations
+    uint64_t            cachedSize;
+    Buffer              cachedMidpoint;
+    unsigned            cachedNumChunks;
+    bool                cachedSplitable;
 };
 
 inline bool LessThan(StorageChunk* a, StorageChunk* b)

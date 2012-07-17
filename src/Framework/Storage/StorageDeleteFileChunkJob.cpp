@@ -9,6 +9,12 @@ StorageDeleteFileChunkJob::StorageDeleteFileChunkJob(StorageFileChunk* chunk_)
     chunk = chunk_;
 }
 
+StorageDeleteFileChunkJob::~StorageDeleteFileChunkJob()
+{
+    // make sure chunk is deleted when the job is terminated without Execute() being called
+    delete chunk;
+}
+
 void StorageDeleteFileChunkJob::Execute()
 {
     Stopwatch   sw;
@@ -19,6 +25,7 @@ void StorageDeleteFileChunkJob::Execute()
     
     filename.Write(chunk->GetFilename());
     delete chunk;
+    chunk = NULL;
 
     StorageFileDeleter::Delete(filename.GetBuffer());
 

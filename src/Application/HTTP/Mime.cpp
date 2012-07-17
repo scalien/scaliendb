@@ -656,12 +656,10 @@ static const MimeTypeExt mimeTypes[] = {
 const char* MimeTypeFromExtension(const char* ext, const char* defaultType)
 {
     size_t  i;
-    size_t  size;
     
     if (!ext)
         return defaultType;
     
-    size = SIZE(mimeTypes);
     // TODO binary search instead of linear search
     for (i = 0; i < SIZE(mimeTypes); i++)
     {

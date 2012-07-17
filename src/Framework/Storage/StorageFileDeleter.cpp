@@ -82,7 +82,7 @@ void StorageFileDeleter::Delete(const char* filename)
 
     // task will delete itself
     task = new StorageFileDeleterTask(filename);
-    threadPool->Execute(MFunc<StorageFileDeleterTask, &StorageFileDeleterTask::DeleteFile>(task));
+    threadPool->Execute(MFUNC_OF(StorageFileDeleterTask, DeleteFile, task));
 }
 
 void StorageFileDeleter::SetEnabled(bool enabled_)

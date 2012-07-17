@@ -15,6 +15,7 @@ SDBPConnection::SDBPConnection()
     server = NULL;
     context = NULL;
     numPending = 0;
+    numCompleted = 0;
     autoFlush = false;
     onKeepAlive.SetCallable(MFUNC(SDBPConnection, OnKeepAlive));
     onKeepAlive.SetDelay(0);

@@ -237,8 +237,7 @@ void StorageFileChunk::AsyncGet(StorageAsyncGet* asyncGet)
         if (bloomPage == NULL)
         {
             asyncGet->stage = StorageAsyncGet::BLOOM_PAGE;
-            asyncGet->threadPool->Execute(
-             MFunc<StorageAsyncGet, &StorageAsyncGet::AsyncLoadPage>(asyncGet)); // evicted, load back
+            asyncGet->threadPool->Execute(MFUNC_OF(StorageAsyncGet, AsyncLoadPage, asyncGet)); // evicted, load back
             return;
         }
         if (bloomPage->IsCached())
@@ -253,8 +252,7 @@ void StorageFileChunk::AsyncGet(StorageAsyncGet* asyncGet)
     if (indexPage == NULL)
     {
         asyncGet->stage = StorageAsyncGet::INDEX_PAGE;
-        asyncGet->threadPool->Execute(
-         MFunc<StorageAsyncGet, &StorageAsyncGet::AsyncLoadPage>(asyncGet)); // evicted, load back
+        asyncGet->threadPool->Execute(MFUNC_OF(StorageAsyncGet, AsyncLoadPage, asyncGet)); // evicted, load back
         return;
     }
     if (indexPage->IsCached())
@@ -270,8 +268,7 @@ void StorageFileChunk::AsyncGet(StorageAsyncGet* asyncGet)
         asyncGet->stage = StorageAsyncGet::DATA_PAGE;
         asyncGet->index = index;
         asyncGet->offset = offset;
-        asyncGet->threadPool->Execute(
-         MFunc<StorageAsyncGet, &StorageAsyncGet::AsyncLoadPage>(asyncGet)); // evicted, load back
+        asyncGet->threadPool->Execute(MFUNC_OF(StorageAsyncGet, AsyncLoadPage, asyncGet)); // evicted, load back
         return;
     }
 
@@ -342,6 +339,49 @@ uint64_t StorageFileChunk::GetPartialSize(ReadBuffer firstKey, ReadBuffer lastKe
 ReadBuffer StorageFileChunk::GetMidpoint()
 {
     return headerPage.GetMidpoint();
+}
+
+ReadBuffer StorageFileChunk::GetPartialMidpointAndSize(ReadBuffer firstKey, ReadBuffer lastKey, uint64_t& size)
+{
+    uint64_t    firstOffset;
+    uint64_t    lastOffset;
+    uint32_t    firstIndex;
+    uint32_t    lastIndex;
+    
+    if (indexPage == NULL)
+        return GetMidpoint();
+
+    firstIndex = 0;
+    firstOffset = 0;
+    indexPage->Locate(firstKey, firstIndex, firstOffset);
+    
+    lastIndex = indexPage->GetNumDataPages() - 1;
+    lastOffset = fileSize;
+    indexPage->Locate(lastKey, lastIndex, lastOffset);
+
+    size = lastOffset - firstOffset;
+    return indexPage->GetIndexKey(firstIndex + (lastIndex - firstIndex) / 2);
+}
+
+uint64_t StorageFileChunk::GetMemorySize()
+{
+    uint64_t    totalSize;
+
+    totalSize = 0;
+
+    for (unsigned i = 0; i < numDataPages; i++)
+    {
+        if (dataPages[i])
+            totalSize += dataPages[i]->GetMemorySize();
+    }
+
+    if (indexPage)
+        totalSize += indexPage->GetMemorySize();
+
+    if (bloomPage)
+        totalSize += bloomPage->GetMemorySize();
+
+    return totalSize;
 }
 
 bool StorageFileChunk::IsEmpty()

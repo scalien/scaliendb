@@ -263,9 +263,6 @@
     <ClInclude Include="..\src\Application\Client\SDBPResult.h">
       <Filter>Application\Client</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\Application\Client\SDBPShardConnection.h">
-      <Filter>Application\Client</Filter>
-    </ClInclude>
     <ClInclude Include="..\src\Application\Common\Application.h">
       <Filter>Application\Common</Filter>
     </ClInclude>
@@ -506,6 +503,9 @@
     </ClInclude>
     <ClInclude Include="..\src\System\Threading\Atomic.h">
       <Filter>System\Threading</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Application\Client\SDBPShardConnection.h">
+      <Filter>Application\ConfigState</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

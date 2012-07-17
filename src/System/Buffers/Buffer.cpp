@@ -199,7 +199,7 @@ void Buffer::Write(const Buffer& other)
     Write(const_cast<Buffer&>(other).GetBuffer(), const_cast<Buffer&>(other).GetLength());
 }
 
-void Buffer::Write(const ReadBuffer other)
+void Buffer::Write(const ReadBuffer& other)
 {
     Write(other.GetBuffer(), other.GetLength());
 }

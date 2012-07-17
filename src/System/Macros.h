@@ -42,6 +42,8 @@
 ===============================================================================================
  */
 
+
+// EXPERIMENTAL
 #ifdef DEBUG
 #define ASSERT(expr)                                                    \
     do {                                                                \
@@ -49,6 +51,7 @@
         {                                                               \
             PrintStackTrace();                                          \
             Log_Flush();                                                \
+            while (true) ;                                              \
             if (IsAssertCritical())                                     \
                 assert(expr);                                           \
             else                                                        \
@@ -61,9 +64,10 @@
     do {                                                                        \
         if (!(expr))                                                            \
         {                                                                       \
-            PrintStackTrace();                                                  \
             bool prev = Log_SetTrace(true);                                     \
             Log_Trace("Fail: " #expr);                                          \
+            char stackBuf[4000];                                                \
+            Log_Trace("%s", GetStackTrace(stackBuf, sizeof(stackBuf), ""));     \
             Log_SetTrace(prev);                                                 \
             Log_Flush();                                                        \
             Error();                                                            \
@@ -190,6 +194,12 @@ do {                                                                            
         EventLoop::Add(&yieldTimer);                                            \
         break;                                                                  \
     }
+
+#define LOG_TIMEOUT(timeout, msg)                                                       \
+    do {                                                                                \
+        if (NowClock() > EventLoop::Now() && NowClock() - EventLoop::Now() > timeout)   \
+            Log_Message("Timeout: %U: %s", NowClock() - EventLoop::Now(), msg);         \
+    } while (false)
 
 /*
 ===============================================================================================

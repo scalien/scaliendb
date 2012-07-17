@@ -260,6 +260,7 @@ static void ConfigureSystemSettings()
 {
     int         memLimitPerc;
     uint64_t    memLimit;
+    uint64_t    maxFileCacheSize;
     const char* dir;
 
     // percentage of physical memory can be used by the program
@@ -274,6 +275,17 @@ static void ConfigureSystemSettings()
 
     if (memLimit != 0)
         SetMemoryLimit(memLimit);
+
+    // Set the maximum size of file system cache used by the OS.
+    // This is needed on Windows, because it has _really_ dumb cache allocation strategy,
+    // that totally kills IO intensive applications like databases.
+    // For more, see:
+    // http://blogs.msdn.com/b/ntdebugging/archive/2009/02/06/microsoft-windows-dynamic-cache-service.aspx
+    maxFileCacheSize = configFile.GetInt64Value("system.maxFileCacheSize", 0);
+    if (maxFileCacheSize != 0)
+        SetMaxFileCacheSize(maxFileCacheSize);
+
+    *(Registry::GetUintPtr("system.maxFileCacheSize")) = maxFileCacheSize;
 
     // set the base directory
     dir = configFile.GetValue("dir", NULL);

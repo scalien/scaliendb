@@ -15,6 +15,7 @@ HTTPSession::HTTPSession()
     headerSent = false;
     conn = NULL;
     type = PLAIN_TEXT;
+    isFlushed = false;
 }
 
 void HTTPSession::SetConnection(HTTPConnection* conn_)
@@ -272,10 +273,10 @@ bool HTTPSession::RedirectLocalhost(HTTPConnection *conn, HTTPRequest &request)
             }
         }
         ha.Writef(HTTP_HEADER_LOCATION ": http://%B%R" HTTP_CS_CRLF, &newHost, &request.line.uri);
-	    ha.NullTerminate();
-		conn->ResponseHeader(HTTP_STATUS_CODE_TEMPORARY_REDIRECT, true, ha.GetBuffer());
+        ha.NullTerminate();
+        conn->ResponseHeader(HTTP_STATUS_CODE_TEMPORARY_REDIRECT, true, ha.GetBuffer());
         conn->Flush(true);
-		return true;
+        return true;
     }
 
     return false;

@@ -348,8 +348,15 @@ namespace ScalienClientUnitTesting
 
             while (true)
             {
-                var jsonConfigState = client.GetJSONConfigState();
-                var configState = Utils.JsonDeserialize<ConfigState>(System.Text.Encoding.UTF8.GetBytes(jsonConfigState));
+                var configState = Utils.GetFullConfigState(client);
+                if (configState == null)
+                {
+                    var sleepTime = random.Next(minInactiveSleepTime, minInactiveSleepTime + random.Next(randomInactiveSleepTime));
+                    Console.WriteLine("No controller could serve configState, sleeping {0}...", sleepTime);
+                    Thread.Sleep(sleepTime * 1000);
+                    continue;
+                }
+
                 var shardServers = configState.shardServers;
                 var quorum = configState.quorums[0];
                 var numShardServers = shardServers.Count;
@@ -427,7 +434,9 @@ namespace ScalienClientUnitTesting
 
                 if (httpURI != "")
                 {
-                    Utils.HTTP.GET(Utils.HTTP.BuildUri(httpURI, "debug?randomcrash&key=" + debugKey + "&interval=" + crashInterval * 1000));
+                    var httpCrashURI = Utils.HTTP.BuildUri(httpURI, "debug?randomcrash&key=" + debugKey + "&interval=" + crashInterval * 1000);
+                    Utils.Log(httpCrashURI);
+                    Utils.HTTP.GET(httpCrashURI);
                 }
 
                 var sleepTime = random.Next(minCrashSleepTime, minCrashSleepTime + random.Next(randomCrashSleepTime));
@@ -439,19 +448,17 @@ namespace ScalienClientUnitTesting
         [TestMethod]
         public void TestRandomSleepShardServer()
         {
-            var client = new Client(Utils.GetConfigNodes());
-            var sleepInterval = 4;
+            var client = Utils.GetClient();
+            var sleepInterval = ConfigFile.Config.GetIntValue("sleepInterval", 4);
 
             Random random = new Random();
 
             while (true)
             {
                 var configState = Utils.GetFullConfigState(client);
-                var shardServers = configState.shardServers;
-                var quorum = configState.quorums[0];
-                var numShardServers = shardServers.Count;
+                var quorum = configState == null ? null : configState.quorums[0];
 
-                if (quorum.inactiveNodes.Count > 0)
+                if (configState == null || quorum.inactiveNodes.Count > 0)
                 {
                     var sleepTime = random.Next(sleepInterval * 2, sleepInterval * 2 + random.Next(sleepInterval * 2));
                     Console.WriteLine("Inactive found, sleeping {0}...", sleepTime);
@@ -459,6 +466,7 @@ namespace ScalienClientUnitTesting
                     continue;
                 }
 
+                var shardServers = configState.shardServers;
                 var victimNodeID = quorum.activeNodes[random.Next(quorum.activeNodes.Count)];
                 foreach (var shardServer in shardServers)
                 {
@@ -477,18 +485,68 @@ namespace ScalienClientUnitTesting
             }
         }
 
+        public void SleepServer(string uri, int sleepInterval)
+        {
+            var httpSleepURI = Utils.HTTP.BuildUri(uri, "debug?sleep=" + sleepInterval + "&key=" + debugKey);
+            Utils.Log(httpSleepURI);
+            Utils.HTTP.GET(httpSleepURI);
+        }
+            
+        public void CrashServer(string uri, int crashInterval)
+        {
+            var httpCrashURI = Utils.HTTP.BuildUri(uri, "debug?randomcrash&key=" + debugKey + "&interval=" + crashInterval * 1000);
+            Utils.Log(httpCrashURI);
+            Utils.HTTP.GET(httpCrashURI);
+        }
+
+        public void RunInfiniteLoopOnServer(string uri, int loopInterval, bool async)
+        {
+            var httpLoopURI = Utils.HTTP.BuildUri(uri, "debug?" + (async ? "async" : "yield") + "InfiniteLoop&key=" + debugKey + "&interval=" + loopInterval);
+            Utils.Log(httpLoopURI);
+            Utils.HTTP.GET(httpLoopURI);
+        }
+
+        public ConfigState.ShardServer GetRandomShardServer(ConfigState configState, Random random, bool allowInactive)
+        {
+            var quorum = configState == null ? null : configState.quorums[0];
+            if (configState == null)
+                return null;
+
+            if (!allowInactive && quorum.inactiveNodes.Count > 0)
+                return null;
+
+            var shardServers = configState.shardServers;
+            var victimNodeID = quorum.activeNodes[random.Next(quorum.activeNodes.Count)];
+            foreach (var shardServer in shardServers)
+            {
+                if (shardServer.nodeID == victimNodeID)
+                {
+                    bool isPrimary = (quorum.hasPrimary && quorum.primaryID == victimNodeID);
+                    return shardServer;
+                }
+            }
+
+            return null;
+        }
+
+        public void RandomSleep(Random random, int sleepInterval)
+        {
+            var sleepTime = random.Next(sleepInterval * 2, sleepInterval * 2 + random.Next(sleepInterval * 2));
+            Console.WriteLine("Inactive found, sleeping {0}...", sleepTime);
+            Thread.Sleep(sleepTime * 1000);
+        }
+
         [TestMethod]
         public void TestRandomSleepPrimaryShardServer()
         {
-            var client = new Client(Utils.GetConfigNodes());
+            var client = Utils.GetClient();
             var sleepInterval = 4;
 
             Random random = new Random();
 
             while (true)
             {
-                var jsonConfigState = client.GetJSONConfigState();
-                var configState = Utils.JsonDeserialize<ConfigState>(System.Text.Encoding.UTF8.GetBytes(jsonConfigState));
+                var configState = Utils.GetFullConfigState(client);
                 var shardServers = configState.shardServers;
                 var quorum = configState.quorums[0];
                 var numShardServers = shardServers.Count;
@@ -514,7 +572,51 @@ namespace ScalienClientUnitTesting
                         Thread.Sleep(sleepTime * 1000);
                     }
                 }
+            }
+        }
 
+        [TestMethod]
+        public void TestChaosMonkey()
+        {
+            var client = Utils.GetClient();
+            Random random = new Random();
+            bool allowInactive = false;
+            var sleepInterval = ConfigFile.Config.GetIntValue("sleepInterval", 4);
+
+            while (true)
+            {
+                var configState = Utils.GetFullConfigState(client);
+                var randomFunction = random.Next(0, 100);
+
+                var shardServer = GetRandomShardServer(configState, random, allowInactive);
+                if (shardServer == null)
+                {
+                    RandomSleep(random, sleepInterval);
+                    continue;
+                }
+
+                var shardHttpURI = ConfigStateHelpers.GetShardServerURL(shardServer);
+
+                // 90% sleep
+                // 5% async infinite loop
+                // 4% yield infinite loop
+                // 1% crash
+                if (randomFunction >= 0 && randomFunction < 90)
+                {
+                    SleepServer(shardHttpURI, sleepInterval);
+                }
+                else if (randomFunction >= 90 && randomFunction < 95)
+                {
+                    RunInfiniteLoopOnServer(shardHttpURI, crashInterval, true);
+                }
+                else if (randomFunction >= 95 && randomFunction < 99)
+                {
+                    RunInfiniteLoopOnServer(shardHttpURI, crashInterval, false);
+                }
+                else if (randomFunction >= 99)
+                {
+                    CrashServer(shardHttpURI, crashInterval);
+                }
             }
         }
     }

@@ -195,6 +195,6 @@ void StorageAsyncBulkCursor::OnResult(StorageAsyncBulkResult* result)
     Callable    callable;
     
     result->onComplete = onComplete;
-    callable = MFunc<StorageAsyncBulkResult, &StorageAsyncBulkResult::OnComplete>(result);
+    callable = MFUNC_OF(StorageAsyncBulkResult, OnComplete, result);
     IOProcessor::Complete(&callable);
 }

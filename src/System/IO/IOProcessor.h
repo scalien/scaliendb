@@ -32,6 +32,8 @@ public:
     unsigned    lastNumEvents;
     uint64_t    totalNumEvents;
     uint64_t    numLongCallbacks;
+    int         numDanglingIods;
+    uint64_t    memoryUsage;
 };
 
 /*
@@ -55,6 +57,7 @@ public:
 
     static bool Complete(Callable* callable);
     static void Call(Callable& callable);
+    static void SetCallbackThreshold(unsigned callbackThreshold);
 
     static void BlockSignals(int blockMode);
 

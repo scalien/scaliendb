@@ -25,6 +25,60 @@
 #define WAITQUEUE_MANAGER       (shardServer->GetTransactionManager()->GetWaitQueueManager())
 #define PRINT_BOOL(str, b) { if ((b)) buffer.Appendf("%s: yes\n", str); else buffer.Appendf("%s: no\n", str); }
 
+/*
+===============================================================================================
+
+ Debug code
+
+===============================================================================================
+*/
+
+static uint64_t     infiniteLoopIntervalEnd;
+static YieldTimer   infiniteLoopYieldTimer;
+
+static void TimedInfiniteLoop()
+{
+    uint64_t    now;
+
+    Log_Message("Async infinite loop started, expire in %U", infiniteLoopIntervalEnd);
+
+    while (true)
+    {
+        now = ::Now();
+        if (now > infiniteLoopIntervalEnd)
+            break;
+    }
+
+    Log_Message("Async infinite loop finished");
+}
+
+static void YieldTimerInfiniteLoop()
+{
+    uint64_t    now;
+    uint64_t    start;
+
+    start = ::Now();
+    while (true)
+    {
+        now = ::Now();
+        if (now > infiniteLoopIntervalEnd)
+            break;
+
+        TRY_YIELD_RETURN(infiniteLoopYieldTimer, start);
+    }
+
+    Log_Message("Yield infinite loop finished");
+}
+
+
+/*
+===============================================================================================
+
+ ShardHTTPClientSession
+
+===============================================================================================
+*/
+
 void ShardHTTPClientSession::SetShardServer(ShardServer* shardServer_)
 {
     shardServer = shardServer_;
@@ -341,12 +395,13 @@ void ShardHTTPClientSession::PrintStatistics()
     buffer.Appendf("numPolls: %U\n", iostat.numPolls);
     buffer.Appendf("numTCPReads: %U\n", iostat.numTCPReads);
     buffer.Appendf("numTCPWrites: %U\n", iostat.numTCPWrites);
-    buffer.Appendf("numTCPBytesSent: %s\n", PrintableBytes(iostat.numTCPBytesSent, humanBuf, humanize));
     buffer.Appendf("numTCPBytesReceived: %s\n", PrintableBytes(iostat.numTCPBytesReceived, humanBuf, humanize));
+    buffer.Appendf("numTCPBytesSent: %s\n", PrintableBytes(iostat.numTCPBytesSent, humanBuf, humanize));
     buffer.Appendf("numCompletions: %U\n", iostat.numCompletions);
     buffer.Appendf("numLongCallbacks: %U\n", iostat.numLongCallbacks);
     buffer.Appendf("totalPollTime: %U\n", iostat.totalPollTime);
     buffer.Appendf("totalNumEvents: %U\n", iostat.totalNumEvents);
+    buffer.Appendf("numDanglingIods: %d\n", iostat.numDanglingIods);
 
     FS_GetStats(&fsStat);
     buffer.Append("  Category: FileSystem\n");
@@ -435,7 +490,7 @@ void ShardHTTPClientSession::PrintStatistics()
     {
         buffer.Appendf("quorum[%U].messageListLength: %u\n", quorumProcessor->GetQuorumID(), 
          quorumProcessor->GetMessageListLength());
-        buffer.Appendf("quorum[%U].replicationThroughput: %u\n", quorumProcessor->GetQuorumID(), 
+        buffer.Appendf("quorum[%U].replicationThroughput: %s\n", quorumProcessor->GetQuorumID(), 
             PrintableBytes(quorumProcessor->GetReplicationThroughput(), humanBuf, humanize));
 
     }
@@ -620,6 +675,38 @@ void ShardHTTPClientSession::ProcessDebugCommand()
         session.Print("Sleep finished");
     }
 
+    if (HTTP_GET_OPT_PARAM(params, "asyncInfiniteLoop", param))
+    {
+        static ThreadPool* asyncInfiniteLoopThread;
+        uint64_t infiniteLoopIntervalSec = 60;
+        HTTP_GET_OPT_U64_PARAM(params, "interval", infiniteLoopIntervalSec);
+        snprintf(buf, sizeof(buf), "Looping for %u sec", (unsigned int) infiniteLoopIntervalSec);
+        session.Print(buf);
+        Log_Message("%s", buf);
+        if (asyncInfiniteLoopThread == NULL)
+        {
+            asyncInfiniteLoopThread = ThreadPool::Create(1);
+            asyncInfiniteLoopThread->Start();
+        }
+        infiniteLoopIntervalEnd = NowClock() + infiniteLoopIntervalSec * 1000;
+        asyncInfiniteLoopThread->Execute(CFunc(TimedInfiniteLoop));
+    }
+
+    if (HTTP_GET_OPT_PARAM(params, "yieldInfiniteLoop", param))
+    {
+        uint64_t infiniteLoopIntervalSec = 60;
+        HTTP_GET_OPT_U64_PARAM(params, "interval", infiniteLoopIntervalSec);
+        snprintf(buf, sizeof(buf), "Looping for %u sec", (unsigned int) infiniteLoopIntervalSec);
+        session.Print(buf);
+        Log_Message("%s", buf);
+        if (!infiniteLoopYieldTimer.IsActive())
+        {
+            infiniteLoopIntervalEnd = NowClock() + infiniteLoopIntervalSec * 1000;
+            infiniteLoopYieldTimer.SetCallable(CFunc(YieldTimerInfiniteLoop));
+            EventLoop::Add(&infiniteLoopYieldTimer);
+        }
+    }
+
     if (HTTP_GET_OPT_PARAM(params, "stop", param))
     {
         STOP("Stopping due to request from HTTP interface");
@@ -707,6 +794,16 @@ bool ShardHTTPClientSession::ProcessSettings()
     uint64_t                listDataPageCacheSize;
     ShardQuorumProcessor*   quorumProcessor;
     char                    buf[100];
+
+#define CHECK_AND_SET_REGISTRY_UINT64(pstr)                     \
+    if (HTTP_GET_OPT_PARAM(params, pstr, param))                \
+    {                                                           \
+        u64 = 0;                                                \
+        HTTP_GET_OPT_U64_PARAM(params, pstr, u64);              \
+        *(Registry::GetUintPtr(pstr)) = u64;                    \
+        snprintf(buf, sizeof(buf), "%u", (unsigned) u64);       \
+        session.PrintPair(pstr, buf);                           \
+    }
 
 #define CHECK_AND_SET_UINT64(pstr, func)                        \
     if (HTTP_GET_OPT_PARAM(params, pstr, param))                \
@@ -866,6 +963,8 @@ bool ShardHTTPClientSession::ProcessSettings()
     CHECK_AND_SET_UINT64("waitQueueMaxCacheTime",   WAITQUEUE_MANAGER->SetMaxCacheTime);
     CHECK_AND_SET_UINT64("waitQueueMaxCacheCount",  WAITQUEUE_MANAGER->SetMaxCacheCount);
     CHECK_AND_SET_UINT64("waitQueueMaxPoolCount",   WAITQUEUE_MANAGER->SetMaxPoolCount);
+
+    CHECK_AND_SET_POSITIVE_UINT64("system.maxFileCacheSize", SetMaxFileCacheSize);
 
     session.Flush();
 

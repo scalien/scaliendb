@@ -1424,24 +1424,20 @@ void Client::ReassignRequest(Request* req)
 
 void Client::AssignRequestsToQuorums()
 {
-    Request*        it;
-    Request*        next;
+    Request*        request;
     RequestList     requestsCopy;
     
     if (submittedRequests.GetLength() == 0)
         return;
     
-    //Log_Trace("%U", requests.First()->tableID);
-
+    // make a copy of the list with move semantics
     requestsCopy = submittedRequests;
     submittedRequests.ClearMembers();
 
-    FOREACH_FIRST (it, requestsCopy)
+    FOREACH_FIRST (request, requestsCopy)
     {
-        //Log_Trace("%U", it->tableID);
-        next = requestsCopy.Remove(it);
-        //Log_Trace("%U", it->tableID);
-        ReassignRequest(it);
+        requestsCopy.Remove(request);
+        ReassignRequest(request);
     }
 }
 

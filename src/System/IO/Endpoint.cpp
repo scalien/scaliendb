@@ -40,8 +40,8 @@ int inet_aton(const char *cp, struct in_addr *in)
 
 int inet_pton(int /*af*/, const char* src, void* dst)
 {
-	// HACK: inet_pton is only supported from Vista
-	return inet_aton(src, (struct in_addr*) dst);
+    // HACK: inet_pton is only supported from Vista
+    return inet_aton(src, (struct in_addr*) dst);
 }
 
 #endif

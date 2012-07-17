@@ -56,6 +56,7 @@ namespace ScalienClientUnitTesting
         //
         #endregion
 
+        static int testAddNotExistingCounter;
         [TestMethod]
         public void TestAddNotExisting()
         {
@@ -63,7 +64,8 @@ namespace ScalienClientUnitTesting
             var quorum = client.GetQuorum(quorumName);
             var database = client.GetDatabase(databaseName);
             var table = database.GetTable(tableName);
-            byte[] majorKey = Utils.StringToByteArray("TestAddNotExisting");
+            var counter = Interlocked.Increment(ref testAddNotExistingCounter);
+            byte[] majorKey = Utils.StringToByteArray("TestAddNotExisting" + counter);
             byte[] addKey = Utils.StringToByteArray("add");
 
             // make sure key does not exist
@@ -77,6 +79,7 @@ namespace ScalienClientUnitTesting
             }
         }
 
+        static int testLockTimeoutCounter;
         [TestMethod]
         public void TestLockTimeout()
         {
@@ -84,7 +87,8 @@ namespace ScalienClientUnitTesting
             var quorum = client.GetQuorum(quorumName);
             var database = client.GetDatabase(databaseName);
             var table = database.GetTable(tableName);
-            byte[] majorKey = Utils.StringToByteArray("TestLockTimeout");
+            var counter = Interlocked.Increment(ref testLockTimeoutCounter);
+            byte[] majorKey = Utils.StringToByteArray("TestLockTimeout" + counter);
 
             table.Delete("x");
             client.Submit();
@@ -104,6 +108,7 @@ namespace ScalienClientUnitTesting
             Assert.Fail("Missed lock expire exception");
         }
 
+        static int testLockFailureCounter;
         [TestMethod]
         public void TestLockFailure()
         {
@@ -117,7 +122,8 @@ namespace ScalienClientUnitTesting
             var database2 = client2.GetDatabase(databaseName);
             var table2 = database2.GetTable(tableName);
 
-            byte[] majorKey = Utils.StringToByteArray("TestLockFailure");
+            var counter = Interlocked.Increment(ref testLockFailureCounter);
+            byte[] majorKey = Utils.StringToByteArray("TestLockFailure" + counter);
 
             client1.StartTransaction(quorum1, majorKey);
             try
@@ -131,7 +137,7 @@ namespace ScalienClientUnitTesting
 
         }
 
-        static int testLockFailureException_counter;
+        static int testLockFailureExceptionCounter;
         [TestMethod]
         public void TestLockFailureException()
         {
@@ -150,7 +156,7 @@ namespace ScalienClientUnitTesting
             var database3 = client3.GetDatabase(databaseName);
             var table3 = database3.GetTable(tableName);
 
-            var counter = Interlocked.Increment(ref testLockFailureException_counter);
+            var counter = Interlocked.Increment(ref testLockFailureExceptionCounter);
             byte[] majorKey = Utils.StringToByteArray("TestLockFailureException" + counter);
 
             client1.StartTransaction(quorum1, majorKey);
@@ -173,7 +179,7 @@ namespace ScalienClientUnitTesting
             Assert.IsTrue(numExceptions == 1);
         }
 
-        static int testPrimaryFailoverWhileLockHeld_counter;
+        static int testPrimaryFailoverWhileLockHeldCounter;
         [TestMethod]
         public void TestPrimaryFailoverWhileLockHeld()
         {
@@ -182,7 +188,7 @@ namespace ScalienClientUnitTesting
             var database = client.GetDatabase(databaseName);
             var table = database.GetTable(tableName);
 
-            var counter = Interlocked.Increment(ref testLockFailureException_counter);
+            var counter = Interlocked.Increment(ref testLockFailureExceptionCounter);
             byte[] majorKey = Utils.StringToByteArray("TestPrimaryFailoverWhileLockHeld" + counter);
 
             client.StartTransaction(quorum, majorKey);

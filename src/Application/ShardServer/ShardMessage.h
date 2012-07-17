@@ -3,6 +3,7 @@
 
 #include "Framework/Messaging/Message.h"
 
+#define SHARDMESSAGE_UNDEFINED              ' '
 #define SHARDMESSAGE_SET                    'S'
 #define SHARDMESSAGE_ADD                    'a'
 #define SHARDMESSAGE_SEQUENCE_ADD           'A'

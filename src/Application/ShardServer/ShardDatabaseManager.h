@@ -110,60 +110,62 @@ class ShardDatabaseManager
 public:
     ShardDatabaseManager();
 
-    void                    Init(ShardServer* shardServer);
-    void                    Shutdown();
+    void                        Init(ShardServer* shardServer);
+    void                        Shutdown();
     
-    StorageEnvironment*     GetEnvironment();
-    StorageShardProxy*      GetQuorumPaxosShard(uint64_t quorumID);
-    StorageShardProxy*      GetQuorumLogShard(uint64_t quorumID);
-    ConfigState*            GetConfigState();
+    StorageEnvironment*         GetEnvironment();
+    StorageShardProxy*          GetQuorumPaxosShard(uint64_t quorumID);
+    StorageShardProxy*          GetQuorumLogShard(uint64_t quorumID);
+    ConfigState*                GetConfigState();
     
-    void                    DeleteQuorum(uint64_t quorumID);
+    void                        DeleteQuorum(uint64_t quorumID);
 
-    void                    SetShards(SortedList<uint64_t>& shards);
-    void                    SetQuorumShards(uint64_t quorumID);
-    void                    RemoveDeletedDataShards(SortedList<uint64_t>& myShardIDs);
+    void                        SetShards(SortedList<uint64_t>& shards);
+    void                        SetQuorumShards(uint64_t quorumID);
+    void                        RemoveDeletedDataShards(SortedList<uint64_t>& myShardIDs);
     
-    void                    OnClientReadRequest(ClientRequest* request);
-    void                    OnClientListRequest(ClientRequest* request);
-    bool                    OnClientSequenceNext(ClientRequest* request);
-    uint64_t                ExecuteMessage(uint64_t quorumID, uint64_t paxosID, uint64_t commandID, ShardMessage& message);
+    void                        OnClientReadRequest(ClientRequest* request);
+    void                        OnClientListRequest(ClientRequest* request);
+    bool                        OnClientSequenceNext(ClientRequest* request);
+    uint64_t                    ExecuteMessage(uint64_t quorumID, uint64_t paxosID, uint64_t commandID, ShardMessage& message);
 
-    void                    OnLeaseTimeout();
+    void                        OnLeaseTimeout();
 
-    unsigned                GetNumReadRequests();
-    unsigned                GetNumBlockingReadRequests();
-    unsigned                GetNumListRequests();
-    unsigned                GetNumInactiveListThreads();
-    uint64_t                GetNextListRequestID();
-    uint64_t                GetNumAbortedListRequests();
-    uint64_t                GetNextGetRequestID();
+    unsigned                    GetNumReadRequests();
+    unsigned                    GetNumBlockingReadRequests();
+    unsigned                    GetNumListRequests();
+    unsigned                    GetNumInactiveListThreads();
+    uint64_t                    GetNextListRequestID();
+    uint64_t                    GetNumAbortedListRequests();
+    uint64_t                    GetNextGetRequestID();
         
 private:
-    void                    DeleteQuorumPaxosShard(uint64_t quorumID);
-    void                    DeleteQuorumLogShard(uint64_t quorumID);
-    void                    DeleteDataShards(uint64_t quorumID);
+    void                        DeleteQuorumPaxosShard(uint64_t quorumID);
+    void                        DeleteQuorumLogShard(uint64_t quorumID);
+    void                        DeleteDataShards(uint64_t quorumID);
 
-    void                    OnExecuteReads();
-    void                    OnExecuteLists();
-    bool                    IsEmptyListRange(ClientRequest* request);
+    void                        OnExecuteReads();
+    void                        OnExecuteLists();
+    bool                        IsEmptyListRange(ClientRequest* request);
 
-    ShardServer*            shardServer;
-    StorageEnvironment      environment;
-    StorageShardProxy       systemShard;
-    ShardMap                quorumPaxosShards;
-    ShardMap                quorumLogShards;
-    ClientRequestList       readRequests;
-    ClientRequestList       blockingReadRequests;
-    ClientRequestList       listRequests;
-    YieldTimer              executeReads;
-    ShardDatabaseAsyncGet   asyncGet;
-    YieldTimer              executeLists;
-    ShardDatabaseAsyncListList inactiveAsyncLists;
-    Sequences               sequences;
-    uint64_t                nextListRequestID;
-    uint64_t                numAbortedListRequests;
-    uint64_t                nextGetRequestID;
+    ShardServer*                shardServer;
+    StorageEnvironment          environment;
+    StorageShardProxy           systemShard;
+    ShardMap                    quorumPaxosShards;
+    ShardMap                    quorumLogShards;
+    ClientRequestList           readRequests;
+    ClientRequestList           blockingReadRequests;
+    ClientRequestList           listRequests;
+    YieldTimer                  executeReads;
+    ShardDatabaseAsyncGet       asyncGet;
+    YieldTimer                  executeLists;
+    unsigned                    numAsyncLists;
+    ShardDatabaseAsyncList**    asyncLists;
+    ShardDatabaseAsyncListList  inactiveAsyncLists;
+    Sequences                   sequences;
+    uint64_t                    nextListRequestID;
+    uint64_t                    numAbortedListRequests;
+    uint64_t                    nextGetRequestID;
 };
 
 #endif

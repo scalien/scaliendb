@@ -76,7 +76,6 @@ private:
     Buffer              lastKey;
     Buffer              midpoint;
     bool                merged;
-    StorageFileChunk*   owner;
 };
 
 #endif

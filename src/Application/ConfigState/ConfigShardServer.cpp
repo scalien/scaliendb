@@ -145,6 +145,7 @@ ConfigShardServer& ConfigShardServer::operator=(const ConfigShardServer& other)
 {
     nodeID = other.nodeID;
     activationPhase = other.activationPhase;
+    nextActivationTime = other.nextActivationTime;
     endpoint = other.endpoint;
     httpPort = other.httpPort;
     sdbpPort = other.sdbpPort;

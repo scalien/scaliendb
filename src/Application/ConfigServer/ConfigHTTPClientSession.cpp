@@ -716,6 +716,7 @@ void ConfigHTTPClientSession::PrintStatistics()
     buffer.Appendf("numCompletions: %U\n", iostat.numCompletions);
     buffer.Appendf("totalPollTime: %U\n", iostat.totalPollTime);
     buffer.Appendf("totalNumEvents: %U\n", iostat.totalNumEvents);
+    buffer.Appendf("numDanglingIods: %d\n", iostat.numDanglingIods);
     
     buffer.Append("  Category: Controller\n");
     buffer.Appendf("uptime: %U sec\n", (Now() - configServer->GetStartTimestamp()) / 1000);
