@@ -1225,11 +1225,6 @@ void StorageEnvironment::TryFinalizeLogSegments()
 void StorageEnvironment::TrySerializeChunks()
 {
     uint64_t                memoChunksSumSize;
-    //uint64_t                trackSize;
-    //Track*                  track;
-    //uint64_t                candidateTrackSize;
-    //uint64_t                candidateTrackID;
-    //StorageLogSegment*      candidateLogTailSegment;
     StorageShard*           shard;
     StorageShard*           candidateShard;
     StorageMemoChunk*       memoChunk;
@@ -1245,26 +1240,6 @@ void StorageEnvironment::TrySerializeChunks()
     memoChunksSumSize = 0;
     FOREACH (shard, shards)
         memoChunksSumSize += shard->GetMemoChunk()->GetSize();
-
-    // Uncomment this and the block below to keep logSize under limit
-    // Calculate the size of the log segments
-    //candidateTrackSize = 0;
-    //candidateTrackID = 0;
-    //candidateLogTailSegment = NULL;
-    //FOREACH (track, logManager.tracks)
-    //{
-    //    trackSize = 0;
-    //    FOREACH (logSegment, track->logSegments)
-    //        trackSize += logSegment->GetOffset();
-    //    
-    //    if (trackSize > config.GetNumUnbackedLogSegments() * config.GetLogSegmentSize() &&
-    //        trackSize > candidateTrackSize)
-    //    {
-    //        candidateTrackSize = trackSize;
-    //        candidateTrackID = track->trackID;
-    //        candidateLogTailSegment = track->logSegments.First();
-    //    }
-    //}
 
     candidateShard = NULL;
     FOREACH (shard, shards)
@@ -1287,14 +1262,6 @@ void StorageEnvironment::TrySerializeChunks()
             goto Candidate;
         if (memoChunk->GetSize() > config.GetChunkSize())
             goto Candidate;
-
-        // Uncomment this and the block above to keep logSize under limit
-        //if (candidateLogTailSegment && 
-        //    shard->GetTrackID() == candidateTrackID &&
-        //    shard->IsBackingLogSegment(shard->GetTrackID(), candidateLogTailSegment->GetLogSegmentID()))
-        //{
-        //        goto Candidate;
-        //}
 
         if (logSegment->GetLogSegmentID() <= config.GetNumLogSegments())
             continue;
