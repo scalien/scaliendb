@@ -128,6 +128,7 @@ public:
     uint64_t                GetLogSegmentMemoryUsage();
     uint64_t                GetChunkFileDiskUsage();
     uint64_t                GetLogSegmentDiskUsage();
+    uint64_t                GetChunkFileMemoryUsage();
     unsigned                GetNumShards();
     unsigned                GetNumFileChunks();
     unsigned                GetNumListThreads();

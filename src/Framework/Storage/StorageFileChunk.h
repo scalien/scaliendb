@@ -57,6 +57,7 @@ public:
     uint64_t            GetPartialSize(ReadBuffer firstKey, ReadBuffer lastKey);
     ReadBuffer          GetMidpoint();
     ReadBuffer          GetPartialMidpointAndSize(ReadBuffer firstKey, ReadBuffer lastKey, uint64_t& size);
+    uint64_t            GetMemorySize();
 
     bool                IsEmpty();
     

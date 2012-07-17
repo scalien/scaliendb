@@ -363,6 +363,27 @@ ReadBuffer StorageFileChunk::GetPartialMidpointAndSize(ReadBuffer firstKey, Read
     return indexPage->GetIndexKey(firstIndex + (lastIndex - firstIndex) / 2);
 }
 
+uint64_t StorageFileChunk::GetMemorySize()
+{
+    uint64_t    totalSize;
+
+    totalSize = 0;
+
+    for (unsigned i = 0; i < numDataPages; i++)
+    {
+        if (dataPages[i])
+            totalSize += dataPages[i]->GetMemorySize();
+    }
+
+    if (indexPage)
+        totalSize += indexPage->GetMemorySize();
+
+    if (bloomPage)
+        totalSize += bloomPage->GetMemorySize();
+
+    return totalSize;
+}
+
 bool StorageFileChunk::IsEmpty()
 {
     return (numDataPages == 0);

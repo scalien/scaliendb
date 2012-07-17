@@ -892,6 +892,21 @@ uint64_t StorageEnvironment::GetChunkFileDiskUsage()
     return totalSize;
 }
 
+uint64_t StorageEnvironment::GetChunkFileMemoryUsage()
+{
+    uint64_t             totalSize;
+    StorageFileChunk*    fileChunk;
+
+    totalSize = 0;
+
+    FOREACH (fileChunk, fileChunks)
+    {
+        totalSize += fileChunk->GetMemorySize();
+    }
+
+    return totalSize;
+}
+
 uint64_t StorageEnvironment::GetLogSegmentDiskUsage()
 {
     return logManager.GetDiskUsage();
