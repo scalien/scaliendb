@@ -75,7 +75,7 @@ struct IODesc
     byte            acceptData[2 * ACCEPT_ADDR_LEN];    // TODO allocate dynamically
 
     WSABUF          wsabuf;
-    byte            writeBuffer[WRITE_BUFFER_SIZE];
+    byte*           writeBuffer;
 
     IODesc*         next;               // pointer for free list handling
 };
@@ -387,7 +387,10 @@ bool IOProcessor::Init(int maxfd)
     numIods = maxfd;
     iods = new IODesc[numIods];
     for (int i = 0; i < numIods - 1; i++)
+    {
         iods[i].next = &iods[i + 1];
+        iods[i].writeBuffer = NULL;
+    }
 
     iods[numIods - 1].next = NULL;
     freeIods = iods;
@@ -405,12 +408,20 @@ void IOProcessor::Shutdown()
     if (iocp == NULL || numIOProcClients > 0)
         return;
 
+    for (int i = 0; i < numIods - 1; i++)
+    {
+        delete iods[i].writeBuffer;
+        iods[i].writeBuffer = NULL;
+    }
     delete[] iods;
     freeIods = NULL;
+
     CloseHandle(iocp);
     iocp = NULL;
+
     SetConsoleCtrlHandler(ConsoleCtrlHandler, FALSE);
     WSACleanup();
+
     callableQueue.DeleteQueue();
 }
 
@@ -467,6 +478,13 @@ static bool StartAsyncWrite(TCPWrite* tcpwrite)
     iod = GetIODesc(tcpwrite->fd);
 
     ASSERT(iod->write == NULL);
+
+    // Allocate buffer
+    if (iod->writeBuffer == NULL)
+    {
+        iod->writeBuffer = new byte[WRITE_BUFFER_SIZE];
+        iostat.memoryUsage += WRITE_BUFFER_SIZE;
+    }
 
     // Copy the buffer
     len = MIN(tcpwrite->buffer->GetLength() - tcpwrite->transferred, WRITE_BUFFER_SIZE);
