@@ -1,13 +1,23 @@
 #include "StoragePageCache.h"
+#include "System/Registry.h"
 
 StoragePageCache::PageList StoragePageCache::metaPages;
 StoragePageCache::PageList StoragePageCache::dataPages;
 uint64_t StoragePageCache::size = 0;
 uint64_t StoragePageCache::maxSize = 0;
+static uint64_t*    numMetaPageHits;
+static uint64_t*    numMetaPageMisses;
+static uint64_t*    numDataPageHits;
+static uint64_t*    numDataPageMisses;
 
 void StoragePageCache::Init(StorageConfig& config)
 {
     maxSize = config.GetFileChunkCacheSize();
+
+    numMetaPageHits = Registry::GetUintPtr("storage.pageCache.numMetaPageHits");
+    numMetaPageMisses = Registry::GetUintPtr("storage.pageCache.numMetaPageMisses");
+    numDataPageHits = Registry::GetUintPtr("storage.pageCache.numDataPageHits");
+    numDataPageMisses = Registry::GetUintPtr("storage.pageCache.numDataPageMisses");
 }
 
 void StoragePageCache::Shutdown()
@@ -59,6 +69,8 @@ void StoragePageCache::AddMetaPage(StoragePage* page)
 
     size += page->GetMemorySize();
     metaPages.Append(page);
+
+    *numMetaPageMisses += 1;
 }
 
 void StoragePageCache::AddDataPage(StoragePage* page, bool bulk)
@@ -74,6 +86,8 @@ void StoragePageCache::AddDataPage(StoragePage* page, bool bulk)
         dataPages.Prepend(page);
     else
         dataPages.Append(page);
+
+    *numDataPageMisses += 1;
 }
 
 void StoragePageCache::RemoveMetaPage(StoragePage* page)
@@ -92,12 +106,16 @@ void StoragePageCache::RegisterMetaHit(StoragePage* page)
 {
     metaPages.Remove(page);
     metaPages.Append(page);
+
+    *numMetaPageHits += 1;
 }
 
 void StoragePageCache::RegisterDataHit(StoragePage* page)
 {
     dataPages.Remove(page);
     dataPages.Append(page);
+
+    *numDataPageHits += 1;
 }
 
 void StoragePageCache::RemoveOnePage()
