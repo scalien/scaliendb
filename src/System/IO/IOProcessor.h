@@ -33,6 +33,7 @@ public:
     uint64_t    totalNumEvents;
     uint64_t    numLongCallbacks;
     int         numDanglingIods;
+    uint64_t    memoryUsage;
 };
 
 /*

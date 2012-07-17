@@ -393,6 +393,7 @@ bool IOProcessor::Init(int maxfd)
     freeIods = iods;
 
     memset(&iostat, 0, sizeof(iostat));
+    iostat.memoryUsage += numIods * sizeof(IODesc);
 
     return true;
 }
@@ -880,6 +881,7 @@ bool IOProcessor::Complete(Callable* callable)
     callableMutex.Unlock();
 
     iostat.numCompletions++;
+    iostat.memoryUsage += sizeof(CallableItem);
 
     // notify IOCP that there is a new completion callback
     ret = PostQueuedCompletionStatus(iocp, 0, (ULONG_PTR) &callback, (LPOVERLAPPED) NULL);
@@ -921,8 +923,12 @@ void ProcessCompletionCallbacks()
     mutex.Unlock();
 
     callableMutex.Lock();
+    
+    iostat.memoryUsage += callableQueue.GetLength() + sizeof(CallableItem);
+    
     item = callableQueue.First();
     callableQueue.ClearMembers();
+    
     callableMutex.Unlock();
 
     while (item)
