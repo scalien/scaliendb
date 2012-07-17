@@ -271,9 +271,9 @@ void StorageRecovery::ReplayLogSegments(uint64_t trackID)
     Buffer              tmp, prefix;
     FS_Dir              dir;
     FS_DirEntry         entry;
-    SortedList<Buffer*> segments;
+    SortedList<Buffer*> segmentNames;
     Buffer*             segmentName;
-    Buffer**            itSegment;
+    Buffer**            itSegmentName;
     
     Log_Message("Replaying log segments in track %U...", trackID);
     
@@ -300,28 +300,36 @@ void StorageRecovery::ReplayLogSegments(uint64_t trackID)
         if (FS_IsDirectory(filename))
             continue;
         
+        // collect segments in a sorted list to
+        // make sure they are read in order
         tmp.Write(filename);
         if (ReadBuffer(tmp).BeginsWith(prefix.GetBuffer()))
         {
             tmp.Write(env->logPath);
             tmp.Append(filename);
             segmentName = new Buffer(tmp);
-            segments.Add(segmentName);
+            segmentNames.Add(segmentName);
         }
     }
 
-    FOREACH (itSegment, segments)
+    FOREACH (itSegmentName, segmentNames)
     {
-        segmentName = *itSegment;
-        tmp.Write(*segmentName);
-        tmp.NullTerminate();
-        if (FS_FileSize(tmp.GetBuffer()) > 128*MB)
-            ReplayLogSegment(trackID, *segmentName);
-        else
-            ReplayLogSegmentOpt(trackID, *segmentName);
-        delete segmentName;
-
+        segmentName = *itSegmentName;
+        ReplayLogSegment(trackID, *segmentName);
+        //tmp.Write(*segmentName);
+        //tmp.NullTerminate();
+        //if (FS_FileSize(tmp.GetBuffer()) > 128*MB)
+        //    ReplayLogSegment(trackID, *segmentName);
+        //else
+        //    ReplayLogSegmentOpt(trackID, *segmentName);
         TryWriteChunks();
+    }
+
+    FOREACH_FIRST (itSegmentName, segmentNames)
+    {
+        segmentName = *itSegmentName;
+        segmentNames.Remove(itSegmentName);
+        delete segmentName;
     }
     
     FS_CloseDir(dir);
