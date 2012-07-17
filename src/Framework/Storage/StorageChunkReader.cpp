@@ -1,4 +1,5 @@
 #include "StorageChunkReader.h"
+#include "StoragePageCache.h"
 #include "System/Time.h"
 #include "System/IO/IOProcessor.h"
 
@@ -43,7 +44,6 @@ void StorageChunkReader::Open(
     fileChunk.ReadHeaderPage();
     fileChunk.LoadIndexPage();
 
-    indexPage = fileChunk.indexPage;
     numDataPages = fileChunk.numDataPages;
 
     index = 0;
@@ -54,6 +54,8 @@ void StorageChunkReader::OpenWithFileChunk(
  StorageFileChunk* fileChunk_, ReadBuffer& firstKey_, uint64_t preloadThreshold_,
  bool keysOnly_, bool forwardDirection_)
 {
+    StorageIndexPage*   indexPage;
+
     count = 0;
     numRead = 0;
     isLocated = false;
@@ -80,6 +82,9 @@ void StorageChunkReader::OpenWithFileChunk(
     {
         isLocated = true;
         LocateIndexAndOffset(indexPage, numDataPages, firstKey_);
+
+        // Register cache hit to bring back page in LRU
+        StoragePageCache::RegisterMetaHit(indexPage);
     }
 }
 
