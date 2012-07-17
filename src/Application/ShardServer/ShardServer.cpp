@@ -2,6 +2,7 @@
 #include "System/Config.h"
 #include "Framework/Replication/ReplicationConfig.h"
 #include "Framework/Storage/StoragePageCache.h"
+#include "Framework/Storage/StorageListPageCache.h"
 #include "Application/Common/ContextTransport.h"
 #include "Application/Common/DatabaseConsts.h"
 #include "Application/Common/CatchupMessage.h"
@@ -422,8 +423,8 @@ void ShardServer::GetMemoryUsageBuffer(Buffer& buffer, ByteFormatType formatType
     buffer.Appendf("Storage cache usage: %s\n", FormatBytes(StoragePageCache::GetSize(), humanBuf, formatType));
     totalMemory += StoragePageCache::GetSize();
 
-    buffer.Appendf("Storage list page cache usage: %s\n", FormatBytes(StorageDataPageCache::GetCacheSize(), humanBuf, formatType));
-    totalMemory += StorageDataPageCache::GetCacheSize();
+    buffer.Appendf("Storage list page cache usage: %s\n", FormatBytes(StorageListPageCache::GetCacheSize(), humanBuf, formatType));
+    totalMemory += StorageListPageCache::GetCacheSize();
 
     buffer.Appendf("Client request cache usage: %s\n", FormatBytes(REQUEST_CACHE->GetMemorySize(), humanBuf, formatType));
     totalMemory += REQUEST_CACHE->GetMemorySize();

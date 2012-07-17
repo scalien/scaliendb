@@ -11,6 +11,7 @@
 #include "Application/ShardServer/ShardServerApp.h"
 #include "Framework/Replication/ReplicationConfig.h"
 #include "Framework/Storage/StoragePageCache.h"
+#include "Framework/Storage/StorageListPageCache.h"
 #include "Framework/Storage/StorageFileDeleter.h"
 #include "Version.h"
 
@@ -406,12 +407,12 @@ void ShardHTTPClientSession::PrintStatistics()
     buffer.Appendf("inactiveListThreads: %u\n", databaseManager->GetNumInactiveListThreads());
     buffer.Appendf("numAbortedListRequests: %U\n", databaseManager->GetNumAbortedListRequests());
     buffer.Appendf("nextListRequestID: %U\n", databaseManager->GetNextListRequestID());
-    buffer.Appendf("listPageCacheSize: %U\n", StorageDataPageCache::GetCacheSize());
-    buffer.Appendf("maxListPageCacheSize: %U\n", StorageDataPageCache::GetMaxCacheSize());
-    buffer.Appendf("maxUsedListPageCacheSize: %U\n", StorageDataPageCache::GetMaxUsedSize());
-    buffer.Appendf("maxCachedPageSize: %U\n", StorageDataPageCache::GetMaxCachedPageSize());
-    buffer.Appendf("averageCachedPageSize: %U\n", StorageDataPageCache::GetListLength() == 0 ? 0 : (uint64_t)((float)StorageDataPageCache::GetCacheSize() / StorageDataPageCache::GetListLength()));
-    buffer.Appendf("listPageCacheLength: %u\n", StorageDataPageCache::GetListLength());
+    buffer.Appendf("listPageCacheSize: %U\n", StorageListPageCache::GetCacheSize());
+    buffer.Appendf("maxListPageCacheSize: %U\n", StorageListPageCache::GetMaxCacheSize());
+    buffer.Appendf("maxUsedListPageCacheSize: %U\n", StorageListPageCache::GetMaxUsedSize());
+    buffer.Appendf("maxCachedPageSize: %U\n", StorageListPageCache::GetMaxCachedPageSize());
+    buffer.Appendf("averageCachedPageSize: %U\n", StorageListPageCache::GetListLength() == 0 ? 0 : (uint64_t)((float)StorageListPageCache::GetCacheSize() / StorageListPageCache::GetListLength()));
+    buffer.Appendf("listPageCacheLength: %u\n", StorageListPageCache::GetListLength());
     PRINT_BOOL("isMergeEnabled", databaseManager->GetEnvironment()->IsMergeEnabled());
     buffer.Appendf("mergeCpuThreshold: %u\n", databaseManager->GetEnvironment()->GetMergeCpuThreshold());
     buffer.Appendf("mergeYieldFactor: %u\n", databaseManager->GetEnvironment()->GetConfig().GetMergeYieldFactor());
@@ -933,7 +934,7 @@ bool ShardHTTPClientSession::ProcessSettings()
         HTTP_GET_OPT_U64_PARAM(params, "listDataPageCacheSize", listDataPageCacheSize);
         if (listDataPageCacheSize > 0)
         {
-            StorageDataPageCache::SetMaxCacheSize(listDataPageCacheSize);
+            StorageListPageCache::SetMaxCacheSize(listDataPageCacheSize);
             snprintf(buf, sizeof(buf), "%u", (unsigned) listDataPageCacheSize);
             session.PrintPair("ListDataPageCacheSize", buf);
         }

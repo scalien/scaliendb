@@ -326,7 +326,7 @@ void StorageRecovery::ReplayLogSegments(uint64_t trackID)
     FOREACH (itSegmentName, segmentNames)
     {
         segmentName = *itSegmentName;
-        ReplayLogSegment(trackID, *segmentName);
+        ReplayLogSegmentOpt(trackID, *segmentName);
         //tmp.Write(*segmentName);
         //tmp.NullTerminate();
         //if (FS_FileSize(tmp.GetBuffer()) > 128*MB)
