@@ -12,11 +12,10 @@ static inline bool operator==(const ReadBuffer& a, const ReadBuffer& b)
 
 StorageShard::StorageShard()
 {
-    prev = next = this;
     trackID = 0;
-    contextID = 0;
+    identity.contextID = 0;
+    identity.shardID = 0;
     tableID = 0;
-    shardID = 0;
     memoChunk = NULL;
     recoveryLogSegmentID = 0;
     recoveryLogCommandID = 0;
@@ -49,7 +48,7 @@ void StorageShard::SetTrackID(uint64_t trackID_)
 
 void StorageShard::SetContextID(uint16_t contextID_)
 {
-    contextID = contextID_;
+    identity.contextID = contextID_;
 }
 
 void StorageShard::SetTableID(uint64_t tableID_)
@@ -59,7 +58,7 @@ void StorageShard::SetTableID(uint64_t tableID_)
 
 void StorageShard::SetShardID(uint64_t shardID_)
 {
-    shardID = shardID_;
+    identity.shardID = shardID_;
 }
 
 void StorageShard::SetLogSegmentID(uint64_t logSegmentID_)
@@ -103,9 +102,14 @@ uint64_t StorageShard::GetTrackID()
     return trackID;
 }
 
+const StorageShardIdentity& StorageShard::GetIdentity() const
+{
+    return identity;
+}
+
 uint16_t StorageShard::GetContextID()
 {
-    return contextID;
+    return identity.contextID;
 }
 
 uint64_t StorageShard::GetTableID()
@@ -115,7 +119,7 @@ uint64_t StorageShard::GetTableID()
 
 uint64_t StorageShard::GetShardID()
 {
-    return shardID;
+    return identity.shardID;
 }
 
 uint64_t StorageShard::GetLogSegmentID()

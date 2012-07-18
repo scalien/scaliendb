@@ -3,6 +3,7 @@
 
 #include "System/Buffers/Buffer.h"
 #include "System/Containers/SortedList.h"
+#include "System/Containers/InTreeMap.h"
 #include "StorageMemoChunk.h"
 #include "StorageFileChunk.h"
 
@@ -12,6 +13,13 @@ class StorageBulkCursor;
 #define STORAGE_SHARD_TYPE_STANDARD         'F'
 #define STORAGE_SHARD_TYPE_LOG              'T'
 #define STORAGE_SHARD_TYPE_DUMP             'D'
+
+class StorageShardIdentity
+{
+public:
+    uint16_t            contextID;
+    uint64_t            shardID;
+};
 
 /*
 ===============================================================================================
@@ -25,7 +33,9 @@ class StorageShard
 {
     friend class StorageRecovery;
     friend class StorageBulkCursor;
-    
+    typedef InTreeNode<StorageShard> TreeNode;
+    typedef StorageShardIdentity Ident;
+
 public:
     typedef SortedList<StorageChunk*> ChunkList;
     typedef bool (StorageShard::*IsMergeCandidateFunc)();
@@ -45,6 +55,7 @@ public:
     void                SetStorageType(char type);
 
     uint64_t            GetTrackID();
+    const Ident&        GetIdentity() const;
     uint16_t            GetContextID();
     uint64_t            GetTableID();
     uint64_t            GetShardID();
@@ -72,11 +83,8 @@ public:
     bool                IsFragmentedMergeCandidate(unsigned maxChunkPerShard);
     void                GetMergeInputChunks(List<StorageFileChunk*>& inputChunks);
 
-
-    StorageShard*       prev;
-    StorageShard*       next;
-
     StorageMemoChunk*   memoChunk;
+    TreeNode            treeNode;
 
 private:
     void                InvalidateCachedValues();
@@ -84,8 +92,7 @@ private:
     void                PrecomputeCachedValues();
 
     uint64_t            trackID;
-    uint16_t            contextID;
-    uint64_t            shardID;
+    Ident               identity;
     uint64_t            tableID;
     uint64_t            logSegmentID;   // the first command
     uint32_t            logCommandID;   // which may affect this shard

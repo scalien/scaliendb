@@ -99,7 +99,7 @@ void StorageEnvironmentWriter::WriteBuffer()
     writeBuffer.AppendLittle32(0);  // dummy for CRC
     writeBuffer.AppendLittle32(STORAGE_TOC_VERSION);
     
-    numShards = env->shards.GetLength();
+    numShards = env->shards.GetCount();
     writeBuffer.AppendLittle32(numShards);
     FOREACH (itShard, env->shards)
         WriteShard(itShard);

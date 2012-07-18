@@ -62,7 +62,7 @@ class StorageEnvironment
     friend class StorageBulkCursor;
     friend class StorageAsyncBulkCursor;
     
-    typedef InList<StorageShard> ShardList;
+    typedef InTreeMap<StorageShard> ShardTree;
     typedef InList<StorageFileChunk> FileChunkList;
     typedef StorageLogManager LogManager;
     typedef LogManager::Track Track;
@@ -173,7 +173,7 @@ public:
     Buffer                  archivePath;
 
 private:
-    ShardList               shards;
+    ShardTree               shards;
     FileChunkList           fileChunks;
     StorageConfig           config;
     LogManager              logManager;

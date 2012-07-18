@@ -12,6 +12,25 @@ static bool LessThan(const Buffer* a, const Buffer* b)
     return Buffer::Cmp(*a, *b) < 0;
 }
 
+static inline int KeyCmp(const StorageShardIdentity& a, const StorageShardIdentity& b)
+{
+    if (a.contextID < b.contextID)
+        return -1;
+    else if (a.contextID > b.contextID)
+        return 1;
+    else if (a.shardID < b.shardID)
+        return -1;
+    else if (a.shardID > b.shardID)
+        return 1;
+    else
+        return 0;
+}
+
+static inline const StorageShardIdentity& Key(const StorageShard* shard)
+{
+    return shard->GetIdentity();
+}
+
 bool StorageRecovery::TryRecovery(StorageEnvironment* env_)
 {
     uint64_t            trackID;
@@ -187,13 +206,13 @@ bool StorageRecovery::ReadShardVersion1(ReadBuffer& parse)
     if (!parse.ReadLittle64(shard->trackID))
         return false;
     parse.Advance(8);
-    if (!parse.ReadLittle16(shard->contextID))
+    if (!parse.ReadLittle16(shard->identity.contextID))
         return false;
     parse.Advance(2);
     if (!parse.ReadLittle64(shard->tableID))
         return false;
     parse.Advance(8);
-    if (!parse.ReadLittle64(shard->shardID))
+    if (!parse.ReadLittle64(shard->identity.shardID))
         return false;
     parse.Advance(8);
     if (!parse.ReadLittle64(shard->logSegmentID))
@@ -237,7 +256,7 @@ bool StorageRecovery::ReadShardVersion1(ReadBuffer& parse)
         shard->chunks.Add(fileChunk);
     }
 
-    env->shards.Append(shardGuard.Release());
+    env->shards.Insert<const StorageShardIdentity&>(shardGuard.Release());
     
     return true;
 }

@@ -34,6 +34,25 @@ static inline const ReadBuffer Key(StorageMemoKeyValue* kv)
     return kv->GetKey();
 }
 
+static inline int KeyCmp(const StorageShardIdentity& a, const StorageShardIdentity& b)
+{
+    if (a.contextID < b.contextID)
+        return -1;
+    else if (a.contextID > b.contextID)
+        return 1;
+    else if (a.shardID < b.shardID)
+        return -1;
+    else if (a.shardID > b.shardID)
+        return 1;
+    else
+        return 0;
+}
+
+static inline const StorageShardIdentity& Key(const StorageShard* shard)
+{
+    return shard->GetIdentity();
+}
+
 static inline bool LessThan(const Buffer* a, const Buffer* b)
 {
     return Buffer::Cmp(*a, *b) < 0;
@@ -211,7 +230,7 @@ void StorageEnvironment::Close()
     delete asyncListThread;
     delete asyncGetThread;
     
-    shards.DeleteList();
+    shards.DeleteTree();
 
     FOREACH (fileChunk, fileChunks)
         fileChunk->RemovePagesFromCache();
@@ -298,7 +317,7 @@ void StorageEnvironment::GetShardIDs(uint64_t contextID, Buffer& shardIDs)
 {
     StorageShard*   shard;
     
-    shardIDs.Allocate(shards.GetLength() * sizeof(uint64_t));
+    shardIDs.Allocate(shards.GetCount() * sizeof(uint64_t));
 
     FOREACH (shard, shards)
     {
@@ -313,7 +332,7 @@ void StorageEnvironment::GetShardIDs(uint64_t contextID, uint64_t tableID, Buffe
 {
     StorageShard*   shard;
     
-    shardIDs.Allocate(shards.GetLength() * sizeof(uint64_t));
+    shardIDs.Allocate(shards.GetCount() * sizeof(uint64_t));
 
     FOREACH (shard, shards)
     {
@@ -918,7 +937,7 @@ uint64_t StorageEnvironment::GetLogSegmentDiskUsage()
 
 unsigned StorageEnvironment::GetNumShards()
 {
-    return shards.GetLength();
+    return shards.GetCount();
 }
 
 unsigned StorageEnvironment::GetNumFileChunks()
@@ -963,15 +982,14 @@ StorageConfig& StorageEnvironment::GetConfig()
 
 StorageShard* StorageEnvironment::GetShard(uint16_t contextID, uint64_t shardID)
 {
-    StorageShard* it;
+    StorageShard*           shard;
+    StorageShardIdentity    ident;
 
-    FOREACH (it, shards)
-    {
-        if (it->GetContextID() == contextID && it->GetShardID() == shardID)
-            return it;
-    }
+    ident.contextID = contextID;
+    ident.shardID = shardID;
 
-    return NULL;
+    shard = shards.Get(ident);
+    return shard;
 }
 
 StorageShard* StorageEnvironment::GetShardByKey(uint16_t contextID, uint64_t tableID, ReadBuffer& key)
@@ -1026,7 +1044,7 @@ bool StorageEnvironment::CreateShard(uint64_t trackID,
     shard->SetLogCommandID(logSegment->GetLogCommandID());
     shard->PushMemoChunk(new StorageMemoChunk(nextChunkID++, useBloomFilter));
 
-    shards.Append(shard);
+    shards.Insert<const StorageShardIdentity&>(shard);
     WriteTOC();
     return true;
 }
@@ -1162,7 +1180,7 @@ bool StorageEnvironment::SplitShard(uint16_t contextID,  uint64_t shardID,
 
     newShard->PushMemoChunk(newMemoChunk);
 
-    shards.Append(newShard);
+    shards.Insert<const StorageShardIdentity&>(newShard);
 
     shard->SetLastKey(splitKey);
     
