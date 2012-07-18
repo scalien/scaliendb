@@ -27,6 +27,13 @@ class ReadBuffer;
 #define YES     'Y'
 #define NO      'N'
 
+enum ByteFormatType
+{
+    BYTE_FORMAT_RAW,
+    BYTE_FORMAT_HUMAN,
+    BYTE_FORMAT_IEC
+};
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -41,8 +48,8 @@ unsigned        NumDigits(int n);
 unsigned        NumDigits64(uint64_t n);
 
 const char*     HumanBytes(uint64_t bytes, char buf[5]);
-
-const char*     SIBytes(uint64_t bytes, char buf[5]);
+const char*     IECBytes(uint64_t bytes, char buf[5]);
+const char*     FormatBytes(uint64_t bytes, char buf[100], ByteFormatType byteFormatType);
 
 const char*     HumanTime(char buf[27]);
 

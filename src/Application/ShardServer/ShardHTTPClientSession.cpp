@@ -11,6 +11,7 @@
 #include "Application/ShardServer/ShardServerApp.h"
 #include "Framework/Replication/ReplicationConfig.h"
 #include "Framework/Storage/StoragePageCache.h"
+#include "Framework/Storage/StorageListPageCache.h"
 #include "Framework/Storage/StorageFileDeleter.h"
 #include "Version.h"
 
@@ -350,27 +351,6 @@ void ShardHTTPClientSession::PrintStorage()
     session.Flush();
 }
 
-static const char* PrintableBytes(uint64_t bytes, char buf[100], bool humanize)
-{
-    int     ret;
-
-    if (humanize)
-    {
-        return HumanBytes(bytes, buf);
-    }
-    else
-    {
-        ret = Writef(buf, 100, "%U", bytes);
-        if (ret < 0 || ret >= 100)
-            return "";
-        
-        // terminate the buffer with zero
-        buf[ret] = 0;
-        
-        return buf;
-    }
-}
-
 void ShardHTTPClientSession::PrintStatistics()
 {
     Buffer                  buffer;
@@ -379,14 +359,14 @@ void ShardHTTPClientSession::PrintStatistics()
     ShardDatabaseManager*   databaseManager;
     ShardQuorumProcessor*   quorumProcessor;
     ReadBuffer              param;
-    char                    humanBuf[100];
-    bool                    humanize;
+    char                    formatBuf[100];
+    ByteFormatType          formatType;
     RegistryNode*           registryNode;
 
-    humanize = true;
-    if (HTTP_GET_OPT_PARAM(params, "humanize", param))
+    formatType = BYTE_FORMAT_HUMAN;
+    if (HTTP_GET_OPT_PARAM(params, "humanize", param) && PARAM_BOOL_VALUE(param) == false)
     {
-        humanize = PARAM_BOOL_VALUE(param);
+        formatType = BYTE_FORMAT_RAW;
     }
 
     IOProcessor::GetStats(&iostat);
@@ -395,8 +375,8 @@ void ShardHTTPClientSession::PrintStatistics()
     buffer.Appendf("numPolls: %U\n", iostat.numPolls);
     buffer.Appendf("numTCPReads: %U\n", iostat.numTCPReads);
     buffer.Appendf("numTCPWrites: %U\n", iostat.numTCPWrites);
-    buffer.Appendf("numTCPBytesReceived: %s\n", PrintableBytes(iostat.numTCPBytesReceived, humanBuf, humanize));
-    buffer.Appendf("numTCPBytesSent: %s\n", PrintableBytes(iostat.numTCPBytesSent, humanBuf, humanize));
+    buffer.Appendf("numTCPBytesReceived: %s\n", FormatBytes(iostat.numTCPBytesReceived, formatBuf, formatType));
+    buffer.Appendf("numTCPBytesSent: %s\n", FormatBytes(iostat.numTCPBytesSent, formatBuf, formatType));
     buffer.Appendf("numCompletions: %U\n", iostat.numCompletions);
     buffer.Appendf("numLongCallbacks: %U\n", iostat.numLongCallbacks);
     buffer.Appendf("totalPollTime: %U\n", iostat.totalPollTime);
@@ -407,8 +387,8 @@ void ShardHTTPClientSession::PrintStatistics()
     buffer.Append("  Category: FileSystem\n");
     buffer.Appendf("numReads: %U\n", fsStat.numReads);
     buffer.Appendf("numWrites: %U\n", fsStat.numWrites);
-    buffer.Appendf("numBytesRead: %s\n", PrintableBytes(fsStat.numBytesRead, humanBuf, humanize));
-    buffer.Appendf("numBytesWritten: %s\n", PrintableBytes(fsStat.numBytesWritten, humanBuf, humanize));
+    buffer.Appendf("numBytesRead: %s\n", FormatBytes(fsStat.numBytesRead, formatBuf, formatType));
+    buffer.Appendf("numBytesWritten: %s\n", FormatBytes(fsStat.numBytesWritten, formatBuf, formatType));
     buffer.Appendf("numFileOpens: %U\n", fsStat.numFileOpens);
     buffer.Appendf("numFileCloses: %U\n", fsStat.numFileCloses);
     buffer.Appendf("numFileDeletes: %U\n", fsStat.numFileDeletes);
@@ -427,19 +407,19 @@ void ShardHTTPClientSession::PrintStatistics()
     buffer.Appendf("inactiveListThreads: %u\n", databaseManager->GetNumInactiveListThreads());
     buffer.Appendf("numAbortedListRequests: %U\n", databaseManager->GetNumAbortedListRequests());
     buffer.Appendf("nextListRequestID: %U\n", databaseManager->GetNextListRequestID());
-    buffer.Appendf("listPageCacheSize: %U\n", StorageDataPageCache::GetCacheSize());
-    buffer.Appendf("maxListPageCacheSize: %U\n", StorageDataPageCache::GetMaxCacheSize());
-    buffer.Appendf("maxUsedListPageCacheSize: %U\n", StorageDataPageCache::GetMaxUsedSize());
-    buffer.Appendf("maxCachedPageSize: %U\n", StorageDataPageCache::GetMaxCachedPageSize());
-    buffer.Appendf("averageCachedPageSize: %U\n", StorageDataPageCache::GetListLength() == 0 ? 0 : (uint64_t)((float)StorageDataPageCache::GetCacheSize() / StorageDataPageCache::GetListLength()));
-    buffer.Appendf("listPageCacheLength: %u\n", StorageDataPageCache::GetListLength());
+    buffer.Appendf("listPageCacheSize: %U\n", StorageListPageCache::GetCacheSize());
+    buffer.Appendf("maxListPageCacheSize: %U\n", StorageListPageCache::GetMaxCacheSize());
+    buffer.Appendf("maxUsedListPageCacheSize: %U\n", StorageListPageCache::GetMaxUsedSize());
+    buffer.Appendf("maxCachedPageSize: %U\n", StorageListPageCache::GetMaxCachedPageSize());
+    buffer.Appendf("averageCachedPageSize: %U\n", StorageListPageCache::GetListLength() == 0 ? 0 : (uint64_t)((float)StorageListPageCache::GetCacheSize() / StorageListPageCache::GetListLength()));
+    buffer.Appendf("listPageCacheLength: %u\n", StorageListPageCache::GetListLength());
     PRINT_BOOL("isMergeEnabled", databaseManager->GetEnvironment()->IsMergeEnabled());
     buffer.Appendf("mergeCpuThreshold: %u\n", databaseManager->GetEnvironment()->GetMergeCpuThreshold());
     buffer.Appendf("mergeYieldFactor: %u\n", databaseManager->GetEnvironment()->GetConfig().GetMergeYieldFactor());
     PRINT_BOOL("isMergeRunning", databaseManager->GetEnvironment()->IsMergeRunning());
     buffer.Appendf("numFinishedMergeJobs: %u\n", databaseManager->GetEnvironment()->GetNumFinishedMergeJobs());
-    buffer.Appendf("chunkFileDiskUsage: %s\n", PrintableBytes(databaseManager->GetEnvironment()->GetChunkFileDiskUsage(), humanBuf, humanize));
-    buffer.Appendf("logFileDiskUsage: %s\n", PrintableBytes(databaseManager->GetEnvironment()->GetLogSegmentDiskUsage(), humanBuf, humanize));
+    buffer.Appendf("chunkFileDiskUsage: %s\n", FormatBytes(databaseManager->GetEnvironment()->GetChunkFileDiskUsage(), formatBuf, formatType));
+    buffer.Appendf("logFileDiskUsage: %s\n", FormatBytes(databaseManager->GetEnvironment()->GetLogSegmentDiskUsage(), formatBuf, formatType));
     buffer.Appendf("numShards: %u\n", databaseManager->GetEnvironment()->GetNumShards());
     buffer.Appendf("numFileChunks: %u\n", databaseManager->GetEnvironment()->GetNumFileChunks());
 
@@ -491,7 +471,7 @@ void ShardHTTPClientSession::PrintStatistics()
         buffer.Appendf("quorum[%U].messageListLength: %u\n", quorumProcessor->GetQuorumID(), 
          quorumProcessor->GetMessageListLength());
         buffer.Appendf("quorum[%U].replicationThroughput: %s\n", quorumProcessor->GetQuorumID(), 
-            PrintableBytes(quorumProcessor->GetReplicationThroughput(), humanBuf, humanize));
+            FormatBytes(quorumProcessor->GetReplicationThroughput(), formatBuf, formatType));
 
     }
 
@@ -502,8 +482,16 @@ void ShardHTTPClientSession::PrintStatistics()
 void ShardHTTPClientSession::PrintMemoryState()
 {
     Buffer                  buffer;
+    ByteFormatType          formatType;
+    ReadBuffer              param;
 
-    shardServer->GetMemoryUsageBuffer(buffer);
+    formatType = BYTE_FORMAT_HUMAN;
+    if (HTTP_GET_OPT_PARAM(params, "humanize", param) && PARAM_BOOL_VALUE(param) == false)
+    {
+        formatType = BYTE_FORMAT_RAW;
+    }
+
+    shardServer->GetMemoryUsageBuffer(buffer, formatType);
 
     session.Print(buffer);
     session.Flush();
@@ -946,7 +934,7 @@ bool ShardHTTPClientSession::ProcessSettings()
         HTTP_GET_OPT_U64_PARAM(params, "listDataPageCacheSize", listDataPageCacheSize);
         if (listDataPageCacheSize > 0)
         {
-            StorageDataPageCache::SetMaxCacheSize(listDataPageCacheSize);
+            StorageListPageCache::SetMaxCacheSize(listDataPageCacheSize);
             snprintf(buf, sizeof(buf), "%u", (unsigned) listDataPageCacheSize);
             session.PrintPair("ListDataPageCacheSize", buf);
         }

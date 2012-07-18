@@ -520,6 +520,9 @@
     <ClCompile Include="..\src\System\Watchdog.cpp">
       <Filter>System</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\Framework\Storage\StorageListPageCache.cpp">
+      <Filter>Framework\Storage</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\System\Common.h">
@@ -1061,6 +1064,9 @@
     </ClInclude>
     <ClInclude Include="..\src\System\TypeInfo.h">
       <Filter>System</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Framework\Storage\StorageListPageCache.h">
+      <Filter>Framework\Storage</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
