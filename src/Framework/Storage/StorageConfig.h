@@ -37,7 +37,7 @@ public:
     uint64_t    GetMergeYieldFactor();
     uint64_t    GetSyncGranularity();
     uint64_t    GetWriteGranularity();
-    uint64_t    GetNumLogShardFileChunks();
+    uint64_t    GetReplicatedLogSize();
     uint64_t	GetAbortWaitingListsNum();
     uint64_t    GetListDataPageCacheSize();
     unsigned    GetMaxChunkPerShard();
@@ -52,7 +52,7 @@ private:
     uint64_t    mergeYieldFactor;
     uint64_t    syncGranularity;
     uint64_t    writeGranularity;
-    uint64_t    numLogShardFileChunks;
+    uint64_t    replicatedLogSize;
     uint64_t	abortWaitingListsNum;
     uint64_t    listDataPageCacheSize;
     unsigned    maxChunkPerShard;

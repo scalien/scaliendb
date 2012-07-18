@@ -205,7 +205,7 @@ void ShardLockManager::UnlockAll()
 {
     lockCacheList.Clear();
     lockExpiryList.Clear();
-    lockPoolList.Clear();
+    lockPoolList.DeleteList();
     lockTree.DeleteTree();
     numLocked = 0;
     UpdateExpireLockTimeout();

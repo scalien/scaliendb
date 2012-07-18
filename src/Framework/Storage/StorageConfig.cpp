@@ -47,11 +47,9 @@ void StorageConfig::SetWriteGranularity(uint64_t writeGranularity_)
     writeGranularity = writeGranularity_;
 }
 
-void StorageConfig::SetReplicatedLogSize(uint64_t replicatedLogSize)
+void StorageConfig::SetReplicatedLogSize(uint64_t replicatedLogSize_)
 {
-    numLogShardFileChunks = replicatedLogSize / chunkSize;
-    if (numLogShardFileChunks == 0)
-        numLogShardFileChunks = 1;
+    replicatedLogSize = replicatedLogSize_;
 }
 
 void StorageConfig::SetAbortWaitingListsNum(uint64_t abortWaitingListsNum_)
@@ -114,9 +112,9 @@ uint64_t StorageConfig::GetWriteGranularity()
     return writeGranularity;
 }
 
-uint64_t StorageConfig::GetNumLogShardFileChunks()
+uint64_t StorageConfig::GetReplicatedLogSize()
 {
-    return numLogShardFileChunks;
+    return replicatedLogSize;
 }
 
 uint64_t StorageConfig::GetAbortWaitingListsNum()

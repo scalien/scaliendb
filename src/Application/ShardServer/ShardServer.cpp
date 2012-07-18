@@ -86,8 +86,8 @@ void ShardServer::Shutdown()
     databaseManager.Shutdown();
     CONTEXT_TRANSPORT->Shutdown();
     REPLICATION_CONFIG->Shutdown();
-    REQUEST_CACHE->Shutdown();
     transactionManager.Shutdown();
+    REQUEST_CACHE->Shutdown();
 }
 
 ShardQuorumProcessor* ShardServer::GetQuorumProcessor(uint64_t quorumID)
