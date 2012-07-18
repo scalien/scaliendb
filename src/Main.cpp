@@ -17,6 +17,7 @@ const char PRODUCT_STRING[] = IDENT " v" VERSION_STRING " " PLATFORM_STRING;
 const char BUILD_DATE[]     = "Build date: " __DATE__ " " __TIME__;
 
 static void InitLog();
+static void PrintUsageAndExit(char* argv0);
 static void ParseArgs(int argc, char** argv);
 static void SetupServiceIdentity(ServiceIdentity& ident);
 static void RunMain(int argc, char** argv);
@@ -66,17 +67,20 @@ static void RunMain(int argc, char** argv)
 {
     ServiceIdentity     identity;
 
-    ParseArgs(argc, argv);
-
     if (argc < 2)
         STOP_FAIL(1, "Config file argument not given");
         
     if (!configFile.Init(argv[1]))
+    {
+        // HACK: print help text when started with -h argument
+        if (argv[1][0] != 0 && argv[1][0] == '-' && argv[1][1] == 'h')
+            PrintUsageAndExit(argv[0]);
+
         STOP_FAIL(1, "Invalid config file (%s)", argv[1]);
+    }
 
     InitLog();
     
-    // HACK: this is called twice, because command line arguments may override log settings
     ParseArgs(argc, argv);
     SetupServiceIdentity(identity);
     Service::Main(argc, argv, RunApplication, identity);
@@ -181,9 +185,33 @@ static void InitLog()
     Log_SetFlushInterval(configFile.GetIntValue("log.flushInterval", 0) * 1000);
 }
 
+static void PrintUsageAndExit(char* argv0)
+{
+    STOP("Usage:\n"
+            "\n"
+            "       %s config-file [options] [service-options]\n"
+            "\n"
+            "Options:\n"
+            "\n"
+            "       -v: print version number and exit\n"
+            "       -r: start server in restore mode\n"
+            "       -t: turn trace mode on\n"
+            "       -h: print this help\n"
+            "\n"
+            "Service options (mutually exclusive):\n"
+            "\n"
+            "       --install:   install service\n"
+            "       --reinstall: reinstall service\n"
+            "       --uninstall: uninstall server\n"
+            , argv0);
+}
+
 static void ParseDebugArgs(char* arg)
 {
-    bool    pause = false;
+    bool        pause;
+    ReadBuffer  argBuffer;
+    
+    pause = false;
 
     switch (arg[0])
     {
@@ -201,7 +229,14 @@ static void ParseDebugArgs(char* arg)
         break;
     case 'W':
         // Wait for 15 seconds on startup. This should be enough to attach the profiler.
-        MSleep(15 * 1000);
+        unsigned waitTime;
+        
+        waitTime = 15 * 1000;
+        argBuffer.Wrap(&arg[1]);
+        if (argBuffer.Readf("%u", &waitTime))
+            waitTime *= 1000;
+        Log_Message("Waiting %u msec...", waitTime);
+        MSleep(waitTime);
         break;
     }
 }
@@ -209,7 +244,6 @@ static void ParseDebugArgs(char* arg)
 static void ParseArgs(int argc, char** argv)
 {
     ReadBuffer arg;
-
 
     for (int i = 1; i < argc; i++)
     {
@@ -237,23 +271,7 @@ static void ParseArgs(int argc, char** argv)
                 arg.Readf("%U", &nodeID);
                 break;
             case 'h':
-                STOP("Usage:\n"
-                     "\n"
-                     "       %s config-file [options] [service-options]\n"
-                     "\n"
-                     "Options:\n"
-                     "\n"
-                     "       -v: print version number and exit\n"
-                     "       -r: start server in restore mode\n"
-                     "       -t: turn trace mode on\n"
-                     "       -h: print this help\n"
-                     "\n"
-                     "Service options (mutually exclusive):\n"
-                     "\n"
-                     "       --install:   install service\n"
-                     "       --reinstall: reinstall service\n"
-                     "       --uninstall: uninstall server\n"
-                     , argv[0]);
+                PrintUsageAndExit(argv[0]);
                 break;
             }
         }
