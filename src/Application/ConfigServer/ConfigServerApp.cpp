@@ -32,7 +32,6 @@ void ConfigServerApp::Init()
     sdbpPort = configFile.GetIntValue("sdbp.port", 7080);
     sdbpServer.Init(sdbpPort);
     sdbpServer.SetContext(&configServer);
-    sdbpServer.UseKeepAlive(false);
 
     // start configServer only after network servers are started
     configServer.Init(this);

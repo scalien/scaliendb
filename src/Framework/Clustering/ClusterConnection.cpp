@@ -2,6 +2,13 @@
 #include "ClusterTransport.h"
 #include "Version.h"
 
+static const unsigned keepAliveTimeout = 90*1000; // msec
+
+ClusterConnection::ClusterConnection()
+{
+    UseKeepAlive(::keepAliveTimeout);
+}
+
 void ClusterConnection::InitConnected(bool startRead)
 {
 //    Buffer      buffer;

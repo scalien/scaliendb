@@ -48,6 +48,8 @@ void HTTPConnection::OnRead()
     Log_Trace();
     int len;
     
+    TCPConnection::OnRead();
+
     len = Parse(tcpread.buffer->GetBuffer(), tcpread.buffer->GetLength());
 
     if (len < 0)

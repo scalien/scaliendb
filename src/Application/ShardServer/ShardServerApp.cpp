@@ -22,7 +22,6 @@ void ShardServerApp::Init()
     sdbpPort = configFile.GetIntValue("sdbp.port", 7080);
     sdbpServer.Init(sdbpPort);
     sdbpServer.SetContext(&shardServer);
-    sdbpServer.UseKeepAlive(true);
 
     // start shardServer only after network servers are started
     shardServer.Init(this, restoreMode, setNodeID, nodeID);

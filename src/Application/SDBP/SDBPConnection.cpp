@@ -17,14 +17,12 @@ SDBPConnection::SDBPConnection()
     numPending = 0;
     numCompleted = 0;
     autoFlush = false;
-    onKeepAlive.SetCallable(MFUNC(SDBPConnection, OnKeepAlive));
-    onKeepAlive.SetDelay(0);
+
+    UseKeepAlive(::keepAliveTimeout);
 }
 
 SDBPConnection::~SDBPConnection()
 {
-    if (onKeepAlive.GetDelay() > 0)
-        EventLoop::Remove(&onKeepAlive);
 }
 
 void SDBPConnection::Init(SDBPServer* server_)
@@ -46,9 +44,6 @@ void SDBPConnection::Init(SDBPServer* server_)
     sdbpResponse.response = &resp;
     Write(sdbpResponse);
     Flush();
-
-    if (onKeepAlive.GetDelay() > 0)
-        EventLoop::Reset(&onKeepAlive);
 }
 
 void SDBPConnection::SetContext(SDBPContext* context_)
@@ -60,9 +55,6 @@ bool SDBPConnection::OnMessage(ReadBuffer& msg)
 {
     SDBPRequestMessage  sdbpRequest;
     ClientRequest*      request;
-
-    if (onKeepAlive.GetDelay() > 0)
-        EventLoop::Reset(&onKeepAlive);
 
     request = REQUEST_CACHE->CreateRequest();
     request->session = this;
@@ -83,18 +75,12 @@ void SDBPConnection::OnWrite()
 {
     Log_Trace();
     
-    if (onKeepAlive.GetDelay() > 0)
-        EventLoop::Reset(&onKeepAlive);
-
     MessageConnection::OnWrite();
 }
 
 void SDBPConnection::OnClose()
 {
     uint64_t    elapsed;
-        
-    if (onKeepAlive.GetDelay() > 0)
-        EventLoop::Remove(&onKeepAlive);
     
     elapsed = NowClock() - connectTimestamp;
 
@@ -150,24 +136,4 @@ bool SDBPConnection::IsActive()
         return false;
 
     return true;
-}
-
-void SDBPConnection::UseKeepAlive(bool useKeepAlive)
-{
-    if (useKeepAlive && configFile.GetIntValue("sdbp.keepAliveTimeout", keepAliveTimeout) > 0)
-    {
-        onKeepAlive.SetDelay(configFile.GetIntValue("sdbp.keepAliveTimeout", keepAliveTimeout));
-        EventLoop::Reset(&onKeepAlive);
-    }
-    else
-    {
-        EventLoop::Remove(&onKeepAlive);
-        onKeepAlive.SetDelay(0);
-    }
-}
-
-void SDBPConnection::OnKeepAlive()
-{
-    Log_Message("[%s] Keep alive timeout occured", remoteEndpoint.ToString());
-    OnClose();
 }

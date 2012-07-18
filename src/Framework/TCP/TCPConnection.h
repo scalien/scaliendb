@@ -28,6 +28,7 @@ public:
     void                Connect(Endpoint &endpoint, unsigned timeout);
     void                Close();
 
+    void                UseKeepAlive(unsigned timeout);
     void                SetPriority(bool priority);
     Socket&             GetSocket() { return socket; }
     State               GetState() { return state; }
@@ -44,12 +45,12 @@ public:
 protected:
     void                TryFlush();
     void                Init(bool startRead = true);
-    virtual void        OnRead() = 0;
+    virtual void        OnRead();
     virtual void        OnWrite();
     virtual void        OnClose() = 0;
     virtual void        OnConnect();
     virtual void        OnConnectTimeout();
-
+    void                OnKeepAliveTimeout();
 
     State               state;
     Socket              socket;
@@ -58,8 +59,11 @@ protected:
     Buffer              readBuffer;
     Buffer              writeBuffers[2];
     unsigned            writeIndex;
+    bool                useKeepAlive;
+    uint64_t            lastTrafficEvent;
     uint64_t            connectTime;
     Countdown           connectTimeout;
+    Countdown           keepAliveTimeout;
 };
 
 #endif

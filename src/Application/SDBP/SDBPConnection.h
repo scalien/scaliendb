@@ -47,13 +47,9 @@ public:
     virtual bool        IsActive();
     // ========================================================================================
 
-    void                UseKeepAlive(bool useKeepAlive);
-    void                OnKeepAlive();
-
 private:
     SDBPServer*         server;
     SDBPContext*        context;
-    Countdown           onKeepAlive;
     Endpoint            remoteEndpoint;
     unsigned            numPending;
     unsigned            numCompleted;

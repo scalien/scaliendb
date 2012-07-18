@@ -6,7 +6,6 @@ void SDBPServer::Init(int port)
 {
     if (!TCPServer<SDBPServer, SDBPConnection>::Init(port, true, CONN_BACKLOG))
         STOP_FAIL(1, "Cannot initialize SDBPServer");
-    useKeepAlive = false;
 }
 
 void SDBPServer::Shutdown()
@@ -16,7 +15,6 @@ void SDBPServer::Shutdown()
 
 void SDBPServer::InitConn(SDBPConnection* conn)
 {
-    conn->UseKeepAlive(useKeepAlive);
     conn->Init(this);
     conn->SetContext(context);
 }
@@ -24,9 +22,4 @@ void SDBPServer::InitConn(SDBPConnection* conn)
 void SDBPServer::SetContext(SDBPContext* context_)
 {
     context = context_;
-}
-
-void SDBPServer::UseKeepAlive(bool useKeepAlive_)
-{
-    useKeepAlive = useKeepAlive_;
 }

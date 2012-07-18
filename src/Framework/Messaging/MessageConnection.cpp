@@ -116,6 +116,8 @@ void MessageConnection::OnRead()
     Stopwatch       sw;
     ReadBuffer      msg;
 
+    TCPConnection::OnRead();
+
     if (!readActive)
     {
         if (resumeRead.IsActive())

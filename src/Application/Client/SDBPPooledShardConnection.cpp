@@ -8,6 +8,8 @@ using namespace SDBPClient;
 
 #define CLEANUP_TIMEOUT                     (15*1000)
 
+static const unsigned keepAliveTimeout = 60*1000; // msec
+
 /*
 ===============================================================================================
 
@@ -320,6 +322,7 @@ PooledShardConnection::PooledShardConnection(Endpoint& endpoint_)
     conn = NULL;
     lastUsed = 0;
     name.Write(endpoint.ToString());
+    UseKeepAlive(::keepAliveTimeout);
     
     ASSERT(name.GetLength() > 0);
 

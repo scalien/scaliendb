@@ -15,6 +15,8 @@
 
 using namespace SDBPClient;
 
+static const unsigned keepAliveTimeout = 60*1000; // msec
+
 // =============================================================================================
 //
 // Private & ControllerPool interface
@@ -31,6 +33,7 @@ ControllerConnection::ControllerConnection(Controller* controller_, uint64_t nod
     getConfigStateTimeout.SetDelay(GETCONFIGSTATE_TIMEOUT);
     getConfigStateTimeout.SetCallable(MFUNC(ControllerConnection, OnGetConfigStateTimeout));
     SetPriority(true);
+    UseKeepAlive(::keepAliveTimeout);
     Connect();
 }
 

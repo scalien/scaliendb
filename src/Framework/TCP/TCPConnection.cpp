@@ -6,9 +6,13 @@ TCPConnection::TCPConnection()
 {
     state = DISCONNECTED;
     connectTimeout.SetCallable(MFUNC(TCPConnection, OnConnectTimeout));
+    keepAliveTimeout.SetCallable(MFUNC(TCPConnection, OnKeepAliveTimeout));
+    keepAliveTimeout.SetDelay(0);
     connectTime = 0;
     writeIndex = 0;
     prev = next = this;
+    useKeepAlive = false;
+    lastTrafficEvent = 0;
 }
 
 TCPConnection::~TCPConnection()
@@ -20,6 +24,8 @@ void TCPConnection::InitConnected(bool startRead)
 {
     Init(startRead);
     state = CONNECTED;
+    if (useKeepAlive)
+        EventLoop::Reset(&keepAliveTimeout);
 }
 
 void TCPConnection::Connect(Endpoint &endpoint, unsigned timeout)
@@ -90,12 +96,19 @@ void TCPConnection::Close()
 
     IOProcessor::Remove(&tcpread);
     IOProcessor::Remove(&tcpwrite);
+    EventLoop::Remove(&keepAliveTimeout);
 
     writeBuffers[0].Reset();
     writeBuffers[1].Reset();
 
     socket.Close();
     state = DISCONNECTED;
+}
+
+void TCPConnection::UseKeepAlive(unsigned timeout)
+{
+    useKeepAlive = true;
+    keepAliveTimeout.SetDelay(timeout);
 }
 
 void TCPConnection::SetPriority(bool priority)
@@ -162,10 +175,19 @@ void TCPConnection::Init(bool startRead)
     AsyncRead(startRead);
 }
 
+void TCPConnection::OnRead()
+{
+    if (useKeepAlive)
+        lastTrafficEvent = EventLoop::Now();
+}
+
 void TCPConnection::OnWrite()
 {
     Log_Trace("Written %d bytes on fd %d, bytes: %B",
      tcpwrite.buffer->GetLength(), (int)socket.fd, tcpwrite.buffer);
+
+    if (useKeepAlive)
+        lastTrafficEvent = EventLoop::Now();
 
     TryFlush();
     
@@ -183,9 +205,12 @@ void TCPConnection::OnConnect()
     tcpwrite.onComplete = MFUNC(TCPConnection, OnWrite);
     
     EventLoop::Remove(&connectTimeout);
-
-    TryFlush();
     
+    if (useKeepAlive)
+        EventLoop::Add(&keepAliveTimeout);
+
+    TryFlush();    
+
     if (state != DISCONNECTED && !tcpwrite.active)
         OnWriteReadyness();
 }
@@ -193,4 +218,20 @@ void TCPConnection::OnConnect()
 void TCPConnection::OnConnectTimeout()
 {
     Log_Trace();
+}
+
+void TCPConnection::OnKeepAliveTimeout()
+{
+    ASSERT(useKeepAlive);
+    ASSERT(state == CONNECTED);
+
+    if (EventLoop::Now() - lastTrafficEvent > keepAliveTimeout.GetDelay())
+    {
+        Log_Debug("Keep alive timeout occured");
+        OnClose();
+    }
+    else
+    {
+        EventLoop::Add(&keepAliveTimeout);
+    }
 }
