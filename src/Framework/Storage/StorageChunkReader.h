@@ -48,7 +48,6 @@ private:
     unsigned                count;
     unsigned                numRead;
     Signal                  signal;
-    StorageIndexPage*       indexPage;
     uint32_t                numDataPages;
 };
 

@@ -8,6 +8,7 @@
 #include "StorageEnvironmentWriter.h"
 #include "StorageRecovery.h"
 #include "StoragePageCache.h"
+#include "StorageListPageCache.h"
 #include "StorageAsyncGet.h"
 #include "StorageAsyncList.h"
 #include "StorageSerializeChunkJob.h"
@@ -17,6 +18,7 @@
 #include "StorageDeleteFileChunkJob.h"
 #include "StorageArchiveLogSegmentJob.h"
 #include "StorageFileDeleter.h"
+
 
 #define SERIALIZECHUNKJOB   ((StorageSerializeChunkJob*)(serializeChunkJobs.GetActiveJob()))
 #define WRITECHUNKJOB       ((StorageWriteChunkJob*)(writeChunkJobs.GetActiveJob()))
@@ -169,7 +171,7 @@ bool StorageEnvironment::Open(Buffer& envPath_, StorageConfig config_)
     }
     
     StoragePageCache::Init(config);
-    StorageDataPageCache::SetMaxCacheSize(config.GetListDataPageCacheSize());
+    StorageListPageCache::SetMaxCacheSize(config.GetListDataPageCacheSize());
     
     if (!recovery.TryRecovery(this))
     {
@@ -179,6 +181,8 @@ bool StorageEnvironment::Open(Buffer& envPath_, StorageConfig config_)
     {
         Log_Message("Existing environment opened.");
     }
+
+    *Registry::GetUintPtr("storage.recovery.replayBytesPerSec") = recovery.GetReplayBytesPerSec();
 
     backgroundTimer.SetDelay(1000 * configFile.GetIntValue("database.backgroundTimerDelay",
      STORAGE_DEFAULT_BACKGROUND_TIMER_DELAY));

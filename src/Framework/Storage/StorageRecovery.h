@@ -19,6 +19,7 @@ class StorageRecovery
 {
 public:
     bool                    TryRecovery(StorageEnvironment* env);
+    uint64_t                GetReplayBytesPerSec();
     
 private:
     bool                    TryReadTOC(Buffer& filename);
@@ -48,6 +49,8 @@ private:
     StorageEnvironment*     env;
     Buffer                  fileBuffer;
     uint64_t                fileBufferPos;
+    uint64_t                replayBytes;
+    uint64_t                replayTime;
 };
 
 #endif

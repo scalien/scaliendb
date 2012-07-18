@@ -1,4 +1,6 @@
 #include "StorageChunkReader.h"
+#include "StoragePageCache.h"
+#include "StorageListPageCache.h"
 #include "System/Time.h"
 #include "System/IO/IOProcessor.h"
 
@@ -10,7 +12,7 @@ StorageChunkReader::~StorageChunkReader()
         {
             if (fileChunk.dataPages[prevIndex] != NULL)
             {
-                StorageDataPageCache::Release(fileChunk.dataPages[prevIndex]);
+                StorageListPageCache::Release(fileChunk.dataPages[prevIndex]);
                 fileChunk.dataPages[prevIndex] = NULL;
             }
         }
@@ -19,7 +21,7 @@ StorageChunkReader::~StorageChunkReader()
         {
             if (fileChunk.dataPages[index] != NULL)
             {
-                StorageDataPageCache::Release(fileChunk.dataPages[index]);
+                StorageListPageCache::Release(fileChunk.dataPages[index]);
                 fileChunk.dataPages[index] = NULL;
             }
         }
@@ -43,7 +45,6 @@ void StorageChunkReader::Open(
     fileChunk.ReadHeaderPage();
     fileChunk.LoadIndexPage();
 
-    indexPage = fileChunk.indexPage;
     numDataPages = fileChunk.numDataPages;
 
     index = 0;
@@ -54,6 +55,8 @@ void StorageChunkReader::OpenWithFileChunk(
  StorageFileChunk* fileChunk_, ReadBuffer& firstKey_, uint64_t preloadThreshold_,
  bool keysOnly_, bool forwardDirection_)
 {
+    StorageIndexPage*   indexPage;
+
     count = 0;
     numRead = 0;
     isLocated = false;
@@ -80,6 +83,9 @@ void StorageChunkReader::OpenWithFileChunk(
     {
         isLocated = true;
         LocateIndexAndOffset(indexPage, numDataPages, firstKey_);
+
+        // Register cache hit to bring back page in LRU
+        StoragePageCache::RegisterMetaHit(indexPage);
     }
 }
 
@@ -176,7 +182,7 @@ StorageFileKeyValue* StorageChunkReader::Next(StorageFileKeyValue* it)
             if (preloadThreshold > 0)
                 delete fileChunk.dataPages[prevIndex];
             else
-                StorageDataPageCache::Release(fileChunk.dataPages[prevIndex]);
+                StorageListPageCache::Release(fileChunk.dataPages[prevIndex]);
 
             fileChunk.dataPages[prevIndex] = NULL;
         }
@@ -204,7 +210,7 @@ StorageFileKeyValue* StorageChunkReader::Next(StorageFileKeyValue* it)
         if (index < prevIndex && fileChunk.dataPages[prevIndex] != NULL)
         {
             // backward iteration happens only in list, never in merge
-            StorageDataPageCache::Release(fileChunk.dataPages[prevIndex]);
+            StorageListPageCache::Release(fileChunk.dataPages[prevIndex]);
             fileChunk.dataPages[prevIndex] = NULL;
         }
         prevIndex = index;
@@ -239,7 +245,7 @@ StorageDataPage* StorageChunkReader::NextDataPage()
     if (preloadThreshold > 0)
         delete fileChunk.dataPages[prevIndex];
     else
-        StorageDataPageCache::Release(fileChunk.dataPages[prevIndex]);
+        StorageListPageCache::Release(fileChunk.dataPages[prevIndex]);
 
     fileChunk.dataPages[prevIndex] = NULL;
     
@@ -296,7 +302,7 @@ void StorageChunkReader::PreloadDataPages()
             else
             {
                 // forward list case
-                fileChunk.LoadDataPage(i, offset, false, keysOnly, StorageDataPageCache::Acquire());
+                fileChunk.LoadDataPage(i, offset, false, keysOnly, StorageListPageCache::Acquire());
             }
 
             //Log_Debug("Preloading datapage %u at offset %U from chunk %U", i, offset, fileChunk.GetChunkID());
@@ -325,7 +331,7 @@ void StorageChunkReader::PreloadDataPages()
             offset = fileChunk.indexPage->GetIndexOffset(index);
         }
         // backward iteration happens only in list, never in merge
-        fileChunk.LoadDataPage(index, offset, false, keysOnly, StorageDataPageCache::Acquire());
+        fileChunk.LoadDataPage(index, offset, false, keysOnly, StorageListPageCache::Acquire());
         pageSize = fileChunk.dataPages[index]->GetSize();
         totalSize += pageSize;
         preloadIndex = index;

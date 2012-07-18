@@ -5,6 +5,7 @@
 #include "ShardServer.h"
 #include "Framework/Replication/ReplicationConfig.h"
 #include "Framework/Storage/StoragePageCache.h"
+#include "Framework/Storage/StorageListPageCache.h"
 
 #define SHARD_MIGRATION_WRITER  (shardServer->GetShardMigrationWriter())
 #define LOCK_MANAGER            (shardServer->GetTransactionManager()->GetLockManager())
@@ -402,7 +403,7 @@ void ShardDatabaseManager::Shutdown()
     readRequests.DeleteList();
     environment.Close();
     StoragePageCache::Shutdown();
-    StorageDataPageCache::Shutdown();
+    StorageListPageCache::Shutdown();
 
     inactiveAsyncLists.ClearMembers();
     for (unsigned i = 0; i < numAsyncLists; i++)

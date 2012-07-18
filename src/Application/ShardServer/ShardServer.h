@@ -61,7 +61,7 @@ public:
 
     unsigned                GetHTTPPort();
     unsigned                GetSDBPPort();
-    void                    GetMemoryUsageBuffer(Buffer& buffer);
+    void                    GetMemoryUsageBuffer(Buffer& buffer, ByteFormatType = BYTE_FORMAT_HUMAN);
     unsigned                GetNumSDBPClients();
     uint64_t                GetStartTimestamp();
     uint64_t                GetNumRequests();

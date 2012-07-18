@@ -21,6 +21,7 @@ bool StorageRecovery::TryRecovery(StorageEnvironment* env_)
     FS_Dir              dir;
     FS_DirEntry         entry;
     List<uint64_t>      replayedTrackIDs;
+    Stopwatch           replayStopwatch;
     
     env = env_;
     
@@ -59,6 +60,7 @@ bool StorageRecovery::TryRecovery(StorageEnvironment* env_)
         STOP_FAIL(1);
     }
     
+    replayBytes = 0;
     while ((entry = FS_ReadDir(dir)) != FS_INVALID_DIR_ENTRY)
     {
         filename = FS_DirEntryName(entry);
@@ -73,16 +75,25 @@ bool StorageRecovery::TryRecovery(StorageEnvironment* env_)
         tmp.Readf("log.%U.", &trackID);
         if (!replayedTrackIDs.Contains(trackID))
         {
+            replayStopwatch.Start();
             ReplayLogSegments(trackID);
+            replayStopwatch.Stop();
             replayedTrackIDs.Add(trackID);
         }
     }
     
+    replayTime = replayStopwatch.Elapsed();
+
     FS_CloseDir(dir);
     DeleteOrphanedChunks();
     DeleteOrphanedTracks();
     
     return true;
+}
+
+uint64_t StorageRecovery::GetReplayBytesPerSec()
+{
+    return (uint64_t)(replayBytes / (replayTime / 1000.0));
 }
 
 bool StorageRecovery::TryReadTOC(Buffer& filename)
@@ -315,7 +326,7 @@ void StorageRecovery::ReplayLogSegments(uint64_t trackID)
     FOREACH (itSegmentName, segmentNames)
     {
         segmentName = *itSegmentName;
-        ReplayLogSegment(trackID, *segmentName);
+        ReplayLogSegmentOpt(trackID, *segmentName);
         //tmp.Write(*segmentName);
         //tmp.NullTerminate();
         //if (FS_FileSize(tmp.GetBuffer()) > 128*MB)
@@ -396,6 +407,7 @@ bool StorageRecovery::ReplayLogSegment(uint64_t trackID, Buffer& filename)
     }
 
     fileSize = FS_FileSize(fd.GetFD());
+    replayBytes += fileSize;
 
     size = 4 + 8;
     buffer.Allocate(size);
@@ -565,6 +577,9 @@ bool StorageRecovery::ReplayLogSegmentOpt(uint64_t trackID, Buffer& filename)
     fileSize = FS_FileSize(fd.GetFD());
     if (fileSize < 1)
         return false;
+
+    replayBytes += fileSize;
+
     fileBuffer.Allocate(fileSize);
     ret = FS_FileRead(fd.GetFD(), fileBuffer.GetBuffer(), fileSize);
     if (ret < 0 || (uint64_t) ret != fileSize)

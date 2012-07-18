@@ -194,6 +194,7 @@
     <ClCompile Include="..\src\Application\ShardServer\ShardTransactionManager.cpp" />
     <ClCompile Include="..\src\Application\ShardServer\ShardWaitQueueManager.cpp" />
     <ClCompile Include="..\src\Framework\Storage\StorageFileDeleter.cpp" />
+    <ClCompile Include="..\src\Framework\Storage\StorageListPageCache.cpp" />
     <ClCompile Include="..\src\Framework\Storage\StorageLogManager.cpp" />
     <ClCompile Include="..\src\System\Common.cpp" />
     <ClCompile Include="..\src\System\Config.cpp" />
@@ -344,6 +345,7 @@
     <ClInclude Include="..\src\Application\ShardServer\ShardWaitQueueManager.h" />
     <ClInclude Include="..\src\Framework\Storage\StorageChunkLister.h" />
     <ClInclude Include="..\src\Framework\Storage\StorageFileDeleter.h" />
+    <ClInclude Include="..\src\Framework\Storage\StorageListPageCache.h" />
     <ClInclude Include="..\src\Framework\Storage\StorageLogManager.h" />
     <ClInclude Include="..\src\SourceControl.h" />
     <ClInclude Include="..\src\System\Common.h" />
