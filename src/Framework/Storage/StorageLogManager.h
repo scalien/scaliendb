@@ -40,6 +40,7 @@ public:
     void            DeleteLogSegment(LogSegment* logSegment);
 
     Track*          GetTrack(uint64_t trackID);
+    unsigned        GetNumLogSegments(uint64_t trackID);
     LogSegment*     GetHead(uint64_t trackID);
     LogSegment*     GetTail(uint64_t trackID);
 

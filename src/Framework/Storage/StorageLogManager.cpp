@@ -50,16 +50,11 @@ void StorageLogManager::DeleteLogSegment(LogSegment* logSegment)
 {
     Track* track;
 
-    FOREACH(track, tracks)
-    {
-        if (track->trackID == logSegment->GetTrackID())
-        {
-            track->logSegments.Delete(logSegment);
-            return;
-        }
-    }
+    track = GetTrack(logSegment->GetTrackID());
+    if (!track)
+        ASSERT_FAIL();
 
-    ASSERT_FAIL();
+    track->logSegments.Delete(logSegment);
 }
 
 StorageLogManager::Track* StorageLogManager::GetTrack(uint64_t trackID)
@@ -75,6 +70,17 @@ StorageLogManager::Track* StorageLogManager::GetTrack(uint64_t trackID)
     return NULL;
 }
 
+unsigned StorageLogManager::GetNumLogSegments(uint64_t trackID)
+{
+    Track* track;
+
+    track = GetTrack(trackID);
+    if (!track)
+        return 0;
+
+    return track->logSegments.GetLength();
+}
+
 StorageLogManager::LogSegment* StorageLogManager::GetHead(uint64_t trackID)
 {
     uint64_t    logSegmentID;
@@ -82,43 +88,33 @@ StorageLogManager::LogSegment* StorageLogManager::GetHead(uint64_t trackID)
     LogSegment* logSegment;
     Buffer      filename;
 
-    FOREACH(track, tracks)
-    {
-        if (track->trackID == trackID)
-        {
-            logSegment = track->logSegments.Last();
-            if (logSegment && logSegment->IsOpen())
-            {
-                return logSegment;
-            }
-            else
-            {
-                if (logSegment)
-                    logSegmentID = logSegment->GetLogSegmentID() + 1;
-                else
-                    logSegmentID = 1;
-                filename.Writef("log.%020U.%020U", trackID, logSegmentID);
-                logSegment = CreateLogSegment(track->trackID, logSegmentID, filename);
-                logSegment->Open(env->logPath, track->trackID, logSegmentID, env->GetConfig().GetSyncGranularity());
-                return logSegment;
-            }
-        }
-    }
+    track = GetTrack(trackID);
+    if (!track)
+        return NULL;
 
-    return NULL;
+    logSegment = track->logSegments.Last();
+    if (logSegment && logSegment->IsOpen())
+        return logSegment;
+
+    if (logSegment)
+        logSegmentID = logSegment->GetLogSegmentID() + 1;
+    else
+        logSegmentID = 1;
+    filename.Writef("log.%020U.%020U", trackID, logSegmentID);
+    logSegment = CreateLogSegment(track->trackID, logSegmentID, filename);
+    logSegment->Open(env->logPath, track->trackID, logSegmentID, env->GetConfig().GetSyncGranularity());
+    return logSegment;
 }
 
 StorageLogManager::LogSegment* StorageLogManager::GetTail(uint64_t trackID)
 {
     Track*      track;
 
-    FOREACH(track, tracks)
-    {
-        if (track->trackID == trackID)
-            return track->logSegments.First();
-    }
+    track = GetTrack(trackID);
+    if (!track)
+        return NULL;
 
-    return NULL;
+    return track->logSegments.First();
 }
 
 uint64_t StorageLogManager::GetMemoryUsage()

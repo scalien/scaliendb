@@ -47,7 +47,7 @@
 
 	- Added additional logs. Exact page read failure when reading from disk is reported using Log_Messages.
 
-	- Added an optimized function for reading log segments: it reads the entire log segment into a buffer. DID NOT HELP, LOG SEGMENT PROCESSING SEEMS CPU LIMITED.
+	- Added an optimized function for reading log segments: it reads the entire log segment into a buffer. DID NOT HELP, LOG SEGMENT PROCESSING SEEMS CPU LIMITED. Deactivated.
 
 	- Added memleak tracing under Windows. Use _CRTDBG_MAP_ALLOC in the VS Project to turn it on. Under DEBUG builds _only_.
 	- Different filenames for controller and shard server leak report file.
@@ -86,6 +86,8 @@
 	+ Added optimization for calculating shard midpoint and size. 
 
 	- Added IOProcessor related memory usage tracking.
+
+	- Added page cache statistics to HTTP stats output.
 
  +--------------+
  |    2.5.3     |
