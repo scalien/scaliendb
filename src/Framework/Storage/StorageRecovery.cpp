@@ -577,6 +577,9 @@ bool StorageRecovery::ReplayLogSegmentOpt(uint64_t trackID, Buffer& filename)
     fileSize = FS_FileSize(fd.GetFD());
     if (fileSize < 1)
         return false;
+
+    replayBytes += fileSize;
+
     fileBuffer.Allocate(fileSize);
     ret = FS_FileRead(fd.GetFD(), fileBuffer.GetBuffer(), fileSize);
     if (ret < 0 || (uint64_t) ret != fileSize)

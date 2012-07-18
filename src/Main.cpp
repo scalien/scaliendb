@@ -199,6 +199,10 @@ static void ParseDebugArgs(char* arg)
         while (pause)
             MSleep(1000);   // <- Put debugger breakpoint this line
         break;
+    case 'W':
+        // Wait for 15 seconds on startup. This should be enough to attach the profiler.
+        MSleep(15 * 1000);
+        break;
     }
 }
 
