@@ -359,9 +359,7 @@ void StorageShard::PrecomputeCachedValues()
     ReadBuffer              midpoint;
     SortedList<ReadBuffer>  midpoints;
     ReadBuffer*             itMidpoint;
-    uint64_t                size;
     uint64_t                chunkSize;
-    bool                    splitable;
 
     InvalidateCachedValues();
 
@@ -369,23 +367,25 @@ void StorageShard::PrecomputeCachedValues()
     if (midpoint.GetLength() > 0)
         midpoints.Add(midpoint);
 
-    size = 0;
-    splitable = true;
+    cachedNumChunks = chunks.GetLength();
+
+    cachedSize = 0;
+    cachedSplitable = true;
     FOREACH (itChunk, chunks)
     {
         if ((*itChunk)->GetChunkState() == StorageChunk::Written)
         {
             chunkSize = 0;
             midpoint = ((StorageFileChunk*)(*itChunk))->GetPartialMidpointAndSize(firstKey, lastKey, chunkSize);
-            size += chunkSize;
+            cachedSize += chunkSize;
         }
         else
         {
             midpoint = (*itChunk)->GetMidpoint();
-            size += (*itChunk)->GetSize();
+            cachedSize += (*itChunk)->GetSize();
         }
 
-        splitable &= IsChunkSplitable(*itChunk);
+        cachedSplitable &= IsChunkSplitable(*itChunk);
 
         if (midpoint.GetLength() > 0)
             midpoints.Add(midpoint);
@@ -397,9 +397,6 @@ void StorageShard::PrecomputeCachedValues()
         if (i >= (midpoints.GetLength() / 2))
         {
             cachedMidpoint.Write(midpoint);
-            cachedSize = size;
-            cachedNumChunks = chunks.GetLength();
-            cachedSplitable = splitable;
             return;
         }
         i++;

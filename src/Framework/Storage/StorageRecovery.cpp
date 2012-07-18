@@ -813,7 +813,7 @@ void StorageRecovery::ExecuteSet(
     if (shard->GetStorageType() == STORAGE_SHARD_TYPE_LOG)
     {
         // remove old entries from the head of the log if its size exceeds chunkSize and we don't want filechunks
-        while (memoChunk->GetSize() > env->GetConfig().GetChunkSize() && env->GetConfig().GetNumLogShardFileChunks() == 0)
+        while (memoChunk->GetSize() > env->GetConfig().GetChunkSize() && env->GetConfig().GetReplicatedLogSize() == 0)
             memoChunk->RemoveFirst();
     }
 
@@ -880,7 +880,7 @@ void StorageRecovery::TryWriteChunks()
 
     FOREACH (shard, env->shards)
     {
-        if (shard->GetStorageType() == STORAGE_SHARD_TYPE_LOG && env->config.GetNumLogShardFileChunks() == 0)
+        if (shard->GetStorageType() == STORAGE_SHARD_TYPE_LOG && env->config.GetReplicatedLogSize() == 0)
             continue; // never serialize log storage shards
         
         memoChunk = shard->GetMemoChunk();
