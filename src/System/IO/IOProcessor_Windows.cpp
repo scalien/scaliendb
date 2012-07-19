@@ -948,7 +948,7 @@ void ProcessCompletionCallbacks()
 
     callableMutex.Lock();
     
-    iostat.memoryUsage += callableQueue.GetLength() + sizeof(CallableItem);
+    iostat.memoryUsage -= callableQueue.GetLength() + sizeof(CallableItem);
     
     item = callableQueue.First();
     callableQueue.ClearMembers();
