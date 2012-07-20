@@ -21,9 +21,9 @@
 #ifdef _WIN32
 struct FD
 {
-	bool		operator==(const FD& other);
-	bool		operator!=(const FD& other);
-				operator int();
+    bool		operator==(const FD& other);
+    bool		operator!=(const FD& other);
+                operator int();
 
     int         index;
     intptr_t    handle;
@@ -43,7 +43,7 @@ inline bool FD::operator!=(const FD& other)
 
 inline FD::operator int()
 {
-	return index;
+    return index;
 }
 
 extern const FD INVALID_FD;
