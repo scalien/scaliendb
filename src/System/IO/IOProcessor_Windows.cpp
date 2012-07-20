@@ -77,6 +77,8 @@ struct IODesc
     WSABUF          wsabuf;
     byte*           writeBuffer;
 
+    intptr_t        closeHandle;
+
     IODesc*         next;               // pointer for free list handling
 };
 
@@ -281,10 +283,23 @@ static bool CancelIOOperation(IODesc* iod, IOOperation* ioop)
 // Put iod back to the freelist
 static void FreeIODesc(IODesc* iod)
 {
+    int     ret;
+
     if (iod->next != NULL)
         Log_Debug("iodesc: %d", iod - iods);
     ASSERT(iod->next == NULL);
     iod->next = freeIods;
+    
+    // Socket can be safely closed only here
+    ASSERT(iod->closeHandle != INVALID_SOCKET);
+    ret = closesocket(iod->closeHandle);
+    if (ret == SOCKET_ERROR)
+    {
+        Log_Errno();
+        ASSERT_FAIL();
+    }
+    iod->closeHandle = INVALID_SOCKET;
+
     freeIods = iod;
 }
 
@@ -300,6 +315,7 @@ bool IOProcessorUnregisterSocket(FD& fd)
 #endif
 
     iod = &iods[fd.index];
+    iod->closeHandle = fd.handle;
 
     if (iod->write)
     {
@@ -390,6 +406,7 @@ bool IOProcessor::Init(int maxfd)
     {
         iods[i].next = &iods[i + 1];
         iods[i].writeBuffer = NULL;
+        iods[i].closeHandle = INVALID_SOCKET;
     }
 
     iods[numIods - 1].next = NULL;
@@ -948,7 +965,7 @@ void ProcessCompletionCallbacks()
 
     callableMutex.Lock();
     
-    iostat.memoryUsage += callableQueue.GetLength() + sizeof(CallableItem);
+    iostat.memoryUsage -= callableQueue.GetLength() + sizeof(CallableItem);
     
     item = callableQueue.First();
     callableQueue.ClearMembers();
