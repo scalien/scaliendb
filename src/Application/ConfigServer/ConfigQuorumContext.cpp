@@ -200,8 +200,6 @@ void ConfigQuorumContext::OnMessage(ReadBuffer buffer)
     
     Log_Trace("%R", &buffer);
 
-//    quorumProcessor->RegisterHeartbeat(nodeID);
-
     if (buffer.GetLength() < 2)
         ASSERT_FAIL();
 

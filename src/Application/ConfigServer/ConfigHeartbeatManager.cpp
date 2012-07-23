@@ -181,28 +181,28 @@ ConfigHeartbeatManager::HeartbeatList& ConfigHeartbeatManager::GetHeartbeats()
 
 void ConfigHeartbeatManager::RegisterHeartbeat(uint64_t nodeID)
 {
-    Heartbeat       *it;
-    uint64_t        now;
+    Heartbeat*  heartbeat;
+    uint64_t    now;
     
     Log_Trace("Got heartbeat from %U", nodeID);
     
     now = Now();
     
-    FOREACH (it, heartbeats)
+    FOREACH (heartbeat, heartbeats)
     {
-        if (it->nodeID == nodeID)
+        if (heartbeat->nodeID == nodeID)
         {
-            heartbeats.Remove(it);
-            it->expireTime = now + heartbeatExpireTimeout;
-            heartbeats.Add(it);
+            heartbeats.Remove(heartbeat);
+            heartbeat->expireTime = now + heartbeatExpireTimeout;
+            heartbeats.Add(heartbeat);
             return;
         }
     }
     
-    it = new Heartbeat();
-    it->nodeID = nodeID;
-    it->expireTime = now + heartbeatExpireTimeout;
-    heartbeats.Add(it);
+    heartbeat = new Heartbeat;
+    heartbeat->nodeID = nodeID;
+    heartbeat->expireTime = now + heartbeatExpireTimeout;
+    heartbeats.Add(heartbeat);
     
     configServer->OnConfigStateChanged();
 }
