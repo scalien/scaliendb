@@ -271,15 +271,10 @@ int Socket::Read(char* data, int count, int /*timeout*/)
 
 void Socket::Close()
 {
-    int ret;
-    
     if (fd.handle != INVALID_SOCKET)
     {
+        // This call also closes the socket, because it have to be done in async way
         IOProcessorUnregisterSocket(fd);
-        ret = closesocket(fd.handle);
-
-        if (ret < 0)
-            Log_Errno();
 
         fd.handle = INVALID_SOCKET;
         fd.index = -1;

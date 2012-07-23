@@ -181,8 +181,8 @@ ConfigHeartbeatManager::HeartbeatList& ConfigHeartbeatManager::GetHeartbeats()
 
 void ConfigHeartbeatManager::RegisterHeartbeat(uint64_t nodeID)
 {
-    Heartbeat*  heartbeat;
     uint64_t    now;
+    Heartbeat*  heartbeat;
     
     Log_Trace("Got heartbeat from %U", nodeID);
     
